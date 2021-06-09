@@ -1,0 +1,110 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
+import 'package:nl_health_app/screens/utilits/models/quiz_model.dart';
+import 'package:nl_health_app/screens/utilits/open_api.dart';
+import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+
+class QuizPage extends StatefulWidget {
+  final CourseModule module;
+
+  const QuizPage({Key key, this.module}) : super(key: key);
+
+  @override
+  _QuizPageState createState() => _QuizPageState();
+}
+
+class _QuizPageState extends State<QuizPage> {
+  Quiz _quizData;
+  WebViewController _controller = null;
+
+  @override
+  Widget build(BuildContext context) {
+    CourseModule cMod = widget.module;
+    return Scaffold(
+        backgroundColor: ToolsUtilities.mainBgColor,
+        appBar: AppBar(
+          title: Text(
+            cMod.name,
+            style: TextStyle(color: ToolsUtilities.mainPrimaryColor),
+          ),
+          backgroundColor: Colors.white,
+          elevation: 1,
+          centerTitle: true,
+          iconTheme: IconThemeData(color: ToolsUtilities.mainPrimaryColor),
+        ),
+        body: (_quizData?.questions != null)?WebView(
+          initialUrl: 'about:blank',
+          onWebViewCreated: (WebViewController webViewController) {
+            _controller = webViewController;
+              var xx = Uri.dataFromString('<html><body>${_quizData?.questions[0]?.html}</body></html>',
+                      mimeType: 'text/html')
+                  .toString();
+              _controller.loadUrl(xx);
+            }
+        ):Text('')
+  );
+  }
+
+  void _onNavigationDelegateExample(
+      WebViewController controller, String html) async {
+    final String contentBase64 =
+        base64Encode(const Utf8Encoder().convert(html));
+    await controller.loadUrl('data:text/html;base64,$contentBase64');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadQuizItemsData();
+  }
+
+  void loadQuizItemsData() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var token = pref.getString("token");
+    print('Token-->$token');
+
+    //https://helper.healthyentrepreneurs.nl/quiz/get_quiz_em/3/0/de81bb4eb4e8303a15b00a5c61554e2a
+    OpenApi().listQuizItems(widget.module.id, token).then((t) {
+      print(t.request.url.toString());
+      _processJson(t.body);
+    });
+  }
+
+  _processJson(String body) {
+    try {
+      print(body);
+      var json_ = jsonDecode(body);
+      if (json_['code'] == 200) {
+        var q = json_['data'];
+        var quiz = Quiz.fromJson(q);
+        if (quiz != null) {
+          print("Quiz id -->${quiz.id}");
+          setState(() {
+            _quizData = quiz;
+          });
+          return quiz;
+        }
+      } else {
+        showAlertDialog(context, "Quiz Loading Error!", "Failed to load quiz");
+        return null;
+      }
+    } catch (e) {
+      print('json error $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    //_controller !=null?_controller.
+  }
+}
+//https://helper.healthyentrepreneurs.nl/quiz/quiz_get_attempt_data

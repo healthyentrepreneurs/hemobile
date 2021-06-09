@@ -1,0 +1,675 @@
+﻿{
+  "title": "ICCM assessment children <5 years",
+  "pages": [
+      {
+      "name": "Upload page",
+      "elements": [
+        {
+          "type": "file",
+          "name": "question1",
+          "title": "Please capture an image of the eye infection",
+          "isRequired": true,
+          "acceptedTypes": ".jpg",
+          "waitForUpload": true,
+          "maxSize": 0
+        }
+      ],
+      "title": "Eye Infection Image Upload"
+    },
+    {
+      "name": "Name",
+      "elements": [
+        {
+          "type": "text",
+          "name": "Name_client",
+          "title": "Name of client?",
+          "isRequired": true
+        }
+      ],
+      "title": "Name"
+    },
+    {
+      "name": "Age",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "<1-year",
+          "title": "Is the client a child <1years?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Yes"
+            },
+            {
+              "value": "item2",
+              "text": "No"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "Age-years",
+          "visibleIf": "{<1-year} = 'item2'",
+          "title": "Age in years?"
+        },
+        {
+          "type": "text",
+          "name": "Age-months",
+          "visibleIf": "{<1-year} = 'item1'",
+          "title": "Age in months?"
+        }
+      ],
+      "title": "Age"
+    },
+    {
+      "name": "Phone",
+      "elements": [
+        {
+          "type": "text",
+          "name": "phone1",
+          "title": "What is the phone number of the parent/caretaker?",
+          "validators": [
+            {
+              "type": "numeric",
+              "minValue": 700000000,
+              "maxValue": 799999999
+            }
+          ],
+          "maxLength": 10
+        },
+        {
+          "type": "text",
+          "name": "phone2",
+          "title": "Is there a 2nd phone number? If so, fill it below (optional)",
+          "validators": [
+            {
+              "type": "numeric",
+              "minValue": 700000000,
+              "maxValue": 799999999
+            }
+          ],
+          "maxLength": 10
+        }
+      ],
+      "title": "Phone number(s)"
+    },
+    {
+      "name": "Assessment",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "cough-fever-diarrhea",
+          "title": "Is the client showing any of the following symptoms: cough, fever, and/or diarrhea?",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Yes"
+            },
+            {
+              "value": "item2",
+              "text": "No"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "Call Call Center",
+          "visibleIf": "{cough-fever-diarrhea} = 'item2'",
+          "html": "Call the HE Call Center for Health Advice"
+        }
+      ],
+      "title": "Assessment",
+      "description": "Assess client for sickness"
+    },
+    {
+      "name": "Malaria-1",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "hotness-body",
+          "title": "Does the client currently have hotness of body or a history of fever?",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Yes"
+            },
+            {
+              "value": "item2",
+              "text": "No"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "temperature",
+          "title": "What is the temperature of the person?",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Lower than 35 C"
+            },
+            {
+              "value": "item2",
+              "text": "Between 35 and 37.5C"
+            },
+            {
+              "value": "item3",
+              "text": "Between 37.6 and 38.9C"
+            },
+            {
+              "value": "item4",
+              "text": "Higher than 39C"
+            },
+            {
+              "value": "item5",
+              "text": "Don't have thermometer"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "Info-11",
+          "visibleIf": "{hotness-body} = 'item2' and {temperature} = 'item5'",
+          "html": "Consult the HE Call Center to inquire if you can do an mRDT"
+        }
+      ],
+      "visibleIf": "{cough-fever-diarrhea} = 'item1'",
+      "title": "SECTION 1: Malaria"
+    },
+    {
+      "name": "Malaria-2",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "convulsions",
+          "visibleIf": "{temperature} = 'item4'",
+          "title": "Does the child have convulsions?",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Yes"
+            },
+            {
+              "value": "item2",
+              "text": "No"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "fever-lasted",
+          "visibleIf": "{temperature} = 'item3' or {temperature} = 'item4'",
+          "title": "How long has the fever lasted (duration in days)? ",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Less than 1 week"
+            },
+            {
+              "value": "item2",
+              "text": "Between 7 and 13 days"
+            },
+            {
+              "value": "item3",
+              "text": "More than 14 days"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "question1",
+          "visibleIf": "{fever-lasted} = 'item3'",
+          "html": "Give paracetamol and immediately refer the client to the nearest health facility."
+        },
+        {
+          "type": "html",
+          "name": "question3",
+          "visibleIf": "{convulsions} = 'item1'",
+          "html": "This is an emergency, give paracetamol and immediately refer the client to the nearest health facility."
+        },
+        {
+          "type": "radiogroup",
+          "name": "malaria-treatment",
+          "visibleIf": "{fever-lasted} = 'item1' or {fever-lasted} = 'item2'",
+          "title": "Was the client treated for malaria in past 2 weeks?",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Yes"
+            },
+            {
+              "value": "item2",
+              "text": "No"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "Info17",
+          "visibleIf": "{malaria-treatment} = 'item1'",
+          "html": "Immediately refer the client to the nearest health facility when done with the complete assessment."
+        }
+      ],
+      "visibleIf": "{cough-fever-diarrhea} = 'item1' and {temperature} = 'item3' or {temperature} = 'item4'",
+      "title": "SECTION 1: Malaria"
+    },
+    {
+      "name": "Malaria-3",
+      "elements": [
+        {
+          "type": "html",
+          "name": "Info18",
+          "visibleIf": "{fever-lasted} = 'item1' or {fever-lasted} = 'item2' and {convulsions} = 'item2'",
+          "html": "Do a malaria rapid diagnostic test (mRDT)."
+        },
+        {
+          "type": "radiogroup",
+          "name": "mRDT-result",
+          "title": "What is the result of mRDT?",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Positive"
+            },
+            {
+              "value": "item2",
+              "text": "Negative"
+            },
+            {
+              "value": "item3",
+              "text": "Invalid"
+            },
+            {
+              "value": "item4",
+              "text": "Not done"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "Info20A",
+          "visibleIf": "{mRDT-result} = 'item3'",
+          "html": "Repeat the mRDT because it is invalid."
+        },
+        {
+          "type": "html",
+          "name": "Info20B",
+          "visibleIf": "{mRDT-result} = 'item4'",
+          "html": "Encourage the client to take an mRDT to be sure of the diagnosis."
+        },
+        {
+          "type": "radiogroup",
+          "name": "mRDT-who",
+          "visibleIf": "{mRDT-result} = 'item1' or {mRDT-result} = 'item2'",
+          "title": "Who did the mRDT?",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "CHV / VHT / CHE"
+            },
+            {
+              "value": "item2",
+              "text": "Public health facility (e.g. dispensary, health center)"
+            },
+            {
+              "value": "item3",
+              "text": "Clinic"
+            }
+          ],
+          "hasOther": true,
+          "otherText": "Chemist"
+        },
+        {
+          "type": "radiogroup",
+          "name": "mRDT-source",
+          "visibleIf": "{mRDT-result} = 'item1' or {mRDT-result} = 'item2' and {mRDT-who} = 'item1'",
+          "title": "Specify the source of mRDT",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Healthy Entrepreneurs"
+            },
+            {
+              "value": "item2",
+              "text": "Ministry of Health"
+            }
+          ],
+          "hasOther": true,
+          "otherText": "Other"
+        }
+      ],
+      "visibleIf": "{cough-fever-diarrhea} = 'item1'",
+      "title": "SECTION 1: Malaria"
+    },
+    {
+      "name": "Diarrhea-1",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "diarrhea-yesno",
+          "title": "Does the client have diarrhea?",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Yes"
+            },
+            {
+              "value": "item2",
+              "text": "No"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "diarrhea-howmany",
+          "visibleIf": "{diarrhea-yesno} = 'item1'",
+          "title": "How many episodes of loose stool per day?",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "1 or 2"
+            },
+            {
+              "value": "item2",
+              "text": "3 or more"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "diarrhea-howlong",
+          "visibleIf": "{diarrhea-yesno} = 'item1'",
+          "title": "How long has the diarrhea lasted?",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Less than 1 week"
+            },
+            {
+              "value": "item2",
+              "text": "More than 1 week"
+            },
+            {
+              "value": "item3",
+              "text": "14 days and above"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "question2",
+          "visibleIf": "{diarrhea-howlong} = 'item2' or {diarrhea-howlong} = 'item3'",
+          "html": "Provide ORS+Zinc and immediately refer the client to the nearest health facility when done with the complete assessment."
+        }
+      ],
+      "visibleIf": "{cough-fever-diarrhea} = 'item1'",
+      "title": "SECTION 2: Diarrhea"
+    },
+    {
+      "name": "Diarrhea-2",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "dehydration-yesno",
+          "visibleIf": "{diarrhea-yesno} = 'item1'",
+          "title": "Is the child dehydrated? (sunken eyes, crying without tears, dry lips, extremely tired)",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Yes"
+            },
+            {
+              "value": "item2",
+              "text": "No"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "Info27",
+          "visibleIf": "{dehydration-yesno} = 'item1'",
+          "html": "This is an emergency, provide ORS+Zinc and immediately refer the client to the nearest health facility"
+        },
+        {
+          "type": "radiogroup",
+          "name": "diarrhea-blood",
+          "visibleIf": "{diarrhea-yesno} = 'item1'",
+          "title": "Is there blood in the stool? ",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Yes"
+            },
+            {
+              "value": "item2",
+              "text": "No"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "Info29",
+          "visibleIf": "{diarrhea-blood} = 'item1'",
+          "html": "Provide ORS+Zinc and immediately refer the client to the nearest health facility when done with the complete assessment."
+        }
+      ],
+      "visibleIf": "{cough-fever-diarrhea} = 'item1' and {diarrhea-yesno} = 'item1'",
+      "title": "SECTION 2: Diarrhea"
+    },
+    {
+      "name": "Cough-1",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "cough-yesno",
+          "title": "Does the client have a cough? ",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Yes"
+            },
+            {
+              "value": "item2",
+              "text": "No"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "cough-howlong",
+          "visibleIf": "{cough-yesno} = 'item1'",
+          "title": "How long has the cough lasted?",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Less than 1 week"
+            },
+            {
+              "value": "item2",
+              "text": "Between 7 and 13 days"
+            },
+            {
+              "value": "item3",
+              "text": "More than 14 days"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "difficultybreathing-yesno",
+          "visibleIf": "{cough-yesno} = 'item1'",
+          "title": "Does the client have difficulty in breathing?",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Yes"
+            },
+            {
+              "value": "item2",
+              "text": "No"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "Info33",
+          "visibleIf": "{difficultybreathing-yesno} = 'item1'",
+          "html": "This is an emergency, immediately refer the client to the nearest health facility."
+        },
+        {
+          "type": "html",
+          "name": "question5",
+          "visibleIf": "{difficultybreathing-yesno} = 'item1' and {cough-howlong} = 'item1'",
+          "html": "Recommend home remedies; hot water with a mixture of honey/ginger/lemon, and follow-up after 2-3 days\n"
+        },
+        {
+          "type": "html",
+          "name": "question6",
+          "visibleIf": "{difficultybreathing-yesno} = 'item1' and {cough-howlong} = 'item2' or {cough-howlong} = 'item3'",
+          "html": "Recommend home remedies; hot water with a mixture of honey/ginger/lemon, and immediately refer to the nearest health facility when done with the complete assessment.\n"
+        }
+      ],
+      "visibleIf": "{cough-fever-diarrhea} = 'item1'",
+      "title": "SECTION 3: Cough"
+    },
+    {
+      "name": "Nutrition-1",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "MUAC-score",
+          "title": "What is the client's MUAC score (in colour)?",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Green"
+            },
+            {
+              "value": "item2",
+              "text": "Yellow"
+            },
+            {
+              "value": "item3",
+              "text": "Red"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "Info39",
+          "visibleIf": "{MUAC-score} = 'item2' or {MUAC-score} = 'item3'",
+          "html": "The client has moderate accute malnutrition (MAM), immediately refer to the nearest health facility when done with the complete assessment.\n"
+        },
+        {
+          "type": "radiogroup",
+          "name": "oedema-yesno",
+          "title": "Check for oedema by pressing the skin of the foot for 3 seconds. Does the skin form a dent when pressed?",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Yes"
+            },
+            {
+              "value": "item2",
+              "text": "No"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "question8",
+          "visibleIf": "{oedema-yesno} = 'item1'",
+          "html": "Immediately refer to the nearest health facility when done with the complete assessment. "
+        }
+      ],
+      "title": "Section 4: Nutrition",
+      "description": "Assess the client for malnutrition using MUAC tape"
+    },
+    {
+      "name": "DangerSigns1",
+      "elements": [
+        {
+          "type": "checkbox",
+          "name": "dangersigns",
+          "title": "Does the client have any danger signs?",
+          "choices": [
+            {
+              "value": "item1",
+              "text": "Vomits everything"
+            },
+            {
+              "value": "item2",
+              "text": "Unusually sleepy"
+            },
+            {
+              "value": "item3",
+              "text": "Unable to feed"
+            },
+            {
+              "value": "item4",
+              "text": "Convulsions"
+            }
+          ],
+          "hasNone": true,
+          "noneText": "None of the above"
+        },
+        {
+          "type": "html",
+          "name": "Info44",
+          "visibleIf": "{dangersigns} anyof ['item1', 'item3', 'item2', 'item4']",
+          "html": "Immediately refer the client to the nearest health facility.\n"
+        }
+      ],
+      "title": "SECTION 5: Danger sings"
+    },
+    {
+      "name": "Result",
+      "elements": [
+        {
+          "type": "html",
+          "name": "Info74",
+          "visibleIf": "{temperature} = 'item3' or {temperature} = 'item4' and {fever-lasted} = 'item1' or {fever-lasted} = 'item2' and {mRDT-result} = 'item2' or {mRDT-result} = 'item4'",
+          "html": "<p>Diagnosis: Fever</p>\n<p>Treatment: Give paracetamol and refer</p>\n<p>Refer to Health Education on Fever</p>\n\n\n\n"
+        },
+        {
+          "type": "html",
+          "name": "Info79",
+          "visibleIf": "{temperature} = 'item3' or {temperature} = 'item4' and {mRDT-result} = 'item1' and {fever-lasted} = 'item1' or {fever-lasted} = 'item2'",
+          "html": "<p>Diagnosis: Malaria</p>\n<p>Treatment: Give A/L and paracetemol</p>\n<p>Refer to Health Education on Malaria</p>\n\n\n"
+        },
+        {
+          "type": "html",
+          "name": "question7",
+          "visibleIf": "{diarrhea-yesno} = 'item1' and {diarrhea-howlong} = 'item2' or {diarrhea-howlong} = 'item1' and {diarrhea-blood} = 'item2'",
+          "html": "<p>Diagnosis: Diarrhea</p>\n<p>Treatment: Give ORS + Zinc\n</p>\n<p>Refer to Health Education on Diarrhea</p>\n\n\n\n\n"
+        },
+        {
+          "type": "html",
+          "name": "question4",
+          "visibleIf": "{diarrhea-yesno} = 'item1' and {diarrhea-howlong} = 'item3' or {diarrhea-blood} = 'item1'",
+          "html": "<p>Diagnosis: Diarrhea</p>\n<p>Treatment: Give ORS + Zinc and refer\n</p>\n<p>Refer to Health Education on Diarrhea</p>\n\n\n\n\n"
+        },
+        {
+          "type": "html",
+          "name": "question9",
+          "visibleIf": "{cough-yesno} = 'item1' and {cough-howlong} = 'item1' or {cough-howlong} = 'item2'",
+          "html": "<p>Diagnosis: Cough</p>\n<p>Recommend home remedies; hot water with a mixture of honey/ginger/lemon\t\t\t\n</p>\n\n\n\n\n\n"
+        },
+        {
+          "type": "html",
+          "name": "question10",
+          "visibleIf": "{cough-yesno} = 'item1' and {cough-howlong} = 'item3'",
+          "html": "<p>Diagnosis: Cough</p>\n<p>Recommend home remedies; hot water with a mixture of honey/ginger/lemon & immediately refer\t\t\t\n</p>\n\n\n\n\n\n"
+        },
+        {
+          "type": "html",
+          "name": "Info81",
+          "visibleIf": "{temperature} = 'item2' or {temperature} = 'item1' and {mRDT-result} = 'item2'",
+          "html": "<p>Refer to Health Education</p>\n\n\n\n"
+        }
+      ],
+      "title": "RESULT"
+    }
+  ]
+}
