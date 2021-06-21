@@ -24,6 +24,7 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
 
   @override
   void initState() {
+    super.initState();
     this.initApp();
   }
 

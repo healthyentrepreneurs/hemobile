@@ -12,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import '../../objectbox.g.dart';
-
+// https://stackoverflow.com/questions/54069869/how-to-solve-a-renderflex-overflowed-by-143-pixels-on-the-right-error-in-text
 class SurveyJsPageLoaderBrowser extends StatefulWidget {
   final dynamic jsonData;
   final dynamic jsonDataStr;
@@ -99,8 +99,8 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
       final box = _store.box<SurveyDataModel>();
       var person = SurveyDataModel()
         ..text = txtData
-        ..name = "" + widget.course.id
-        ..dateCreated = widget.course.id;
+        ..name = widget.course.id.toString()
+        ..dateCreated = widget.course.id.toString();
       final id = box.put(person); // Create
       print("Saved no_sql $id");
       // -----
@@ -121,12 +121,12 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
         });
       }
     } catch (e) {
-      // print("Erroror --- $e");
-      setState(() {
-        showAlert = true;
-        reportMessage = "Error while uploaded data";
-        status = false;
-      });
+      print("Papawemba --- $e");
+      // setState(() {
+      //   showAlert = true;
+      //   reportMessage = "Error while uploaded data";
+      //   status = false;
+      // });
     }
   }
 

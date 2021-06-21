@@ -1,13 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:nl_health_app/db2/survey_nosql_model.dart';
 import 'package:nl_health_app/screens/course/coursesPage.dart';
-import 'package:nl_health_app/screens/course/coursesSubPage.dart';
-import 'package:nl_health_app/screens/login/loginPage.dart';
-import 'package:nl_health_app/screens/offline/offline_activation_page.dart';
 import 'package:nl_health_app/screens/offline/survey_data_set_sync.dart';
 import 'package:nl_health_app/screens/survey/survey.dart';
 import 'package:nl_health_app/screens/utilits/customDrawer.dart';
@@ -18,7 +14,6 @@ import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nl_health_app/widgets/ProgressWidget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../objectbox.g.dart';
 
 class Homepage extends StatefulWidget {
@@ -295,13 +290,19 @@ class _HomepageState extends State<Homepage> {
     File f = new File('$dir$filename');
     return f;
   }
-
   @override
-  Future<void> initState() {
+  void initState() {
+    super.initState();
     initApp();
     _checkPermissions();
     initStore();
   }
+  // @override
+  // Future<void> initState() {
+  //   initApp();
+  //   _checkPermissions();
+  //   initStore();
+  // }
 
   void initStore() async {
     var path = await FileSystemUtil().localDocumentsPath;

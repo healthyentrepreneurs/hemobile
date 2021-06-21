@@ -26,7 +26,7 @@ class LocalSurveySyncPage extends StatefulWidget {
   State<StatefulWidget> createState() => LocalSurveySyncPageState();
 }
 
-  class LocalSurveySyncPageState extends State {
+class LocalSurveySyncPageState extends State {
   LocalSurveySyncPageState();
 
   Store _store;

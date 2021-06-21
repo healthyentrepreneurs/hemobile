@@ -58,6 +58,7 @@ dependencies:
   objectbox: ^0.11.0
   objectbox_flutter_libs: any
   flutter_phoenix: ^0.1.0
+  stacked: ^1.6.0
   android_alarm_manager:
   archive: any
 
