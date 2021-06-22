@@ -129,6 +129,20 @@ Future<void> postJsonDataOnline(
   j["surveyId"] = surveyId;
   print(">> surveyId " + surveyId);
   Map<String, dynamic> j2 = jsonDecode(body);
+  if (j2.containsKey("image-upload")) {
+    var imageObject = j2["image-upload"].elementAt(0);
+    // print(image_object.runtimeType);
+    String imageName = imageObject["name"];
+    String cleanerImage = imageObject["content"]
+        .replaceAll(RegExp('data:image/jpeg;base64,'), '');
+    final decodedBytes = base64Decode(cleanerImage);
+    OpenApi()
+        .imageBytePost(decodedBytes, imageName, userId.toString(), surveyId.toString())
+        .then((data) {
+      // print("Njovu >> " + data?.body);
+    }).catchError((err) => {print("Uploading Image -- " + err.toString())});
+    j2["image-upload"]=imageName;
+  }
   // Replicated Code
   // End Replica
   j["jsondata"] = jsonEncode(j2);

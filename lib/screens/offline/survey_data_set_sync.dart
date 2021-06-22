@@ -26,7 +26,7 @@ class LocalSurveySyncPage extends StatefulWidget {
   State<StatefulWidget> createState() => LocalSurveySyncPageState();
 }
 
-  class LocalSurveySyncPageState extends State {
+class LocalSurveySyncPageState extends State {
   LocalSurveySyncPageState();
 
   Store _store;
@@ -270,13 +270,25 @@ class LocalSurveySyncPage extends StatefulWidget {
     print(">> surveyId " + surveyId);
 
     Map<String, dynamic> j2 = jsonDecode(body);
+    if (j2.containsKey("image-upload")) {
+      print("Jiamy Lanister B");
+      var imageObject = j2["image-upload"].elementAt(0);
+      // print(image_object.runtimeType);
+      String imageName = imageObject["name"];
+      String cleanerImage = imageObject["content"]
+          .replaceAll(RegExp('data:image/jpeg;base64,'), '');
+      final decodedBytes = base64Decode(cleanerImage);
+      OpenApi()
+          .imageBytePost(decodedBytes, imageName, userId.toString(), surveyId)
+          .then((data) {
+      }).catchError((err) => {print("Uploading Image -- " + err.toString())});
+      j2["image-upload"]=imageName;
+    }
     j["jsondata"] = jsonEncode(j2);
     String b = jsonEncode(j);
-
     setState(() {
       reportMessage = "";
     });
-
     OpenApi().postSurveyJsonData(b, userId).then((data) {
       //Delete the id
       print(">> Results log --" + data?.body);

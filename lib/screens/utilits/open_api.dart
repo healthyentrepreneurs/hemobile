@@ -26,6 +26,7 @@ class OpenApi {
         headers: {"Content-Type": "application/json"},
         body: body);
   }
+
   Future<http.Response> imageBytePost(List<int>  body,String imageName ,String userId,String surveyId) async{
     var request = http.MultipartRequest('POST', Uri.parse(Config.BASE_URL + 'surveyimage/do_upload'));
     request.files.add(

@@ -150,6 +150,21 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
     j["surveyId"] = widget.course.id;
     // print(">> surveyId " + widget.course.id);
     Map<String, dynamic> j2 = jsonDecode(body);
+    if (j2.containsKey("image-upload")) {
+     print("Jiamy Lanister A");
+     var imageObject = j2["image-upload"].elementAt(0);
+     // print(image_object.runtimeType);
+     String imageName = imageObject["name"];
+     String cleanerImage = imageObject["content"]
+         .replaceAll(RegExp('data:image/jpeg;base64,'), '');
+     final decodedBytes = base64Decode(cleanerImage);
+     OpenApi()
+         .imageBytePost(decodedBytes, imageName, userId.toString(), widget.course.id.toString())
+         .then((data) {
+       // print("Njovu >> " + data?.body);
+     }).catchError((err) => {print("Uploading Image -- " + err.toString())});
+     j2["image-upload"]=imageName;
+    }
     // sendImage(j2, userId.toString(), widget.course.id.toString());
     // print(image_object.runtimeType);
     j["jsondata"] = jsonEncode(j2);
@@ -442,7 +457,6 @@ void sendImage(List<Object> arguments) {
         .then((data) {
       // print("Njovu >> " + data?.body);
     }).catchError((err) => {print("Uploading Image -- " + err.toString())});
-    // j2["image-upload"] = imageName;
   }
 }
 
