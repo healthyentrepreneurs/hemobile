@@ -15,15 +15,15 @@ import 'package:webview_flutter/webview_flutter.dart';
 class QuizPage extends StatefulWidget {
   final CourseModule module;
 
-  const QuizPage({Key key, this.module}) : super(key: key);
+  const QuizPage({Key? key,required this.module}) : super(key: key);
 
   @override
   _QuizPageState createState() => _QuizPageState();
 }
 
 class _QuizPageState extends State<QuizPage> {
-  Quiz _quizData;
-  WebViewController _controller = null;
+  Quiz? _quizData;
+  WebViewController? _controller;
 
   @override
   Widget build(BuildContext context) {
@@ -42,42 +42,38 @@ class _QuizPageState extends State<QuizPage> {
         ),
         body: (_quizData?.questions != null)
             ? renderHtmlGuy(
-                '<html><body>${_quizData?.questions[0]?.html}</body></html>')
+            '<html><body>${_quizData?.questions[0]?.html}</body></html>')
             : Text(''));
   }
 
-  Widget renderHtmlGuy(String htmlTxt) {
+  Widget renderHtmlGuy(String? htmlTxt) {
     return SingleChildScrollView(
       child: Column(
         children: [
           htmlTxt != null
               ? Html(
-                  data: htmlTxt,
-                  customRender: {
-                    "label": (context, parsedChild, attributes, element) {
-                      return Container(
-                        padding: EdgeInsets.only(bottom: 13),
-                        margin:EdgeInsets.only(bottom: 5),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              element.text,
-                              style: TextStyle(
-                                  color: ToolsUtilities.mainPrimaryColor,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    "input": (context, parsedChild, attributes, element) {
-                      return QuizHelper.createQuestionWidget(
-                          attributes, element);
-                    }
-                  },
-                )
+            data: htmlTxt,
+            customRender: {
+              "label": (context, child) {
+                return Container(
+                  padding: EdgeInsets.only(bottom: 13),
+                  margin:EdgeInsets.only(bottom: 5),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        context.tree.element!.text,
+                        style: TextStyle(
+                            color: ToolsUtilities.mainPrimaryColor,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            },
+          )
               : Text('Loading'),
         ],
       ),
@@ -87,7 +83,7 @@ class _QuizPageState extends State<QuizPage> {
   void _onNavigationDelegateExample(
       WebViewController controller, String html) async {
     final String contentBase64 =
-        base64Encode(const Utf8Encoder().convert(html));
+    base64Encode(const Utf8Encoder().convert(html));
     await controller.loadUrl('data:text/html;base64,$contentBase64');
   }
 
@@ -104,8 +100,8 @@ class _QuizPageState extends State<QuizPage> {
     print('Token-->$token');
 
     //https://helper.healthyentrepreneurs.nl/quiz/get_quiz_em/3/0/de81bb4eb4e8303a15b00a5c61554e2a
-    OpenApi().listQuizItems(widget.module.id, token).then((t) {
-      print(t.request.url.toString());
+    OpenApi().listQuizItems(widget.module.id, token!).then((t) {
+      print(t.request!.url.toString());
       _processJson(t.body);
     });
   }
@@ -139,4 +135,3 @@ class _QuizPageState extends State<QuizPage> {
     //_controller !=null?_controller.
   }
 }
-//https://helper.healthyentrepreneurs.nl/quiz/quiz_get_attempt_data

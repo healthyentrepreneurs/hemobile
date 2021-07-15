@@ -2,12 +2,11 @@ library survey_module;
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 
 class JsonSchema extends StatefulWidget {
   const JsonSchema({
-    @required this.form,
-    @required this.onChanged,
+    required this.form,
+    required this.onChanged,
     this.padding,
     this.formMap,
     this.errorMessages = const {},
@@ -21,10 +20,10 @@ class JsonSchema extends StatefulWidget {
   final Map validations;
   final Map decorations;
   final String form;
-  final Map formMap;
-  final double padding;
-  final Widget buttonSave;
-  final Function actionSave;
+  final Map? formMap;
+  final double? padding;
+  final Widget? buttonSave;
+  final Function? actionSave;
   final ValueChanged<dynamic> onChanged;
 
   @override
@@ -34,18 +33,18 @@ class JsonSchema extends StatefulWidget {
 class _CoreFormState extends State<JsonSchema> {
   final dynamic formGeneral;
 
-  int radioValue;
+  late int radioValue;
 
   // validators
 
-  String isRequired(item, value) {
+  String? isRequired(item, value) {
     if (value.isEmpty) {
       return widget.errorMessages[item['key']] ?? 'Please enter some text';
     }
     return null;
   }
 
-  String validateEmail(item, String value) {
+  String? validateEmail(item, String value) {
     String p = "[a-zA-Z0-9\+\.\_\%\-\+]{1,256}" +
         "\\@" +
         "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
@@ -75,7 +74,7 @@ class _CoreFormState extends State<JsonSchema> {
   // Return widgets
 
   List<Widget> jsonToForm() {
-    List<Widget> listWidget = new List<Widget>();
+    List<Widget> listWidget  = <Widget>[];
     if (formGeneral['title'] != null) {
       listWidget.add(Text(
         formGeneral['title'],
@@ -141,7 +140,7 @@ class _CoreFormState extends State<JsonSchema> {
                     }
                   }
                   if (item['type'] == "Email") {
-                    return validateEmail(item, value);
+                    return validateEmail(item, value!);
                   }
 
                   if (item.containsKey('required')) {
@@ -179,9 +178,9 @@ class _CoreFormState extends State<JsonSchema> {
                 new Radio<int>(
                     value: formGeneral['fields'][count]['items'][i]['value'],
                     groupValue: radioValue,
-                    onChanged: (int value) {
+                    onChanged: (int? value) {
                       this.setState(() {
-                        radioValue = value;
+                        radioValue = value!;
                         formGeneral['fields'][count]['value'] = value;
                         _handleChanged();
                       });
@@ -241,7 +240,7 @@ class _CoreFormState extends State<JsonSchema> {
                         formGeneral['fields'][count]['items'][i]['label'])),
                 new Checkbox(
                   value: formGeneral['fields'][count]['items'][i]['value'],
-                  onChanged: (bool value) {
+                  onChanged: (bool? value) {
                     this.setState(
                       () {
                         formGeneral['fields'][count]['items'][i]['value'] =
@@ -284,7 +283,7 @@ class _CoreFormState extends State<JsonSchema> {
               new DropdownButton<String>(
                 hint: new Text("Select a user"),
                 value: formGeneral['fields'][count]['value'],
-                onChanged: (String newValue) {
+                onChanged: (String? newValue) {
                   setState(() {
                     formGeneral['fields'][count]['value'] = newValue;
                     _handleChanged();
@@ -312,8 +311,8 @@ class _CoreFormState extends State<JsonSchema> {
         margin: EdgeInsets.only(top: 10.0),
         child: InkWell(
           onTap: () {
-            if (_formKey.currentState.validate()) {
-              widget.actionSave(formGeneral);
+            if (_formKey.currentState!.validate()) {
+              widget.actionSave!(formGeneral);
             }
           },
           child: widget.buttonSave,

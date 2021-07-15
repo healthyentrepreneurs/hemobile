@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity/connectivity.dart';
 
 class Config {
-//  static final String BASE_URL = 'http://35.238.72.107/';
+  // static final String BASE_URL = 'http://34.71.189.106/';
   static final String BASE_URL = 'https://helper.healthyentrepreneurs.nl/';
 }
 
@@ -54,10 +54,10 @@ String paragraphContent =
 
 /// The custom entry text filed
 TextField customTextField(String hint,
-    [bool isPassword = false, Function _onChange]) {
+    [bool isPassword = false, Function? _onChange]) {
   return TextField(
     onChanged: (value) {
-      _onChange(value);
+      _onChange!(value);
     },
     obscureText: isPassword,
     style: TextStyle(color: Colors.blueGrey),
@@ -80,7 +80,7 @@ TextField customTextField(String hint,
   );
 }
 
-Widget customCheckbox(String txt, bool val, [Function _onChange]) {
+Widget customCheckbox(String txt, bool val, [Function? _onChange]) {
   return Container(
     child: Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -91,8 +91,8 @@ Widget customCheckbox(String txt, bool val, [Function _onChange]) {
           height: 40,
           child: Checkbox(
             value: val,
-            onChanged: (bool value) {
-              _onChange(value);
+            onChanged: (bool? value) {
+              _onChange!(value);
             },
           ),
         ),
@@ -140,17 +140,20 @@ TextField customPasswordTextField(String hint) {
 }
 
 showAlertDialog(BuildContext context, String title, String msg,
-    [Function _onPressed]) {
+    [Function? _onPressed]) {
   // set up the AlertDialog
   AlertDialog alert = AlertDialog(
     title: Text(title),
     content: Text(msg),
     actions: [
-      FlatButton(
+      TextButton(
         child: Text("OK"),
         onPressed: () {
           Navigator.of(context).pop();
-          _onPressed();
+          // https://stackoverflow.com/questions/64278595/null-check-operator-used-on-a-null-value
+          if (_onPressed != null) {
+            _onPressed();
+          }
         },
       )
     ],
@@ -193,7 +196,7 @@ saveOfflineStatusPref(String offline) async {
   await preferences.setString("offline", offline);
 }
 
-Future<bool>  isConnected() async {
+Future<bool> isConnected() async {
   var connectivityResult = await (Connectivity().checkConnectivity());
   if (connectivityResult == ConnectivityResult.mobile) {
     // I am connected to a mobile network.
@@ -201,7 +204,7 @@ Future<bool>  isConnected() async {
   } else if (connectivityResult == ConnectivityResult.wifi) {
     // I am connected to a wifi network.
     return true;
-  }else{
+  } else {
     return false;
   }
 }
@@ -212,9 +215,7 @@ saveUploadDatesPref() async {
       new DateFormat.yMMMMd('en_US').format(new DateTime.now()));
 }
 
-
-
-Future<String> readSurveyUpload() async {
+Future<String?> readSurveyUpload() async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
   return preferences.getString("survey_upload_date");
 }
@@ -229,11 +230,12 @@ Future<void> setOfflineByDefault() async {
 
 signOut(BuildContext context) async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
-  await preferences.setInt("loginFlag", null);
-  await preferences.setString("firstName", null);
-  await preferences.setString("lastName", null);
-  await preferences.setString("email", null);
-  await preferences.setInt("id", null);
+  await preferences.clear();
+  // await preferences.setInt("loginFlag", null);
+  // await preferences.setString("firstName", null);
+  // await preferences.setString("lastName", null);
+  // await preferences.setString("email", null);
+  // await preferences.setInt("id", null);
 }
 
 showToast(String msg, [MaterialColor color = Colors.blueGrey]) {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:survey_module/survey_json_schema.dart';
 
 class SinglePage extends StatefulWidget {
-  final String text;
+  final String? text;
   final dynamic pageItem;
 
   SinglePage({this.text, this.pageItem});

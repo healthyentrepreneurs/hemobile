@@ -29,7 +29,7 @@ class LocalSurveySyncPage extends StatefulWidget {
 class LocalSurveySyncPageState extends State {
   LocalSurveySyncPageState();
 
-  Store _store;
+   Store? _store;
 
   @override
   void initState() {
@@ -135,7 +135,7 @@ class LocalSurveySyncPageState extends State {
 
   Future<void> loadStatsDataSets() async {
     try {
-      final box = _store.box<ViewsDataModel>();
+      final box = _store!.box<ViewsDataModel>();
       //box.removeAll();
       final c = box.count();
       //var list = await LocalSurvey().select().toList();
@@ -147,7 +147,7 @@ class LocalSurveySyncPageState extends State {
 
   Future<void> loadLocalDataSets() async {
     try {
-      final box = _store.box<SurveyDataModel>();
+      final box = _store!.box<SurveyDataModel>();
 
       final c = box.count();
       final notesWithNullText =
@@ -238,7 +238,7 @@ class LocalSurveySyncPageState extends State {
   }
 
   Future<void> deleteLocalSurveyById(int id) async {
-    final box = _store.box<SurveyDataModel>();
+    final box = _store!.box<SurveyDataModel>();
     //var x = box.get(id);
     var removed = box.remove(id);
     print("Deleted status $removed");
@@ -251,7 +251,7 @@ class LocalSurveySyncPageState extends State {
   bool showAlert = false;
   bool status = false;
   String reportMessage = "";
-  String surveyUploadDate;
+  String? surveyUploadDate;
 
   Future<void> readSurveyUpload() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -263,7 +263,7 @@ class LocalSurveySyncPageState extends State {
   Future<void> postJsonDataOnline(
       String body, dynamic surveyId, int localId) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    int userId = preferences.getInt("id");
+    int? userId = preferences.getInt("id");
     Map<String, dynamic> j = new Map();
     j["userId"] = userId;
     j["surveyId"] = surveyId;
@@ -293,10 +293,10 @@ class LocalSurveySyncPageState extends State {
       reportMessage = "";
     });
 
-    OpenApi().postSurveyJsonData(b, userId).then((data) {
+    OpenApi().postSurveyJsonData(b, userId!).then((data) {
       //Delete the id
-      print(">> Results log --" + data?.body);
-      Map<String, dynamic> x = jsonDecode(data?.body);
+      print(">> Results log --" + data.body);
+      Map<String, dynamic> x = jsonDecode(data.body);
       if (x["code"] == 200) {
         deleteLocalSurveyById(localId);
       } else {
@@ -413,11 +413,12 @@ class LocalSurveySyncPageState extends State {
     try {
       //user/viwedbook/{instanceid}/{path}/{token}
       SharedPreferences preferences = await SharedPreferences.getInstance();
-      String userToken = preferences.getString("token");
-      String username = preferences.getString("username");
+      String? userToken = preferences.getString("token");
+      String? username = preferences.getString("username");
 
       var value = await OpenApi().postStats(
-          userToken, instance, chapterId, username, courseId, dateTimeStr);
+          userToken!, instance, chapterId, username, courseId, dateTimeStr);
+      // ignore: unnecessary_null_comparison
       if (value != null) {
         // print("Updated stats");
         box.remove(localId);

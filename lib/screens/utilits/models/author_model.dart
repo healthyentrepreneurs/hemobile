@@ -3,8 +3,8 @@ class Author{
   String imageUrl;
 
   Author({
-    this.name,
-    this.imageUrl
+    required this.name,
+    required this.imageUrl
   });
 }
 

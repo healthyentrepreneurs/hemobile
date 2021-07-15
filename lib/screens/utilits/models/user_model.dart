@@ -5,14 +5,14 @@ class User {
   String firstName;
   String lastName;
   String email;
-  String password;
+  String? password;
   String profileImage;
   String token;
   String privatetoken;
   String username;
 
-  User({ this.id,this.firstName, this.lastName, this.email, this.profileImage,
-    this.token,this.privatetoken,this.username});
+  User({ required this.id,required this.firstName, required this.lastName, required this.email, required this.profileImage,
+    required this.token,required this.privatetoken,required this.username});
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(

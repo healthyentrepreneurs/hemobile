@@ -1,18 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:nl_health_app/screens/about/aboutUsPage.dart';
-import 'package:nl_health_app/screens/account/myAccountPage.dart';
-import 'package:nl_health_app/screens/contact/contactUsPage.dart';
-import 'package:nl_health_app/screens/forum/home_screen.dart';
 import 'package:nl_health_app/screens/homePage/homePage.dart';
 import 'package:nl_health_app/screens/login/loginPage.dart';
 import 'package:nl_health_app/screens/offline/offline_activation_page.dart';
 import 'package:nl_health_app/screens/offline/survey_data_set_sync.dart';
-import 'package:nl_health_app/screens/subjects/subjectsPage.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:nl_health_app/widgets/file_downloader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'file_system_utill.dart';
@@ -44,12 +38,13 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   BorderRadius.all(Radius.circular(50)),
                               color: Colors.grey,
                               image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: offline == "off"
-                                      ? NetworkImage(profileImage == null
-                                          ? 'https://i.imgur.com/zsMvHeF.jpg'
-                                          : profileImage)
-                                      : null)),
+                                fit: BoxFit.cover,
+                                image: offline != "off"
+                                    ? NetworkImage(profileImage == null
+                                        ? 'https://i.imgur.com/zsMvHeF.jpg'
+                                        : profileImage!)
+                                    : null as ImageProvider,
+                              )),
                         )
                       : Container(
                           height: 100,
@@ -58,11 +53,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
                               future: FileSystemUtil().getLocalFile(
                                   profileImage == null
                                       ? 'https://i.imgur.com/zsMvHeF.jpg'
-                                      : profileImage),
+                                      : profileImage!),
                               builder: (BuildContext context,
                                   AsyncSnapshot<File> snapshot) {
                                 return snapshot.data != null
-                                    ? new Image.file(snapshot.data)
+                                    ? new Image.file(snapshot.data!)
                                     : new Container();
                               }),
                           decoration: BoxDecoration(
@@ -87,15 +82,6 @@ class _CustomDrawerState extends State<CustomDrawer> {
               },
               child: ListTile(
                 title: _menuItem('Home', FontAwesomeIcons.home),
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ForumHomePage()));
-              },
-              child: ListTile(
-                title: _menuItem('Forum', FontAwesomeIcons.userFriends),
               ),
             ),
             isNewUser
@@ -162,7 +148,8 @@ class _CustomDrawerState extends State<CustomDrawer> {
                         builder: (context) => LocalSurveySyncPage()));
               },
               child: ListTile(
-                title: _menuItem('Upload Survey Data', FontAwesomeIcons.cloudUploadAlt),
+                title: _menuItem(
+                    'Upload Survey Data', FontAwesomeIcons.cloudUploadAlt),
               ),
             ),
             /* InkWell(
@@ -241,24 +228,24 @@ class _CustomDrawerState extends State<CustomDrawer> {
   }
 
   var value;
-  String firstName;
-  String lastName;
-  String email;
-  String profileImage;
+  late String firstName;
+  late String lastName;
+  late String email;
+  late String? profileImage;
 
-  String username;
-  String offline;
+  late String username;
+  late String offline;
 
   getPref() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    firstName = preferences.getString("firstName");
-    lastName = preferences.getString("lastName");
-    email = preferences.getString("email");
-    profileImage = preferences.getString("profileImage");
-    username = preferences.getString("username");
+    firstName = preferences.getString("firstName")!;
+    lastName = preferences.getString("lastName")!;
+    email = preferences.getString("email")!;
+    profileImage = preferences.getString("profileImage")!;
+    username = preferences.getString("username")!;
     setState(() {
-      offline = preferences.getString("offline");
-      firstName = preferences.getString("firstName");
+      offline = preferences.getString("offline")!;
+      firstName = preferences.getString("firstName")!;
     });
 
     print("$firstName $profileImage");
@@ -266,15 +253,16 @@ class _CustomDrawerState extends State<CustomDrawer> {
 
   signOut(BuildContext context) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setBool("loginFlag", null);
-    await preferences.setString("firstName", null);
-    await preferences.setString("lastName", null);
-    await preferences.setString("email", null);
-    await preferences.setInt("id", null);
-    await preferences.setString("profileImage", null);
-    await preferences.setString("token", null);
-    await preferences.setString("privatetoken", null);
-    await preferences.setString("username", null);
+    await preferences.clear();
+    // await preferences.setBool("loginFlag", null);
+    // await preferences.setString("firstName", null);
+    // await preferences.setString("lastName", null);
+    // await preferences.setString("email", null);
+    // await preferences.setInt("id", null);
+    // await preferences.setString("profileImage", null);
+    // await preferences.setString("token", null);
+    // await preferences.setString("privatetoken", null);
+    // await preferences.setString("username", null);
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => LoginPage()));
   }
@@ -283,7 +271,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
 
   void checkLoginStatus(BuildContext context) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    isNewUser = preferences.getBool("loginFlag");
+    isNewUser = preferences.getBool("loginFlag")!;
     print("Logged in user $isNewUser");
     if (isNewUser) {
       /* Navigator.pushReplacement(

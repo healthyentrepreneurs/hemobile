@@ -12,33 +12,31 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'course_element_widget.dart';
 
 class ChapterDetails extends StatefulWidget {
-  final CourseModule courseModule;
-  final Course course;
-  final FileSystemUtil fileSystemUtil;
+  final CourseModule? courseModule;
+  final Course? course;
+  final FileSystemUtil? fileSystemUtil;
 
-  ChapterDetails({this.courseModule, this.fileSystemUtil, this.course});
+  ChapterDetails({this.courseModule,this.fileSystemUtil,this.course});
 
   @override
   _ChapterDetailsState createState() => _ChapterDetailsState();
 }
 
 class _ChapterDetailsState extends State<ChapterDetails> {
-  List<ContentStructure> _coursePagerList;
-
-  PageController _pageController;
+  late List<ContentStructure> _coursePagerList;
+  late PageController _pageController;
   static const _kDuration = const Duration(milliseconds: 300);
   static const _kCurve = Curves.ease;
-  final _kArrowColor = Colors.black.withOpacity(0.8);
 
   @override
   Widget build(BuildContext context) {
-    CourseModule cMod = widget.courseModule;
+    CourseModule? cMod = widget.courseModule;
     //_coursePagerList = this.createCoursePagerFromStructure();
 
     return Scaffold(
         appBar: AppBar(
           title: Text(
-            cMod.name,
+            cMod!.name,
             style: TextStyle(color: ToolsUtilities.mainPrimaryColor),
           ),
           backgroundColor: Colors.transparent,
@@ -53,10 +51,10 @@ class _ChapterDetailsState extends State<ChapterDetails> {
               itemCount: _coursePagerList.length,
               itemBuilder: (context, index) {
                 return CourseElementDisplay(
-                    coursePage: _coursePagerList[index],
-                    courseContents: widget.courseModule.contents,
-                courseModule: widget.courseModule,
-                course: widget.course,);
+                  coursePage: _coursePagerList[index],
+                  courseContents: widget.courseModule!.contents,
+                  courseModule: widget.courseModule,
+                  course: widget.course,);
                 //return bookHtmlPagerUi(index);
                 //return coursePagerUi(contentObj);
               },
@@ -95,7 +93,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                       ),
                       child: IconButton(
                         onPressed: () {
-                          int p = _pageController.page.toInt();
+                          int p = _pageController.page!.toInt();
                           if (p < _coursePagerList.length && (p - 1) >= 0) {
                             _pageController.jumpToPage(p - 1);
                           }
@@ -132,7 +130,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                       ),
                       child: IconButton(
                         onPressed: () {
-                          int p = _pageController.page.toInt();
+                          int p = _pageController.page!.toInt();
                           if (p < _coursePagerList.length &&
                               (p + 1) != _coursePagerList.length) {
                             _pageController.jumpToPage(p + 1);
@@ -153,8 +151,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
         ]));
   }
 
-  Widget coursePagerUi(ContentStructure contentObj, [int index]) {
-    CourseModule cMod = widget.courseModule;
+  Widget coursePagerUi(ContentStructure contentObj, [int? index]) {
     return Scaffold(
       backgroundColor: ToolsUtilities.mainBgColor,
       body: ListView(children: [
@@ -215,6 +212,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
 
   @override
   void initState() {
+    super.initState();
     _pageController = PageController();
     _coursePagerList = this.createCoursePagerFromStructure();
     contentText = [];
@@ -260,12 +258,12 @@ class _ChapterDetailsState extends State<ChapterDetails> {
 
   List<ContentStructure> createCoursePagerFromStructure() {
     try {
-      var contentsList = widget.courseModule.contents;
+      var contentsList = widget.courseModule!.contents;
       print("ccc ${contentsList.length}");
       var index_ = contentsList.indexWhere((elm) => elm.type == 'content');
       //print("Courses list struct -->$index_");
       var courseJsonList = jsonDecode(contentsList[index_].content) as List;
-      print("xxxxx${courseJsonList}");
+      print("xxxxx$courseJsonList");
       List<ContentStructure> coursesObjs = [];
 
       for (var i = 0; i < courseJsonList.length; i++) {
@@ -288,12 +286,11 @@ class _ChapterDetailsState extends State<ChapterDetails> {
 
   List<String> contentText = <String>[];
   List<PageItem> contentPages = <PageItem>[];
-  String _storageDir;
 
   Future<void> readContentFile(List<ContentStructure> coursePagerList) async {
     try {
       SharedPreferences preferences = await SharedPreferences.getInstance();
-      privateToken = preferences.getString("privatetoken");
+      privateToken = preferences.getString("privatetoken")!;
 
       /*for (int x = 0; x < coursePagerList.length; x++) {
         contentText.add("");
@@ -306,9 +303,9 @@ class _ChapterDetailsState extends State<ChapterDetails> {
         final fileUrl = e.filefullpath;
         print(">>>File download link Index ${e.index} title ${e.title}");
         String contentTxt =
-            await widget.fileSystemUtil.readFileContentLink(fileUrl);
+        await widget.fileSystemUtil!.readFileContentLink(fileUrl);
         cp.add(PageItem(contentTxt, e.index, e.title));
-
+        // ignore: unnecessary_null_comparison
         if (contentText != null) {
           setState(() {
             contentText.add(contentTxt);
@@ -329,8 +326,8 @@ class _ChapterDetailsState extends State<ChapterDetails> {
 
 class PageItem {
   String contentText;
-  int index;
-  String title;
+  late int index;
+  late String title;
 
   PageItem(this.contentText, this.index, this.title);
 }

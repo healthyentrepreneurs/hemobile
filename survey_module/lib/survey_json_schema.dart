@@ -1,13 +1,11 @@
 library survey_module;
 
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 
 class SurveyJsonSchema extends StatefulWidget {
   const SurveyJsonSchema({
-    @required this.form,
-    @required this.onChanged,
+    required this.form,
+    required this.onChanged,
     this.padding,
     this.errorMessages = const {},
     this.validations = const {},
@@ -20,9 +18,9 @@ class SurveyJsonSchema extends StatefulWidget {
   final Map validations;
   final Map decorations;
   final dynamic form;
-  final double padding;
-  final Widget buttonSave;
-  final Function actionSave;
+  final double? padding;
+  final Widget? buttonSave;
+  final Function? actionSave;
   final ValueChanged<dynamic> onChanged;
 
   @override
@@ -31,21 +29,21 @@ class SurveyJsonSchema extends StatefulWidget {
 
 class _CoreSurveyFormState extends State<SurveyJsonSchema> {
   final dynamic formGeneral;
-  int radioValue;
-  int checkBoxValue;
+  int? radioValue;
+  int? checkBoxValue;
 
   // validators
 
   _CoreSurveyFormState(this.formGeneral);
 
-  String isRequired(item, value) {
+  String? isRequired(item, value) {
     if (value.isEmpty) {
       return widget.errorMessages[item['key']] ?? 'Please enter some text';
     }
     return null;
   }
 
-  String validateEmail(item, String value) {
+  String? validateEmail(item, String value) {
     String p = "[a-zA-Z0-9\+\.\_\%\-\+]{1,256}" +
         "\\@" +
         "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
@@ -75,7 +73,7 @@ class _CoreSurveyFormState extends State<SurveyJsonSchema> {
   // Return widgets
 
   List<Widget> jsonToForm() {
-    List<Widget> listWidget = new List<Widget>();
+    List<Widget> listWidget = <Widget>[];
     if (formGeneral['title'] != null) {
       listWidget.add(Text(
         formGeneral['title'],
@@ -107,8 +105,11 @@ class _CoreSurveyFormState extends State<SurveyJsonSchema> {
         if (labelHidden(item)) {
           label = new Container(
             child: new Text(
-              item['title']!=null?item['title']:'',
-              style: new TextStyle(fontWeight: FontWeight.w600, fontSize: 15.0,color: Colors.blueGrey),
+              item['title'] != null ? item['title'] : '',
+              style: new TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15.0,
+                  color: Colors.blueGrey),
             ),
           );
         }
@@ -146,7 +147,7 @@ class _CoreSurveyFormState extends State<SurveyJsonSchema> {
                     }
                   }
                   if (item['type'] == "Email") {
-                    return validateEmail(item, value);
+                    return validateEmail(item, value!);
                   }
 
                   if (item.containsKey('required')) {
@@ -183,12 +184,14 @@ class _CoreSurveyFormState extends State<SurveyJsonSchema> {
                 new Radio<int>(
                     value: i,
                     groupValue: radioValue,
-                    onChanged: (int value) {
+                    onChanged: (int? value) {
                       print(" --- >" + value.toString());
                       this.setState(() {
                         radioValue = value;
                         formGeneral['elements'][count]['choices'][value]
-                                ['value_'] = formGeneral['elements'][count]['choices'][value]['value'];
+                                ['value_'] =
+                            formGeneral['elements'][count]['choices'][value]
+                                ['value'];
                         print("Selected value is " +
                             (formGeneral['elements'][count]['choices'][value]
                                     ['value_'])
@@ -216,61 +219,42 @@ class _CoreSurveyFormState extends State<SurveyJsonSchema> {
           ),
         );
 
-        listWidget.add(
-            SizedBox(
-              height: 30,
-            )
-        );
+        listWidget.add(SizedBox(
+          height: 30,
+        ));
       }
-
-      /*if (item['type'] == "Switch") {
-        if (item['value'] == null) {
-          formGeneral['fields'][count]['value'] = false;
-        }
-        listWidget.add(
-          new Container(
-            margin: new EdgeInsets.only(top: 5.0),
-            child: new Row(children: <Widget>[
-              new Expanded(child: new Text(item['label'])),
-              new Switch(
-                value: item['value'] ?? false,
-                onChanged: (bool value) {
-                  this.setState(() {
-                    formGeneral['fields'][count]['value'] = value;
-                    _handleChanged();
-                  });
-                },
-              ),
-            ]),
-          ),
-        );
-      }*/
-
       if (item['type'] == "file") {
         listWidget.add(
           new Container(
             margin: new EdgeInsets.only(top: 5.0),
-            child: Column(
-                children: <Widget>[
-                  Text(item['title']!=null?item['title']:''),
-                  SizedBox(
-                    height: 40,
+            child: Column(children: <Widget>[
+              Text(item['title'] != null ? item['title'] : ''),
+              SizedBox(
+                height: 40,
+              ),
+              ElevatedButton.icon(
+                  onPressed: () {
+                  },
+                  icon: Icon(Icons.file_upload, size: 18,color:Colors.green),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.white,
                   ),
-                  RaisedButton.icon(
-                    textColor: Colors.white,
-                    color: Colors.green,
-                    onPressed: () {
-                      // ...
-
-                      // ...
-                    },
-                    icon: Icon(Icons.file_upload, size: 18),
-                    label: Text("SELECT PICTURE"),
-                  ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                ]),
+                  label: Text("SELECT PICTURE")),
+              // RaisedButton.icon(
+              //   textColor: Colors.white,
+              //   color: Colors.green,
+              //   onPressed: () {
+              //     // ...
+              //
+              //     // ...
+              //   },
+              //   icon: Icon(Icons.file_upload, size: 18),
+              //   label: Text("SELECT PICTURE"),
+              // ),
+              SizedBox(
+                height: 40,
+              ),
+            ]),
           ),
         );
       }
@@ -279,15 +263,15 @@ class _CoreSurveyFormState extends State<SurveyJsonSchema> {
         listWidget.add(
           new Container(
             margin: new EdgeInsets.only(top: 5.0),
-            child: Column(
-                children: <Widget>[
-                  Text(item['html']!=null?item['html']:'',
-                  style: TextStyle(color: Colors.green),),
-                  SizedBox(
-                    height: 40,
-                  ),
-
-                ]),
+            child: Column(children: <Widget>[
+              Text(
+                item['html'] != null ? item['html'] : '',
+                style: TextStyle(color: Colors.green),
+              ),
+              SizedBox(
+                height: 40,
+              ),
+            ]),
           ),
         );
       }
@@ -311,7 +295,7 @@ class _CoreSurveyFormState extends State<SurveyJsonSchema> {
                   value: formGeneral['elements'][count]['choices'][i]
                           ['value_'] ??
                       false,
-                  onChanged: (bool value) {
+                  onChanged: (bool? value) {
                     checkBoxValue = i;
                     formGeneral['elements'][count]['choices'][value]['value_'] =
                         formGeneral['elements'][count]['choices'][value]
@@ -342,51 +326,10 @@ class _CoreSurveyFormState extends State<SurveyJsonSchema> {
           ),
         );
 
-        listWidget.add(
-            SizedBox(
-              height: 30,
-            )
-        );
-      }
-
-      /*if (item['type'] == "Select") {
-        Widget label = SizedBox.shrink();
-        if (labelHidden(item)) {
-          label = new Text(item['label'],
-              style:
-                  new TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0));
-        }
-
-        listWidget.add(new Container(
-          margin: new EdgeInsets.only(top: 5.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              label,
-              new DropdownButton<String>(
-                hint: new Text("Select a user"),
-                value: formGeneral['fields'][count]['value'],
-                onChanged: (String newValue) {
-                  setState(() {
-                    formGeneral['fields'][count]['value'] = newValue;
-                    _handleChanged();
-                  });
-                },
-                items:
-                    item['items'].map<DropdownMenuItem<String>>((dynamic data) {
-                  return DropdownMenuItem<String>(
-                    value: data['value'],
-                    child: new Text(
-                      data['label'],
-                      style: new TextStyle(color: Colors.black),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
+        listWidget.add(SizedBox(
+          height: 30,
         ));
-      }*/
+      }
     }
 
     if (widget.buttonSave != null) {
@@ -394,8 +337,8 @@ class _CoreSurveyFormState extends State<SurveyJsonSchema> {
         margin: EdgeInsets.only(top: 10.0),
         child: InkWell(
           onTap: () {
-            if (_formKey.currentState.validate()) {
-              widget.actionSave(formGeneral);
+            if (_formKey.currentState!.validate()) {
+              widget.actionSave!(formGeneral);
             }
           },
           child: widget.buttonSave,

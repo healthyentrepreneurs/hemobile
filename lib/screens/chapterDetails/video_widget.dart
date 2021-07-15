@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
@@ -11,15 +10,15 @@ import 'package:chewie/chewie.dart';
 class VideoView extends StatefulWidget {
   final String videoUrl;
 
-  const VideoView({Key key, this.videoUrl}) : super(key: key);
+  const VideoView({required Key key, required this.videoUrl}) : super(key: key);
 
   @override
   _VideoViewState createState() => _VideoViewState();
 }
 
 class _VideoViewState extends State<VideoView> {
-  VideoPlayerController _controller;
-  Future<void> _initializeVideoPlayerFuture;
+  late VideoPlayerController _controller;
+  late Future<void> _initializeVideoPlayerFuture;
 
   @override
   void initState() {
@@ -105,15 +104,15 @@ class _VideoViewState extends State<VideoView> {
 class VideoViewOnline extends StatefulWidget {
   final String videoUrl;
 
-  const VideoViewOnline({Key key, this.videoUrl}) : super(key: key);
+  const VideoViewOnline({required Key key, required this.videoUrl}) : super(key: key);
 
   @override
   _VideoViewOnlineState createState() => _VideoViewOnlineState();
 }
 
 class _VideoViewOnlineState extends State<VideoViewOnline> {
-  VideoPlayerController _controller;
-  Future<void> _initializeVideoPlayerFuture;
+  late VideoPlayerController _controller;
+  late Future<void> _initializeVideoPlayerFuture;
 
   @override
   void initState() {
@@ -200,15 +199,15 @@ class _VideoViewOnlineState extends State<VideoViewOnline> {
 class ChewieVideoViewOnline extends StatefulWidget {
   final String videoUrl;
 
-  const ChewieVideoViewOnline({Key key, this.videoUrl}) : super(key: key);
+  const ChewieVideoViewOnline({Key? key, required this.videoUrl}) : super(key: key);
 
   @override
   _ChewieVideoViewOnlineState createState() => _ChewieVideoViewOnlineState();
 }
 
 class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
-  VideoPlayerController _controller;
-  ChewieController _chewieController;
+  late VideoPlayerController _controller;
+  late ChewieController _chewieController;
 
   @override
   void initState() {
@@ -228,18 +227,18 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
     this.initializePlayer();
   }
 
-  String firstName;
-  String offline;
+  late String firstName;
+  late String offline;
 
   _getPref() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
-      offline = preferences.getString("offline");
-      firstName = preferences.getString("firstName");
+      offline = preferences.getString("offline")!;
+      firstName = preferences.getString("firstName")!;
     });
   }
 
-  String mainOfflinePath;
+  late String mainOfflinePath;
   Future<String> loadLocalFilePath() async {
     mainOfflinePath = await FileSystemUtil().extDownloadsPath + "/HE Health";
     return mainOfflinePath;
@@ -306,7 +305,7 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
           Expanded(
             child: Center(
               child: _chewieController != null &&
-                      _chewieController.videoPlayerController.value.initialized
+                      _chewieController.videoPlayerController.value.isInitialized
                   ? Chewie(
                       controller: _chewieController,
                     )

@@ -12,17 +12,17 @@ class QuizQuestion {
   int maxmark;
 
   QuizQuestion(
-      {this.slot,
-      this.page,
-      this.html,
-      this.sequencecheck,
-      this.lastactiontime,
-      this.hasautosavedstep,
-      this.flagged,
-      this.number,
-      this.status,
-      this.blockedbyprevious,
-      this.maxmark});
+      {required this.slot,
+      required this.page,
+      required this.html,
+      required this.sequencecheck,
+      required this.lastactiontime,
+      required this.hasautosavedstep,
+      required this.flagged,
+      required this.number,
+      required this.status,
+      required this.blockedbyprevious,
+      required this.maxmark});
 
   factory QuizQuestion.fromJson(Map<String, dynamic> json) {
     return QuizQuestion(
@@ -53,15 +53,15 @@ class QuizAttempt {
   String state;
 
   QuizAttempt(
-      {this.id,
-      this.quiz,
-      this.userid,
-      this.attempt,
-      this.uniqueid,
-      this.layout,
-      this.currentpage,
-      this.preview,
-      this.state});
+      {required this.id,
+      required this.quiz,
+      required this.userid,
+      required this.attempt,
+      required this.uniqueid,
+      required this.layout,
+      required this.currentpage,
+      required this.preview,
+      required this.state});
 
   factory QuizAttempt.fromJson(Map<String, dynamic> json) {
     return QuizAttempt(
@@ -84,7 +84,7 @@ class Quiz {
   QuizAttempt attempt;
   List<QuizQuestion> questions;
 
-  Quiz({this.id, this.messages, this.nextpage, this.attempt, this.questions});
+  Quiz({required this.id, required this.messages, required this.nextpage, required this.attempt, required this.questions});
 
   factory Quiz.fromJson(Map<String, dynamic> json) {
     return Quiz(
@@ -93,8 +93,8 @@ class Quiz {
       nextpage: json['nextpage'],
       attempt: QuizAttempt.fromJson(json['attempt']),
       questions: (json['questions'] as List)
-          ?.map((i) => QuizQuestion.fromJson(i))
-          ?.toList(),
+          .map((i) => QuizQuestion.fromJson(i))
+          .toList(),
     );
   }
 }

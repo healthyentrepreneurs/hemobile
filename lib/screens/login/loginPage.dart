@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:nl_health_app/screens/forgetPassword/forgetPasswordPage.dart';
 import 'package:nl_health_app/screens/homePage/homePage.dart';
 import 'package:nl_health_app/screens/register/registerPage.dart';
-import 'package:nl_health_app/screens/utilits/customDrawer.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/user_model.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
@@ -19,8 +18,8 @@ class LoginPage extends StatefulWidget {
 enum LoginStatus { loading, notSignIn, signIn }
 
 class _LoginPageState extends State<LoginPage> {
-  String password;
-  String email;
+  String? password;
+  String? email;
   bool isLoading = false;
 
   @override
@@ -194,19 +193,19 @@ class _LoginPageState extends State<LoginPage> {
       isLoading = true;
     });
     OpenApi()
-        .login(email, password)
+        .login(email!, password!)
         .then((data) => {
               setState(() {
                 isLoading = false;
               }),
-              print(">> " + data?.body),
-              processJson(data?.body)
+              print(">> " + data.body),
+              processJson(data.body)
             })
         .catchError((err) => {
               setState(() {
                 isLoading = false;
               }),
-              print("Error -- " + err.toString())
+              print("Error -- " + err)
             });
   }
 
@@ -235,7 +234,7 @@ class _LoginPageState extends State<LoginPage> {
     checkLoginStatus(context);
   }
 
-  bool isNewUser;
+  bool? isNewUser;
 
   void checkLoginStatus(BuildContext context) async {
     isLoading = true;
@@ -244,9 +243,9 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       isLoading = false;
     });
-    isNewUser = isNewUser == null ? false : true;
+    // isNewUser == null ? false : true;
     print("Logged in user $isNewUser");
-    if (isNewUser) {
+    if (isNewUser == true) {
       Navigator.pushReplacement(
           context, new MaterialPageRoute(builder: (context) => Homepage()));
     }
@@ -256,5 +255,4 @@ class _LoginPageState extends State<LoginPage> {
     createDownloadFile();
     setOfflineByDefault();
   }
-
 }

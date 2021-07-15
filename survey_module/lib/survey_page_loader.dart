@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 import 'package:survey_module/single_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class SurveyPageLoader extends StatefulWidget {
   final dynamic pages;
 
-  const SurveyPageLoader({@required this.pages});
+  const SurveyPageLoader({required this.pages});
 
   @override
   _SurveyPageLoaderState createState() => _SurveyPageLoaderState();
@@ -17,7 +16,6 @@ class _SurveyPageLoaderState extends State<SurveyPageLoader> {
 
   PageController controller = PageController();
   List<Widget> _list = [];
-  int _curr = 0;
 
   @override
   void initState() {
@@ -25,7 +23,7 @@ class _SurveyPageLoaderState extends State<SurveyPageLoader> {
 
     String title = widget.pages['title'] as String;
     widget.pages['pages'].forEach((v) {
-      _list.add(SinglePage(text: title ?? "", pageItem: v));
+      _list.add(SinglePage(text: title, pageItem: v));
     });
   }
 
@@ -56,7 +54,6 @@ class _SurveyPageLoaderState extends State<SurveyPageLoader> {
             controller: controller,
             onPageChanged: (num) {
               setState(() {
-                _curr = num;
               });
             },
           ),
@@ -81,7 +78,7 @@ class _SurveyPageLoaderState extends State<SurveyPageLoader> {
                       ),
                       child: IconButton(
                         onPressed: () {
-                          int p = controller.page.toInt();
+                          int p = controller.page!.toInt();
                           if (p < _list.length && (p - 1) >= 0) {
                             controller.jumpToPage(p - 1);
                           }
@@ -106,7 +103,7 @@ class _SurveyPageLoaderState extends State<SurveyPageLoader> {
                       ),
                       child: IconButton(
                         onPressed: () {
-                          int p = controller.page.toInt();
+                          int p = controller.page!.toInt();
                           if (p < _list.length &&
                               (p + 1) != _list.length) {
                             controller.jumpToPage(p + 1);

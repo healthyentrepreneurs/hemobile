@@ -20,7 +20,7 @@ class OnBoarding extends StatefulWidget {
 class _OnBoardingState extends State<OnBoarding> {
   int currentIndex = 0;
   bool _reachatend = false;
-  PageController _pageController;
+  late PageController _pageController;
 
   @override
   void initState() {

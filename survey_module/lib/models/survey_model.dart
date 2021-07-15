@@ -3,17 +3,17 @@ library survey_module;
 /// The json converted to survey tool
 /// https://jsontodart.com/
 class SurveyObj {
-  String title;
-  List<Pages> pages;
+  late String title;
+  List<Pages>? pages;
 
-  SurveyObj({this.title, this.pages});
+  SurveyObj({required this.title,this.pages});
 
   SurveyObj.fromJson(Map<String, dynamic> json) {
     title = json['title'];
     if (json['pages'] != null) {
-      pages = new List<Pages>();
+      pages = <Pages>[];
       json['pages'].forEach((v) {
-        pages.add(new Pages.fromJson(v));
+        pages!.add(new Pages.fromJson(v));
       });
     }
   }
@@ -22,28 +22,31 @@ class SurveyObj {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['title'] = this.title;
     if (this.pages != null) {
-      data['pages'] = this.pages.map((v) => v.toJson()).toList();
+      data['pages'] = this.pages!.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
 class Pages {
-  String name;
-  List<Elements> elements;
-  String title;
-  String description;
-  String visibleIf;
+  late String name;
+  List<Elements>? elements;
+  late String title;
+  late String description;
+  late String visibleIf;
 
   Pages(
-      {this.name, this.elements, this.title, this.description, this.visibleIf});
+      {required this.name, this.elements,
+      required this.title,
+      required this.description,
+      required this.visibleIf});
 
   Pages.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     if (json['elements'] != null) {
-      elements = new List<Elements>();
+      elements = <Elements>[];
       json['elements'].forEach((v) {
-        elements.add(new Elements.fromJson(v));
+        elements!.add(new Elements.fromJson(v));
       });
     }
     title = json['title'];
@@ -55,7 +58,7 @@ class Pages {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['name'] = this.name;
     if (this.elements != null) {
-      data['elements'] = this.elements.map((v) => v.toJson()).toList();
+      data['elements'] = this.elements!.map((v) => v.toJson()).toList();
     }
     data['title'] = this.title;
     data['description'] = this.description;
@@ -65,40 +68,40 @@ class Pages {
 }
 
 class Elements {
-  String type;
-  String name;
-  String title;
-  bool isRequired;
-  String acceptedTypes;
-  bool waitForUpload;
-  int maxSize;
-  List<Choices> choices;
-  String visibleIf;
-  List<Validators> validators;
-  int maxLength;
-  String html;
-  bool hasOther;
-  String otherText;
-  bool hasNone;
-  String noneText;
+  late String type;
+  late String name;
+  late String title;
+  bool? isRequired;
+  String? acceptedTypes;
+  bool? waitForUpload;
+  int? maxSize;
+  List<Choices>? choices;
+  String? visibleIf;
+  List<Validators>? validators;
+  int? maxLength;
+  String? html;
+  bool? hasOther;
+  String? otherText;
+  bool? hasNone;
+  String? noneText;
 
   Elements(
-      {this.type,
-        this.name,
-        this.title,
-        this.isRequired,
-        this.acceptedTypes,
-        this.waitForUpload,
-        this.maxSize,
-        this.choices,
-        this.visibleIf,
-        this.validators,
-        this.maxLength,
-        this.html,
-        this.hasOther,
-        this.otherText,
-        this.hasNone,
-        this.noneText});
+      {required this.type,
+      required this.name,
+      required this.title,
+      this.isRequired,
+      this.acceptedTypes,
+      this.waitForUpload,
+      this.maxSize,
+      this.choices,
+      this.visibleIf,
+      this.validators,
+      this.maxLength,
+      this.html,
+      this.hasOther,
+      this.otherText,
+      this.hasNone,
+      this.noneText});
 
   Elements.fromJson(Map<String, dynamic> json) {
     type = json['type'];
@@ -109,16 +112,17 @@ class Elements {
     waitForUpload = json['waitForUpload'];
     maxSize = json['maxSize'];
     if (json['choices'] != null) {
-      choices = new List<Choices>();
+      // choices = new List<Choices>();
+      choices= <Choices>[];
       json['choices'].forEach((v) {
-        choices.add(new Choices.fromJson(v));
+        choices!.add(new Choices.fromJson(v));
       });
     }
     visibleIf = json['visibleIf'];
     if (json['validators'] != null) {
-      validators = new List<Validators>();
+      validators= <Validators>[];
       json['validators'].forEach((v) {
-        validators.add(new Validators.fromJson(v));
+        validators!.add(new Validators.fromJson(v));
       });
     }
     maxLength = json['maxLength'];
@@ -139,11 +143,11 @@ class Elements {
     data['waitForUpload'] = this.waitForUpload;
     data['maxSize'] = this.maxSize;
     if (this.choices != null) {
-      data['choices'] = this.choices.map((v) => v.toJson()).toList();
+      data['choices'] = this.choices!.map((v) => v.toJson()).toList();
     }
     data['visibleIf'] = this.visibleIf;
     if (this.validators != null) {
-      data['validators'] = this.validators.map((v) => v.toJson()).toList();
+      data['validators'] = this.validators!.map((v) => v.toJson()).toList();
     }
     data['maxLength'] = this.maxLength;
     data['html'] = this.html;
@@ -156,11 +160,9 @@ class Elements {
 }
 
 class Choices {
-  String value;
-  String text;
-
-  Choices({this.value, this.text});
-
+  late String value;
+  late String text;
+  Choices({required this.value, required this.text});
   Choices.fromJson(Map<String, dynamic> json) {
     value = json['value'];
     text = json['text'];
@@ -175,11 +177,12 @@ class Choices {
 }
 
 class Validators {
-  String type;
-  int minValue;
-  int maxValue;
+  late String type;
+  late int minValue;
+  late int maxValue;
 
-  Validators({this.type, this.minValue, this.maxValue});
+  Validators(
+      {required this.type, required this.minValue, required this.maxValue});
 
   Validators.fromJson(Map<String, dynamic> json) {
     type = json['type'];

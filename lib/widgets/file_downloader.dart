@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
@@ -12,7 +11,7 @@ import 'dart:math';
 class FileDownloader extends StatefulWidget {
   final FileSystemUtil fileSystemUtil;
 
-  const FileDownloader({Key key, this.fileSystemUtil}) : super(key: key);
+  const FileDownloader({required Key key, required this.fileSystemUtil}) : super(key: key);
 
   @override
   _FileDownloaderState createState() => _FileDownloaderState();
@@ -28,7 +27,7 @@ class _FileDownloaderState extends State<FileDownloader> {
   Permission permission1 = Permission.storage;
   var _onPressed;
   static final Random random = Random();
-  Directory externalDir;
+  late Directory externalDir;
 
   @override
   void initState() {
@@ -143,7 +142,7 @@ class UniFileDownloader extends StatefulWidget {
   final String fileName;
 
   const UniFileDownloader(
-      {Key key, this.fileSystemUtil, this.imgUrl, this.fileName})
+      {Key? key, required this.fileSystemUtil, required this.imgUrl, required this.fileName})
       : super(key: key);
 
   @override
@@ -157,7 +156,7 @@ class _UniFileDownloaderState extends State<UniFileDownloader> {
   var platformVersion = "Unknown";
   Permission permission1 = Permission.storage;
   var _onPressed;
-  Directory externalDir;
+  late Directory externalDir;
 
   @override
   void initState() {

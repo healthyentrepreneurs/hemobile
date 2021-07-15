@@ -10,12 +10,11 @@ import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:nl_health_app/widgets/ProgressWidget.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'survey_js_page_loader.dart';
 
 class SurveyMainPage extends StatefulWidget {
   final Course course;
 
-  SurveyMainPage({this.course});
+  SurveyMainPage({required this.course});
 
   @override
   _SurveyMainPageState createState() => _SurveyMainPageState();
@@ -23,7 +22,7 @@ class SurveyMainPage extends StatefulWidget {
 
 class _SurveyMainPageState extends State<SurveyMainPage> {
   dynamic surveyData;
-  String surveyDataString;
+  late String surveyDataString;
   bool isLoading = false;
 
   @override
@@ -97,14 +96,14 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
       this.loadQuizItemsData();
     }
   }
-  String firstName;
-  String offline;
+  String? firstName;
+  String? offline;
 
   _getPref() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
-      offline = preferences.getString("offline");
-      firstName = preferences.getString("firstName");
+      offline = preferences.getString("offline")!;
+      firstName = preferences.getString("firstName")!;
     });
   }
 
@@ -132,7 +131,7 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
       setState(() {
         isLoading = false;
       });
-      print(t.request.url.toString());
+      print(t.request!.url.toString());
       _processJson(t.body);
     }).catchError((e) {
       print("Error ${e.toString()}");
@@ -177,8 +176,8 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
   }
 
 
-  String mainOfflinePath;
-  Future<String> _loadOfflineQuizItemsData() async {
+  late String mainOfflinePath;
+  Future<String?> _loadOfflineQuizItemsData() async {
     mainOfflinePath = await FileSystemUtil().extDownloadsPath + "/HE Health";
     String p = await FileSystemUtil().extDownloadsPath + "/HE Health/";
     try {

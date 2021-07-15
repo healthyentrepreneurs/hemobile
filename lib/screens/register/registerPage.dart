@@ -154,9 +154,9 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
 
-  String email;
-  String firstName;
-  String lastName;
+  String? email;
+  String? firstName;
+  String? lastName;
   registerCall() {
     //'megasega91@gmail.com', 'Mega1java123!@#')
     if (email==null || firstName ==null|| lastName==null) {
@@ -166,8 +166,8 @@ class _RegisterPageState extends State<RegisterPage> {
     print("email $email $firstName $lastName");
     //{"code":200,"msg":"New User Successfully Created","data":[{"id":16,"username":"clare_atwine"}]}
     new OpenApi()
-        .register(email, firstName,lastName)
-        .then((data) => {print(">> " + data?.body), processJson(data?.body)})
+        .register(email!, firstName!,lastName!)
+        .then((data) => {print(">> " + data.body), processJson(data.body)})
         .catchError((err) => {print("Error -->> " + err.toString())});
   }
 

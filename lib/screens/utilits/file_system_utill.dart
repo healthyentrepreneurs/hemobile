@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
-import 'package:ext_storage/ext_storage.dart';
+import 'package:external_path/external_path.dart';
 import 'package:file_utils/file_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +26,6 @@ class FileSystemUtil {
     return dir;
   }
 
-
   /*
   Create or get the current main app storage dir
    */
@@ -43,12 +41,9 @@ class FileSystemUtil {
       return path;
     }
   }
-
-
-
   Future<String> get extDownloadsPath async {
-    String path = await ExtStorage.getExternalStoragePublicDirectory(
-            ExtStorage.DIRECTORY_DOWNLOADS) +
+    String path = await ExternalPath.getExternalStoragePublicDirectory(
+        ExternalPath.DIRECTORY_DOWNLOADS) +
         "/$appDir";
     //print(">>> Ext Download $path");
 
@@ -109,7 +104,7 @@ class FileSystemUtil {
     }
   }
 
-  Future<File> writeFile(String data) async {
+  Future<File?> writeFile(String data) async {
     try {
       final file = await localAppFolder;
       return file.writeAsString(data);
@@ -125,7 +120,7 @@ class FileSystemUtil {
       var videosList = document.getElementsByTagName("video");
       var sourceElm = videosList.removeAt(0).getElementsByTagName('source');
       sourceElm.first.attributes['src'] = '$storageDirectory/2/' +
-          sourceElm.first.attributeSpans['src'].toString();
+          sourceElm.first.attributeSpans!['src'].toString();
 
       print(sourceElm.first.attributes['src']);
       return document.outerHtml;
@@ -145,8 +140,8 @@ class FileSystemUtil {
 }
 
 /// Load images from file system as bytes
-Future<Image> _loadThumb(BuildContext context, File imgFile,
-    [double w, double h]) async {
+Future<Image?> _loadThumb(BuildContext context, File imgFile,
+    [double? w, double? h]) async {
   try {
     // read image
     //List<int> thumbInts = await imgFile.readAsBytes();
@@ -169,29 +164,29 @@ Future<Image> _loadThumb(BuildContext context, File imgFile,
   }
 }
 
-Widget fileImageBuilder(BuildContext context, File imageFilePath, [double w, double h]) {
-  try{
-    return new FutureBuilder(
-        future: _loadThumb(context, imageFilePath, w, h),
-        builder: (BuildContext context, AsyncSnapshot<Image> image) {
-          if (image.hasData) {
-            return image.data; // image is ready
-          } else {
-            return new Center(
-              child: new Container(),
-            );
-          }
-        });
-  }catch(e){
-    return null;
-  }
-}
+// Widget? fileImageBuilder(BuildContext context, File imageFilePath, [double? w, double? h]) {
+//   try{
+//     return new FutureBuilder(
+//         future: _loadThumb(context, imageFilePath, w, h),
+//         builder: (BuildContext context, AsyncSnapshot<Image> image) {
+//           if (image.hasData) {
+//             return image.data; // image is ready
+//           } else {
+//             return new Center(
+//               child: new Container(),
+//             );
+//           }
+//         });
+//   }catch(e){
+//     return null;
+//   }
+// }
 
 //new stuff
 Future<Uint8List> _readFileBytep(String filePath) async {
   Uri myUri = Uri.parse(filePath);
   File audioFile = new File.fromUri(myUri);
-  Uint8List bytes;
+  late Uint8List bytes;
   await audioFile.readAsBytes().then((value) {
     bytes = Uint8List.fromList(value);
     print('reading of bytes is completed');
@@ -202,7 +197,7 @@ Future<Uint8List> _readFileBytep(String filePath) async {
   return bytes;
 }
 
-Future<String> fileToBase64String(String myPath) async {
+Future<String?> fileToBase64String(String myPath) async {
   try {
     Uint8List audioByte = await _readFileBytep(myPath);
     String audioString = base64.encode(audioByte);

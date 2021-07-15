@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import '../../objectbox.g.dart';
+
 // https://stackoverflow.com/questions/54069869/how-to-solve-a-renderflex-overflowed-by-143-pixels-on-the-right-error-in-text
 class SurveyJsPageLoaderBrowser extends StatefulWidget {
   final dynamic jsonData;
@@ -19,9 +20,9 @@ class SurveyJsPageLoaderBrowser extends StatefulWidget {
   final Course course;
 
   SurveyJsPageLoaderBrowser(
-      {@required this.jsonData,
-      @required this.jsonDataStr,
-      @required this.course});
+      {required this.jsonData,
+      required this.jsonDataStr,
+      required this.course});
 
   @override
   _SurveyJsPageLoaderBrowserState createState() =>
@@ -31,16 +32,15 @@ class SurveyJsPageLoaderBrowser extends StatefulWidget {
 class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
   dynamic response;
   bool isLoading = false;
-  InAppWebViewController webView;
+  late InAppWebViewController webView;
   double progress = 0;
-  CookieManager _cookieManager = CookieManager.instance();
-  ContextMenu contextMenu;
+  late ContextMenu contextMenu;
   String url = "";
   bool showAlert = false;
   bool status = false;
   String reportMessage = "";
   String postDataText = "";
-  Store _store;
+  Store? _store;
   @override
   void initState() {
     super.initState();
@@ -59,14 +59,14 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
     initStore();
   }
 
-  String firstName;
-  String offline;
+  late String firstName;
+  late String offline;
 
   _getPref() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
-      offline = preferences.getString("offline");
-      firstName = preferences.getString("firstName");
+      offline = preferences.getString("offline")!;
+      firstName = preferences.getString("firstName")!;
     });
   }
 
@@ -96,7 +96,7 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
   Future<void> saveLocalSurveyDateSet(String txtName, String txtData) async {
     print("Save Nakiganda--- $txtName --- ");
     try {
-      final box = _store.box<SurveyDataModel>();
+      final box = _store!.box<SurveyDataModel>();
       var person = SurveyDataModel()
         ..text = txtData
         ..name = widget.course.id.toString()
@@ -144,28 +144,28 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
 
   Future<void> postJsonDataOnline(String body) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    int userId = preferences.getInt("id");
+    int? userId = preferences.getInt("id");
     Map<String, dynamic> j = new Map();
     j["userId"] = userId;
     j["surveyId"] = widget.course.id;
     // print(">> surveyId " + widget.course.id);
     Map<String, dynamic> j2 = jsonDecode(body);
     if (j2.containsKey("image-upload")) {
-     print("Jiamy Lanister A");
-     var imageObject = j2["image-upload"].elementAt(0);
-     // print(image_object.runtimeType);
-     String imageName = imageObject["name"];
-     String cleanerImage = imageObject["content"]
-         .replaceAll(RegExp('data:image/jpeg;base64,'), '');
-     final decodedBytes = base64Decode(cleanerImage);
-     OpenApi()
-         .imageBytePost(decodedBytes, imageName, userId.toString(), widget.course.id.toString())
-         .then((data) {
-       // print("Njovu >> " + data?.body);
-     }).catchError((err) => {print("Uploading Image -- " + err.toString())});
-     j2["image-upload"]=imageName;
+      print("Jiamy Lanister A");
+      var imageObject = j2["image-upload"].elementAt(0);
+      // print(image_object.runtimeType);
+      String imageName = imageObject["name"];
+      String cleanerImage = imageObject["content"]
+          .replaceAll(RegExp('data:image/jpeg;base64,'), '');
+      final decodedBytes = base64Decode(cleanerImage);
+      OpenApi()
+          .imageBytePost(decodedBytes, imageName, userId.toString(),
+              widget.course.id.toString())
+          .then((data) {
+        // print("Njovu >> " + data?.body);
+      }).catchError((err) => {print("Uploading Image -- " + err.toString())});
+      j2["image-upload"] = imageName;
     }
-    // sendImage(j2, userId.toString(), widget.course.id.toString());
     // print(image_object.runtimeType);
     j["jsondata"] = jsonEncode(j2);
     String b = jsonEncode(j);
@@ -173,12 +173,12 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
     setState(() {
       isLoading = true;
     });
-    OpenApi().postSurveyJsonData(b, userId).then((data) {
+    OpenApi().postSurveyJsonData(b, userId!).then((data) {
       setState(() {
         isLoading = false;
       });
       //print(">> " + data?.body);
-      Map<String, dynamic> x = jsonDecode(data?.body);
+      Map<String, dynamic> x = jsonDecode(data.body);
       if (x["code"] == 200) {
         setState(() {
           showAlert = true;
@@ -299,10 +299,8 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
             // contextMenu: contextMenu,
             //initialUrl: "https://github.com/flutter",
             initialFile: "assets/survey/index.html",
-            initialHeaders: {},
             initialOptions: InAppWebViewGroupOptions(
                 crossPlatform: InAppWebViewOptions(
-                    debuggingEnabled: false,
                     //useShouldOverrideUrlLoading: true,
                     //mediaPlaybackRequiresUserGesture: false,
                     javaScriptEnabled: true),
@@ -326,10 +324,10 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
                     print(args[0]);
                   });
             },
-            onLoadStart: (InAppWebViewController controller, String url) {
+            onLoadStart: (InAppWebViewController controller, Uri? url) {
               //print("onLoadStart $url");
               setState(() {
-                this.url = url;
+                this.url = url.toString();
               });
             },
             androidOnPermissionRequest: (InAppWebViewController controller,
@@ -340,10 +338,9 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
             },
             shouldOverrideUrlLoading:
                 (controller, shouldOverrideUrlLoadingRequest) async {
-              var url = shouldOverrideUrlLoadingRequest.url;
-              var uri = Uri.parse(url);
-
-              //print(">> $url");
+              Uri? uri = shouldOverrideUrlLoadingRequest.request.url;
+              var url = uri.toString();
+              print(">> $url");
               if (url.startsWith("tel:")) {
                 _makePhoneCall(url);
               }
@@ -356,24 +353,24 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
                 "data",
                 "javascript",
                 "about"
-              ].contains(uri.scheme)) {
+              ].contains(uri!.scheme)) {
                 if (await canLaunch(url)) {
                   // Launch the App
                   await launch(
                     url,
                   );
                   // and cancel the request
-                  return ShouldOverrideUrlLoadingAction.CANCEL;
+                  return NavigationActionPolicy.CANCEL;
                 }
               }
 
-              return ShouldOverrideUrlLoadingAction.ALLOW;
+              return NavigationActionPolicy.ALLOW;
             },
-            onLoadStop: (InAppWebViewController controller, String url) async {
+            onLoadStop: (InAppWebViewController controller, Uri? url) async {
               //print("onLoadStop $url");
               setState(() {
                 isLoading = false;
-                this.url = url;
+                this.url = url.toString();
               });
               processJsonDataContainer();
             },
@@ -384,10 +381,10 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
               });
             },
             onUpdateVisitedHistory: (InAppWebViewController controller,
-                String url, bool androidIsReload) {
+                Uri? url, bool? androidIsReload) {
               //print("onUpdateVisitedHistory $url");
               setState(() {
-                this.url = url;
+                this.url = url.toString();
               });
             },
             onConsoleMessage: (controller, consoleMessage) {
@@ -437,27 +434,8 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
     super.dispose();
   }
 
-  //Now Class member
+//Now Class member
 
-}
-
-void sendImage(List<Object> arguments) {
-  Map<String, dynamic> jTwo = arguments[0];
-  String userId = arguments[1];
-  String surveyId = arguments[2];
-  if (jTwo.containsKey("image-upload")) {
-    var imageObject = jTwo["image-upload"].elementAt(0);
-    // print(image_object.runtimeType);
-    String imageName = imageObject["name"];
-    String cleanerImage = imageObject["content"]
-        .replaceAll(RegExp('data:image/jpeg;base64,'), '');
-    final decodedBytes = base64Decode(cleanerImage);
-    OpenApi()
-        .imageBytePost(decodedBytes, imageName, userId, surveyId)
-        .then((data) {
-      // print("Njovu >> " + data?.body);
-    }).catchError((err) => {print("Uploading Image -- " + err.toString())});
-  }
 }
 
 Future<void> _makePhoneCall(String url) async {

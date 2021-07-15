@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/widgets/ProgressWidget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,7 +19,7 @@ class SurveyJsPageLoader extends StatefulWidget {
 
 class _SurveyJsPageLoaderState extends State<SurveyJsPageLoader> {
   dynamic response;
-  WebViewPlusController _controller;
+  late WebViewPlusController _controller;
   double _height = 1000;
   bool isLoading = false;
 
@@ -102,7 +101,7 @@ class _SurveyJsPageLoaderState extends State<SurveyJsPageLoader> {
 
   Future<void> postJsonData(String body) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    int userId = preferences.getInt("id");
+    int? userId = preferences.getInt("id");
 
     Map<String, dynamic> j = jsonDecode(body);
     j["userId"] = userId;
@@ -110,9 +109,9 @@ class _SurveyJsPageLoaderState extends State<SurveyJsPageLoader> {
     String b = jsonEncode(j);
     //print(">> " + b);
 
-    OpenApi().postSurveyJsonData(b, userId).then((data) {
+    OpenApi().postSurveyJsonData(b, userId!).then((data) {
       isLoading = false;
-      print(">> " + data?.body);
+      print(">> " + data.body);
 
       Scaffold.of(context).showSnackBar(
         SnackBar(
@@ -129,9 +128,9 @@ class _SurveyJsPageLoaderState extends State<SurveyJsPageLoader> {
 
   void processJsonDataContainer() {
     var jsonTxt = widget.jsonDataStr.toString();
-    _controller.evaluateJavascript("window.changeSurveyData($jsonTxt)");
+    _controller.webViewController
+        .evaluateJavascript("window.changeSurveyData($jsonTxt)");
   }
-
 }
 
 Future<void> _makePhoneCall(String url) async {

@@ -3,12 +3,10 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nl_health_app/screens/utilits/customDrawer.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'coursesSubPage.dart';
@@ -16,7 +14,7 @@ import 'coursesSubPage.dart';
 class CoursesPage extends StatefulWidget {
   final Course course;
 
-  CoursesPage({this.course});
+  CoursesPage({required this.course});
 
   @override
   _CoursesPageState createState() => _CoursesPageState();
@@ -78,6 +76,7 @@ class _CoursesPageState extends State<CoursesPage> {
                       shrinkWrap: true,
                       physics: ClampingScrollPhysics(),
                       itemCount:
+                          // ignore: unnecessary_null_comparison
                           _subCourseList == null ? 0 : _subCourseList.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
@@ -107,7 +106,7 @@ class _CoursesPageState extends State<CoursesPage> {
     );
   }
 
-  Widget _courseCard(SubCourse course, [Function onPressed]) {
+  Widget _courseCard(SubCourse course, [Function? onPressed]) {
     return Padding(
       padding: const EdgeInsets.only(top: 5.0),
       child: Column(
@@ -133,7 +132,7 @@ class _CoursesPageState extends State<CoursesPage> {
                     builder: (BuildContext context,
                         AsyncSnapshot<File> snapshot) {
                       return snapshot.data != null
-                          ? new Image.file(snapshot.data,
+                          ? new Image.file(snapshot.data!,
                         height: 50.0,width: 50.0,
                       )
                           : new Container();
@@ -181,19 +180,19 @@ class _CoursesPageState extends State<CoursesPage> {
     }
   }
 
-  String firstName;
-  String offline;
+  late String firstName;
+  late String offline;
 
   _getPref() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
-      offline = preferences.getString("offline");
-      firstName = preferences.getString("firstName");
+      offline = preferences.getString("offline")!;
+      firstName = preferences.getString("firstName")!;
     });
   }
 
-  String mainOfflinePath;
-  Future<String> _loadCourseDataOffline() async {
+  late String mainOfflinePath;
+  Future<String?> _loadCourseDataOffline() async {
     mainOfflinePath = await FileSystemUtil().extDownloadsPath + "/HE Health";
     String p = await FileSystemUtil().extDownloadsPath + "/HE Health/";
     try {
@@ -217,13 +216,13 @@ class _CoursesPageState extends State<CoursesPage> {
         .listSubCourses(widget.course.nextLink)
         .then((data) => {
               //close the dialoge
-              print(">> " + data?.body),
-              _processJson(data?.body)
+              print(">> " + data.body),
+              _processJson(data.body)
             })
         .catchError((err) => {print("Error -- " + err.toString())});
   }
 
-  List<SubCourse> _subCourseList;
+  late List<SubCourse> _subCourseList;
 
   _processJson(String body) {
     //print(body);

@@ -21,12 +21,12 @@ class Course {
 
   Course(
       {this.id,
-      this.fullName,
-      this.source,
-      this.summaryCustom,
-      this.nextLink,
-      this.imageUrlSmall,
-      this.imageUrl});
+      required this.fullName,
+      required this.source,
+      required this.summaryCustom,
+      required this.nextLink,
+      required this.imageUrlSmall,
+      required this.imageUrl});
 
   factory Course.fromJson(Map<String, dynamic> json) {
     return Course(
@@ -63,12 +63,12 @@ class SubCourse {
 
   SubCourse(
       {this.id,
-      this.name,
-      this.visible,
-      this.summary,
-      this.summaryformat,
-      this.section,
-      this.modules});
+      required this.name,
+      required this.visible,
+      required this.summary,
+      required this.summaryformat,
+      required this.section,
+      required this.modules});
 
   factory SubCourse.fromJson(Map<String, dynamic> json) {
     return SubCourse(
@@ -79,8 +79,8 @@ class SubCourse {
         summaryformat: json['summaryformat'],
         section: json['section'],
         modules: (json['modules'] as List)
-            ?.map((i) => CourseModule.fromJson(i))
-            ?.toList());
+            .map((i) => CourseModule.fromJson(i))
+            .toList());
   }
 }
 
@@ -115,14 +115,14 @@ class CourseModule {
   List<ModuleContent> contents;
 
   CourseModule({
-    this.id,
-    this.name,
-    this.url,
-    this.modicon,
-    this.modname,
-    this.modplural,
-    this.contents,
-    this.description,
+    required this.id,
+    required this.name,
+    required this.url,
+    required this.modicon,
+    required this.modname,
+    required this.modplural,
+    required this.contents,
+    required this.description,
     this.instance,
   });
 
@@ -135,8 +135,8 @@ class CourseModule {
       modplural: json['modplural'],
       modname: json['modname'],
       contents: (json['contents'] as List)
-          ?.map((i) => ModuleContent.fromJson(i))
-          ?.toList(),
+          .map((i) => ModuleContent.fromJson(i))
+          .toList(),
       description: json['description'],
       instance: json['instance'],
     );
@@ -168,7 +168,7 @@ class ContentStructure {
   int level;
   String hidden;
   String token = "f84bf33b56e86a4664284d8a3dfb5280";
-  int index;
+  late int index;
   dynamic chapterId;
 
   /*
@@ -178,11 +178,11 @@ class ContentStructure {
    */
 
   ContentStructure(
-      {this.title,
-      this.href,
-      this.level,
-      this.hidden,
-      this.filefullpath,
+      {required this.title,
+      required this.href,
+      required this.level,
+      required this.hidden,
+      required this.filefullpath,
       this.chapterId});
 
   factory ContentStructure.fromJson(Map<String, dynamic> json) {
@@ -224,23 +224,23 @@ class ModuleContent {
   String license;
   int filesize;
 
-  List<ModuleContent> contents;
+  List<ModuleContent>? contents;
 
   ModuleContent(
-      {this.type,
-      this.filename,
-      this.filepath,
-      this.fileurl,
-      this.content,
-      this.timecreated,
-      this.timemodified,
-      this.sortorder,
-      this.mimetype,
-      this.isexternalfile,
-      this.userid,
-      this.author,
-      this.license,
-      this.filesize});
+      {required this.type,
+      required this.filename,
+      required this.filepath,
+      required this.fileurl,
+      required this.content,
+      required this.timecreated,
+      required this.timemodified,
+      required this.sortorder,
+      required this.mimetype,
+      required this.isexternalfile,
+      required this.userid,
+      required this.author,
+      required this.license,
+      required this.filesize});
 
   factory ModuleContent.fromJson(Map<String, dynamic> json) {
     return ModuleContent(

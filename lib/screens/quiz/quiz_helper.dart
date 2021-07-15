@@ -7,9 +7,9 @@ class QuizHelper {
       Map<String, String> attributes, dom.Element element) {
     print(attributes);
     var inputType = attributes['type'];
-    var labelText = element.parent.text;
+    var labelText = element.parent!.text;
     if (labelText.isEmpty) {
-      labelText = attributes['value'];
+      labelText = attributes['value']!;
     }
     if (inputType == "checkbox") {
       bool checkStatus = false;
@@ -32,6 +32,7 @@ class QuizHelper {
     } else {
       return Checkbox(
         value: false,
+        onChanged: (bool? value) {},
       );
     }
   }

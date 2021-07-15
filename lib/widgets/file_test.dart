@@ -5,26 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
 class FileLister extends StatefulWidget {
-  FileLister({Key key, this.title}) : super(key: key);
+  FileLister({required Key key, required this.title}) : super(key: key);
   final String title;
   @override
   _FileListerState createState() => _FileListerState();
 }
 
 class _FileListerState extends State<FileLister> {
-  Future<Directory> _tempDirectory;
-
-  Future<Directory> _appSupportDirectory;
-
-  Future<Directory> _appLibraryDirectory;
-
-  Future<Directory> _appDocumentsDirectory;
-
-  Future<Directory> _externalDocumentsDirectory;
-
-  Future<List<Directory>> _externalStorageDirectories;
-
-  Future<List<Directory>> _externalCacheDirectories;
+  Future<Directory?>? _tempDirectory;
+  Future<Directory?>? _appSupportDirectory;
+  Future<Directory?>? _appLibraryDirectory;
+  Future<Directory?>? _appDocumentsDirectory;
+  Future<Directory?>? _externalDocumentsDirectory;
+  Future<List<Directory>?>? _externalStorageDirectories;
+  Future<List<Directory>?>? _externalCacheDirectories;
 
   void _requestTempDirectory() {
     setState(() {
@@ -33,13 +27,13 @@ class _FileListerState extends State<FileLister> {
   }
 
   Widget _buildDirectory(
-      BuildContext context, AsyncSnapshot<Directory> snapshot) {
+      BuildContext context, AsyncSnapshot<Directory?> snapshot) {
     Text text = const Text('');
     if (snapshot.connectionState == ConnectionState.done) {
       if (snapshot.hasError) {
         text = Text('Error: ${snapshot.error}');
       } else if (snapshot.hasData) {
-        text = Text('path: ${snapshot.data.path}');
+        text = Text('path: ${snapshot.data!.path}');
       } else {
         text = const Text('path unavailable');
       }
@@ -48,14 +42,14 @@ class _FileListerState extends State<FileLister> {
   }
 
   Widget _buildDirectories(
-      BuildContext context, AsyncSnapshot<List<Directory>> snapshot) {
+      BuildContext context, AsyncSnapshot<List<Directory>?> snapshot) {
     Text text = const Text('');
     if (snapshot.connectionState == ConnectionState.done) {
       if (snapshot.hasError) {
         text = Text('Error: ${snapshot.error}');
       } else if (snapshot.hasData) {
         final String combined =
-        snapshot.data.map((Directory d) => d.path).join(', ');
+        snapshot.data!.map((Directory d) => d.path).join(', ');
         text = Text('paths: $combined');
       } else {
         text = const Text('path unavailable');
@@ -116,7 +110,7 @@ class _FileListerState extends State<FileLister> {
                 onPressed: _requestTempDirectory,
               ),
             ),
-            FutureBuilder<Directory>(
+            FutureBuilder<Directory?>(
                 future: _tempDirectory, builder: _buildDirectory),
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -125,7 +119,7 @@ class _FileListerState extends State<FileLister> {
                 onPressed: _requestAppDocumentsDirectory,
               ),
             ),
-            FutureBuilder<Directory>(
+            FutureBuilder<Directory?>(
                 future: _appDocumentsDirectory, builder: _buildDirectory),
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -134,7 +128,7 @@ class _FileListerState extends State<FileLister> {
                 onPressed: _requestAppSupportDirectory,
               ),
             ),
-            FutureBuilder<Directory>(
+            FutureBuilder<Directory?>(
                 future: _appSupportDirectory, builder: _buildDirectory),
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -143,7 +137,7 @@ class _FileListerState extends State<FileLister> {
                 onPressed: _requestAppLibraryDirectory,
               ),
             ),
-            FutureBuilder<Directory>(
+            FutureBuilder<Directory?>(
                 future: _appLibraryDirectory, builder: _buildDirectory),
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -154,7 +148,7 @@ class _FileListerState extends State<FileLister> {
                 Platform.isIOS ? null : _requestExternalStorageDirectory,
               ),
             ),
-            FutureBuilder<Directory>(
+            FutureBuilder<Directory?>(
                 future: _externalDocumentsDirectory, builder: _buildDirectory),
             Column(children: <Widget>[
               Padding(
@@ -172,7 +166,7 @@ class _FileListerState extends State<FileLister> {
                 ),
               ),
             ]),
-            FutureBuilder<List<Directory>>(
+            FutureBuilder<List<Directory>?>(
                 future: _externalStorageDirectories,
                 builder: _buildDirectories),
             Column(children: <Widget>[
@@ -186,7 +180,7 @@ class _FileListerState extends State<FileLister> {
                 ),
               ),
             ]),
-            FutureBuilder<List<Directory>>(
+            FutureBuilder<List<Directory>?>(
                 future: _externalCacheDirectories, builder: _buildDirectories),
           ],
         ),

@@ -1,24 +1,18 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nl_health_app/screens/chapterDetails/chapterDetails.dart';
-import 'package:nl_health_app/screens/forum/home_screen.dart';
-import 'package:nl_health_app/screens/quiz/quiz_page.dart';
-import 'package:nl_health_app/screens/utilits/customDrawer.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
-import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CoursesSubPage extends StatefulWidget {
   final Course course;
   final SubCourse subCourse;
 
-  CoursesSubPage({this.subCourse, this.course});
+  CoursesSubPage({required this.subCourse, required this.course});
 
   @override
   _CoursesSubPageState createState() => _CoursesSubPageState();
@@ -79,6 +73,7 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
                   child: GridView.builder(
                       shrinkWrap: true,
                       physics: ClampingScrollPhysics(),
+                      // ignore: unnecessary_null_comparison
                       itemCount: widget.subCourse == null
                           ? 0
                           : widget.subCourse.modules.length,
@@ -97,14 +92,25 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          QuizPage(module: module_)));
+                                      builder: (context) => Text(
+                                            "30 posts",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18,
+                                                letterSpacing: .7),
+                                          )));
                             }
                             if (module_.modname == 'forum') {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => ForumHomePage()));
+                                      builder: (context) => Text(
+                                            "30 posts",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18,
+                                                letterSpacing: .7),
+                                          )));
                             } else if (module_.modname == 'book') {
                               Navigator.push(
                                   context,
@@ -128,7 +134,7 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
     );
   }
 
-  Widget _courseModuleCard(CourseModule courseModule, [Function onPressed]) {
+  Widget _courseModuleCard(CourseModule courseModule, [Function? onPressed]) {
     return Padding(
       padding: const EdgeInsets.only(top: 5.0),
       child: Column(
@@ -165,7 +171,7 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
                             AsyncSnapshot<File> snapshot) {
                           return snapshot.data != null
                               ? new Image.file(
-                                  snapshot.data,
+                                  snapshot.data!,
                                   height: 50.0,
                                   width: 50.0,
                                 )
@@ -199,7 +205,7 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
     return f;
   }
 
-  Widget _courseCard(SubCourse course, [Function onPressed]) {
+  Widget _courseCard(SubCourse course, [Function? onPressed]) {
     return Padding(
       padding: const EdgeInsets.only(top: 5.0),
       child: Column(
@@ -251,6 +257,7 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
 
   @override
   void initState() {
+    super.initState();
     //_loadCourseData();
     initApp();
   }
@@ -264,16 +271,16 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
     }
   }
 
-  String firstName;
-  String offline;
+  late String firstName;
+  late String offline;
 
   _getPref() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
-      offline = preferences.getString("offline");
-      firstName = preferences.getString("firstName");
+      offline = preferences.getString("offline")!;
+      firstName = preferences.getString("firstName")!;
     });
   }
 
-  List<SubCourse> _subCourseList;
+  late List<SubCourse> _subCourseList;
 }

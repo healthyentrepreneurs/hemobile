@@ -1,4 +1,5 @@
 import 'package:cool_stepper/cool_stepper.dart';
+import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_archive/flutter_archive.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
@@ -6,10 +7,7 @@ import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:nl_health_app/widgets/file_downloader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-
 import 'dart:io';
-import 'package:filesystem_picker/filesystem_picker.dart';
-
 
 class OfflineModulePage extends StatefulWidget {
   @override
@@ -42,10 +40,9 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
           iconTheme: IconThemeData(color: ToolsUtilities.mainPrimaryColor),
         ),
         body: Padding(
-          padding: const EdgeInsets.only(bottom:20.0),
+          padding: const EdgeInsets.only(bottom: 20.0),
           child: stepper(context),
-        )
-    );
+        ));
   }
 
   /// Create a stepper
@@ -56,8 +53,6 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
   //---
   final _formKey = GlobalKey<FormState>();
   var _offlineModeStatus = "off";
-  TextEditingController _nameCtrl = TextEditingController();
-  TextEditingController _emailCtrl = TextEditingController();
 
   Widget stepper(BuildContext context) {
     final List<CoolStep> steps = [
@@ -76,6 +71,7 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
             ),
             SizedBox(height: 30.0),
             ToggleSwitch(
+              totalSwitches: 2,
               minWidth: MediaQuery.of(context).size.width * 0.45,
               initialLabelIndex: _offlineModeStatus == 'on' ? 0 : 1,
               labels: ['OFFLINE ON', 'OFFLINE OFF'],
@@ -112,22 +108,21 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
                 child: RaisedButton(
                   onPressed: () async {
                     SharedPreferences preferences =
-                    await SharedPreferences.getInstance();
-                    int userId = preferences.getInt("id");
+                        await SharedPreferences.getInstance();
+                    int? userId = preferences.getInt("id");
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => UniFileDownloader(
                                 fileSystemUtil: FileSystemUtil(),
                                 imgUrl:
-                                "http://helper.healthyentrepreneurs.nl/downloadable/create_content/$userId",
+                                    "http://helper.healthyentrepreneurs.nl/downloadable/create_content/$userId",
                                 fileName: "HE Health.zip")));
                   },
                   color: Theme.of(context).primaryColor,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
-                      side: BorderSide(
-                          color: Theme.of(context).primaryColor)),
+                      side: BorderSide(color: Theme.of(context).primaryColor)),
                   child: Text(
                     'Download Offline HE Health.zip',
                     style: TextStyle(
@@ -137,8 +132,6 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
                   ),
                 ),
               ),
-
-
             ],
           ),
         ),
@@ -164,8 +157,7 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
                   color: Theme.of(context).primaryColor,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
-                      side: BorderSide(
-                          color: Theme.of(context).primaryColor)),
+                      side: BorderSide(color: Theme.of(context).primaryColor)),
                   child: Text(
                     'Extract Offline HE Health.zip',
                     style: TextStyle(
@@ -175,7 +167,6 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
                   ),
                 ),
               ),
-
             ],
           ),
         ),
@@ -197,8 +188,6 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
                     fontWeight: FontWeight.bold,
                     fontSize: 20),
               )
-
-
             ],
           ),
         ),
@@ -222,9 +211,9 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
   }
 
   Widget _buildTextField({
-    String labelText,
-    FormFieldValidator<String> validator,
-    TextEditingController controller,
+    required String labelText,
+    required FormFieldValidator<String> validator,
+    required TextEditingController controller,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
@@ -248,7 +237,7 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
 
   Future<void> extractZip() async {
     var rootPath = Directory(await FileSystemUtil().extDownloadsPath);
-    String path = await FilesystemPicker.open(
+    String? path = await FilesystemPicker.open(
       title: 'Select HE Health.zip file',
       context: context,
       rootDirectory: rootPath,
@@ -257,16 +246,11 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
       allowedExtensions: ['.zip'],
       fileTileSelectMode: FileTileSelectMode.wholeTile,
     );
-    if(path!=null){
-      await exeZip(File(path));
-    }
-
-
+    await exeZip(File(path!));
   }
 
   Future<void> exeZip(File zipFile) async {
-
-     String p = await FileSystemUtil().extDownloadsPath + "/HE Health/";
+    String p = await FileSystemUtil().extDownloadsPath + "/HE Health/";
     //---
     final destinationDir = Directory(p);
     try {
@@ -278,12 +262,12 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
             print('name: ${zipEntry.name}');
             print('isDirectory: ${zipEntry.isDirectory}');
             print(
-                'modificationDate: ${zipEntry.modificationDate.toLocal().toIso8601String()}');
+                'modificationDate: ${zipEntry.modificationDate!.toLocal().toIso8601String()}');
             print('uncompressedSize: ${zipEntry.uncompressedSize}');
             print('compressedSize: ${zipEntry.compressedSize}');
             print('compressionMethod: ${zipEntry.compressionMethod}');
             print('crc: ${zipEntry.crc}');
-            return ExtractOperation.extract;
+            return ZipFileOperation.includeItem;
           });
     } catch (e) {
       print(e);

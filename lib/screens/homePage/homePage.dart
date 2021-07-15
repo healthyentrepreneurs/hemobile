@@ -42,7 +42,7 @@ List<IconData> myicons = [
 
 class _HomepageState extends State<Homepage> {
   bool isLoading = true;
-  Store _store;
+  Store? _store;
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +111,7 @@ class _HomepageState extends State<Homepage> {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               child: Text(
-                "Hi${firstName == null ? '' : ', ' + firstName}!",
+                "Hi${firstName == null ? '' : ', ' + firstName!}!",
                 style: TextStyle(
                     color: Theme.of(context).primaryColor,
                     fontSize: 30.0,
@@ -127,8 +127,7 @@ class _HomepageState extends State<Homepage> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    LocalSurveySyncPage()));
+                                builder: (context) => LocalSurveySyncPage()));
                       },
                       child: ListTile(
                         title: _iconTextItem('You have $count unsent surveys',
@@ -149,9 +148,9 @@ class _HomepageState extends State<Homepage> {
                   padding: EdgeInsets.only(bottom: 40),
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  itemCount: _courseList == null ? 0 : _courseList.length,
+                  itemCount: _courseList == null ? 0 : _courseList!.length,
                   itemBuilder: (context, index) {
-                    Course course = _courseList[index];
+                    Course course = _courseList![index];
                     return _subjectCardWidget(course.fullName,
                         course.summaryCustom, course.imageUrlSmall, () {
                       print("Home click ${course.source}");
@@ -214,10 +213,10 @@ class _HomepageState extends State<Homepage> {
   }
 
   Widget _subjectCardWidget(String title, String description,
-      [String iconName, Function onTap]) {
+      [String? iconName, Function? onTap]) {
     return GestureDetector(
       onTap: () {
-        onTap();
+        onTap!();
       },
       child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
@@ -266,14 +265,14 @@ class _HomepageState extends State<Homepage> {
                         radius: 35.0,
                         backgroundColor: ToolsUtilities.mainBgColor,
                         backgroundImage:
-                            offline == 'off' ? NetworkImage(iconName) : null)
+                            offline == 'off' ? NetworkImage(iconName!) : null)
                     : FutureBuilder(
-                        future: _getLocalFile(iconName),
+                        future: _getLocalFile(iconName!),
                         builder: (BuildContext context,
                             AsyncSnapshot<File> snapshot) {
                           return snapshot.data != null
                               ? new Image.file(
-                                  snapshot.data,
+                                  snapshot.data!,
                                   height: 50.0,
                                   width: 50.0,
                                 )
@@ -290,6 +289,7 @@ class _HomepageState extends State<Homepage> {
     File f = new File('$dir$filename');
     return f;
   }
+
   @override
   void initState() {
     super.initState();
@@ -311,8 +311,8 @@ class _HomepageState extends State<Homepage> {
     loadLocalDataSets();
   }
 
-  String firstName;
-  String offline;
+  String? firstName;
+  String? offline;
 
   List dataSets = [];
   int count = 0;
@@ -334,7 +334,7 @@ class _HomepageState extends State<Homepage> {
       print("Paths --- $path  ---- xxdir $path'/objectbox'");
       _store = Store(getObjectBoxModel(), directory: path);
     }
-    final box = _store.box<SurveyDataModel>();
+    final box = _store!.box<SurveyDataModel>();
     final c = box.count();
     final notesWithNullText =
         box.getAll(); // executes the query, returns List<Note>
@@ -353,15 +353,15 @@ class _HomepageState extends State<Homepage> {
 
   @override
   void dispose() {
-    _store.close();
+    _store!.close();
     super.dispose();
   }
 
   _getPref() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
-      offline = preferences.getString("offline");
-      firstName = preferences.getString("firstName");
+      offline = preferences.getString("offline")!;
+      firstName = preferences.getString("firstName")!;
     });
   }
 
@@ -371,8 +371,8 @@ class _HomepageState extends State<Homepage> {
       isLoading = true;
     });
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    String token = preferences.getString("token");
-    int userId = preferences.getInt("id");
+    String token = preferences.getString("token")!;
+    int userId = preferences.getInt("id")!;
 
     OpenApi()
         .listCoursesWithToken(token, userId)
@@ -382,22 +382,21 @@ class _HomepageState extends State<Homepage> {
                 isLoading = false;
               }),
               //print(">> " + data?.body),
-              _processJson(data?.body)
+              _processJson(data.body)
             })
         .catchError(
             (err) => {isLoading = false, print("Error -- " + err.toString())});
   }
 
-  List<Course> _courseList = [];
+  List<Course>? _courseList = [];
 
   _processJson(String body) {
     //print(body);
     var courseJsonList = jsonDecode(body) as List;
     List<Course> coursesObjs =
         courseJsonList.map((tagJson) => Course.fromJson(tagJson)).toList();
-
+    // ignore: unnecessary_null_comparison
     if (coursesObjs != null) {
-      //print("Got courses -->${coursesObjs.length}");
       setState(() {
         _courseList = coursesObjs;
       });
@@ -409,13 +408,13 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
-  bool isNewUser;
-  String mainOfflinePath;
+  late bool isNewUser;
+  late String mainOfflinePath;
 
   void checkLoginStatus(BuildContext context) async {
     isLoading = true;
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    isNewUser = preferences.getBool("loginFlag");
+    isNewUser = preferences.getBool("loginFlag")!;
     print("Logged in user $isNewUser");
     isLoading = false;
     if (isNewUser) {
@@ -426,7 +425,7 @@ class _HomepageState extends State<Homepage> {
 
   void _checkPermissions() async {}
 
-  Future<String> _loadOfflineCourseData() async {
+  Future<String?> _loadOfflineCourseData() async {
     print("Local or offline data");
 
     mainOfflinePath = await FileSystemUtil().extDownloadsPath + "/HE Health";
