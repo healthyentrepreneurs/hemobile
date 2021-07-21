@@ -6,14 +6,15 @@ import 'package:nl_health_app/db2/survey_nosql_model.dart';
 import 'package:nl_health_app/screens/course/coursesPage.dart';
 import 'package:nl_health_app/screens/offline/survey_data_set_sync.dart';
 import 'package:nl_health_app/screens/survey/survey.dart';
+import 'package:nl_health_app/screens/utilits/PreferenceUtils.dart';
 import 'package:nl_health_app/screens/utilits/customDrawer.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
+import 'package:nl_health_app/screens/utilits/models/user_model.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nl_health_app/widgets/ProgressWidget.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../objectbox.g.dart';
 
 class Homepage extends StatefulWidget {
@@ -30,14 +31,6 @@ List<Map<String, String>> myTitles = [
     "title": "Symptom Checker",
     "subtitle": "A tool to help you diagnose the patient"
   },
-];
-List<IconData> myicons = [
-  FontAwesomeIcons.notEqual,
-  FontAwesomeIcons.vials,
-  FontAwesomeIcons.language,
-  FontAwesomeIcons.laptopCode,
-  FontAwesomeIcons.landmark,
-  FontAwesomeIcons.brush,
 ];
 
 class _HomepageState extends State<Homepage> {
@@ -111,7 +104,8 @@ class _HomepageState extends State<Homepage> {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               child: Text(
-                "Hi${firstName == null ? '' : ', ' + firstName!}!",
+                "Hi${', ' + firstName}!",
+                // "Hi${firstName == null ? '' : ', ' + firstName}!",
                 style: TextStyle(
                     color: Theme.of(context).primaryColor,
                     fontSize: 30.0,
@@ -148,9 +142,10 @@ class _HomepageState extends State<Homepage> {
                   padding: EdgeInsets.only(bottom: 40),
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  itemCount: _courseList == null ? 0 : _courseList!.length,
+                  itemCount: _courseList.length,
+                  // itemCount: _courseList == null ? 0 : _courseList.length,
                   itemBuilder: (context, index) {
-                    Course course = _courseList![index];
+                    Course course = _courseList[index];
                     return _subjectCardWidget(course.fullName,
                         course.summaryCustom, course.imageUrlSmall, () {
                       print("Home click ${course.source}");
@@ -305,14 +300,17 @@ class _HomepageState extends State<Homepage> {
   // }
 
   void initStore() async {
-    var path = await FileSystemUtil().localDocumentsPath;
-    print("Paths --- $path  ---- xxdir $path'/objectbox'");
-    _store = Store(getObjectBoxModel(), directory: path);
+    // var path = await FileSystemUtil().localDocumentsPath;
+    // print("Paths --- $path  ---- xxdir $path'/objectbox'");
+    // _store = Store(getObjectBoxModel(), directory: path);
+    // openStore().then((Store store) {
+    //   _store = store;
+    // });
     loadLocalDataSets();
   }
 
-  String? firstName;
-  String? offline;
+  late String firstName;
+  late String offline;
 
   List dataSets = [];
   int count = 0;
@@ -330,38 +328,45 @@ class _HomepageState extends State<Homepage> {
 
   Future<void> loadLocalDataSets() async {
     if (_store == null) {
+      openStore().then((Store store) {
+        _store = store;
+      });
+      print("Walah");
+    } else {
       var path = await FileSystemUtil().localDocumentsPath;
       print("Paths --- $path  ---- xxdir $path'/objectbox'");
       _store = Store(getObjectBoxModel(), directory: path);
+      print("Nah and Wak");
     }
-    final box = _store!.box<SurveyDataModel>();
-    final c = box.count();
-    final notesWithNullText =
-        box.getAll(); // executes the query, returns List<Note>
-
-    //var list = await LocalSurvey().select().toList();
-    setState(() {
-      dataSets = notesWithNullText;
-      count = c;
-    });
-    await readSurveyUpload();
-    for (var l in notesWithNullText) {
-      print("--- ${l.id} - ${l.text}");
-      //box.remove(l.id);
+    final box = _store?.box<SurveyDataModel>();
+    if (box != null) {
+      final c = box.count();
+      final notesWithNullText =
+          box.getAll(); // executes the query, returns List<Note>
+      setState(() {
+        dataSets = notesWithNullText;
+        count = c;
+      });
+      await readSurveyUpload();
+      for (var l in notesWithNullText) {
+        print("--- ${l.id} - ${l.text}");
+        //box.remove(l.id);
+      }
+    } else {
+      print("Papa Wemba");
     }
   }
 
   @override
   void dispose() {
-    _store!.close();
+    _store?.close();
     super.dispose();
   }
 
   _getPref() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
-      offline = preferences.getString("offline")!;
-      firstName = preferences.getString("firstName")!;
+      firstName = PreferenceUtils.getUser().firstname;
+      offline = PreferenceUtils.getOnline();
     });
   }
 
@@ -370,10 +375,8 @@ class _HomepageState extends State<Homepage> {
     setState(() {
       isLoading = true;
     });
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    String token = preferences.getString("token")!;
-    int userId = preferences.getInt("id")!;
-
+    String? token = PreferenceUtils.getUser().token;
+    int? userId = PreferenceUtils.getUser().id;
     OpenApi()
         .listCoursesWithToken(token, userId)
         .then((data) => {
@@ -388,36 +391,42 @@ class _HomepageState extends State<Homepage> {
             (err) => {isLoading = false, print("Error -- " + err.toString())});
   }
 
-  List<Course>? _courseList = [];
+  List<Course> _courseList = [];
 
   _processJson(String body) {
     //print(body);
     var courseJsonList = jsonDecode(body) as List;
     List<Course> coursesObjs =
         courseJsonList.map((tagJson) => Course.fromJson(tagJson)).toList();
-    // ignore: unnecessary_null_comparison
-    if (coursesObjs != null) {
-      setState(() {
-        _courseList = coursesObjs;
-      });
-      return coursesObjs;
-    } else {
-      showAlertDialog(
-          context, "Courses Loading Error!", "Failed to load courses");
-      return null;
-    }
+    // if (coursesObjs != null) {
+    //print("Got courses -->${coursesObjs.length}");
+    setState(() {
+      _courseList = coursesObjs;
+    });
+    return coursesObjs;
+    // }
+    // else {
+    //   showAlertDialog(
+    //       context, "Courses Loading Error!", "Failed to load courses");
+    //   return null;
+    // }
   }
 
-  late bool isNewUser;
   late String mainOfflinePath;
 
   void checkLoginStatus(BuildContext context) async {
     isLoading = true;
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    isNewUser = preferences.getBool("loginFlag")!;
-    print("Logged in user $isNewUser");
+    // SharedPreferences preferences = await SharedPreferences.getInstance();
     isLoading = false;
-    if (isNewUser) {
+    User? name;
+    if (name == null) {
+      print("Fuck Off");
+    } else {
+      String firstname = name.firstname;
+      print("Walah Now $firstname");
+    }
+    // if (isNewUser) {
+    if (true) {
       Navigator.pushReplacement(
           context, new MaterialPageRoute(builder: (context) => Homepage()));
     }

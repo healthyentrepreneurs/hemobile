@@ -3,13 +3,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:nl_health_app/screens/survey/survey_js_page_loader_browser.dart';
+import 'package:nl_health_app/screens/utilits/PreferenceUtils.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:nl_health_app/widgets/ProgressWidget.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SurveyMainPage extends StatefulWidget {
   final Course course;
@@ -100,10 +100,9 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
   String? offline;
 
   _getPref() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
-      offline = preferences.getString("offline")!;
-      firstName = preferences.getString("firstName")!;
+      offline = PreferenceUtils.getOnline();
+      firstName = PreferenceUtils.getUser().firstname;
     });
   }
 
@@ -120,8 +119,7 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
 
   //---
   void loadQuizItemsData() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    var token = pref.getString("token");
+    var token = PreferenceUtils.getUser().token;
     print('Token-->$token');
     setState(() {
       isLoading = true;

@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:nl_health_app/screens/forgetPassword/forgetPasswordPage.dart';
 import 'package:nl_health_app/screens/homePage/homePage.dart';
 import 'package:nl_health_app/screens/register/registerPage.dart';
+import 'package:nl_health_app/screens/utilits/PreferenceUtils.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/user_model.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:nl_health_app/widgets/ProgressWidget.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -21,7 +21,6 @@ class _LoginPageState extends State<LoginPage> {
   String? password;
   String? email;
   bool isLoading = false;
-
   @override
   Widget build(BuildContext context) {
     return ProgressWidget(
@@ -188,7 +187,6 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
     print("username $email passs =$password");
-
     setState(() {
       isLoading = true;
     });
@@ -198,26 +196,23 @@ class _LoginPageState extends State<LoginPage> {
               setState(() {
                 isLoading = false;
               }),
-              print(">> " + data.body),
+              // print(">> " + data.body),
               processJson(data.body)
             })
         .catchError((err) => {
               setState(() {
                 isLoading = false;
               }),
-              print("Error -- " + err)
+              print("Error -- " + err.toString())
             });
   }
 
   processJson(String body) {
     var json = jsonDecode(body);
-    print(json['code']);
     if (json['code'] == 200) {
       var user = User.fromJson(json['data']);
-      savePref(true, user.email, user.firstName, user.lastName, user.id,
-          user.profileImage, user.token, user.privatetoken, user.username);
-      print(user.firstName + " " + user.lastName);
-      showToast("Hi ${user.lastName}, welcome!");
+      PreferenceUtils.setUser(user);
+      PreferenceUtils.setLogin(true);
       Navigator.pushReplacement(
           context, new MaterialPageRoute(builder: (context) => Homepage()));
       return user;
@@ -234,21 +229,18 @@ class _LoginPageState extends State<LoginPage> {
     checkLoginStatus(context);
   }
 
-  bool? isNewUser;
-
   void checkLoginStatus(BuildContext context) async {
     isLoading = true;
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    isNewUser = preferences.getBool("loginFlag");
     setState(() {
       isLoading = false;
     });
-    // isNewUser == null ? false : true;
-    print("Logged in user $isNewUser");
-    if (isNewUser == true) {
-      Navigator.pushReplacement(
-          context, new MaterialPageRoute(builder: (context) => Homepage()));
-    }
+    PreferenceUtils.getLogin().then((value) => {
+          if (value)
+            {
+              Navigator.pushReplacement(context,
+                  new MaterialPageRoute(builder: (context) => Homepage()))
+            }
+        });
   }
 
   Future<void> initApp() async {

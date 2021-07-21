@@ -167,7 +167,30 @@ showAlertDialog(BuildContext context, String title, String msg,
     },
   );
 }
-
+savePrefRx(
+    SharedPreferences preferences,
+    bool loginFlag,
+    String email,
+    String firstName,
+    String lastName,
+    int id,
+    String profileImage,
+    String token,
+    String? privatetoken,
+    String username) async {
+  await preferences.setBool("loginFlag", loginFlag);
+  await preferences.setString("firstName", firstName);
+  await preferences.setString("lastName", lastName);
+  await preferences.setString("email", email);
+  await preferences.setInt("id", id);
+  await preferences.setString("offline", "off");
+  await preferences.setString("profileImage", profileImage);
+  await preferences.setString("token", token);
+  if (privatetoken != null) {
+    await preferences.setString("privatetoken", privatetoken);
+  }
+  await preferences.setString("username", username);
+}
 savePref(
     bool loginFlag,
     String email,
@@ -176,7 +199,7 @@ savePref(
     int id,
     String profileImage,
     String token,
-    String privatetoken,
+    String? privatetoken,
     String username) async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
   await preferences.setBool("loginFlag", loginFlag);
@@ -187,7 +210,9 @@ savePref(
   await preferences.setString("offline", "off");
   await preferences.setString("profileImage", profileImage);
   await preferences.setString("token", token);
-  await preferences.setString("privatetoken", privatetoken);
+  if (privatetoken != null) {
+    await preferences.setString("privatetoken", privatetoken);
+  }
   await preferences.setString("username", username);
 }
 

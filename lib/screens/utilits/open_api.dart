@@ -16,7 +16,6 @@ class OpenApi {
 
   Future<http.Response> register(
       String email, String firstName, String lastName) {
-    //http://35.238.72.107/user/set_newuser
     return http.post(urlConvert(Config.BASE_URL + 'user/set_newuser'),
         body: {'email': email, 'firstname': firstName, 'lastname': lastName});
   }

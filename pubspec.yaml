@@ -57,7 +57,6 @@ dependencies:
   intl: ^0.17.0
   objectbox: ^1.1.1
   objectbox_flutter_libs: ^1.1.1
-  stacked: ^2.2.2
 #  https://github.com/fluttercommunity/plus_plugins
   android_alarm_manager_plus: ^1.0.2 #https://pub.dev/packages/android_alarm_manager_plus
   archive: ^3.1.2

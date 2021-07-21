@@ -7,8 +7,7 @@ import 'package:nl_health_app/screens/offline/offline_activation_page.dart';
 import 'package:nl_health_app/screens/offline/survey_data_set_sync.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'PreferenceUtils.dart';
 import 'file_system_utill.dart';
 
 class CustomDrawer extends StatefulWidget {
@@ -40,10 +39,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
                               image: DecorationImage(
                                 fit: BoxFit.cover,
                                 image: offline != "off"
-                                    ? NetworkImage(profileImage == null
+                                    ? AssetImage(
+                                            'assets/images/schermafbeelding.png')
+                                        as ImageProvider
+                                    : NetworkImage(profileImage == null
                                         ? 'https://i.imgur.com/zsMvHeF.jpg'
-                                        : profileImage!)
-                                    : null as ImageProvider,
+                                        : profileImage!),
                               )),
                         )
                       : Container(
@@ -102,24 +103,6 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       title: _menuItem('Login', FontAwesomeIcons.signInAlt),
                     ),
                   ),
-            /* InkWell(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => SubjectsPage()));
-              },
-              child: ListTile(
-                title: _menuItem('Subjects', FontAwesomeIcons.centercode),
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => MyAccountPage()));
-              },
-              child: ListTile(
-                title: _menuItem('My Account', FontAwesomeIcons.userCircle),
-              ),
-            ),*/
             InkWell(
               onTap: () {
                 Navigator.push(context,
@@ -152,44 +135,6 @@ class _CustomDrawerState extends State<CustomDrawer> {
                     'Upload Survey Data', FontAwesomeIcons.cloudUploadAlt),
               ),
             ),
-            /* InkWell(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AboutUstPage()));
-              },
-              child: ListTile(
-                title: _menuItem('About', FontAwesomeIcons.bookReader),
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => OfflineModulePage()));
-              },
-              child: ListTile(
-                title: _menuItem('Contact Us', FontAwesomeIcons.envelope),
-              ),
-            ),
-
-            InkWell(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Homepage()));
-              },
-              child: ListTile(
-                title: _menuItem('Paths guy', FontAwesomeIcons.envelope),
-              ),
-            ),*/
-
-            /*InkWell(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => FileDownloader(fileSystemUtil: new FileSystemUtil(),)));
-              },
-              child: ListTile(
-                title: _menuItem('File Downloader', FontAwesomeIcons.envelope),
-              ),
-            ),*/
           ],
         ),
       ),
@@ -237,23 +182,21 @@ class _CustomDrawerState extends State<CustomDrawer> {
   late String offline;
 
   getPref() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    firstName = preferences.getString("firstName")!;
-    lastName = preferences.getString("lastName")!;
-    email = preferences.getString("email")!;
-    profileImage = preferences.getString("profileImage")!;
-    username = preferences.getString("username")!;
+    firstName = PreferenceUtils.getUser().firstname;
+    lastName = PreferenceUtils.getUser().lastname;
+    email = PreferenceUtils.getUser().email;
+    profileImage =PreferenceUtils.getUser().profileimageurlsmall;
+    username = PreferenceUtils.getUser().username;
     setState(() {
-      offline = preferences.getString("offline")!;
-      firstName = preferences.getString("firstName")!;
+      offline = PreferenceUtils.getOnline();
+      firstName = PreferenceUtils.getUser().firstname;
     });
 
     print("$firstName $profileImage");
   }
 
   signOut(BuildContext context) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.clear();
+    PreferenceUtils.init().then((value) => value.clear());
     // await preferences.setBool("loginFlag", null);
     // await preferences.setString("firstName", null);
     // await preferences.setString("lastName", null);
@@ -270,12 +213,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
   bool isNewUser = false;
 
   void checkLoginStatus(BuildContext context) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    isNewUser = preferences.getBool("loginFlag")!;
-    print("Logged in user $isNewUser");
-    if (isNewUser) {
-      /* Navigator.pushReplacement(
-          context, new MaterialPageRoute(builder: (context) => Homepage()));*/
-    }
+    PreferenceUtils.getLogin().then((value) => {
+      if (value)
+        {
+          Navigator.pushReplacement(context,
+              new MaterialPageRoute(builder: (context) => Homepage()))
+        }
+    });
   }
 }
