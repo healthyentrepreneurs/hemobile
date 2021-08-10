@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
+import 'package:nl_health_app/screens/utilits/models/course_model.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -16,7 +17,7 @@ class ChapterDetails extends StatefulWidget {
   final Course? course;
   final FileSystemUtil? fileSystemUtil;
 
-  ChapterDetails({this.courseModule,this.fileSystemUtil,this.course});
+  ChapterDetails({this.courseModule, this.fileSystemUtil, this.course});
 
   @override
   _ChapterDetailsState createState() => _ChapterDetailsState();
@@ -30,13 +31,13 @@ class _ChapterDetailsState extends State<ChapterDetails> {
 
   @override
   Widget build(BuildContext context) {
-    CourseModule? cMod = widget.courseModule;
+    CourseModule cMod = widget.courseModule!;
     //_coursePagerList = this.createCoursePagerFromStructure();
 
     return Scaffold(
         appBar: AppBar(
           title: Text(
-            cMod!.name,
+            cMod.name!,
             style: TextStyle(color: ToolsUtilities.mainPrimaryColor),
           ),
           backgroundColor: Colors.transparent,
@@ -54,7 +55,8 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                   coursePage: _coursePagerList[index],
                   courseContents: widget.courseModule!.contents,
                   courseModule: widget.courseModule,
-                  course: widget.course,);
+                  course: widget.course,
+                );
                 //return bookHtmlPagerUi(index);
                 //return coursePagerUi(contentObj);
               },
@@ -259,10 +261,10 @@ class _ChapterDetailsState extends State<ChapterDetails> {
   List<ContentStructure> createCoursePagerFromStructure() {
     try {
       var contentsList = widget.courseModule!.contents;
-      print("ccc ${contentsList.length}");
+      print("ccc ${contentsList!.length}");
       var index_ = contentsList.indexWhere((elm) => elm.type == 'content');
       //print("Courses list struct -->$index_");
-      var courseJsonList = jsonDecode(contentsList[index_].content) as List;
+      var courseJsonList = jsonDecode(contentsList[index_].content!) as List;
       print("xxxxx$courseJsonList");
       List<ContentStructure> coursesObjs = [];
 
@@ -303,7 +305,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
         final fileUrl = e.filefullpath;
         print(">>>File download link Index ${e.index} title ${e.title}");
         String contentTxt =
-        await widget.fileSystemUtil!.readFileContentLink(fileUrl);
+            await widget.fileSystemUtil!.readFileContentLink(fileUrl);
         cp.add(PageItem(contentTxt, e.index, e.title));
         // ignore: unnecessary_null_comparison
         if (contentText != null) {

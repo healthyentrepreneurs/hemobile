@@ -37,7 +37,7 @@ class PreferenceUtils {
     return _saveToDisk(UserKey, json.encode(userToSave.toJson()));
   }
 
-  static bool getLoginxx() => _getFromDisk(LoginFlag) ?? false;
+  static bool getLoginNow() => _getFromDisk(LoginFlag) ?? false;
   static Future<bool> getLogin() async {
     var prefs = await _instance;
     return prefs.getBool(LoginFlag) ?? false;

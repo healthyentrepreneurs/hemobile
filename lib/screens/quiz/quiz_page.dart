@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:nl_health_app/screens/quiz/quiz_helper.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/models/quiz_model.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
@@ -32,7 +31,7 @@ class _QuizPageState extends State<QuizPage> {
         backgroundColor: ToolsUtilities.mainBgColor,
         appBar: AppBar(
           title: Text(
-            cMod.name,
+            cMod.name!,
             style: TextStyle(color: ToolsUtilities.mainPrimaryColor),
           ),
           backgroundColor: Colors.white,

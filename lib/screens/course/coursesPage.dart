@@ -7,8 +7,6 @@ import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'coursesSubPage.dart';
 
 class CoursesPage extends StatefulWidget {
@@ -46,30 +44,23 @@ class _CoursesPageState extends State<CoursesPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        SizedBox(height: 30.0),
-                        Text(widget.course.fullName,
-                            style: TextStyle(
-                                color: ToolsUtilities.mainPrimaryColor,
-                                fontSize: 25.0,
-                                fontWeight: FontWeight.bold)),
-                        SizedBox(height: 15.0),
-                        Container(
-                          width: MediaQuery.of(context).size.width * 0.8,
-                          child: Text(widget.course.summaryCustom,
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          // SizedBox(height: 30.0),
+                          Text(widget.course.summaryCustom,
                               style: TextStyle(
                                   color: Colors.black,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w300)),
-                        ),
-                      ],
+                                  fontSize: 15.0,
+                                  fontWeight: FontWeight.bold)),
+                        ],
+                      ),
                     ),
                   ],
                 )),
               ),
-              SizedBox(height: 30.0),
+              // SizedBox(height: 30.0),
               Container(
                 child: SingleChildScrollView(
                   child: GridView.builder(
@@ -77,15 +68,14 @@ class _CoursesPageState extends State<CoursesPage> {
                       physics: ClampingScrollPhysics(),
                       itemCount:
                           // ignore: unnecessary_null_comparison
-                          _subCourseList == null ? 0 : _subCourseList.length,
+                          _subCourseList == null ? 0 : _subCourseList?.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                       ),
                       itemBuilder: (BuildContext context, int index) {
-                        var subCourse = this._subCourseList[index];
-
+                        var subCourse = this._subCourseList?[index];
                         return new GestureDetector(
-                          child: _courseCard(subCourse),
+                          child: _courseCard(subCourse!),
                           onTap: () {
                             Navigator.push(
                                 context,
@@ -122,27 +112,29 @@ class _CoursesPageState extends State<CoursesPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                offline=="off"?
-                CircleAvatar(
-                  radius: 35.0,
-                  backgroundImage: NetworkImage(widget.course.imageUrlSmall),
-                ):
-                FutureBuilder(
-                    future: _getLocalFile(widget.course.imageUrlSmall),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<File> snapshot) {
-                      return snapshot.data != null
-                          ? new Image.file(snapshot.data!,
-                        height: 50.0,width: 50.0,
+                offline == "off"
+                    ? CircleAvatar(
+                        radius: 35.0,
+                        backgroundImage:
+                            NetworkImage(widget.course.imageUrlSmall),
                       )
-                          : new Container();
-                    })
-                ,
+                    : FutureBuilder(
+                        future: _getLocalFile(widget.course.imageUrlSmall),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<File> snapshot) {
+                          return snapshot.data != null
+                              ? new Image.file(
+                                  snapshot.data!,
+                                  height: 50.0,
+                                  width: 50.0,
+                                )
+                              : new Container();
+                        }),
                 Padding(
                   padding:
                       const EdgeInsets.only(top: 6.0, left: 5.0, right: 5.0),
                   child: Text(
-                    course.name,
+                    course.name!,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
@@ -184,10 +176,19 @@ class _CoursesPageState extends State<CoursesPage> {
   late String offline;
 
   _getPref() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String? firstNameLocal = (await preferenceUtil.getUser())?.firstname;
+    String? offlineLocal = await preferenceUtil.getOnline();
+    // offline = await preferenceUtil.getOnline();
+    // firstNameLocal != null
+    //     ? setState(() {
+    //         firstName = firstNameLocal;
+    //       })
+    //     : null;
     setState(() {
-      offline = preferences.getString("offline")!;
-      firstName = preferences.getString("firstName")!;
+      if (firstNameLocal != null) {
+        firstName = firstNameLocal;
+      }
+      offline = offlineLocal;
     });
   }
 
@@ -219,11 +220,10 @@ class _CoursesPageState extends State<CoursesPage> {
               print(">> " + data.body),
               _processJson(data.body)
             })
-        .catchError((err) => {print("Error -- " + err.toString())});
+        .catchError((err) => {print("Error  coursesPage " + err.toString())});
   }
 
-  late List<SubCourse> _subCourseList;
-
+  List<SubCourse>? _subCourseList;
   _processJson(String body) {
     //print(body);
     var json = jsonDecode(body);
@@ -243,4 +243,21 @@ class _CoursesPageState extends State<CoursesPage> {
       return null;
     }
   }
+
+// _processJson(String body) {
+  //   var json = jsonDecode(body);
+  //   InitHandle? objectCourses = InitHandle.fromJson(json);
+  //   List<SubCourse>? coursesObjs = objectCourses.data;
+  //   if (coursesObjs != null) {
+  //     print("Got Sub courses -->${coursesObjs.length}");
+  //     setState(() {
+  //       _subCourseList = coursesObjs;
+  //     });
+  //     return coursesObjs;
+  //   } else {
+  //     showAlertDialog(
+  //         context, "Courses Loading Error!", "Failed to load courses");
+  //     return null;
+  //   }
+  // }
 }

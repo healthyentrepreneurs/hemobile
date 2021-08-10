@@ -7,8 +7,11 @@ import 'package:nl_health_app/screens/offline/offline_activation_page.dart';
 import 'package:nl_health_app/screens/offline/survey_data_set_sync.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'PreferenceUtils.dart';
+import 'package:nl_health_app/services/service_locator.dart';
+import 'package:nl_health_app/services/storage_service/storage_service.dart';
+
 import 'file_system_utill.dart';
+import 'models/user_model.dart';
 
 class CustomDrawer extends StatefulWidget {
   @override
@@ -16,6 +19,7 @@ class CustomDrawer extends StatefulWidget {
 }
 
 class _CustomDrawerState extends State<CustomDrawer> {
+  final preferenceUtil = getIt<StorageService>();
   @override
   Widget build(BuildContext context) {
     //getPref();
@@ -37,24 +41,24 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   BorderRadius.all(Radius.circular(50)),
                               color: Colors.grey,
                               image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: offline != "off"
-                                    ? AssetImage(
-                                            'assets/images/schermafbeelding.png')
-                                        as ImageProvider
-                                    : NetworkImage(profileImage == null
-                                        ? 'https://i.imgur.com/zsMvHeF.jpg'
-                                        : profileImage!),
-                              )),
+                                  fit: BoxFit.cover,
+                                  image: offline == "off"
+                                      ? NetworkImage(profileImage == null
+                                          ? 'https://i.imgur.com/zsMvHeF.jpg'
+                                          : profileImage!)
+                                      : AssetImage(
+                                              'assets/images/noImageAvailable.png')
+                                          as ImageProvider)),
                         )
                       : Container(
                           height: 100,
                           width: 100,
                           child: FutureBuilder(
+                              //To Be Revisited
                               future: FileSystemUtil().getLocalFile(
                                   profileImage == null
-                                      ? 'https://i.imgur.com/zsMvHeF.jpg'
-                                      : profileImage!),
+                                      ? "/images/59small_loginimage.png"
+                                      : "/images/59small_loginimage.png"),
                               builder: (BuildContext context,
                                   AsyncSnapshot<File> snapshot) {
                                 return snapshot.data != null
@@ -85,7 +89,18 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 title: _menuItem('Home', FontAwesomeIcons.home),
               ),
             ),
-            isNewUser
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Text("I am Locki")));
+              },
+              child: ListTile(
+                title: _menuItem('Forum', FontAwesomeIcons.userFriends),
+              ),
+            ),
+            isNewUser == 2
                 ? InkWell(
                     onTap: () {
                       signOut(context);
@@ -103,6 +118,24 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       title: _menuItem('Login', FontAwesomeIcons.signInAlt),
                     ),
                   ),
+            /* InkWell(
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => SubjectsPage()));
+              },
+              child: ListTile(
+                title: _menuItem('Subjects', FontAwesomeIcons.centercode),
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => MyAccountPage()));
+              },
+              child: ListTile(
+                title: _menuItem('My Account', FontAwesomeIcons.userCircle),
+              ),
+            ),*/
             InkWell(
               onTap: () {
                 Navigator.push(context,
@@ -169,34 +202,36 @@ class _CustomDrawerState extends State<CustomDrawer> {
   void initState() {
     super.initState();
     getPref();
-    checkLoginStatus(context);
   }
 
   var value;
-  late String firstName;
-  late String lastName;
-  late String email;
-  late String? profileImage;
-
-  late String username;
-  late String offline;
+  String? firstName;
+  String? lastName;
+  String? email;
+  String? profileImage;
+  int? isNewUser;
+  String? username;
+  String? offline;
 
   getPref() async {
-    firstName = PreferenceUtils.getUser().firstname;
-    lastName = PreferenceUtils.getUser().lastname;
-    email = PreferenceUtils.getUser().email;
-    profileImage =PreferenceUtils.getUser().profileimageurlsmall;
-    username = PreferenceUtils.getUser().username;
-    setState(() {
-      offline = PreferenceUtils.getOnline();
-      firstName = PreferenceUtils.getUser().firstname;
-    });
-
+    User? user = (await preferenceUtil.getUser());
+    isNewUser = (await preferenceUtil.getLogin())!;
+    if (user != null) {
+      firstName = user.firstname;
+      lastName = user.lastname;
+      email = user.email;
+      profileImage = user.profileimageurlsmall;
+      username = user.username;
+      setState(() {
+        preferenceUtil.getOnline().then((value) => {offline = value});
+        firstName = user.firstname;
+      });
+    }
     print("$firstName $profileImage");
   }
 
   signOut(BuildContext context) async {
-    PreferenceUtils.init().then((value) => value.clear());
+    preferenceUtil.clearLogin();
     // await preferences.setBool("loginFlag", null);
     // await preferences.setString("firstName", null);
     // await preferences.setString("lastName", null);
@@ -209,16 +244,6 @@ class _CustomDrawerState extends State<CustomDrawer> {
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => LoginPage()));
   }
-
-  bool isNewUser = false;
-
-  void checkLoginStatus(BuildContext context) async {
-    PreferenceUtils.getLogin().then((value) => {
-      if (value)
-        {
-          Navigator.pushReplacement(context,
-              new MaterialPageRoute(builder: (context) => Homepage()))
-        }
-    });
-  }
 }
+//For Images When They Come
+//https://stackoverflow.com/questions/66561177/the-argument-type-object-cant-be-assigned-to-the-parameter-type-imageprovide

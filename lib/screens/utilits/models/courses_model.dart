@@ -1,4 +1,4 @@
-import 'dart:convert';
+
 
 class Course {
   dynamic id;
@@ -42,33 +42,22 @@ class Course {
 }
 
 class SubCourse {
-  dynamic id;
-  String name;
-  int visible;
-  String summary;
-  int summaryformat;
-  int section;
-  List<CourseModule> modules;
-
-  /*
-   "id": 5,
-      "name": "Site",
-      "visible": 1,
-      "summary": "",
-      "summaryformat": 1,
-      "section": 1,
-      "hiddenbynumsections": 1,
-
-   */
+  int? id;
+  String? name;
+  int? visible;
+  String? summary;
+  int? summaryformat;
+  int? section;
+  List<CourseModule>? modules;
 
   SubCourse(
       {this.id,
-      required this.name,
-      required this.visible,
-      required this.summary,
-      required this.summaryformat,
-      required this.section,
-      required this.modules});
+      this.name,
+      this.visible,
+      this.summary,
+      this.summaryformat,
+      this.section,
+      this.modules});
 
   factory SubCourse.fromJson(Map<String, dynamic> json) {
     return SubCourse(
@@ -84,45 +73,26 @@ class SubCourse {
   }
 }
 
-/*
- "id": 2,
-          "url": "https://app.healthyentrepreneurs.nl/mod/lesson/view.php?id=2",
-          "name": "Education - What is Malaria?",
-          "instance": 1,
-          "visible": 1,
-          "uservisible": true,
-          "visibleoncoursepage": 1,
-          "modicon": "https://app.healthyentrepreneurs.nl/theme/image.php/_s/academi/lesson/1602920007/icon",
-          "modname": "lesson",
-          "modplural": "Lessons",
-          "availability": null,
-          "indent": 0,
-          "onclick": "",
-          "afterlink": null,
-          "customdata": "\"\"",
-          "noviewlink": false,
-          "completion": 1
- */
 class CourseModule {
   dynamic id;
-  String name;
-  String description;
-  String url;
-  String modicon;
-  String modname;
-  String modplural;
+  String? name;
+  String? description;
+  String? url;
+  String? modicon;
+  String? modname;
+  String? modplural;
   dynamic instance;
-  List<ModuleContent> contents;
+  List<ModuleContent>? contents;
 
   CourseModule({
     required this.id,
-    required this.name,
-    required this.url,
-    required this.modicon,
-    required this.modname,
-    required this.modplural,
-    required this.contents,
-    required this.description,
+    this.name,
+    this.url,
+    this.modicon,
+    this.modname,
+    this.modplural,
+    this.contents,
+    this.description,
     this.instance,
   });
 
@@ -210,37 +180,37 @@ class ContentStructure {
 
 class ModuleContent {
   String type;
-  String filename;
-  String filepath;
-  String fileurl;
-  String content;
-  int timecreated;
-  int timemodified;
-  int sortorder;
-  String mimetype;
-  bool isexternalfile;
-  int userid;
-  String author;
-  String license;
-  int filesize;
+  String? filename;
+  String? filepath;
+  String? fileurl;
+  String? content;
+  int? timecreated;
+  int? timemodified;
+  int? sortorder;
+  String? mimetype;
+  bool? isexternalfile;
+  int? userid;
+  String? author;
+  String? license;
+  int? filesize;
 
   List<ModuleContent>? contents;
 
   ModuleContent(
       {required this.type,
-      required this.filename,
-      required this.filepath,
-      required this.fileurl,
-      required this.content,
-      required this.timecreated,
-      required this.timemodified,
-      required this.sortorder,
-      required this.mimetype,
-      required this.isexternalfile,
-      required this.userid,
-      required this.author,
-      required this.license,
-      required this.filesize});
+      this.filename,
+      this.filepath,
+      this.fileurl,
+      this.content,
+      this.timecreated,
+      this.timemodified,
+      this.sortorder,
+      this.mimetype,
+      this.isexternalfile,
+      this.userid,
+      this.author,
+      this.license,
+      this.filesize});
 
   factory ModuleContent.fromJson(Map<String, dynamic> json) {
     return ModuleContent(

@@ -13,11 +13,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:nl_health_app/db2/survey_nosql_model.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
+import 'package:nl_health_app/screens/utilits/home_helper.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
+import 'package:nl_health_app/services/service_locator.dart';
+import 'package:nl_health_app/services/storage_service/storage_service.dart';
 import 'package:nl_health_app/widgets/ProgressWidget.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../objectbox.g.dart';
+import 'package:tuple/tuple.dart';
 
 class LocalSurveySyncPage extends StatefulWidget {
   LocalSurveySyncPage();
@@ -27,9 +29,9 @@ class LocalSurveySyncPage extends StatefulWidget {
 }
 
 class LocalSurveySyncPageState extends State {
+  final preferenceUtil = getIt<StorageService>();
+  final storeHelper = getIt<HomeHelper>();
   LocalSurveySyncPageState();
-
-  Store? _store;
 
   @override
   void initState() {
@@ -38,9 +40,6 @@ class LocalSurveySyncPageState extends State {
   }
 
   void initStore() async {
-    var path = await FileSystemUtil().localDocumentsPath;
-    //print("Paths --- $path  ---- xxdir $path'/objectbox'");
-    if (_store == null) _store = Store(getObjectBoxModel(), directory: path);
     loadLocalDataSets();
     loadStatsDataSets();
   }
@@ -135,10 +134,10 @@ class LocalSurveySyncPageState extends State {
 
   Future<void> loadStatsDataSets() async {
     try {
-      final box = _store!.box<ViewsDataModel>();
+      Tuple2<List<ViewsDataModel>, int> allViewsBooks =
+          await storeHelper.getTotalCountBooks();
       //box.removeAll();
-      final c = box.count();
-      //var list = await LocalSurvey().select().toList();
+      final c = allViewsBooks.item2;
       setState(() {
         countDataSet = c;
       });
@@ -147,12 +146,10 @@ class LocalSurveySyncPageState extends State {
 
   Future<void> loadLocalDataSets() async {
     try {
-      final box = _store!.box<SurveyDataModel>();
-
-      final c = box.count();
-      final notesWithNullText =
-          box.getAll(); // executes the query, returns List<Note>
-
+      Tuple2<List<SurveyDataModel>, int> allSurvey =
+          await storeHelper.getTotalCount();
+      final c = allSurvey.item2;
+      final notesWithNullText = allSurvey.item1;
       //var list = await LocalSurvey().select().toList();
       setState(() {
         dataSets = notesWithNullText;
@@ -238,9 +235,8 @@ class LocalSurveySyncPageState extends State {
   }
 
   Future<void> deleteLocalSurveyById(int id) async {
-    final box = _store!.box<SurveyDataModel>();
+    bool removed = await storeHelper.deleteSurvey(id);
     //var x = box.get(id);
-    var removed = box.remove(id);
     print("Deleted status $removed");
     loadLocalDataSets();
   }
@@ -254,16 +250,25 @@ class LocalSurveySyncPageState extends State {
   String? surveyUploadDate;
 
   Future<void> readSurveyUpload() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    setState(() {
-      surveyUploadDate = preferences.getString("survey_upload_date");
-    });
+    String? surveyUploadLocal = await preferenceUtil.getSurveyUploadDate();
+    if (surveyUploadLocal != null) {
+      setState(() {
+        surveyUploadDate = surveyUploadLocal;
+      });
+    }
+    // preferenceUtil.getSurveyUploadDate().then((value) => {
+    //       value != null
+    //           ? setState(() {
+    //               surveyUploadDate = value;
+    //             })
+    //           : null
+    //     });
+    print("What Have We Done? Naki $surveyUploadDate");
   }
 
   Future<void> postJsonDataOnline(
       String body, dynamic surveyId, int localId) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    int? userId = preferences.getInt("id");
+    int? userId = (await preferenceUtil.getUser())?.id;
     Map<String, dynamic> j = new Map();
     j["userId"] = userId;
     j["surveyId"] = surveyId;
@@ -280,9 +285,9 @@ class LocalSurveySyncPageState extends State {
       final decodedBytes = base64Decode(cleanerImage);
       OpenApi()
           .imageBytePost(decodedBytes, imageName, userId.toString(), surveyId)
-          .then((data) {
-      }).catchError((err) => {print("Uploading Image -- " + err.toString())});
-      j2["image-upload"]=imageName;
+          .then((data) {})
+          .catchError((err) => {print("Uploading Image -- " + err.toString())});
+      j2["image-upload"] = imageName;
     }
     j["jsondata"] = jsonEncode(j2);
     String b = jsonEncode(j);
@@ -377,11 +382,11 @@ class LocalSurveySyncPageState extends State {
   Future<int> uploadLocalDataSetsViewsDataModel() async {
     var path = await FileSystemUtil().localDocumentsPath;
     print("Paths --- $path  ---- xxdir $path'/objectbox'");
-    Store _store = Store(getObjectBoxModel(), directory: path);
-    final box = _store.box<ViewsDataModel>();
-    final c = box.count();
-    final dataSets = box.getAll();
-
+    // final box = _store.box<ViewsDataModel>();
+    Tuple2<List<ViewsDataModel>, int> allViewsBooks =
+        await storeHelper.getTotalCountBooks();
+    final c = allViewsBooks.item2;
+    final dataSets = allViewsBooks.item1;
     //print("--> $dataSets");
     //---
     if (c < 1) {
@@ -397,7 +402,7 @@ class LocalSurveySyncPageState extends State {
         });
       }
       await submitOnlineStat(
-          l.bookId, l.chapterId, l.id, l.courseId, l.dateTimeStr, box);
+          l.bookId, l.chapterId, l.id, l.courseId, l.dateTimeStr);
     }
     if (c >= 1) saveUploadDatesPref();
     return 1;
@@ -405,19 +410,17 @@ class LocalSurveySyncPageState extends State {
   }
 
   Future<void> submitOnlineStat(dynamic instance, dynamic chapterId,
-      int localId, dynamic courseId, dynamic dateTimeStr, Box box) async {
+      int localId, dynamic courseId, dynamic dateTimeStr) async {
     try {
       //user/viwedbook/{instanceid}/{path}/{token}
-      SharedPreferences preferences = await SharedPreferences.getInstance();
-      String? userToken = preferences.getString("token");
-      String? username = preferences.getString("username");
-
+      String? username = (await preferenceUtil.getUser())?.username;
+      String? userToken = (await preferenceUtil.getUser())?.token;
       var value = await OpenApi().postStats(
           userToken!, instance, chapterId, username, courseId, dateTimeStr);
       // ignore: unnecessary_null_comparison
       if (value != null) {
         // print("Updated stats");
-        box.remove(localId);
+        await storeHelper.deleteBookView(localId);
         loadStatsDataSets();
       } else {
         print("No value as got ....");

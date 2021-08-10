@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:nl_health_app/screens/survey/survey_js_page_loader_browser.dart';
-import 'package:nl_health_app/screens/utilits/PreferenceUtils.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
+import 'package:nl_health_app/screens/utilits/models/user_model.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:nl_health_app/widgets/ProgressWidget.dart';
@@ -24,7 +24,6 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
   dynamic surveyData;
   late String surveyDataString;
   bool isLoading = false;
-
   @override
   Widget build(BuildContext context) {
     return ProgressWidget(
@@ -87,7 +86,6 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
     initApp();
   }
 
-
   void initApp() async {
     await _getPref();
     if (offline == "on") {
@@ -96,13 +94,18 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
       this.loadQuizItemsData();
     }
   }
+
   String? firstName;
   String? offline;
-
   _getPref() async {
+    User? user = (await preferenceUtil.getUser());
+    // firstNameLocal
+    String? offlineLocal = (await preferenceUtil.getOnline());
     setState(() {
-      offline = PreferenceUtils.getOnline();
-      firstName = PreferenceUtils.getUser().firstname;
+      if (user != null) {
+        firstName = user.firstname;
+      }
+      offline = offlineLocal;
     });
   }
 
@@ -119,7 +122,8 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
 
   //---
   void loadQuizItemsData() async {
-    var token = PreferenceUtils.getUser().token;
+    User user = (await preferenceUtil.getUser())!;
+    String token = user.token;
     print('Token-->$token');
     setState(() {
       isLoading = true;
@@ -172,7 +176,6 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
   Future<void> requestPermission(Permission permission) async {
     final status = await permission.request();
   }
-
 
   late String mainOfflinePath;
   Future<String?> _loadOfflineQuizItemsData() async {

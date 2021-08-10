@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_archive/flutter_archive.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
+import 'package:nl_health_app/services/service_locator.dart';
+import 'package:nl_health_app/services/storage_service/storage_service.dart';
 import 'package:nl_health_app/widgets/file_downloader.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'dart:io';
+// import 'package:universal_html/html.dart';
+
 
 class OfflineModulePage extends StatefulWidget {
   @override
@@ -15,6 +18,7 @@ class OfflineModulePage extends StatefulWidget {
 }
 
 class _OfflineModulePageState extends State<OfflineModulePage> {
+  final preferenceUtil = getIt<StorageService>();
   @override
   Widget build(BuildContext context) {
     return _uiSetup(context);
@@ -52,7 +56,7 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
 
   //---
   final _formKey = GlobalKey<FormState>();
-  var _offlineModeStatus = "off";
+  String? _offlineModeStatus;
 
   Widget stepper(BuildContext context) {
     final List<CoolStep> steps = [
@@ -72,15 +76,25 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
             SizedBox(height: 30.0),
             ToggleSwitch(
               totalSwitches: 2,
-              minWidth: MediaQuery.of(context).size.width * 0.45,
+              minWidth: MediaQuery.of(context).size.width * 0.44,
               initialLabelIndex: _offlineModeStatus == 'on' ? 0 : 1,
               labels: ['OFFLINE ON', 'OFFLINE OFF'],
               onToggle: (index) {
+                //To Be Revisited
                 var x = index == 0 ? 'on' : 'off';
                 setState(() {
                   _offlineModeStatus = x;
                 });
-                saveOfflineStatusPref(x);
+
+                if(x=="on"){
+                  print("Okay Fuck tomo $x");
+                  preferenceUtil.setOnline(x);
+                }
+                if(x=="off"){
+                  print("Okay Fuck now $x");
+                  preferenceUtil.setOffline(x);
+                }
+                // x=="on"?preferenceUtil.setOnline():preferenceUtil.setOffline();
               },
             ),
           ],
@@ -107,9 +121,7 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
                 decoration: BoxDecoration(),
                 child: RaisedButton(
                   onPressed: () async {
-                    SharedPreferences preferences =
-                        await SharedPreferences.getInstance();
-                    int? userId = preferences.getInt("id");
+                    int? userId = (await preferenceUtil.getUser())?.id;
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -228,10 +240,11 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
   }
 
   Future<void> initApp() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    var x = preferences.getString("offline");
+    var x = await preferenceUtil.getOnline();
+    print("offline activation $x");
+    // var x = preferences.getString("offline");
     setState(() {
-      _offlineModeStatus = x == null ? "off" : x;
+      _offlineModeStatus = x;
     });
   }
 

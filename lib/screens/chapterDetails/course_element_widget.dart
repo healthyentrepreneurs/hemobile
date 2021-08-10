@@ -7,12 +7,12 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nl_health_app/db2/survey_nosql_model.dart';
 import 'package:nl_health_app/screens/chapterDetails/video_widget.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
+import 'package:nl_health_app/screens/utilits/home_helper.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
+import 'package:nl_health_app/screens/utilits/models/user_model.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../objectbox.g.dart';
+import 'package:nl_health_app/services/service_locator.dart';
 
 class CourseElementDisplay extends StatefulWidget {
   final CourseModule? courseModule;
@@ -33,6 +33,7 @@ class CourseElementDisplay extends StatefulWidget {
 }
 
 class _CourseElementDisplayState extends State<CourseElementDisplay> {
+  final storeHelper = getIt<HomeHelper>();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -46,14 +47,14 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
   bool downloading = false;
   var progress = "";
   var path = "No Data";
-  var privateToken = "";
-  var token = "";
+  String? privateToken;
+  String? token;
 
   ModuleContent? findSingleFileContent(String fileName) {
     try {
       var courseContents = widget.courseContents;
       var list = courseContents!
-          .where((c) => c.filename.toLowerCase() == fileName.toLowerCase())
+          .where((c) => c.filename!.toLowerCase() == fileName.toLowerCase())
           .toList();
       // ignore: unnecessary_null_comparison
       if (list != null)
@@ -83,7 +84,8 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
                           .getElementsByTagName('source')
                           .first
                           .attributes;
-                      String videoSourceUrl = Uri.decodeFull(videoAttr['src'].toString());
+                      String videoSourceUrl =
+                          Uri.decodeFull(videoAttr['src'].toString());
                       print("videoSrc attr " + videoSourceUrl);
 //                      print("videoSrc attr decode " + Uri.decodeFull(videoSourceUrl));
                       var content = findSingleFileContent(videoSourceUrl);
@@ -109,7 +111,8 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
                         return SizedBox(height: 1.0);
                     },
                     "img": (context, child) {
-                      String videoSourceUrl = Uri.decodeFull(context.tree.element!.attributes['src'].toString());
+                      String videoSourceUrl = Uri.decodeFull(
+                          context.tree.element!.attributes['src'].toString());
                       print("Images path attr " + videoSourceUrl);
 //                      print("videoSrc attr decode " + Uri.decodeFull(videoSourceUrl));
                       var content = findSingleFileContent(videoSourceUrl);
@@ -204,7 +207,6 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
   void initApp() async {
     await loadLocalFilePath();
     await _getPref();
-    await initStore();
     if (offline == "on") {
       readContentFileOffline();
     } else {
@@ -218,10 +220,14 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
   late String offline;
 
   _getPref() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
+    User? user = (await preferenceUtil.getUser());
+    String? firstNameLocal = user?.firstname;
+    String? offlineLocal = (await preferenceUtil.getOnline());
     setState(() {
-      offline = preferences.getString("offline")!;
-      firstName = preferences.getString("firstName")!;
+      if (firstNameLocal != null) {
+        firstName = firstNameLocal;
+      }
+      offline = offlineLocal;
     });
   }
 
@@ -254,10 +260,9 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
   Future<void> readContentFile() async {
     FileSystemUtil fileSystemUtil = new FileSystemUtil();
     try {
-      SharedPreferences preferences = await SharedPreferences.getInstance();
-      privateToken = preferences.getString("privatetoken")!;
-      token = preferences.getString("token")!;
-
+      User? user = (await preferenceUtil.getUser());
+      privateToken = user?.privatetoken;
+      token = user?.token;
       var e = widget.coursePage;
       final fileUrl = e!.filefullpath;
       print(">>>File download link Index ${e.index} title ${e.title}");
@@ -271,45 +276,37 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
     }
   }
 
-  late Store _store;
-
-  initStore() async {
-    var path = await FileSystemUtil().localDocumentsPath;
-    //print("Paths --- $path  ---- xxdir $path'/objectbox'");
-    _store = Store(getObjectBoxModel(), directory: path);
-  }
-
   @override
   void dispose() {
-    _store.close(); // don't forget to close the store
+    // don't forget to close the store
     super.dispose();
   }
 
   void submitOfflineStat() {
     try {
-      final box = _store.box<ViewsDataModel>();
-
-      var pp = ViewsDataModel()
+      // ViewsDataModel bookDataModel = ViewsDataModel(
+      //     bookId: widget.courseModule!.instance.toString(),
+      //     courseId: widget.course!.id.toString(),
+      //     dateTimeStr: DateTime.now().toIso8601String(),
+      //     chapterId: widget.coursePage!.chapterId.toString());
+      ViewsDataModel bookDataModel = ViewsDataModel()
         ..bookId = widget.courseModule!.instance.toString()
         ..courseId = widget.course!.id.toString()
         ..dateTimeStr = DateTime.now().toIso8601String()
         ..chapterId = widget.coursePage!.chapterId.toString();
-
-      print("Saved no_sql chapter id ${pp.chapterId}");
-
-      final id = box.put(pp); // Create
+      final id = storeHelper.saveBookLocal(bookDataModel);
+      print("Saved no_sql chapter id ${bookDataModel.chapterId}");
       print("Saved no_sql $id");
-      print("Saved >>> $pp");
     } catch (e) {
-      print(e);
+      print("CourseElementDisplay " + e.toString());
     }
   }
 
   Future<void> submitOnlineStat() async {
     //user/viwedbook/{instanceid}/{path}/{token}
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    String? userToken = preferences.getString("token");
-    String? username = preferences.getString("username");
+    User? user = (await preferenceUtil.getUser());
+    String? userToken = user?.token;
+    String? username = user?.username;
     var dateTime = DateTime.now().toIso8601String();
 
     OpenApi()

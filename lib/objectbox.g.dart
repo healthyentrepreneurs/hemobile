@@ -128,7 +128,9 @@ ModelDefinition getObjectBoxModel() {
         objectToFB: (SurveyDataModel object, fb.Builder fbb) {
           final nameOffset = fbb.writeString(object.name);
           final textOffset = fbb.writeString(object.text);
-          final dateCreatedOffset = fbb.writeString(object.dateCreated);
+          final dateCreatedOffset = object.dateCreated == null
+              ? null
+              : fbb.writeString(object.dateCreated!);
           fbb.startTable(6);
           fbb.addInt64(0, object.id);
           fbb.addOffset(1, nameOffset);
@@ -149,9 +151,9 @@ ModelDefinition getObjectBoxModel() {
             ..text =
                 const fb.StringReader().vTableGet(buffer, rootOffset, 8, '')
             ..isPending =
-                const fb.BoolReader().vTableGet(buffer, rootOffset, 10, false)
-            ..dateCreated =
-                const fb.StringReader().vTableGet(buffer, rootOffset, 12, '');
+                const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 10)
+            ..dateCreated = const fb.StringReader()
+                .vTableGetNullable(buffer, rootOffset, 12);
 
           return object;
         }),

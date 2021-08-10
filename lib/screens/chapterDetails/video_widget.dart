@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
+import 'package:nl_health_app/screens/utilits/models/user_model.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 
@@ -104,7 +104,8 @@ class _VideoViewState extends State<VideoView> {
 class VideoViewOnline extends StatefulWidget {
   final String videoUrl;
 
-  const VideoViewOnline({required Key key, required this.videoUrl}) : super(key: key);
+  const VideoViewOnline({required Key key, required this.videoUrl})
+      : super(key: key);
 
   @override
   _VideoViewOnlineState createState() => _VideoViewOnlineState();
@@ -199,15 +200,16 @@ class _VideoViewOnlineState extends State<VideoViewOnline> {
 class ChewieVideoViewOnline extends StatefulWidget {
   final String videoUrl;
 
-  const ChewieVideoViewOnline({Key? key, required this.videoUrl}) : super(key: key);
+  const ChewieVideoViewOnline({Key? key, required this.videoUrl})
+      : super(key: key);
 
   @override
   _ChewieVideoViewOnlineState createState() => _ChewieVideoViewOnlineState();
 }
 
 class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
-  late VideoPlayerController _controller;
-  late ChewieController _chewieController;
+  VideoPlayerController? _controller;
+  ChewieController? _chewieController;
 
   @override
   void initState() {
@@ -231,10 +233,14 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
   late String offline;
 
   _getPref() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
+    User? user = (await preferenceUtil.getUser());
+    String? firstNameLocal = user?.firstname;
+    String? offlineLocal = (await preferenceUtil.getOnline());
     setState(() {
-      offline = preferences.getString("offline")!;
-      firstName = preferences.getString("firstName")!;
+      if (firstNameLocal != null) {
+        firstName = firstNameLocal;
+      }
+      offline = offlineLocal;
     });
   }
 
@@ -246,20 +252,21 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
 
   Future<void> initializePlayer() async {
     if (offline == "on") {
-      _controller = VideoPlayerController.file(new File("$mainOfflinePath${widget.videoUrl}"));
+      _controller = VideoPlayerController.file(
+          new File("$mainOfflinePath${widget.videoUrl}"));
     } else {
       _controller = VideoPlayerController.network(widget.videoUrl);
     }
     //_controller = VideoPlayerController.network("https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4");
     //_controller = VideoPlayerController.file(new File(widget.videoUrl));
     //_controller = VideoPlayerController.asset("assets/video/malaria.mp4");
-    await _controller.initialize();
+    await _controller?.initialize();
 //    _controller.setLooping(true);
 //    _controller.setVolume(1.0);
 //    _controller.play();
 
     _chewieController = ChewieController(
-      videoPlayerController: _controller,
+      videoPlayerController: _controller!,
       autoPlay: true,
       looping: true,
       // Try playing around with some of these other options:
@@ -281,8 +288,8 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
 
   @override
   void dispose() {
-    _controller.dispose();
-    _chewieController.dispose();
+    _controller?.dispose();
+    _chewieController?.dispose();
     super.dispose();
   }
 
@@ -305,9 +312,10 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
           Expanded(
             child: Center(
               child: _chewieController != null &&
-                      _chewieController.videoPlayerController.value.isInitialized
+                      _chewieController!
+                          .videoPlayerController.value.isInitialized
                   ? Chewie(
-                      controller: _chewieController,
+                      controller: _chewieController!,
                     )
                   : Column(
                       mainAxisAlignment: MainAxisAlignment.center,

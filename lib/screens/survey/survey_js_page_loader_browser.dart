@@ -3,17 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:nl_health_app/db2/survey_nosql_model.dart';
-import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
+import 'package:nl_health_app/screens/utilits/home_helper.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
+import 'package:nl_health_app/services/service_locator.dart';
 import 'package:nl_health_app/widgets/ProgressWidget.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import '../../objectbox.g.dart';
 
-// https://stackoverflow.com/questions/54069869/how-to-solve-a-renderflex-overflowed-by-143-pixels-on-the-right-error-in-text
 class SurveyJsPageLoaderBrowser extends StatefulWidget {
   final dynamic jsonData;
   final dynamic jsonDataStr;
@@ -40,7 +38,7 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
   bool status = false;
   String reportMessage = "";
   String postDataText = "";
-  Store? _store;
+  final storeHelper = getIt<HomeHelper>();
   @override
   void initState() {
     super.initState();
@@ -55,18 +53,19 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
     setState(() {
       isLoading = true;
     });
-
-    initStore();
   }
 
   late String firstName;
   late String offline;
 
   _getPref() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String? firstNameLocal = (await preferenceUtil.getUser())?.firstname;
+    String? offlineLocal = (await preferenceUtil.getOnline());
     setState(() {
-      offline = preferences.getString("offline")!;
-      firstName = preferences.getString("firstName")!;
+      if (firstNameLocal != null) {
+        firstName = firstNameLocal;
+      }
+      offline = offlineLocal;
     });
   }
 
@@ -96,12 +95,11 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
   Future<void> saveLocalSurveyDateSet(String txtName, String txtData) async {
     print("Save Nakiganda--- $txtName --- ");
     try {
-      final box = _store!.box<SurveyDataModel>();
-      var person = SurveyDataModel()
+      SurveyDataModel survey = SurveyDataModel()
         ..text = txtData
         ..name = widget.course.id.toString()
         ..dateCreated = widget.course.id.toString();
-      final id = box.put(person); // Create
+      int? id = await storeHelper.saveSurveyLocal(survey); // Create
       print("Saved no_sql $id");
       // -----
       String txt = "";
@@ -143,8 +141,7 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
   }
 
   Future<void> postJsonDataOnline(String body) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    int? userId = preferences.getInt("id");
+    int? userId = (await preferenceUtil.getUser())?.id;
     Map<String, dynamic> j = new Map();
     j["userId"] = userId;
     j["surveyId"] = widget.course.id;
@@ -422,15 +419,10 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
     closeAlert();
   }
 
-  void initStore() async {
-    var path = await FileSystemUtil().localDocumentsPath;
-    print("Paths --- $path  ---- xxdir $path'/objectbox'");
-    _store = Store(getObjectBoxModel(), directory: path);
-  }
-
   @override
   void dispose() {
-    _store?.close(); // don't forget to close the store
+    // To Be Revisited
+    // storeHelper.closeDb();
     super.dispose();
   }
 

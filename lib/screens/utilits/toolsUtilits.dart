@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:nl_health_app/screens/utilits/modelUtilits.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity/connectivity.dart';
+import 'package:nl_health_app/services/service_locator.dart';
+import 'package:nl_health_app/services/storage_service/storage_service.dart';
 
 class Config {
-  // static final String BASE_URL = 'http://34.71.189.106/';
+  // static final String BASE_URL = 'https://stagingapp.healthyentrepreneurs.nl/';
   static final String BASE_URL = 'https://helper.healthyentrepreneurs.nl/';
 }
 
@@ -65,10 +66,10 @@ TextField customTextField(String hint,
     enableInteractiveSelection: false,
     decoration: InputDecoration(
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+            borderRadius: BorderRadius.all(Radius.circular(5.0)),
             borderSide: BorderSide()),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          borderRadius: BorderRadius.all(Radius.circular(5.0)),
           borderSide: BorderSide(color: Colors.green, width: 1.0),
         ),
         errorBorder: InputBorder.none,
@@ -77,6 +78,34 @@ TextField customTextField(String hint,
         hintText: hint,
         hintStyle: TextStyle(color: Colors.green),
         labelStyle: TextStyle(color: ToolsUtilities.greenColor)),
+  );
+}
+
+// If Ever I need a dropdown
+// https://yashodgayashan.medium.com/flutter-dropdown-button-widget-469794c886d0
+// https://medium.com/flutterdevs/dropdown-in-flutter-324ae9caa743
+DropdownButton customeDropBox(
+    String dropdownValue, Function(String?) _onChange) {
+  Function(String?) g = _onChange;
+  return DropdownButton<String>(
+    value: dropdownValue,
+    icon: const Icon(Icons.arrow_downward),
+    iconSize: 24,
+    elevation: 16,
+    style: const TextStyle(color: Colors.blueGrey),
+    underline: Container(
+      height: 2,
+      color: Colors.green,
+    ),
+    isExpanded: true,
+    onChanged: g,
+    items: <String>['English', 'Swahili', 'Luganda', 'Runyankole']
+        .map<DropdownMenuItem<String>>((String value) {
+      return DropdownMenuItem<String>(
+        value: value,
+        child: Text(value),
+      );
+    }).toList(),
   );
 }
 
@@ -124,10 +153,10 @@ TextField customPasswordTextField(String hint) {
     //This will obscure text dynamically
     decoration: InputDecoration(
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+            borderRadius: BorderRadius.all(Radius.circular(5.0)),
             borderSide: BorderSide()),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          borderRadius: BorderRadius.all(Radius.circular(5.0)),
           borderSide: BorderSide(color: Colors.green, width: 1.0),
         ),
         errorBorder: InputBorder.none,
@@ -167,60 +196,32 @@ showAlertDialog(BuildContext context, String title, String msg,
     },
   );
 }
-savePrefRx(
-    SharedPreferences preferences,
-    bool loginFlag,
-    String email,
-    String firstName,
-    String lastName,
-    int id,
-    String profileImage,
-    String token,
-    String? privatetoken,
-    String username) async {
-  await preferences.setBool("loginFlag", loginFlag);
-  await preferences.setString("firstName", firstName);
-  await preferences.setString("lastName", lastName);
-  await preferences.setString("email", email);
-  await preferences.setInt("id", id);
-  await preferences.setString("offline", "off");
-  await preferences.setString("profileImage", profileImage);
-  await preferences.setString("token", token);
-  if (privatetoken != null) {
-    await preferences.setString("privatetoken", privatetoken);
-  }
-  await preferences.setString("username", username);
-}
-savePref(
-    bool loginFlag,
-    String email,
-    String firstName,
-    String lastName,
-    int id,
-    String profileImage,
-    String token,
-    String? privatetoken,
-    String username) async {
-  SharedPreferences preferences = await SharedPreferences.getInstance();
-  await preferences.setBool("loginFlag", loginFlag);
-  await preferences.setString("firstName", firstName);
-  await preferences.setString("lastName", lastName);
-  await preferences.setString("email", email);
-  await preferences.setInt("id", id);
-  await preferences.setString("offline", "off");
-  await preferences.setString("profileImage", profileImage);
-  await preferences.setString("token", token);
-  if (privatetoken != null) {
-    await preferences.setString("privatetoken", privatetoken);
-  }
-  await preferences.setString("username", username);
-}
 
-saveOfflineStatusPref(String offline) async {
-  SharedPreferences preferences = await SharedPreferences.getInstance();
-  await preferences.setString("offline", offline);
-}
-
+// savePref(
+//     bool loginFlag,
+//     String email,
+//     String firstName,
+//     String lastName,
+//     int id,
+//     String profileImage,
+//     String token,
+//     String? privatetoken,
+//     String username) async {
+//   SharedPreferences preferences = await SharedPreferences.getInstance();
+//   await preferences.setBool("loginFlag", loginFlag);
+//   await preferences.setString("firstName", firstName);
+//   await preferences.setString("lastName", lastName);
+//   await preferences.setString("email", email);
+//   await preferences.setInt("id", id);
+//   await preferences.setString("offline", "off");
+//   await preferences.setString("profileImage", profileImage);
+//   await preferences.setString("token", token);
+//   if (privatetoken != null) {
+//     await preferences.setString("privatetoken", privatetoken);
+//   }
+//   await preferences.setString("username", username);
+// }
+final preferenceUtil = getIt<StorageService>();
 Future<bool> isConnected() async {
   var connectivityResult = await (Connectivity().checkConnectivity());
   if (connectivityResult == ConnectivityResult.mobile) {
@@ -235,27 +236,17 @@ Future<bool> isConnected() async {
 }
 
 saveUploadDatesPref() async {
-  SharedPreferences preferences = await SharedPreferences.getInstance();
-  await preferences.setString("survey_upload_date",
+  preferenceUtil.setSurveyUploadDate(
       new DateFormat.yMMMMd('en_US').format(new DateTime.now()));
 }
 
 Future<String?> readSurveyUpload() async {
-  SharedPreferences preferences = await SharedPreferences.getInstance();
-  return preferences.getString("survey_upload_date");
-}
-
-Future<void> setOfflineByDefault() async {
-  SharedPreferences preferences = await SharedPreferences.getInstance();
-  var x = preferences.getString("offline");
-  if (x == null) {
-    saveOfflineStatusPref("on");
-  }
+  return preferenceUtil.getSurveyUploadDate();
 }
 
 signOut(BuildContext context) async {
-  SharedPreferences preferences = await SharedPreferences.getInstance();
-  await preferences.clear();
+  preferenceUtil.clearLogin();
+  // await preferences.clear();
   // await preferences.setInt("loginFlag", null);
   // await preferences.setString("firstName", null);
   // await preferences.setString("lastName", null);

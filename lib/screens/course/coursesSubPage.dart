@@ -6,7 +6,6 @@ import 'package:nl_health_app/screens/chapterDetails/chapterDetails.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class CoursesSubPage extends StatefulWidget {
   final Course course;
@@ -25,7 +24,7 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
       backgroundColor: ToolsUtilities.mainBgColor,
       appBar: AppBar(
         title: Text(
-          widget.subCourse.name,
+          widget.subCourse.name!,
           style: TextStyle(color: ToolsUtilities.mainPrimaryColor),
         ),
         backgroundColor: Colors.transparent,
@@ -37,36 +36,6 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
         child: Container(
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(30.0),
-                child: Container(
-                    child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        SizedBox(height: 30.0),
-                        Text(widget.subCourse.name,
-                            style: TextStyle(
-                                color: ToolsUtilities.mainPrimaryColor,
-                                fontSize: 25.0,
-                                fontWeight: FontWeight.bold)),
-                        SizedBox(height: 15.0),
-                        Container(
-                          width: MediaQuery.of(context).size.width * 0.8,
-                          child: Text(widget.subCourse.summary,
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w300)),
-                        ),
-                      ],
-                    ),
-                  ],
-                )),
-              ),
               SizedBox(height: 30.0),
               Container(
                 child: SingleChildScrollView(
@@ -76,15 +45,16 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
                       // ignore: unnecessary_null_comparison
                       itemCount: widget.subCourse == null
                           ? 0
-                          : widget.subCourse.modules.length,
+                          : widget.subCourse.modules?.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                       ),
                       itemBuilder: (BuildContext context, int index) {
-                        var module_ = widget.subCourse.modules[index];
-                        print('************${widget.subCourse.modules.length}');
+                        var module_ = widget.subCourse.modules?[index];
+                        print(
+                            '************${widget.subCourse.modules?.length}');
                         return new GestureDetector(
-                          child: _courseModuleCard(module_),
+                          child: _courseModuleCard(module_!),
                           onTap: () {
                             //check the module type first here
                             print('module_.modname ${module_.modname}');
@@ -163,10 +133,10 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
                     //Text("$offline")
                     CircleAvatar(
                         radius: 35.0,
-                        backgroundImage: NetworkImage(courseModule.modicon),
+                        backgroundImage: NetworkImage(courseModule.modicon!),
                       )
                     : FutureBuilder(
-                        future: _getLocalFile(courseModule.modicon),
+                        future: _getLocalFile(courseModule.modicon!),
                         builder: (BuildContext context,
                             AsyncSnapshot<File> snapshot) {
                           return snapshot.data != null
@@ -271,16 +241,15 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
     }
   }
 
-  late String firstName;
-  late String offline;
-
+  String? firstName;
+  String? offline;
   _getPref() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    setState(() {
-      offline = preferences.getString("offline")!;
-      firstName = preferences.getString("firstName")!;
-    });
+    String? firstNameLocal = (await preferenceUtil.getUser())?.firstname;
+    offline = await preferenceUtil.getOnline();
+    firstNameLocal != null
+        ? setState(() {
+            firstName = firstNameLocal;
+          })
+        : null;
   }
-
-  late List<SubCourse> _subCourseList;
 }
