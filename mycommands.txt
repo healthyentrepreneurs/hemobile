@@ -8,3 +8,7 @@ Online Tools
 http://jsoneditoronline.org/#left=local.mibuno&right=local.mupibi
 https://texteditor.co/
 https://app.quicktype.io/
+
+Finding My Mac IP
+if=`netstat -nr | awk '{ if ($1 ~/default/) { print $6} }'`
+ifconfig ${if} | awk '{ if ($1 ~/inet/) { print $2} }'

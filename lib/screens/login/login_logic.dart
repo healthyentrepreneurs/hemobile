@@ -28,7 +28,6 @@ class LoginManager {
     }
   }
 
-  signOut() {}
 
   int isSignedIn() {
     loginStateNotifier

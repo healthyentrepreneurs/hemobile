@@ -13,7 +13,8 @@ import 'package:permission_handler/permission_handler.dart';
 
 class SurveyMainPage extends StatefulWidget {
   final Course course;
-
+  // https://surveyjs.io/Documentation/Library?id=Getting-Started-The-Very-Basics
+  // https://surveyjs.io/Documentation/Library?id=Getting-Started-The-Very-Basics#Define-survey-content-through-JSON
   SurveyMainPage({required this.course});
 
   @override
@@ -52,31 +53,7 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
                 jsonDataStr: this.surveyDataString,
                 course: widget.course)
             : Text(''));
-
-    /*body: (surveyData != null)
-            ? SurveyJsPageLoader(
-                jsonData: this.surveyData, jsonDataStr: this.surveyDataString)
-            : Text(''));*/
   }
-
-  /*@override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: ToolsUtilities.mainBgColor,
-        appBar: AppBar(
-          title: Text(
-            ""+widget.course.fullName,
-            style: TextStyle(color: ToolsUtilities.mainPrimaryColor),
-          ),
-          backgroundColor: Colors.white,
-          elevation: 1,
-          centerTitle: true,
-          iconTheme: IconThemeData(color: ToolsUtilities.mainPrimaryColor),
-        ),
-        body: (surveyData != null)
-            ? SurveyPageLoader(pages: this.surveyData)
-            : Text(''));
-  }*/
 
   @override
   void initState() {

@@ -62,6 +62,10 @@ class _MyAppState extends State<MyApp> {
       valueListenable: stateManager.loginStateNotifier,
       builder: (context, whatsIssue, __) {
         int papa = stateManager.isSignedIn();
+        // if (papa == 2) {
+        //   stateManager.loginState = null;
+        // }
+        // papa == 2 ? stateManager.loginState = null : null;
         return MaterialApp(
           title: 'HE Health',
           debugShowCheckedModeBanner: false,
@@ -76,9 +80,7 @@ class _MyAppState extends State<MyApp> {
       },
     );
   }
- // void checkMyName(BuildContext context){
- //   Phoenix.rebirth(context);
- // }
+
   @override
   void initState() {
     super.initState();

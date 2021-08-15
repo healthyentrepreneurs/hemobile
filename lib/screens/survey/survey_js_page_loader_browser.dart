@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:nl_health_app/db2/survey_nosql_model.dart';
 import 'package:nl_health_app/screens/utilits/home_helper.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
@@ -11,6 +10,7 @@ import 'package:nl_health_app/services/service_locator.dart';
 import 'package:nl_health_app/widgets/ProgressWidget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
 class SurveyJsPageLoaderBrowser extends StatefulWidget {
   final dynamic jsonData;
@@ -93,7 +93,7 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
 
   /// Save the survey item locally
   Future<void> saveLocalSurveyDateSet(String txtName, String txtData) async {
-    print("Save Nakiganda--- $txtName --- ");
+    print("Save Pewa--- $txtName --- ");
     try {
       SurveyDataModel survey = SurveyDataModel()
         ..text = txtData
@@ -298,17 +298,20 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
             initialFile: "assets/survey/index.html",
             initialOptions: InAppWebViewGroupOptions(
                 crossPlatform: InAppWebViewOptions(
-                    //useShouldOverrideUrlLoading: true,
+                    useShouldOverrideUrlLoading: true,
                     //mediaPlaybackRequiresUserGesture: false,
+                    javaScriptCanOpenWindowsAutomatically: true,
                     javaScriptEnabled: true),
                 android: AndroidInAppWebViewOptions(
-//                    allowFileAccess: true,
-//                    allowContentAccess: true,
-//                    allowFileAccessFromFileURLs: true,
-                    )),
+                  disableDefaultErrorPage: true,
+                  useHybridComposition: true,
+                  supportMultipleWindows: true,
+                  allowFileAccess: true,
+                  allowContentAccess: true,
+                  // allowFileAccessFromFileURLs: true,
+                )),
             onWebViewCreated: (InAppWebViewController controller) {
               webView = controller;
-              print("onWebViewCreated");
               webView.addJavaScriptHandler(
                   handlerName: "sendResults",
                   callback: (args) {
@@ -337,7 +340,7 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
                 (controller, shouldOverrideUrlLoadingRequest) async {
               Uri? uri = shouldOverrideUrlLoadingRequest.request.url;
               var url = uri.toString();
-              print(">> $url");
+              // print(">> $url");
               if (url.startsWith("tel:")) {
                 _makePhoneCall(url);
               }

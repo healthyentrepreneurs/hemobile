@@ -116,7 +116,7 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
                       print("Images path attr " + videoSourceUrl);
 //                      print("videoSrc attr decode " + Uri.decodeFull(videoSourceUrl));
                       var content = findSingleFileContent(videoSourceUrl);
-                      print("Online Image display ... ${content!.fileurl}");
+                      print("Online Image display ... ${content?.fileurl}");
                       if (content != null) if (offline == "on")
                         return _displayImage(content, "${content.fileurl}");
                       else

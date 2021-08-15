@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:nl_health_app/db2/survey_nosql_model.dart';
 import 'package:nl_health_app/screens/course/coursesPage.dart';
+import 'package:nl_health_app/screens/login/login_logic.dart';
 import 'package:nl_health_app/screens/offline/survey_data_set_sync.dart';
 import 'package:nl_health_app/screens/survey/survey.dart';
 import 'package:nl_health_app/screens/utilits/customDrawer.dart';
@@ -26,13 +28,25 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   bool isLoading = true;
   final storeHelper = getIt<HomeHelper>();
+  final stateManager = getIt<LoginManager>();
   @override
   Widget build(BuildContext context) {
-    return ProgressWidget(
-      child: _uiSetup(context),
-      inAsyncCall: isLoading,
-      opacity: 0.3,
+    // Phoenix.rebirth(context);
+    return ValueListenableBuilder<int>(
+      valueListenable: stateManager.loginStateNotifier,
+      builder: (context, _, __) {
+        return ProgressWidget(
+          child: _uiSetup(context),
+          inAsyncCall: stateManager.loading(),
+          opacity: 0.3,
+        );
+      },
     );
+    // return ProgressWidget(
+    //   child: _uiSetup(context),
+    //   inAsyncCall: isLoading,
+    //   opacity: 0.3,
+    // );
   }
 
   Uint8List loadData(String imagePath) {
@@ -159,7 +173,6 @@ class _HomepageState extends State<Homepage> {
   }
 
   //You can edit the Custom Input Text Field from Here
-
   Widget customTextField(String hint, Icon iconName) {
     return Column(
       children: <Widget>[

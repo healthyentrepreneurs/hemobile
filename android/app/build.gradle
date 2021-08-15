@@ -82,9 +82,9 @@ android {
             useProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-//        debug {
-//            signingConfig signingConfigs.debug
-//        }
+        debug {
+            signingConfig signingConfigs.debug
+        }
 
     }
 }
@@ -99,4 +99,5 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:28.2.1')
     implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.android.material:material:1.1.0'
 }

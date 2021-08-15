@@ -1,0 +1,23 @@
+Firebase Storage
+#Download Upload --> Videos and Images and ZipFiles
+https://pub.dev/packages/firebase_storage/example
+
+Cloud Firestore
+https://pub.dev/packages/cloud_firestore {https://firebase.google.com/docs/firestore/data-model}
+https://firebase.google.com/docs/firestore
+https://cloud.google.com/firestore/docs/samples (Sample)
+https://firebase.flutter.dev/docs/firestore/usage/#emulator-usage (very good example)
+
+
+Firestore Cache
+https://pub.dev/packages/firestore_cache
+
+GeoFlutterFire
+https://pub.dev/packages/geoflutterfire
+
+Fire Emulator Suite:
+https://firebase.google.com/docs/emulator-suite/install_and_configure
+
+Remote Config:
+(Auto Update Apks and Send Messages)
+https://firebase.flutter.dev/docs/remote-config/overview

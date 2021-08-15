@@ -1,3 +1,6 @@
+MOST IMPORTANT
+https://app.pluralsight.com/library/courses/debugging-testing-publishing-flutter-app/table-of-contents
+
 https://github.com/FilledStacks/flutter-tutorials
 https://pub.dev/documentation/injectable/latest/
 https://www.burkharts.net/apps/blog/one-to-find-them-all-how-to-use-service-locators-with-flutter/
@@ -9,12 +12,10 @@ https://stackoverflow.com/questions/54069869/how-to-solve-a-renderflex-overflowe
 
 Image provider: NetworkImage("https://helper.healthyentrepreneurs.nl/uploadicons/600_user_profile_pic16N.png", scale: 1.0)
 
-
 course_element_widget.dart 'package:flutter_layout_grid/src/widgets/layout_grid.dart': Failed assertion: line 111 pos 12: 'columnSizes.isNotEmpty': is not true.
 
 Debug Approach:
-1. All items to @Improve@ are tagged with 'To Be Revisited'
+1. All items to @Improve@ are tagged with 'To Be Revis  ited'
 
 Performance Issues:
 1. The application may be doing too much work on its main thread.
-

@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:nl_health_app/screens/homePage/homePage.dart';
 import 'package:nl_health_app/screens/login/loginPage.dart';
 import 'package:nl_health_app/screens/offline/offline_activation_page.dart';
@@ -91,53 +93,6 @@ class _CustomDrawerState extends State<CustomDrawer> {
             ),
             InkWell(
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Text("I am Locki")));
-              },
-              child: ListTile(
-                title: _menuItem('Forum', FontAwesomeIcons.userFriends),
-              ),
-            ),
-            isNewUser == 2
-                ? InkWell(
-                    onTap: () {
-                      signOut(context);
-                    },
-                    child: ListTile(
-                      title: _menuItem('Logout', FontAwesomeIcons.signInAlt),
-                    ),
-                  )
-                : InkWell(
-                    onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => LoginPage()));
-                    },
-                    child: ListTile(
-                      title: _menuItem('Login', FontAwesomeIcons.signInAlt),
-                    ),
-                  ),
-            /* InkWell(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => SubjectsPage()));
-              },
-              child: ListTile(
-                title: _menuItem('Subjects', FontAwesomeIcons.centercode),
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => MyAccountPage()));
-              },
-              child: ListTile(
-                title: _menuItem('My Account', FontAwesomeIcons.userCircle),
-              ),
-            ),*/
-            InkWell(
-              onTap: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => Homepage()));
               },
@@ -168,6 +123,30 @@ class _CustomDrawerState extends State<CustomDrawer> {
                     'Upload Survey Data', FontAwesomeIcons.cloudUploadAlt),
               ),
             ),
+            const SizedBox(
+              height: 16,
+            ),
+            Divider(
+              color: Colors.white70,
+            ),
+            isNewUser == 2
+                ? InkWell(
+                    onTap: () {
+                      signOut(context);
+                    },
+                    child: ListTile(
+                      title: _menuItem('Logout', FontAwesomeIcons.signInAlt),
+                    ),
+                  )
+                : InkWell(
+                    onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => LoginPage()));
+                    },
+                    child: ListTile(
+                      title: _menuItem('Login', FontAwesomeIcons.signInAlt),
+                    ),
+                  ),
           ],
         ),
       ),
@@ -231,18 +210,36 @@ class _CustomDrawerState extends State<CustomDrawer> {
   }
 
   signOut(BuildContext context) async {
-    preferenceUtil.clearLogin();
-    // await preferences.setBool("loginFlag", null);
-    // await preferences.setString("firstName", null);
-    // await preferences.setString("lastName", null);
-    // await preferences.setString("email", null);
-    // await preferences.setInt("id", null);
-    // await preferences.setString("profileImage", null);
-    // await preferences.setString("token", null);
-    // await preferences.setString("privatetoken", null);
-    // await preferences.setString("username", null);
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => LoginPage()));
+    _openDialog(context);
+  }
+
+  void _openDialog(ctx) {
+    showCupertinoDialog(
+        context: ctx,
+        builder: (_) => CupertinoAlertDialog(
+              title: Text("Are you sure ?"),
+              content: Text("Click 'I agree' if you want to logout"),
+              actions: [
+                // Close the dialog
+                // You can use the CupertinoDialogAction widget instead
+                CupertinoButton(
+                    child: Text('Cancel'),
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                    }),
+                CupertinoButton(
+                  child: Text('I agree'),
+                  onPressed: () {
+                    preferenceUtil.clearLogin();
+                    Navigator.of(ctx).pop();
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => LoginPage()));
+                    Phoenix.rebirth(context);
+                    // Then close the dialog
+                  },
+                )
+              ],
+            ));
   }
 }
 //For Images When They Come
