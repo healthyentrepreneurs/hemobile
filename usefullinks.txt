@@ -12,3 +12,6 @@ https://app.pluralsight.com/course-player?clipId=25aa154e-9576-4c04-beb4-6a4e7d0
 HTML WEB- FLUTTER
 https://newbedev.com/html-flutter-html-widget-code-example
 https://blog.codemagic.io/inappwebview-the-real-power-of-webviews-in-flutter/
+
+CONFIGURE FIREBASE:
+https://stackoverflow.com/questions/58693838/flutter-firebase-configure-app-to-use-local-firebase-emulator

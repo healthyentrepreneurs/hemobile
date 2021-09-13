@@ -49,18 +49,18 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                           ? 'https://i.imgur.com/zsMvHeF.jpg'
                                           : profileImage!)
                                       : AssetImage(
-                                              'assets/images/noImageAvailable.png')
+                                              'assets/images/grid.png')
                                           as ImageProvider)),
                         )
                       : Container(
                           height: 100,
                           width: 100,
                           child: FutureBuilder(
-                              //To Be Revisited
+                              //To Be Revisited #Njovu
                               future: FileSystemUtil().getLocalFile(
                                   profileImage == null
                                       ? "/images/59small_loginimage.png"
-                                      : "/images/59small_loginimage.png"),
+                                      :"/images/$userId"+"small_loginimage.png"),
                               builder: (BuildContext context,
                                   AsyncSnapshot<File> snapshot) {
                                 return snapshot.data != null
@@ -89,6 +89,15 @@ class _CustomDrawerState extends State<CustomDrawer> {
               },
               child: ListTile(
                 title: _menuItem('Home', FontAwesomeIcons.home),
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => Homepage()));
+              },
+              child: ListTile(
+                title: _menuItem('Test Books', FontAwesomeIcons.addressCard),
               ),
             ),
             InkWell(
@@ -191,11 +200,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
   int? isNewUser;
   String? username;
   String? offline;
-
+  int? userId;
   getPref() async {
     User? user = (await preferenceUtil.getUser());
     isNewUser = (await preferenceUtil.getLogin())!;
     if (user != null) {
+      userId=user.id;
       firstName = user.firstname;
       lastName = user.lastname;
       email = user.email;

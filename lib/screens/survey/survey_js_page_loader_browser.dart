@@ -49,7 +49,7 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
 
   void initApp() async {
     await _getPref();
-    String title = widget.jsonData['title'] as String;
+    // String title = widget.jsonData['title'] as String;
     setState(() {
       isLoading = true;
     });
@@ -133,7 +133,9 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
     // print("Net work connection $connected");
     if (offline == "on" && !connected) {
       // print("is an offline server sent");
-      saveLocalSurveyDateSet(widget.jsonData['title'], body);
+      String? titleOptional=widget.jsonData['title'];
+      titleOptional==null?saveLocalSurveyDateSet("notitle",body):saveLocalSurveyDateSet(titleOptional,body);
+      // saveLocalSurveyDateSet(, body);
     } else {
       // print("is an online server sent");
       postJsonDataOnline(body);

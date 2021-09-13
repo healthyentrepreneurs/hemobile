@@ -207,10 +207,11 @@ class LocalSurveySyncPageState extends State {
       // });
       initStore();
     } catch (e) {
+      throw e.toString();
       print("Njovuxx " + e.toString());
-      setState(() {
-        isLoading = false;
-      });
+      // setState(() {
+      //   isLoading = false;
+      // });
     }
   }
 
@@ -220,14 +221,6 @@ class LocalSurveySyncPageState extends State {
       return 0;
     }
     for (var l in dataSets) {
-//      Map<String, dynamic> map = l.toMap();
-//       print("Delete this id: ${l.id}");
-      //print("Delete this surveyId: ${map['dateCreated']}");
-      //print("Delete this data: ${map['data']}");
-      // setState(() {
-      //   isLoading = true;
-      // });
-      // print("Upload this data: ${l.text}");
       await postJsonDataOnline(l.text, l.name, l.id);
     }
     saveUploadDatesPref();

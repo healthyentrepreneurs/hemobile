@@ -99,7 +99,6 @@ class _HomepageState extends State<Homepage> {
         child: ListView(
           children: [
             SizedBox(height: 50.0),
-
             /* mainOfflinePath!=null?
             fileImageBuilder(context,File("$mainOfflinePath/images/survey/3big_loginimage.png"))
                 :SizedBox()
@@ -144,19 +143,22 @@ class _HomepageState extends State<Homepage> {
                   padding: EdgeInsets.only(bottom: 40),
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  itemCount: _courseList == null ? 0 : _courseList.length,
+                  itemCount:_courseList.length,
                   itemBuilder: (context, index) {
+                    // print("Datastep 1");
                     Course course = _courseList[index];
                     return _subjectCardWidget(course.fullName,
                         course.summaryCustom, course.imageUrlSmall, () {
                       print("Home click ${course.source}");
                       if (course.source == 'originalm') {
+                        //Content Frorm Survey
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
                                     SurveyMainPage(course: course)));
                       } else {
+                        //Book Moodle
                         Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -359,7 +361,7 @@ class _HomepageState extends State<Homepage> {
               setState(() {
                 isLoading = false;
               }),
-              //print(">> " + data?.body),
+              print(">> " + data.body),
               _processJson(data.body)
             })
         .catchError(
@@ -369,11 +371,9 @@ class _HomepageState extends State<Homepage> {
   List<Course> _courseList = [];
 
   _processJson(String body) {
-    //print(body);
     var courseJsonList = jsonDecode(body) as List;
-    List<Course> coursesObjs =
+    List<Course>? coursesObjs =
         courseJsonList.map((tagJson) => Course.fromJson(tagJson)).toList();
-
     if (coursesObjs != null) {
       //print("Got courses -->${coursesObjs.length}");
       setState(() {

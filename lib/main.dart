@@ -45,6 +45,7 @@ Future<void> main() async {
       FirebaseCrashlytics.instance.recordError(error, stackTrace);
     }
   });
+
   // WidgetsFlutterBinding.ensureInitialized();
   // runApp(Phoenix(child: MyApp()));
 }
@@ -76,9 +77,9 @@ class _MyAppState extends State<MyApp> {
       },
     );
   }
- // void checkMyName(BuildContext context){
- //   Phoenix.rebirth(context);
- // }
+  // void checkMyName(BuildContext context){
+  //   Phoenix.rebirth(context);
+  // }
   @override
   void initState() {
     super.initState();

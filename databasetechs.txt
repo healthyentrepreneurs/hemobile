@@ -7,6 +7,8 @@ https://pub.dev/packages/cloud_firestore {https://firebase.google.com/docs/fires
 https://firebase.google.com/docs/firestore
 https://cloud.google.com/firestore/docs/samples (Sample)
 https://firebase.flutter.dev/docs/firestore/usage/#emulator-usage (very good example)
+Sample Update, Delete and Sets
+https://stackoverflow.com/questions/58077155/how-to-get-set-update-and-delete-data-from-the-cloud-firestore-in-flutter
 
 
 Firestore Cache

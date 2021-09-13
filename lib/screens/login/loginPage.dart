@@ -62,14 +62,14 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
-                      // RichText(
-                      //   text: TextSpan(
-                      //       text: 'Test Version ',
-                      //       style: TextStyle(color: Colors.redAccent, fontSize: 18),
-                      //       // style: DefaultTextStyle.of(context).style,
-                      //       ),
-                      //   textAlign: TextAlign.left,
-                      // ),
+                      RichText(
+                        text: TextSpan(
+                            text: 'Test Version ',
+                            style: TextStyle(color: Colors.redAccent, fontSize: 18),
+                            // style: DefaultTextStyle.of(context).style,
+                            ),
+                        textAlign: TextAlign.left,
+                      ),
                       customTextField('Username', false,
                           (v) => {stateManager.username = v}),
                       SizedBox(

@@ -3,6 +3,7 @@ window.addEventListener("flutterInAppWebViewPlatformReady", function (event) {
     Survey.StylesManager.applyTheme("modern");
     window.changeSurveyData = function changeSurveyData(d) {
         console.log('New data to pass' + d);
+        //Passed Here dynamically
         var json = JSON.stringify(d);
         window.survey = new Survey.Model(d);
 

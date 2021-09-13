@@ -14,12 +14,6 @@ class OpenApi {
         body: {'username': email, 'password': password});
   }
 
-  Future<http.Response> register(
-      String email, String firstName, String lastName) {
-    return http.post(urlConvert(Config.BASE_URL + 'user/set_newuser'),
-        body: {'email': email, 'firstname': firstName, 'lastname': lastName});
-  }
-
   Future<http.Response> postSurveyJsonData(String body, int userId) {
     //http://35.238.72.107/user/get_moodle_courses
     //https://helper.healthyentrepreneurs.nl/survey/saveobject_surv
@@ -43,13 +37,9 @@ class OpenApi {
     return await http.Response.fromStream(res);
     // return request.send();
   }
-  Future<http.Response> listCourses() {
-    //http://35.238.72.107/user/get_moodle_courses
-    return http.post(urlConvert(Config.BASE_URL + 'user/get_moodle_courses'));
-  }
 
   Future<http.Response> listCoursesWithToken(String token, int userId) {
-    //http://35.238.72.107/user/get_moodle_courses
+    print("Datastep 1 Service");
     print(Config.BASE_URL + 'user/get_moodle_courses/$token/$userId');
     return http
         .post(urlConvert(Config.BASE_URL + 'user/get_moodle_courses/$token/$userId'));

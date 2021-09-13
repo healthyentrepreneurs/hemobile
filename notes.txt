@@ -15,7 +15,7 @@ Image provider: NetworkImage("https://helper.healthyentrepreneurs.nl/uploadicons
 course_element_widget.dart 'package:flutter_layout_grid/src/widgets/layout_grid.dart': Failed assertion: line 111 pos 12: 'columnSizes.isNotEmpty': is not true.
 
 Debug Approach:
-1. All items to @Improve@ are tagged with 'To Be Revis  ited'
+1. All items to @Improve@ are tagged with 'To Be Revisited'
 
 Performance Issues:
 1. The application may be doing too much work on its main thread.
