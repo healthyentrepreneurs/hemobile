@@ -291,7 +291,6 @@ class _HomepageState extends State<Homepage> {
   void initState() {
     super.initState();
     initApp();
-    _checkPermissions();
     loadLocalDataSets();
     // initStore();
   }
@@ -402,7 +401,6 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
-  void _checkPermissions() async {}
 
   Future<String?> _loadOfflineCourseData() async {
     mainOfflinePath = await FileSystemUtil().extDownloadsPath + "/HE Health";
