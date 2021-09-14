@@ -213,63 +213,43 @@ class _HomepageState extends State<Homepage> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Text("Loading");
                 }
+                var list = snapshot.data!.docs;
+                return ListView.builder(
+                  shrinkWrap: true,
+                  padding: EdgeInsets.only(bottom: 40),
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: list.length,
+                  itemBuilder: (context, index) {
+                    final Map<String, dynamic> data = snapshot.data!.docs[index]
+                        .data()! as Map<String, dynamic>;
 
-                return ListView(
-                  children:
-                      snapshot.data!.docs.map((DocumentSnapshot document) {
-                    Map<String, dynamic> data =
-                        document.data()! as Map<String, dynamic>;
-                    print(">xxx" + data.toString());
-
-                    if (data['Source'] != 'moodle')
-                      return _subjectCardWidget("${data['NAME']}",
-                          "${data['SummaryCustome']}", "${data['IMAGE_URL_SMALL']}", () {
-                        print("Survey click");
-                        //Content Frorm Survey
-                        /*Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    SurveyMainPage()));*/
-                      });
-                    else
-                      return SizedBox();
-                  }).toList(),
+                    return _subjectCardWidget(
+                        "${data['NAME']}",
+                        "${data['SURVEYDESC']}",
+                        "${data['IMAGE_URL_SMALL']}", () {
+                      print("Survey click");
+                      //Content Form Survey
+                      Course c = Course(
+                          id: "${data['ID']}",
+                          fullName: "${data['NAME']}",
+                          source: "${data['source']}",
+                          summaryCustom: "${data['SURVEYDESC']}",
+                          nextLink: "${data['nextLink']}",
+                          imageUrlSmall: "${data['IMAGE_URL_SMALL']}",
+                          imageUrl: "${data['IMAGE_URL_SMALL']}");
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SurveyMainPage(
+                                course: c, surveyJson: "${data['SURVEYJSON']}"),
+                          ));
+                    });
+                  },
                 );
               },
             ),
 
             //----
-            Center(
-              child: ListView.builder(
-                  padding: EdgeInsets.only(bottom: 40),
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: _courseList.length,
-                  itemBuilder: (context, index) {
-                    // print("Datastep 1");
-                    Course course = _courseList[index];
-                    return _subjectCardWidget(course.fullName,
-                        course.summaryCustom, course.imageUrlSmall, () {
-                      print("Home click ${course.source}");
-                      if (course.source == 'originalm') {
-                        //Content Frorm Survey
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    SurveyMainPage(course: course)));
-                      } else {
-                        //Book Moodle
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    CoursesPage(course: course)));
-                      }
-                    });
-                  }),
-            ),
           ],
         ),
       ),
