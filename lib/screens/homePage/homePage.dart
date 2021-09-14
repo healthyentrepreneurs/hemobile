@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:nl_health_app/db2/survey_nosql_model.dart';
@@ -29,7 +30,60 @@ class _HomepageState extends State<Homepage> {
   bool isLoading = true;
   final storeHelper = getIt<HomeHelper>();
   final stateManager = getIt<LoginManager>();
+
+  // final Stream<QuerySnapshot> _usersStream = FirebaseFirestore.instance.collection('survey').snapshots();
+  // final Stream<QuerySnapshot> _usersStream = FirebaseFirestore.instance.collection('courses').snapshots();
+  final Stream<QuerySnapshot> _usersStream =
+      FirebaseFirestore.instance.collection('books').snapshots();
+  final Stream<QuerySnapshot> _surveyStream =
+      FirebaseFirestore.instance.collection('survey').snapshots();
+
   @override
+  Widget buildX(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: stateManager.loginStateNotifier,
+      builder: (context, _, __) {
+        return Scaffold(
+          body: Center(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _usersStream,
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Something went wrong');
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Text("Loading");
+                }
+
+                return ListView(
+                  children:
+                      snapshot.data!.docs.map((DocumentSnapshot document) {
+                    Map<String, dynamic> data =
+                        document.data()! as Map<String, dynamic>;
+                    print(">xxx" + data.toString());
+                    if (data['Source'] != 'moodle')
+                      return ListTile(
+                        title: Text("${data['NAME']}"),
+                        subtitle: Text("Survey"),
+                      );
+                    else
+                      return ListTile(
+                        title: Text("${data['Fullname']}"),
+                        subtitle: Text("SummaryCustome"),
+                      );
+                  }).toList(),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  //@override
   Widget build(BuildContext context) {
     // Phoenix.rebirth(context);
     return ValueListenableBuilder<int>(
@@ -78,6 +132,14 @@ class _HomepageState extends State<Homepage> {
   }
 
   Widget _uiSetup(BuildContext context) {
+    // Create a CollectionReference called users that references the firestore collection
+    Stream<QuerySnapshot> books =
+        FirebaseFirestore.instance.collection('books').snapshots();
+    /*CollectionReference survey =
+        FirebaseFirestore.instance.collection('survey');
+    CollectionReference userdata =
+        FirebaseFirestore.instance.collection('userdata');*/
+
     return Scaffold(
       backgroundColor: ToolsUtilities.mainLightBgColor,
       appBar: AppBar(
@@ -138,12 +200,52 @@ class _HomepageState extends State<Homepage> {
                       fontSize: 18,
                       fontWeight: FontWeight.w600)),
             ),
+
+            //----
+            StreamBuilder<QuerySnapshot>(
+              stream: _surveyStream,
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Something went wrong');
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Text("Loading");
+                }
+
+                return ListView(
+                  children:
+                      snapshot.data!.docs.map((DocumentSnapshot document) {
+                    Map<String, dynamic> data =
+                        document.data()! as Map<String, dynamic>;
+                    print(">xxx" + data.toString());
+
+                    if (data['Source'] != 'moodle')
+                      return _subjectCardWidget("${data['NAME']}",
+                          "${data['SummaryCustome']}", "${data['IMAGE_URL_SMALL']}", () {
+                        print("Survey click");
+                        //Content Frorm Survey
+                        /*Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    SurveyMainPage()));*/
+                      });
+                    else
+                      return SizedBox();
+                  }).toList(),
+                );
+              },
+            ),
+
+            //----
             Center(
               child: ListView.builder(
                   padding: EdgeInsets.only(bottom: 40),
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  itemCount:_courseList.length,
+                  itemCount: _courseList.length,
                   itemBuilder: (context, index) {
                     // print("Datastep 1");
                     Course course = _courseList[index];
@@ -400,7 +502,6 @@ class _HomepageState extends State<Homepage> {
           context, new MaterialPageRoute(builder: (context) => Homepage()));
     }
   }
-
 
   Future<String?> _loadOfflineCourseData() async {
     mainOfflinePath = await FileSystemUtil().extDownloadsPath + "/HE Health";
