@@ -9,7 +9,8 @@ import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 
 class CoursesSubPage extends StatefulWidget {
   final Course course;
-  final SubCourse subCourse;
+  SubCourse? subCoursex;
+  final dynamic subCourse;
 
   CoursesSubPage({required this.subCourse, required this.course});
 
@@ -228,10 +229,14 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
   @override
   void initState() {
     super.initState();
-    //_loadCourseData();
+    loadModulesData();
     initApp();
   }
 
+  void loadModulesData() async {
+    print("<<UUU>> ${widget.subCourse['Modules']} --  ${widget.course.imageUrlSmall}");
+
+  }
   void initApp() async {
     await _getPref();
     if (offline == "on") {

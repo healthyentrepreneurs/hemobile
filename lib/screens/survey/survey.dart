@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:nl_health_app/screens/survey/survey_js_page_loader_browser.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
@@ -13,11 +14,10 @@ import 'package:permission_handler/permission_handler.dart';
 
 class SurveyMainPage extends StatefulWidget {
   final Course course;
-  final String? surveyJson;
 
   // https://surveyjs.io/Documentation/Library?id=Getting-Started-The-Very-Basics
   // https://surveyjs.io/Documentation/Library?id=Getting-Started-The-Very-Basics#Define-survey-content-through-JSON
-  SurveyMainPage({required this.course, this.surveyJson});
+  SurveyMainPage({required this.course});
 
   @override
   _SurveyMainPageState createState() => _SurveyMainPageState();
@@ -63,11 +63,25 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
     super.initState();
     loadPerms();
     initApp();
+    initSurveyDataHomePage();
+  }
+
+  late Stream<DocumentSnapshot>? _surveyStream;
+
+  Future<void> initSurveyDataHomePage() async {
+    _surveyStream = FirebaseFirestore.instance
+        .collection('survey')
+        .doc("${widget.course.id}")
+        .snapshots();
+
+    var d = await _surveyStream!.first;
+    var data = d.data() as Map<String, dynamic>;
+    _processJson("${data['SURVEYJSON']}");
   }
 
   void initApp() async {
     await _getPref();
-    if (widget.surveyJson != null) _processJson(widget.surveyJson!);
+    //if (widget.surveyJson != null) _processJson(widget.surveyJson!);
   }
 
   String? firstName;
@@ -84,8 +98,6 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
       offline = offlineLocal;
     });
   }
-
-
 
   _processJson(String body) {
     try {
