@@ -15,10 +15,10 @@ import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:nl_health_app/services/service_locator.dart';
 
 class CourseElementDisplay extends StatefulWidget {
-  final CourseModule? courseModule;
+  final dynamic courseModule;
   final ContentStructure? coursePage;
   final Course? course;
-  final List<ModuleContent>? courseContents;
+  final List<dynamic>? courseContents;
 
   const CourseElementDisplay(
       {Key? key,
@@ -34,6 +34,7 @@ class CourseElementDisplay extends StatefulWidget {
 
 class _CourseElementDisplayState extends State<CourseElementDisplay> {
   final storeHelper = getIt<HomeHelper>();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -50,11 +51,12 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
   String? privateToken;
   String? token;
 
-  ModuleContent? findSingleFileContent(String fileName) {
+  dynamic findSingleFileContent(String fileName) {
     try {
       var courseContents = widget.courseContents;
       var list = courseContents!
-          .where((c) => c.filename!.toLowerCase() == fileName.toLowerCase())
+          .where(
+              (c) => "${c['filename']}".toLowerCase() == fileName.toLowerCase())
           .toList();
       // ignore: unnecessary_null_comparison
       if (list != null)
@@ -207,11 +209,12 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
   void initApp() async {
     await loadLocalFilePath();
     await _getPref();
-    if (offline == "on") {
+    this.readContentFile();
+   /* if (offline == "on") {
       readContentFileOffline();
     } else {
       this.readContentFile();
-    }
+    }*/
 
     addViewStat();
   }
@@ -264,6 +267,37 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
       privateToken = user?.privatetoken;
       token = user?.token;
       var e = widget.coursePage;
+      final chapterId = e!.chapterId;
+      final chapterIdPath = "/$chapterId/";
+      print(">> $chapterIdPath $chapterId}");
+      //Filepath
+      //Fileurl
+      //Type == file
+
+      var courseContents = widget.courseContents;
+      var list = courseContents!
+          .where((c) =>
+              "${c['Filepath']}".toLowerCase() == chapterIdPath.toLowerCase())
+          .toList();
+      if (list.length > 0) {
+        print(">>>File download link Index ${list.first['Fileurl']} title ${e.title}");
+        String txt = "${list.first['Fileurl']}";
+        setState(() {
+          contentText = txt;
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> OreadContentFile() async {
+    FileSystemUtil fileSystemUtil = new FileSystemUtil();
+    try {
+      User? user = (await preferenceUtil.getUser());
+      privateToken = user?.privatetoken;
+      token = user?.token;
+      var e = widget.coursePage;
       final fileUrl = e!.filefullpath;
       print(">>>File download link Index ${e.index} title ${e.title}");
       String txt = await fileSystemUtil.readFileContentLink(fileUrl);
@@ -309,12 +343,12 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
     String? username = user?.username;
     var dateTime = DateTime.now().toIso8601String();
 
-    OpenApi()
+    /*OpenApi()
         .postStats(userToken!, widget.courseModule!.instance,
             widget.coursePage!.chapterId, username, widget.course!.id, dateTime)
         .then((value) {})
         .catchError((e) {
       print("Error uploading stats $e");
-    });
+    });*/
   }
 }

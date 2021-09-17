@@ -47,6 +47,8 @@ class _HomepageState extends State<Homepage> {
         .collection('userdata')
         .doc("${user.id}")
         .snapshots();
+
+    if (_userdataStream != null)
     _userdataStream!.forEach((t) {
       print("User data .... " + t.data().toString());
     });
@@ -205,60 +207,64 @@ class _HomepageState extends State<Homepage> {
 
             appTitle("What do you need?"),
             //----
-            Center(
-              child: StreamBuilder<DocumentSnapshot>(
-                stream: _userdataStream,
-                builder: (BuildContext context,
-                    AsyncSnapshot<DocumentSnapshot> snapshot) {
-                  if (snapshot.hasError) {
-                    return Text('Something went wrong');
-                  }
 
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Text("Loading");
-                  }
-                  final data1 = snapshot.data!.data() as Map<String, dynamic>;
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    padding: EdgeInsets.only(bottom: 40),
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: data1['Subscriptions'].length,
-                    itemBuilder: (context, index) {
-                      var data = data1['Subscriptions'][index];
-                      return _subjectCardWidget(
-                          "${data['Fullname']}",
-                          "${data['SummaryCustome']}",
-                          "${data['imageUrlSmall']}", () {
-                        //Content Form Survey
-                        Course c = Course(
-                            id: "${data['ID']}",
-                            fullName: "${data['Fullname']}",
-                            source: "${data['Source']}",
-                            summaryCustom: "${data['SummaryCustome']}",
-                            nextLink: "${data['nextLink']}",
-                            imageUrlSmall: "${data['imageUrlSmall']}",
-                            imageUrl: "${data['ImageUrl']}");
+            if (_userdataStream != null)
+              Center(
+                child: StreamBuilder<DocumentSnapshot>(
+                  stream: _userdataStream,
+                  builder: (BuildContext context,
+                      AsyncSnapshot<DocumentSnapshot> snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Something went wrong');
+                    }
 
-                        print("Clicked --- ${data['Source']}");
-                        if ("${data['Source']}" == 'originalm') {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SurveyMainPage(course: c),
-                              ));
-                        } else {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CoursesPage(course: c),
-                              ));
-                        }
-                      });
-                    },
-                  );
-                },
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Text("Loading");
+                    }
+                    final data1 = snapshot.data!.data() as Map<String, dynamic>;
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.only(bottom: 40),
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: data1['Subscriptions'].length,
+                      itemBuilder: (context, index) {
+                        var data = data1['Subscriptions'][index];
+                        return _subjectCardWidget(
+                            "${data['Fullname']}",
+                            "${data['SummaryCustome']}",
+                            "${data['imageUrlSmall']}", () {
+                          //Content Form Survey
+                          Course c = Course(
+                              id: "${data['ID']}",
+                              fullName: "${data['Fullname']}",
+                              source: "${data['Source']}",
+                              summaryCustom: "${data['SummaryCustome']}",
+                              nextLink: "${data['nextLink']}",
+                              imageUrlSmall: "${data['imageUrlSmall']}",
+                              imageUrl: "${data['ImageUrl']}");
+
+                          print("Clicked --- ${data['Source']}");
+                          if ("${data['Source']}" == 'originalm') {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      SurveyMainPage(course: c),
+                                ));
+                          } else {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CoursesPage(course: c),
+                                ));
+                          }
+                        });
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
+// >>>>>>> 2c65bd2 (Fixed survey details and sub course  page)
 
             //----
           ],
