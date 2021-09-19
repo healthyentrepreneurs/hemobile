@@ -1,7 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:nl_health_app/db2/survey_nosql_model.dart';
+import 'package:nl_health_app/models/utils.dart';
 import 'package:nl_health_app/screens/course/coursesPage.dart';
 import 'package:nl_health_app/screens/login/login_logic.dart';
 import 'package:nl_health_app/screens/offline/survey_data_set_sync.dart';
@@ -11,12 +12,11 @@ import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/home_helper.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/models/user_model.dart';
-import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nl_health_app/services/service_locator.dart';
 import 'package:nl_health_app/widgets/ProgressWidget.dart';
-import 'package:tuple/tuple.dart';
+import 'package:nl_health_app/widgets/commons_widget.dart';
 
 class Homepage extends StatefulWidget {
   @override
@@ -27,8 +27,88 @@ class _HomepageState extends State<Homepage> {
   bool isLoading = true;
   final storeHelper = getIt<HomeHelper>();
   final stateManager = getIt<LoginManager>();
+
+  // final Stream<QuerySnapshot> _usersStream = FirebaseFirestore.instance.collection('survey').snapshots();
+  // final Stream<QuerySnapshot> _usersStream = FirebaseFirestore.instance.collection('courses').snapshots();
+  final Stream<QuerySnapshot> _coursesStream =
+  FirebaseFirestore.instance.collection('courses').snapshots();
+  final Stream<QuerySnapshot> _surveyStream =
+  FirebaseFirestore.instance.collection('survey').snapshots();
+
+  late Stream<DocumentSnapshot>? _userdataStream;
+
+  Future<void> initUserDataHomePage() async {
+    User? user = (await preferenceUtil.getUser());
+    if (user == null) {
+      print("User is null");
+      return;
+    }
+    _userdataStream = FirebaseFirestore.instance
+        .collection('userdata')
+        .doc("${user.id}")
+        .snapshots();
+
+    if (_userdataStream != null)
+      _userdataStream!.forEach((t) {
+        print("User data .... " + t.data().toString());
+      });
+  }
+
+  void initState() {
+    super.initState();
+    initApp();
+    // initStore();
+    initUserDataHomePage();
+  }
+
   @override
+  Widget buildX(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: stateManager.loginStateNotifier,
+      builder: (context, _, __) {
+        return Scaffold(
+          body: Center(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _coursesStream,
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Something went wrong');
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Text("Loading");
+                }
+
+                return ListView(
+                  children:
+                  snapshot.data!.docs.map((DocumentSnapshot document) {
+                    Map<String, dynamic> data =
+                    document.data()! as Map<String, dynamic>;
+                    // print(">xxx" + data.toString());
+                    if (data['Source'] == 'moodle')
+                      return ListTile(
+                        title: Text("${data['NAME']}"),
+                        subtitle: Text("Survey"),
+                      );
+                    else
+                      return ListTile(
+                        title: Text("${data['Fullname']}"),
+                        subtitle: Text("SummaryCustome"),
+                      );
+                  }).toList(),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  //@override
   Widget build(BuildContext context) {
+    // Phoenix.rebirth(context);
     return ValueListenableBuilder<int>(
       valueListenable: stateManager.loginStateNotifier,
       builder: (context, _, __) {
@@ -44,6 +124,12 @@ class _HomepageState extends State<Homepage> {
     //   inAsyncCall: isLoading,
     //   opacity: 0.3,
     // );
+  }
+
+  Uint8List loadData(String imagePath) {
+    File file = File(imagePath);
+    Uint8List bytes = file.readAsBytesSync();
+    return bytes;
   }
 
   Widget _iconTextItem(String title, IconData icon) {
@@ -89,11 +175,8 @@ class _HomepageState extends State<Homepage> {
       body: Container(
         child: ListView(
           children: [
-            SizedBox(height: 10.0),
-            /* mainOfflinePath!=null?
-            fileImageBuilder(context,File("$mainOfflinePath/images/survey/3big_loginimage.png"))
-                :SizedBox()
-            ,*/
+            SizedBox(height: 50.0),
+
             Container(
               padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               child: Text(
@@ -109,94 +192,85 @@ class _HomepageState extends State<Homepage> {
               child: count < 1
                   ? Text('')
                   : InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LocalSurveySyncPage()));
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => LocalSurveySyncPage()));
+                },
+                child: ListTile(
+                  title: _iconTextItem('You have $count unsent surveys',
+                      FontAwesomeIcons.sync),
+                ),
+              ),
+            ),
+
+            appTitle("What do you need?"),
+            //----
+
+            if (_userdataStream != null)
+              Center(
+                child: StreamBuilder<DocumentSnapshot>(
+                  stream: _userdataStream,
+                  builder: (BuildContext context,
+                      AsyncSnapshot<DocumentSnapshot> snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Something went wrong');
+                    }
+
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Text("Loading");
+                    }
+                    final data1 = snapshot.data!.data() as Map<String, dynamic>;
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.only(bottom: 40),
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: data1['Subscriptions'].length,
+                      itemBuilder: (context, index) {
+                        var data = data1['Subscriptions'][index];
+                        return _subjectCardWidget(
+                            "${data['Fullname']}",
+                            "${data['SummaryCustome']}",
+                            "${data['ImageURLSmall']}", () {
+                          //Content Form Survey
+                          Course c = Course(
+                              id: "${data['ID']}",
+                              fullName: "${data['Fullname']}",
+                              source: "${data['Source']}",
+                              summaryCustom: "${data['SummaryCustome']}",
+                              nextLink: "${data['nextLink']}",
+                              imageUrlSmall: "${data['ImageURLSmall']}",
+                              imageUrl: "${data['ImageUrl']}");
+
+                          print("Clicked --- ${data['Source']}");
+                          print("Clicked --- ${data}");
+                          if ("${data['Source']}" == 'originalm') {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      SurveyMainPage(course: c),
+                                ));
+                          } else {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CoursesPage(course: c),
+                                ));
+                          }
+                        });
                       },
-                      child: ListTile(
-                        title: _iconTextItem('You have $count unsent surveys',
-                            FontAwesomeIcons.sync),
-                      ),
-                    ),
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-              child: Text('What do you need?',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600)),
-            ),
-            Center(
-              child: ListView.builder(
-                  padding: EdgeInsets.only(bottom: 40),
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: _courseList.length,
-                  itemBuilder: (context, index) {
-                    // print("Datastep 1");
-                    Course course = _courseList[index];
-                    return _subjectCardWidget(course.fullName,
-                        course.summaryCustom, course.imageUrlSmall, () {
-                      print("Home click ${course.source}");
-                      if (course.source == 'originalm') {
-                        //Content Frorm Survey
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    SurveyMainPage(course: course)));
-                      } else {
-                        //Book Moodle
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    CoursesPage(course: course)));
-                      }
-                    });
-                  }),
-            ),
+                    );
+                  },
+                ),
+              ),
+// >>>>>>> 2c65bd2 (Fixed survey details and sub course  page)
+
+            //----
           ],
         ),
       ),
-    );
-  }
-
-  //You can edit the Custom Input Text Field from Here
-  Widget customTextField(String hint, Icon iconName) {
-    return Column(
-      children: <Widget>[
-        SizedBox(
-          height: 10,
-        ),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(25),
-          ),
-          padding: EdgeInsets.symmetric(horizontal: 6.0),
-          margin: EdgeInsets.symmetric(horizontal: 5.0),
-          child: TextField(
-            style: TextStyle(color: Colors.grey),
-            cursorColor: Colors.blueGrey,
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                fillColor: Colors.transparent,
-                filled: true,
-                hintText: hint,
-                hintStyle: TextStyle(color: Colors.grey),
-                labelStyle: TextStyle(color: Colors.grey),
-                suffixIcon: iconName),
-          ),
-        ),
-      ],
     );
   }
 
@@ -216,7 +290,7 @@ class _HomepageState extends State<Homepage> {
               ]),
           child: Padding(
             padding:
-                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+            const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -248,24 +322,17 @@ class _HomepageState extends State<Homepage> {
                 SizedBox(
                   width: 10.0,
                 ),
-                offline == 'off'
-                    ? CircleAvatar(
-                        radius: 35.0,
-                        backgroundColor: ToolsUtilities.mainBgColor,
-                        backgroundImage:
-                            offline == 'off' ? NetworkImage(iconName!) : null)
-                    : FutureBuilder(
-                        future: _getLocalFile(iconName!),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<File> snapshot) {
-                          return snapshot.data != null
-                              ? new Image.file(
-                                  snapshot.data!,
-                                  height: 50.0,
-                                  width: 50.0,
-                                )
-                              : new Container();
-                        }),
+                FutureBuilder(
+                    future: getFirebaseFile(iconName!),
+                    builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+                      return snapshot.data != null
+                          ? new Image.file(
+                        snapshot.data!,
+                        height: 50.0,
+                        width: 50.0,
+                      )
+                          : new Container();
+                    }),
               ],
             ),
           )),
@@ -278,38 +345,11 @@ class _HomepageState extends State<Homepage> {
     return f;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    initApp();
-    _checkPermissions();
-    loadLocalDataSets();
-    // initStore();
-  }
-
   String? firstName;
   late String offline;
 
   List dataSets = [];
   int count = 0;
-
-  Future<void> loadLocalDataSets() async {
-    Tuple2<List<SurveyDataModel>, int> newBlood =
-        await storeHelper.getTotalCount();
-    final c = newBlood.item2;
-    final notesWithNullText =
-        newBlood.item1; // executes the query, returns List<Note>
-    //var list = await LocalSurvey().select().toList();
-    setState(() {
-      dataSets = notesWithNullText;
-      count = c;
-    });
-    await readSurveyUpload();
-    for (var l in notesWithNullText) {
-      print("--- ${l.id} - ${l.text}");
-      //box.remove(l.id);
-    }
-  }
 
   @override
   void dispose() {
@@ -331,53 +371,6 @@ class _HomepageState extends State<Homepage> {
     });
   }
 
-  ///Load courses data list and encode it to
-  _loadCourseData() async {
-    late String token;
-    late int userId;
-    setState(() {
-      isLoading = true;
-    });
-    User? user = (await preferenceUtil.getUser());
-    if (user != null) {
-      token = user.token;
-      userId = user.id;
-    } else {
-      return;
-    }
-    OpenApi()
-        .listCoursesWithToken(token, userId)
-        .then((data) => {
-              //isLoading = false,
-              setState(() {
-                isLoading = false;
-              }),
-              print(">> " + data.body),
-              _processJson(data.body)
-            })
-        .catchError(
-            (err) => {isLoading = false, print("Error -- " + err.toString())});
-  }
-
-  List<Course> _courseList = [];
-
-  _processJson(String body) {
-    var courseJsonList = jsonDecode(body) as List;
-    List<Course>? coursesObjs =
-        courseJsonList.map((tagJson) => Course.fromJson(tagJson)).toList();
-    if (coursesObjs != null) {
-      //print("Got courses -->${coursesObjs.length}");
-      setState(() {
-        _courseList = coursesObjs;
-      });
-      return coursesObjs;
-    } else {
-      showAlertDialog(
-          context, "Courses Loading Error!", "Failed to load courses");
-      return null;
-    }
-  }
-
   late int isNewUser;
   late String mainOfflinePath;
 
@@ -393,32 +386,7 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
-  void _checkPermissions() async {}
-
-  Future<String?> _loadOfflineCourseData() async {
-    mainOfflinePath = await FileSystemUtil().extDownloadsPath + "/HE Health";
-    String p = await FileSystemUtil().extDownloadsPath + "/HE Health/";
-    try {
-      final file = File("${p}get_moodle_courses.json");
-      // Read the file.
-      String contents = await file.readAsString();
-      isLoading = false;
-      //print(">> " + data?.body),
-      _processJson(contents);
-      return contents;
-    } catch (e) {
-      isLoading = false;
-      // If encountering an error, return 0.
-      return null;
-    }
-  }
-
   void initApp() async {
     await _getPref();
-    if (offline == "on") {
-      _loadOfflineCourseData();
-    } else {
-      _loadCourseData();
-    }
   }
 }

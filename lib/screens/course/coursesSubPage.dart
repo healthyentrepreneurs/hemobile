@@ -9,7 +9,8 @@ import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 
 class CoursesSubPage extends StatefulWidget {
   final Course course;
-  final SubCourse subCourse;
+  SubCourse? subCoursex;
+  final dynamic subCourse;
 
   CoursesSubPage({required this.subCourse, required this.course});
 
@@ -24,7 +25,7 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
       backgroundColor: ToolsUtilities.mainBgColor,
       appBar: AppBar(
         title: Text(
-          widget.subCourse.name!,
+          widget.subCourse["Name"]!,
           style: TextStyle(color: ToolsUtilities.mainPrimaryColor),
         ),
         backgroundColor: Colors.transparent,
@@ -45,53 +46,27 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
                       // ignore: unnecessary_null_comparison
                       itemCount: widget.subCourse == null
                           ? 0
-                          : widget.subCourse.modules?.length,
+                          : widget.subCourse['Modules']?.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                       ),
                       itemBuilder: (BuildContext context, int index) {
-                        var module_ = widget.subCourse.modules?[index];
-                        print(
-                            '************${widget.subCourse.modules?.length}');
+                        var module_ = widget.subCourse['Modules'][index];
+                        //print('************${widget.subCourse['Modules'].length}');
                         return new GestureDetector(
-                          child: _courseModuleCard(module_!),
+                          child: _courseModuleCard(module_),
                           onTap: () {
                             //check the module type first here
-                            print('module_.modname ${module_.modname}');
-                            if (module_.modname == 'quiz') {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Text(
-                                            "30 posts",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 18,
-                                                letterSpacing: .7),
-                                          )));
-                            }
-                            if (module_.modname == 'forum') {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Text(
-                                            "30 posts",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 18,
-                                                letterSpacing: .7),
-                                          )));
-                            } else if (module_.modname == 'book') {
+                            print('module_.modname $module_');
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => ChapterDetails(
-                                            fileSystemUtil:
-                                                new FileSystemUtil(),
+                                            fileSystemUtil: new FileSystemUtil(),
                                             courseModule: module_,
                                             course: widget.course,
                                           )));
-                            }
+
                           },
                         );
                       }),
@@ -104,7 +79,7 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
     );
   }
 
-  Widget _courseModuleCard(CourseModule courseModule, [Function? onPressed]) {
+  Widget _courseModuleCard(Map<String,dynamic> courseModule, [Function? onPressed]) {
     return Padding(
       padding: const EdgeInsets.only(top: 5.0),
       child: Column(
@@ -133,10 +108,10 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
                     //Text("$offline")
                     CircleAvatar(
                         radius: 35.0,
-                        backgroundImage: NetworkImage(courseModule.modicon!),
+                        backgroundImage: NetworkImage("${courseModule['modicon']}"),
                       )
                     : FutureBuilder(
-                        future: _getLocalFile(courseModule.modicon!),
+                        future: _getLocalFile("${courseModule['modicon']}"),
                         builder: (BuildContext context,
                             AsyncSnapshot<File> snapshot) {
                           return snapshot.data != null
@@ -151,7 +126,7 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
                   padding:
                       const EdgeInsets.only(top: 6.0, left: 5.0, right: 5.0),
                   child: Text(
-                    "${courseModule.name}",
+                    "${courseModule['Name']}",
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
@@ -228,10 +203,14 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
   @override
   void initState() {
     super.initState();
-    //_loadCourseData();
+    loadModulesData();
     initApp();
   }
 
+  void loadModulesData() async {
+    print("<<UUU>> ${widget.subCourse['Modules']} --  ${widget.course.imageUrlSmall}");
+
+  }
   void initApp() async {
     await _getPref();
     if (offline == "on") {

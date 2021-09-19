@@ -13,3 +13,6 @@ void setupGetIt() {
   // getIt.registerLazySingleton<BoxStore>(() => BoxStore());
   getIt.registerLazySingleton<HomeHelper>(() => HomeHelper());
 }
+
+
+

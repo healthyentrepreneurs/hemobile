@@ -13,7 +13,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'course_element_widget.dart';
 
 class ChapterDetails extends StatefulWidget {
-  final CourseModule? courseModule;
+  // final CourseModule? courseModule;
+  final dynamic courseModule;
   final Course? course;
   final FileSystemUtil? fileSystemUtil;
 
@@ -31,13 +32,13 @@ class _ChapterDetailsState extends State<ChapterDetails> {
 
   @override
   Widget build(BuildContext context) {
-    CourseModule cMod = widget.courseModule!;
+    dynamic cMod = widget.courseModule!;
     //_coursePagerList = this.createCoursePagerFromStructure();
 
     return Scaffold(
         appBar: AppBar(
           title: Text(
-            cMod.name!,
+            "${cMod['Name']}",
             style: TextStyle(color: ToolsUtilities.mainPrimaryColor),
           ),
           backgroundColor: Colors.transparent,
@@ -53,7 +54,8 @@ class _ChapterDetailsState extends State<ChapterDetails> {
               itemBuilder: (context, index) {
                 return CourseElementDisplay(
                   coursePage: _coursePagerList[index],
-                  courseContents: widget.courseModule!.contents,
+                  courseContents:
+                      widget.courseModule['Contents'] as List<dynamic>,
                   courseModule: widget.courseModule,
                   course: widget.course,
                 );
@@ -218,7 +220,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
     _pageController = PageController();
     _coursePagerList = this.createCoursePagerFromStructure();
     contentText = [];
-    //this.readContentFile(_coursePagerList);
+    this.readContentFile(_coursePagerList);
   } //Create the Skill Card
 
   Widget _videoCard() {
@@ -259,6 +261,26 @@ class _ChapterDetailsState extends State<ChapterDetails> {
   }
 
   List<ContentStructure> createCoursePagerFromStructure() {
+    try {
+      var contentsList = widget.courseModule['Contents'];
+      print("ccc ${contentsList!.length}");
+      var index_ = contentsList.indexWhere((elm) => elm['Type'] == 'content');
+      var courseJsonList = jsonDecode(contentsList[index_]['Content']) as List;
+      List<ContentStructure> coursesObjs = [];
+
+      for (var i = 0; i < courseJsonList.length; i++) {
+        var c = courseJsonList[i];
+        c['index'] = i;
+        coursesObjs.add(ContentStructure.fromJson2(c, i));
+      }
+      return coursesObjs;
+    } catch (e) {
+      print(e);
+      return List.empty();
+    }
+  }
+
+  List<ContentStructure> OcreateCoursePagerFromStructure() {
     try {
       var contentsList = widget.courseModule!.contents;
       print("ccc ${contentsList!.length}");

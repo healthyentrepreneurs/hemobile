@@ -25,14 +25,15 @@ Future<void> main() async {
   };
   runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
     if (Platform.isAndroid) {
       await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
     }
     setupGetIt();
+
     runApp(Phoenix(child: MyApp()));
     //https://firebase.google.com/docs/crashlytics/test-implementation?platform=android#enable_debug_logging
     //Had to manually add this
-    await Firebase.initializeApp();
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
   }, (error, stackTrace) async {
     print('Caught Dart Error!');

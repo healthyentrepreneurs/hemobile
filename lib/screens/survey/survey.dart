@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:nl_health_app/screens/survey/survey_js_page_loader_browser.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
@@ -13,6 +14,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 class SurveyMainPage extends StatefulWidget {
   final Course course;
+
   // https://surveyjs.io/Documentation/Library?id=Getting-Started-The-Very-Basics
   // https://surveyjs.io/Documentation/Library?id=Getting-Started-The-Very-Basics#Define-survey-content-through-JSON
   SurveyMainPage({required this.course});
@@ -25,6 +27,7 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
   dynamic surveyData;
   late String surveyDataString;
   bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return ProgressWidget(
@@ -58,22 +61,32 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
   @override
   void initState() {
     super.initState();
-    //this.loadJsonText();
     loadPerms();
     initApp();
+    initSurveyDataHomePage();
+  }
+
+  late Stream<DocumentSnapshot>? _surveyStream;
+
+  Future<void> initSurveyDataHomePage() async {
+    _surveyStream = FirebaseFirestore.instance
+        .collection('survey')
+        .doc("${widget.course.id}")
+        .snapshots();
+
+    var d = await _surveyStream!.first;
+    var data = d.data() as Map<String, dynamic>;
+    _processJson("${data['SURVEYJSON']}");
   }
 
   void initApp() async {
     await _getPref();
-    if (offline == "on") {
-      _loadOfflineQuizItemsData();
-    } else {
-      this.loadQuizItemsData();
-    }
+    //if (widget.surveyJson != null) _processJson(widget.surveyJson!);
   }
 
   String? firstName;
   String? offline;
+
   _getPref() async {
     User? user = (await preferenceUtil.getUser());
     // firstNameLocal
@@ -83,40 +96,6 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
         firstName = user.firstname;
       }
       offline = offlineLocal;
-    });
-  }
-
-  /// Load the json data
-  Future<void> loadJsonText() async {
-    String data = await DefaultAssetBundle.of(context)
-        .loadString("assets/survey_form.json");
-    final jsonResult = json.decode(data);
-    print(data);
-    setState(() {
-      surveyData = jsonResult;
-    });
-  }
-
-  //---
-  void loadQuizItemsData() async {
-    User user = (await preferenceUtil.getUser())!;
-    String token = user.token;
-    print('Token-->$token');
-    setState(() {
-      isLoading = true;
-    });
-    //https://helper.healthyentrepreneurs.nl/quiz/get_quiz_em/3/0/de81bb4eb4e8303a15b00a5c61554e2a
-    OpenApi().listSubCourses(widget.course.nextLink).then((t) {
-      setState(() {
-        isLoading = false;
-      });
-      print(t.request!.url.toString());
-      _processJson(t.body);
-    }).catchError((e) {
-      print("Error ${e.toString()}");
-      setState(() {
-        isLoading = false;
-      });
     });
   }
 
@@ -152,24 +131,6 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
 
   Future<void> requestPermission(Permission permission) async {
     final status = await permission.request();
-  }
-
-  late String mainOfflinePath;
-  Future<String?> _loadOfflineQuizItemsData() async {
-    mainOfflinePath = await FileSystemUtil().extDownloadsPath + "/HE Health";
-    String p = await FileSystemUtil().extDownloadsPath + "/HE Health/";
-    try {
-      final file = File("$mainOfflinePath${widget.course.nextLink}");
-      // Read the file.
-      String contents = await file.readAsString();
-      isLoading = false;
-      //print(">> " + data?.body),
-      _processJson(contents);
-      return contents;
-    } catch (e) {
-      // If encountering an error, return 0.
-      return null;
-    }
   }
 //---
 

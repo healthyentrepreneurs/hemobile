@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager_firebase/flutter_cache_manager_firebase.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
@@ -19,8 +21,28 @@ class CoursesPage extends StatefulWidget {
 }
 
 class _CoursesPageState extends State<CoursesPage> {
+
+  late Stream<DocumentSnapshot>? _surveyStream;
+
+  dynamic dataX;
+  Future<void> initSurveyDataHomePage() async {
+    _surveyStream = FirebaseFirestore.instance
+        .collection('books')
+        .doc("${widget.course.id}")
+        .snapshots();
+
+    var d = await _surveyStream!.first;
+    var data = d.data() as Map<String, dynamic>;
+    print(">>Bazozoz>" + data.toString());
+    setState(() {
+      dataX = data['Data'] as List<dynamic>;
+    });
+    //_processJson(data['Data']);
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: ToolsUtilities.whiteColor,
       appBar: AppBar(
@@ -61,19 +83,20 @@ class _CoursesPageState extends State<CoursesPage> {
                 )),
               ),
               // SizedBox(height: 30.0),
+
+
               Container(
                 child: SingleChildScrollView(
+
                   child: GridView.builder(
                       shrinkWrap: true,
                       physics: ClampingScrollPhysics(),
-                      itemCount:
-                          // ignore: unnecessary_null_comparison
-                          _subCourseList == null ? 0 : _subCourseList?.length,
+                      itemCount: dataX == null ? 0 : dataX?.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                       ),
                       itemBuilder: (BuildContext context, int index) {
-                        var subCourse = this._subCourseList?[index];
+                        var subCourse = this.dataX[index];
                         return new GestureDetector(
                           child: _courseCard(subCourse!),
                           onTap: () {
@@ -96,7 +119,9 @@ class _CoursesPageState extends State<CoursesPage> {
     );
   }
 
-  Widget _courseCard(SubCourse course, [Function? onPressed]) {
+  Widget _courseCard(dynamic course, [Function? onPressed]) {
+    print(">>>><<<< --- $course");
+
     return Padding(
       padding: const EdgeInsets.only(top: 5.0),
       child: Column(
@@ -134,7 +159,7 @@ class _CoursesPageState extends State<CoursesPage> {
                   padding:
                       const EdgeInsets.only(top: 6.0, left: 5.0, right: 5.0),
                   child: Text(
-                    course.name!,
+                    "${course['Name']}",
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
@@ -158,13 +183,23 @@ class _CoursesPageState extends State<CoursesPage> {
     return f;
   }
 
+  Future<File> _getLocalFileX(String filename) async {
+    var file = await FirebaseCacheManager().getSingleFile("/bookresource/app.healthyentrepreneurs.nl/theme/image.php/_s/academi/book/1631050397/placeholderimage.png");
+    String dir = await FileSystemUtil().extDownloadsPath + "/HE Health";
+    File f = new File('$dir$filename');
+    return f;
+  }
+
   @override
   void initState() {
     initApp();
+    initSurveyDataHomePage();
+    super.initState();
   }
 
   void initApp() async {
     await _getPref();
+
     if (offline == "on") {
       _loadCourseDataOffline();
     } else {
@@ -193,6 +228,7 @@ class _CoursesPageState extends State<CoursesPage> {
   }
 
   late String mainOfflinePath;
+
   Future<String?> _loadCourseDataOffline() async {
     mainOfflinePath = await FileSystemUtil().extDownloadsPath + "/HE Health";
     String p = await FileSystemUtil().extDownloadsPath + "/HE Health/";
@@ -224,7 +260,27 @@ class _CoursesPageState extends State<CoursesPage> {
   }
 
   List<SubCourse>? _subCourseList;
-  _processJson(String body) {
+
+  _processJson(dynamic json) {
+    //print(body);
+    var courseJsonList = json as List;
+    List<SubCourse> coursesObjs =
+        courseJsonList.map((tagJson) => SubCourse.fromJson(tagJson)).toList();
+
+    if (coursesObjs != null) {
+      print("Got Sub courses -->${coursesObjs.length}");
+      setState(() {
+        _subCourseList = coursesObjs;
+      });
+      return coursesObjs;
+    } else {
+      showAlertDialog(
+          context, "Courses Loading Error!", "Failed to load courses");
+      return null;
+    }
+  }
+
+  /*_processJson(String body) {
     //print(body);
     var json = jsonDecode(body);
     var courseJsonList = json['data'] as List;
@@ -242,22 +298,7 @@ class _CoursesPageState extends State<CoursesPage> {
           context, "Courses Loading Error!", "Failed to load courses");
       return null;
     }
-  }
+  }*/
 
-// _processJson(String body) {
-  //   var json = jsonDecode(body);
-  //   InitHandle? objectCourses = InitHandle.fromJson(json);
-  //   List<SubCourse>? coursesObjs = objectCourses.data;
-  //   if (coursesObjs != null) {
-  //     print("Got Sub courses -->${coursesObjs.length}");
-  //     setState(() {
-  //       _subCourseList = coursesObjs;
-  //     });
-  //     return coursesObjs;
-  //   } else {
-  //     showAlertDialog(
-  //         context, "Courses Loading Error!", "Failed to load courses");
-  //     return null;
-  //   }
-  // }
+
 }

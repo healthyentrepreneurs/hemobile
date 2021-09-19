@@ -1,5 +1,3 @@
-
-
 class Course {
   dynamic id;
   String fullName;
@@ -67,7 +65,7 @@ class SubCourse {
         summary: json['summary'],
         summaryformat: json['summaryformat'],
         section: json['section'],
-        modules: (json['modules'] as List)
+        modules: (json['modules'] == null ? [] : json['modules'] as List)
             .map((i) => CourseModule.fromJson(i))
             .toList());
   }
