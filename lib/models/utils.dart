@@ -1,6 +1,7 @@
 
 
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager_firebase/flutter_cache_manager_firebase.dart';
 
 Future<File> getFirebaseFile(String url) async {
@@ -12,3 +13,6 @@ Future<File> getFirebaseFile(String url) async {
     return file;
   }
 }
+
+
+const color1 = Color(0xff1ab394);
