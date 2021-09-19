@@ -1,6 +1,5 @@
 // ignore_for_file: require_trailing_commas
 // @dart=2.9
-
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:typed_data';
 

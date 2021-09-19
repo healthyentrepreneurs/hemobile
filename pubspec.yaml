@@ -40,7 +40,7 @@ dependencies:
 #  ext_storage: ^1.0.3
   chewie: ^1.2.2
   provider: ^5.0.0
-  video_player:
+  video_player: ^2.2.3
   url_launcher: ^6.0.9
   cool_stepper: ^1.2.1
   flutter_archive: ^4.0.1
@@ -64,9 +64,14 @@ dependencies:
   flutter_html: ^2.1.0
   tuple: ^2.0.0
 #  firebase_remote_config: ^0.10.0+3
+#  flutter_webrtc: ^0.6.7
 #  firebase_image
   cloud_firestore: ^2.4.0
   firebase_storage: ^10.0.2
+  #Relatable flutter_cache_manager
+  flutter_cache_manager_firebase: ^2.0.1
+#  firebase_auth: ^3.1.1
+#  firestore_ui: ^1.20.0
   image_picker: ^0.8.3+2
 #  oktoast: ^3.1.1
 
@@ -94,6 +99,7 @@ flutter:
      - assets/video/
      - assets/video/malaria.mp4
      - assets/images/schermafbeelding.png
+     - assets/images/grid.png
      - assets/survey_form.json
      - assets/survey/index.html
      - assets/survey/modern.css

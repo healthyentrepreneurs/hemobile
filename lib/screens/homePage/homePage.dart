@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:nl_health_app/db2/survey_nosql_model.dart';
 import 'package:nl_health_app/screens/course/coursesPage.dart';
 import 'package:nl_health_app/screens/login/login_logic.dart';
@@ -31,7 +29,6 @@ class _HomepageState extends State<Homepage> {
   final stateManager = getIt<LoginManager>();
   @override
   Widget build(BuildContext context) {
-    // Phoenix.rebirth(context);
     return ValueListenableBuilder<int>(
       valueListenable: stateManager.loginStateNotifier,
       builder: (context, _, __) {
@@ -47,12 +44,6 @@ class _HomepageState extends State<Homepage> {
     //   inAsyncCall: isLoading,
     //   opacity: 0.3,
     // );
-  }
-
-  Uint8List loadData(String imagePath) {
-    File file = File(imagePath);
-    Uint8List bytes = file.readAsBytesSync();
-    return bytes;
   }
 
   Widget _iconTextItem(String title, IconData icon) {
@@ -98,7 +89,7 @@ class _HomepageState extends State<Homepage> {
       body: Container(
         child: ListView(
           children: [
-            SizedBox(height: 50.0),
+            SizedBox(height: 10.0),
             /* mainOfflinePath!=null?
             fileImageBuilder(context,File("$mainOfflinePath/images/survey/3big_loginimage.png"))
                 :SizedBox()
@@ -143,7 +134,7 @@ class _HomepageState extends State<Homepage> {
                   padding: EdgeInsets.only(bottom: 40),
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  itemCount:_courseList.length,
+                  itemCount: _courseList.length,
                   itemBuilder: (context, index) {
                     // print("Datastep 1");
                     Course course = _courseList[index];

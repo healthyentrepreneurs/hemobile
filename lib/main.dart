@@ -10,6 +10,7 @@ import 'package:nl_health_app/screens/homePage/homePage.dart';
 import 'package:nl_health_app/screens/login/loginPage.dart';
 import 'package:nl_health_app/screens/login/login_logic.dart';
 import 'package:nl_health_app/services/service_locator.dart';
+// https://api.flutter.dev/flutter/widgets/StreamBuilder-class.html Borrow streams for login state
 
 Future<void> main() async {
   FlutterError.onError = (FlutterErrorDetails details) async {
@@ -45,9 +46,6 @@ Future<void> main() async {
       FirebaseCrashlytics.instance.recordError(error, stackTrace);
     }
   });
-
-  // WidgetsFlutterBinding.ensureInitialized();
-  // runApp(Phoenix(child: MyApp()));
 }
 
 class MyApp extends StatefulWidget {
