@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:nl_health_app/models/utils.dart';
 import 'package:nl_health_app/screens/course/coursesPage.dart';
 import 'package:nl_health_app/screens/login/login_logic.dart';
 import 'package:nl_health_app/screens/offline/survey_data_set_sync.dart';
@@ -232,7 +233,7 @@ class _HomepageState extends State<Homepage> {
                         return _subjectCardWidget(
                             "${data['Fullname']}",
                             "${data['SummaryCustome']}",
-                            "${data['imageUrlSmall']}", () {
+                            "${data['ImageURLSmall']}", () {
                           //Content Form Survey
                           Course c = Course(
                               id: "${data['ID']}",
@@ -240,10 +241,11 @@ class _HomepageState extends State<Homepage> {
                               source: "${data['Source']}",
                               summaryCustom: "${data['SummaryCustome']}",
                               nextLink: "${data['nextLink']}",
-                              imageUrlSmall: "${data['imageUrlSmall']}",
+                              imageUrlSmall: "${data['ImageURLSmall']}",
                               imageUrl: "${data['ImageUrl']}");
 
                           print("Clicked --- ${data['Source']}");
+                          print("Clicked --- ${data}");
                           if ("${data['Source']}" == 'originalm') {
                             Navigator.push(
                                 context,
@@ -321,24 +323,17 @@ class _HomepageState extends State<Homepage> {
                 SizedBox(
                   width: 10.0,
                 ),
-                offline == 'off'
-                    ? CircleAvatar(
-                        radius: 35.0,
-                        backgroundColor: ToolsUtilities.mainBgColor,
-                        backgroundImage:
-                            offline == 'off' ? NetworkImage(iconName!) : null)
-                    : FutureBuilder(
-                        future: _getLocalFile(iconName!),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<File> snapshot) {
-                          return snapshot.data != null
-                              ? new Image.file(
-                                  snapshot.data!,
-                                  height: 50.0,
-                                  width: 50.0,
-                                )
-                              : new Container();
-                        }),
+                FutureBuilder(
+                    future: getFirebaseFile(iconName!),
+                    builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+                      return snapshot.data != null
+                          ? new Image.file(
+                        snapshot.data!,
+                        height: 50.0,
+                        width: 50.0,
+                      )
+                          : new Container();
+                    }),
               ],
             ),
           )),

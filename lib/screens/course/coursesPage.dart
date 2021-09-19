@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager_firebase/flutter_cache_manager_firebase.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
@@ -119,7 +120,7 @@ class _CoursesPageState extends State<CoursesPage> {
   }
 
   Widget _courseCard(dynamic course, [Function? onPressed]) {
-    //print(">>>><<<< --- $course");
+    print(">>>><<<< --- $course");
 
     return Padding(
       padding: const EdgeInsets.only(top: 5.0),
@@ -177,6 +178,13 @@ class _CoursesPageState extends State<CoursesPage> {
   }
 
   Future<File> _getLocalFile(String filename) async {
+    String dir = await FileSystemUtil().extDownloadsPath + "/HE Health";
+    File f = new File('$dir$filename');
+    return f;
+  }
+
+  Future<File> _getLocalFileX(String filename) async {
+    var file = await FirebaseCacheManager().getSingleFile("/bookresource/app.healthyentrepreneurs.nl/theme/image.php/_s/academi/book/1631050397/placeholderimage.png");
     String dir = await FileSystemUtil().extDownloadsPath + "/HE Health";
     File f = new File('$dir$filename');
     return f;
