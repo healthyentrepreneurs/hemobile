@@ -72,6 +72,7 @@ class _MyAppState extends State<MyApp> {
             accentColor: Colors.green,
             primarySwatch: Colors.green,
             visualDensity: VisualDensity.adaptivePlatformDensity,
+            fontFamily: 'Montserrat'
           ),
           home: papa == 1 ? LoginPage() : Homepage(),
         );
