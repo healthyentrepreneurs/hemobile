@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager_firebase/flutter_cache_manager_firebase.dart';
+import 'package:nl_health_app/models/utils.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
@@ -22,18 +23,17 @@ class CoursesPage extends StatefulWidget {
 
 class _CoursesPageState extends State<CoursesPage> {
 
-  late Stream<DocumentSnapshot>? _surveyStream;
+  late Stream<DocumentSnapshot>? _booksStream;
 
   dynamic dataX;
   Future<void> initSurveyDataHomePage() async {
-    _surveyStream = FirebaseFirestore.instance
+    _booksStream = FirebaseFirestore.instance
         .collection('books')
         .doc("${widget.course.id}")
         .snapshots();
 
-    var d = await _surveyStream!.first;
+    var d = await _booksStream!.first;
     var data = d.data() as Map<String, dynamic>;
-    print(">>Bazozoz>" + data.toString());
     setState(() {
       dataX = data['Data'] as List<dynamic>;
     });
@@ -120,8 +120,6 @@ class _CoursesPageState extends State<CoursesPage> {
   }
 
   Widget _courseCard(dynamic course, [Function? onPressed]) {
-    print(">>>><<<< --- $course");
-
     return Padding(
       padding: const EdgeInsets.only(top: 5.0),
       child: Column(
@@ -137,24 +135,18 @@ class _CoursesPageState extends State<CoursesPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                offline == "off"
-                    ? CircleAvatar(
-                        radius: 35.0,
-                        backgroundImage:
-                            NetworkImage(widget.course.imageUrlSmall),
+                FutureBuilder(
+                    future:  getFirebaseFile(widget.course.imageUrlSmall),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<File> snapshot) {
+                      return snapshot.data != null
+                          ? new Image.file(
+                        snapshot.data!,
+                        height: 50.0,
+                        width: 50.0,
                       )
-                    : FutureBuilder(
-                        future: _getLocalFile(widget.course.imageUrlSmall),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<File> snapshot) {
-                          return snapshot.data != null
-                              ? new Image.file(
-                                  snapshot.data!,
-                                  height: 50.0,
-                                  width: 50.0,
-                                )
-                              : new Container();
-                        }),
+                          : new Container();
+                    }),
                 Padding(
                   padding:
                       const EdgeInsets.only(top: 6.0, left: 5.0, right: 5.0),

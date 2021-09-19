@@ -280,28 +280,6 @@ class _ChapterDetailsState extends State<ChapterDetails> {
     }
   }
 
-  List<ContentStructure> OcreateCoursePagerFromStructure() {
-    try {
-      var contentsList = widget.courseModule!.contents;
-      print("ccc ${contentsList!.length}");
-      var index_ = contentsList.indexWhere((elm) => elm.type == 'content');
-      //print("Courses list struct -->$index_");
-      var courseJsonList = jsonDecode(contentsList[index_].content!) as List;
-      print("xxxxx$courseJsonList");
-      List<ContentStructure> coursesObjs = [];
-
-      for (var i = 0; i < courseJsonList.length; i++) {
-        var c = courseJsonList[i];
-        print("INDEX $i  Title ${c['title']}");
-        coursesObjs.add(ContentStructure.fromJson2(c, i));
-      }
-
-      return coursesObjs;
-    } catch (e) {
-      print(e);
-      return List.empty();
-    }
-  }
 
   bool downloading = false;
   var progress = "";

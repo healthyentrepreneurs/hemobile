@@ -245,7 +245,6 @@ class _HomepageState extends State<Homepage> {
                               imageUrl: "${data['ImageUrl']}");
 
                           print("Clicked --- ${data['Source']}");
-                          print("Clicked --- ${data}");
                           if ("${data['Source']}" == 'originalm') {
                             Navigator.push(
                                 context,
@@ -266,8 +265,6 @@ class _HomepageState extends State<Homepage> {
                   },
                 ),
               ),
-// >>>>>>> 2c65bd2 (Fixed survey details and sub course  page)
-
             //----
           ],
         ),
@@ -340,11 +337,7 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  Future<File> _getLocalFile(String filename) async {
-    String dir = await FileSystemUtil().extDownloadsPath + "/HE Health";
-    File f = new File('$dir$filename');
-    return f;
-  }
+
 
   String? firstName;
   late String offline;

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nl_health_app/models/utils.dart';
 import 'package:nl_health_app/screens/chapterDetails/chapterDetails.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
@@ -103,15 +104,8 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 //Text("calling $offline"),
-                offline == "off"
-                    ?
-                    //Text("$offline")
-                    CircleAvatar(
-                        radius: 35.0,
-                        backgroundImage: NetworkImage("${courseModule['modicon']}"),
-                      )
-                    : FutureBuilder(
-                        future: _getLocalFile("${courseModule['modicon']}"),
+                FutureBuilder(
+                        future: getFirebaseFile("${courseModule['Modicon']}"),
                         builder: (BuildContext context,
                             AsyncSnapshot<File> snapshot) {
                           return snapshot.data != null
