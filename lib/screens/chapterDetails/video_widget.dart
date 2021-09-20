@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nl_health_app/models/utils.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/user_model.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
@@ -29,44 +30,32 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
   }
 
   void initApp() async {
-    await loadLocalFilePath();
+    // await loadLocalFilePath();
     await _getPref();
-    if (offline == "on") {
-      //_loadCourseDataOffline();
-    } else {
-      //this._loadCourseData();
-    }
     this.initializePlayer();
   }
 
   late String firstName;
-  late String offline;
 
   _getPref() async {
     User? user = (await preferenceUtil.getUser());
     String? firstNameLocal = user?.firstname;
-    String? offlineLocal = (await preferenceUtil.getOnline());
     setState(() {
       if (firstNameLocal != null) {
         firstName = firstNameLocal;
       }
-      offline = offlineLocal;
     });
   }
 
-  late String mainOfflinePath;
+  /* late String mainOfflinePath;
   Future<String> loadLocalFilePath() async {
     mainOfflinePath = await FileSystemUtil().extDownloadsPath + "/HE Health";
     return mainOfflinePath;
-  }
+  }*/
 
   Future<void> initializePlayer() async {
-    if (offline == "on") {
-      _controller = VideoPlayerController.file(
-          new File("$mainOfflinePath${widget.videoUrl}"));
-    } else {
-      _controller = VideoPlayerController.network(widget.videoUrl);
-    }
+    var f = await getFirebaseFile("${widget.videoUrl}");
+    _controller = VideoPlayerController.file(f);
     //_controller = VideoPlayerController.network("https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4");
     //_controller = VideoPlayerController.file(new File(widget.videoUrl));
     //_controller = VideoPlayerController.asset("assets/video/malaria.mp4");

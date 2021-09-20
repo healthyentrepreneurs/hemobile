@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nl_health_app/db2/survey_nosql_model.dart';
+import 'package:nl_health_app/models/utils.dart';
 import 'package:nl_health_app/screens/chapterDetails/video_widget.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/home_helper.dart';
@@ -56,7 +57,7 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
       var courseContents = widget.courseContents;
       var list = courseContents!
           .where(
-              (c) => "${c['filename']}".toLowerCase() == fileName.toLowerCase())
+              (c) => "${c['Filename']}".toLowerCase() == fileName.toLowerCase())
           .toList();
       // ignore: unnecessary_null_comparison
       if (list != null)
@@ -88,7 +89,7 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
                           .attributes;
                       String videoSourceUrl =
                           Uri.decodeFull(videoAttr['src'].toString());
-                      print("videoSrc attr " + videoSourceUrl);
+                      // print("videoSrc attr " + videoSourceUrl);
 //                      print("videoSrc attr decode " + Uri.decodeFull(videoSourceUrl));
                       var content = findSingleFileContent(videoSourceUrl);
 
@@ -99,31 +100,23 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
                           0, baseFilePath.lastIndexOf("/") + 1);
 //                      print("added file path " + baseFilePath);
 
-                      var imageCoverUrl =
-                          "$_storageDir/$baseFilePath${context.tree.element!.attributes['poster']}";
-                      var videoUrl =
-                          "$_storageDir/$baseFilePath${videoAttr['src']}";
 
                       //return _htmlVideoCard(Uri.decodeFull(imageCoverUrl), Uri.decodeFull(videoUrl));
                       if (content != null)
-                        return _htmlVideoCardFromOnline(
-                            Uri.decodeFull(imageCoverUrl),
-                            "${content.fileurl}?token=$token");
+                        return _htmlVideoCardFromOnline("${content['Fileurl']}", "${content['Fileurl']}");
                       else
                         return SizedBox(height: 1.0);
                     },
                     "img": (context, child) {
                       String videoSourceUrl = Uri.decodeFull(
                           context.tree.element!.attributes['src'].toString());
-                      print("Images path attr " + videoSourceUrl);
+                      //print("Images path attr " + videoSourceUrl);
 //                      print("videoSrc attr decode " + Uri.decodeFull(videoSourceUrl));
                       var content = findSingleFileContent(videoSourceUrl);
-                      print("Online Image display ... ${content?.fileurl}");
-                      if (content != null) if (offline == "on")
-                        return _displayImage(content, "${content.fileurl}");
-                      else
-                        return _displayImage(
-                            content, "${content.fileurl}?token=$token");
+                      //print("Online Image display ... ${content?.fileurl}");
+                      if (content != null)
+                        return _displayFSImage(
+                            content, "${content['Fileurl']}");
                       else
                         return SizedBox(height: 1.0);
                       //return Text("Image replace here .. $content",style: TextStyle(color: Colors.red,fontSize: 30.0),);
@@ -136,6 +129,21 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
     );
   }
 
+  Widget _displayFSImage(dynamic content, String imageUrl) {
+    //print("FS image path >>+$imageUrl");
+    return FutureBuilder(
+        future: getFirebaseFile("$imageUrl"),
+        builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+          return snapshot.data != null
+              ? new Image.file(
+                  snapshot.data!,
+                  height: 50.0,
+                  width: 50.0,
+                )
+              : new Container();
+        });
+  }
+
   Widget _displayImage(ModuleContent content, String imageUrl) {
     if (offline == "on") {
       print("offline image path >>+$mainOfflinePath$imageUrl");
@@ -146,44 +154,52 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
   }
 
   Widget _htmlVideoCardFromOnline(String imageUrl, String videoUrl) {
-    print("Online video display ... $videoUrl");
+    // print("Online video display ... $videoUrl");
     return Padding(
       padding: const EdgeInsets.only(top: 3, bottom: 6.0),
-      child: Center(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                width: MediaQuery.of(context).size.width * .90,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.white38),
-                child: Image.asset(
-                  "assets/images/grid.png",
+      child: InkWell(
+        onTap: (){
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ChewieVideoViewOnline(videoUrl: videoUrl)));
+        },
+        child: Center(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
                   width: MediaQuery.of(context).size.width * .90,
-                  height: 200.0,
-                  fit: BoxFit.cover,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white38),
+                  child: Image.asset(
+                    "assets/images/grid.png",
+                    width: MediaQuery.of(context).size.width * .90,
+                    height: 200.0,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-            FlatButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              //VideoViewOnline(videoUrl: videoUrl)));
-                              ChewieVideoViewOnline(videoUrl: videoUrl)));
-                },
-                icon: Icon(
-                  FontAwesomeIcons.playCircle,
-                  color: ToolsUtilities.redColor,
-                  size: 50,
-                ),
-                label: Text(''))
-          ],
+              TextButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                ChewieVideoViewOnline(videoUrl: videoUrl)));
+                  },
+                  icon: Icon(
+                    FontAwesomeIcons.playCircle,
+                    color: ToolsUtilities.redColor,
+                    size: 50,
+                  ),
+                  label: Text(''))
+            ],
+          ),
         ),
       ),
     );
@@ -210,11 +226,7 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
     await loadLocalFilePath();
     await _getPref();
     this.readContentFile();
-   /* if (offline == "on") {
-      readContentFileOffline();
-    } else {
-      this.readContentFile();
-    }*/
+
 
     addViewStat();
   }
@@ -261,15 +273,14 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
   }
 
   Future<void> readContentFile() async {
-    FileSystemUtil fileSystemUtil = new FileSystemUtil();
-    try {
+     try {
       User? user = (await preferenceUtil.getUser());
       privateToken = user?.privatetoken;
       token = user?.token;
       var e = widget.coursePage;
       final chapterId = e!.chapterId;
       final chapterIdPath = "/$chapterId/";
-      print(">> $chapterIdPath $chapterId}");
+      // print(">> $chapterIdPath $chapterId}");
       //Filepath
       //Fileurl
       //Type == file
@@ -280,7 +291,7 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
               "${c['Filepath']}".toLowerCase() == chapterIdPath.toLowerCase())
           .toList();
       if (list.length > 0) {
-        print(">>>File download link Index ${list.first['Fileurl']} title ${e.title}");
+        // print(">>>File download link Index ${list.first['Fileurl']} title ${e.title}");
         String txt = "${list.first['Fileurl']}";
         setState(() {
           contentText = txt;

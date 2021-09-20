@@ -66,10 +66,11 @@ class _MyAppState extends State<MyApp> {
           title: 'HE Health',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-            primaryColor: Color(0xff349141),
+            primaryColor: Color(0xff1ab394),
             accentColor: Colors.green,
             primarySwatch: Colors.green,
             visualDensity: VisualDensity.adaptivePlatformDensity,
+            fontFamily: 'Raleway'
           ),
           home: papa == 1 ? LoginPage() : Homepage(),
         );

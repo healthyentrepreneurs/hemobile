@@ -6,6 +6,7 @@ import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:nl_health_app/widgets/dot_pagination.dart';
 import 'package:nl_health_app/widgets/dots_indicator_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,6 +29,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
   late PageController _pageController;
   static const _kDuration = const Duration(milliseconds: 300);
   static const _kCurve = Curves.ease;
+  int currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -63,9 +65,23 @@ class _ChapterDetailsState extends State<ChapterDetails> {
               },
               controller: _pageController,
               scrollDirection: Axis.horizontal,
+              onPageChanged: (i){
+                setState(() {
+                  currentIndex = i;
+                });
+              },
             ),
           ),
-          new Positioned(
+
+          Align(
+            child: DotPagination(
+              itemCount: _coursePagerList.length,
+              activeIndex: currentIndex,
+            ),
+            alignment: Alignment.bottomCenter,
+          ),
+
+         /* Positioned(
             bottom: 0.0,
             left: 0.0,
             right: 0.0,
@@ -150,7 +166,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                 ],
               ),
             ),
-          ),
+          ),*/
         ]));
   }
 
@@ -279,28 +295,6 @@ class _ChapterDetailsState extends State<ChapterDetails> {
     }
   }
 
-  List<ContentStructure> OcreateCoursePagerFromStructure() {
-    try {
-      var contentsList = widget.courseModule!.contents;
-      print("ccc ${contentsList!.length}");
-      var index_ = contentsList.indexWhere((elm) => elm.type == 'content');
-      //print("Courses list struct -->$index_");
-      var courseJsonList = jsonDecode(contentsList[index_].content!) as List;
-      print("xxxxx$courseJsonList");
-      List<ContentStructure> coursesObjs = [];
-
-      for (var i = 0; i < courseJsonList.length; i++) {
-        var c = courseJsonList[i];
-        print("INDEX $i  Title ${c['title']}");
-        coursesObjs.add(ContentStructure.fromJson2(c, i));
-      }
-
-      return coursesObjs;
-    } catch (e) {
-      print(e);
-      return List.empty();
-    }
-  }
 
   bool downloading = false;
   var progress = "";
