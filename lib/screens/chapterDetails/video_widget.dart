@@ -272,6 +272,7 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
       // ),
       // autoInitialize: true,
     );
+    if(mounted)
     setState(() {});
   }
 

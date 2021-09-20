@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager_firebase/flutter_cache_manager_firebase.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nl_health_app/db2/survey_nosql_model.dart';
@@ -14,6 +15,8 @@ import 'package:nl_health_app/screens/utilits/models/user_model.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:nl_health_app/services/service_locator.dart';
+
+import 'image_display_widget.dart';
 
 class CourseElementDisplay extends StatefulWidget {
   final dynamic courseModule;
@@ -100,26 +103,22 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
                           0, baseFilePath.lastIndexOf("/") + 1);
 //                      print("added file path " + baseFilePath);
 
-
                       //return _htmlVideoCard(Uri.decodeFull(imageCoverUrl), Uri.decodeFull(videoUrl));
                       if (content != null)
-                        return _htmlVideoCardFromOnline("${content['Fileurl']}", "${content['Fileurl']}");
+                        return _htmlVideoCardFromOnline(
+                            "${content['Fileurl']}", "${content['Fileurl']}");
                       else
                         return SizedBox(height: 1.0);
                     },
                     "img": (context, child) {
                       String videoSourceUrl = Uri.decodeFull(
                           context.tree.element!.attributes['src'].toString());
-                      //print("Images path attr " + videoSourceUrl);
-//                      print("videoSrc attr decode " + Uri.decodeFull(videoSourceUrl));
                       var content = findSingleFileContent(videoSourceUrl);
-                      //print("Online Image display ... ${content?.fileurl}");
-                      if (content != null)
-                        return _displayFSImage(
-                            content, "${content['Fileurl']}");
-                      else
+                      if (content != null) {
+                        var s = "${content['Fileurl']}";
+                        return FileImageDisplay(s);
+                      } else
                         return SizedBox(height: 1.0);
-                      //return Text("Image replace here .. $content",style: TextStyle(color: Colors.red,fontSize: 30.0),);
                     }
                   },
                 )
@@ -129,22 +128,26 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
     );
   }
 
-  Widget _displayFSImage(dynamic content, String imageUrl) {
-    //print("FS image path >>+$imageUrl");
-    return FutureBuilder(
-        future: getFirebaseFile("$imageUrl"),
-        builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
-          return snapshot.data != null
-              ? new Image.file(
-                  snapshot.data!,
-                  height: 50.0,
-                  width: 50.0,
-                )
-              : new Container();
-        });
+
+  Future<Widget> displayFSImage(String imageUrl) async {
+    var file = await getFirebaseFile("$imageUrl");
+    print("${file.path}");
+    if (file != null)
+      return Image.file(
+        file,
+        height: 50.0,
+        width: 240,
+        fit: BoxFit.cover,
+      );
+    else
+      return Container(
+        height: 240,
+        color: Colors.grey.shade100,
+      );
   }
 
   Widget _displayImage(ModuleContent content, String imageUrl) {
+    getFirebaseFile("$imageUrl");
     if (offline == "on") {
       print("offline image path >>+$mainOfflinePath$imageUrl");
       return Image.file(new File("$mainOfflinePath$imageUrl"));
@@ -158,7 +161,7 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
     return Padding(
       padding: const EdgeInsets.only(top: 3, bottom: 6.0),
       child: InkWell(
-        onTap: (){
+        onTap: () {
           Navigator.push(
               context,
               MaterialPageRoute(
@@ -227,7 +230,6 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
     await _getPref();
     this.readContentFile();
 
-
     addViewStat();
   }
 
@@ -273,7 +275,7 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
   }
 
   Future<void> readContentFile() async {
-     try {
+    try {
       User? user = (await preferenceUtil.getUser());
       privateToken = user?.privatetoken;
       token = user?.token;
