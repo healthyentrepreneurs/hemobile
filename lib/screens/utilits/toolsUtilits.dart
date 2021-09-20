@@ -77,13 +77,6 @@ List<String> skillNames = [
 String paragraphContent = "jeje";
 FirebaseStorage storage = FirebaseStorage.instance;
 // https://stackoverflow.com/questions/53513456/flutter-network-image-does-not-fit-in-circular-avatar
-// Future<void> tata(String fileUrl) async {
-//   try {
-//     await storage.ref(fileUrl).getDownloadURL();
-//   } on firebase_core.FirebaseException catch (e) {
-//     print("hey");
-//   }
-// }
 Future<void> tata(String url) async {
   try {
     await storage.ref(url).getDownloadURL();
@@ -97,24 +90,18 @@ Future<void> tata(String url) async {
 }
 
 Widget futureBuilderFile(int picVideo, String fileUrl) {
-  tata(fileUrl);
-  // Future<File> file;
-  // try {
-  //   file = FirebaseCacheManager().getSingleFile(fileUrl);
-  // } catch (e) {
-  //   print(e);
-  //   // return null;
-  // }
-  // try{
-  //   file =  FirebaseCacheManager().getSingleFile(fileUrl);
-  // }catch(_){
-  //   print("Pwapwa");
-  // print(fileUrl);
-
-  // FirebaseCacheManager().emptyCache();
-  Future<File> file = FirebaseCacheManager().getSingleFile(
-      "/bookresource/app.healthyentrepreneurs.nl/theme/image.php/_s/academi/book/1631050397/placeholderimage.png");
-  // }
+  late Future<File> file;
+  try {
+    file = FirebaseCacheManager().getSingleFile(fileUrl);
+  }on FirebaseException catch(e){
+    print("Step 1 error");
+    file = FirebaseCacheManager().getSingleFile(
+        "/bookresource/app.healthyentrepreneurs.nl/theme/image.php/_s/academi/book/1631050397/placeholderimage.png");
+  }catch (_){
+    print("Step 2 error");
+    file = FirebaseCacheManager().getSingleFile(
+        "/bookresource/app.healthyentrepreneurs.nl/theme/image.php/_s/academi/book/1631050397/placeholderimage.png");
+  }
   return FutureBuilder(
       future: file,
       builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
