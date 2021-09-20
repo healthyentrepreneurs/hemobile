@@ -159,7 +159,6 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
       padding: const EdgeInsets.only(top: 3, bottom: 6.0),
       child: InkWell(
         onTap: (){
-          print("clclcxx");
           Navigator.push(
               context,
               MaterialPageRoute(
