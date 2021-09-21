@@ -22,7 +22,6 @@ class ChewieVideoViewOnline extends StatefulWidget {
 class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
   VideoPlayerController? _controller;
   ChewieController? _chewieController;
-
   @override
   void initState() {
     // print("Video -->>>> ${widget.videoUrl}");
@@ -67,8 +66,8 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
 
     _chewieController = ChewieController(
       videoPlayerController: _controller!,
-      autoPlay: false,
-      looping: false,
+      autoPlay: true,
+      looping: true,
       // Try playing around with some of these other options:
 
       // showControls: false,
@@ -83,7 +82,8 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
       // ),
       // autoInitialize: true,
     );
-    if (mounted) setState(() {});
+    if(mounted)
+    setState(() {});
   }
 
   @override
@@ -95,25 +95,56 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width * .90,
-      child: Center(
-        child: _chewieController != null &&
-            _chewieController!
-                .videoPlayerController.value.isInitialized
-            ? Chewie(
-          controller: _chewieController!,
-        )
-            : Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 20),
-            Text('Loading'),
-          ],
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(
+          "Watch Video",
+          style: TextStyle(color: ToolsUtilities.mainPrimaryColor),
         ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: ToolsUtilities.mainPrimaryColor),
       ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: _chewieController != null &&
+                      _chewieController!
+                          .videoPlayerController.value.isInitialized
+                  ? Chewie(
+                      controller: _chewieController!,
+                    )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 20),
+                        Text('Loading'),
+                      ],
+                    ),
+            ),
+          ),
+        ],
+      ),
+      /*floatingActionButton: FloatingActionButton(
+        backgroundColor: ToolsUtilities.mainPrimaryColor,
+        onPressed: () {
+          setState(() {
+            if (_controller.value.isPlaying) {
+              _controller.pause();
+            } else {
+              _controller.play();
+            }
+          });
+        },
+        child: Icon(
+            _controller.value.isPlaying ? Icons.pause : Icons.play_arrow),
+      ),*/
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 //download file if its not existing

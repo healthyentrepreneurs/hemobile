@@ -81,6 +81,7 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
   Future<Widget> bookHtmlPagerUi() async {
     // print(contentText);
     return SingleChildScrollView(
+      padding: EdgeInsets.only(left: 10,right: 10),
         child: Column(children: [
           // Text(
           //   "Page ${widget.coursePage!.index} -  ${widget.coursePage!.title}",
@@ -104,8 +105,7 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
                   Uri.decodeFull(videoAttr['src'].toString());
                   var content = findSingleFileContent(videoSourceUrl);
                   if (content != null)
-                    return _htmlVideoCardFromOnline(
-                        "${content['Fileurl']}", "${content['Fileurl']}");
+                    return _htmlVideoCardFromOnline( "${content['Fileurl']}");
                   else
                     return SizedBox(height: 1.0);
                 }
@@ -168,7 +168,41 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
     }
   }
 
-  Widget _htmlVideoCardFromOnline(String imageUrl, String videoUrl) {
+  Widget _htmlVideoCardFromOnline(String videoUrl) {
+    // print("Online video display ... $videoUrl");
+    return Padding(
+      padding: const EdgeInsets.only(top: 3, bottom: 6.0),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ChewieVideoViewOnline(videoUrl: videoUrl)));
+        },
+        child: Center(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  width: MediaQuery.of(context).size.width * .97,
+                  height: MediaQuery.of(context).size.height * .32,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white38),
+                  child: ChewieVideoViewOnline(videoUrl: videoUrl),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _htmlVideoCardFromOnlineX(String imageUrl, String videoUrl) {
     // print("Online video display ... $videoUrl");
     return Padding(
       padding: const EdgeInsets.only(top: 3, bottom: 6.0),
