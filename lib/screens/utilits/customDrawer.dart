@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:nl_health_app/screens/homePage/homePa.dart';
 import 'package:nl_health_app/screens/homePage/homePage.dart';
+import 'package:nl_health_app/screens/homePage/homeSec.dart';
 import 'package:nl_health_app/screens/login/loginPage.dart';
 import 'package:nl_health_app/screens/offline/offline_activation_page.dart';
 import 'package:nl_health_app/screens/offline/survey_data_set_sync.dart';
@@ -94,7 +96,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
             InkWell(
               onTap: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Homepage()));
+                    MaterialPageRoute(builder: (context) => Homesec()));
               },
               child: ListTile(
                 title: _menuItem('Test Books', FontAwesomeIcons.addressCard),
@@ -106,7 +108,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                     MaterialPageRoute(builder: (context) => Homepage()));
               },
               child: ListTile(
-                title: _menuItem('Courses', FontAwesomeIcons.bookReader),
+                title: _menuItem('Surveys', FontAwesomeIcons.bookReader),
               ),
             ),
             InkWell(

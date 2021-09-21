@@ -1,9 +1,10 @@
 import 'dart:io';
 
+import 'package:firebase_image/firebase_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager_firebase/flutter_cache_manager_firebase.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nl_health_app/db2/survey_nosql_model.dart';
 import 'package:nl_health_app/models/utils.dart';
@@ -16,8 +17,6 @@ import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:nl_health_app/services/service_locator.dart';
 
-import 'image_display_widget.dart';
-
 class CourseElementDisplay extends StatefulWidget {
   final dynamic courseModule;
   final ContentStructure? coursePage;
@@ -26,10 +25,10 @@ class CourseElementDisplay extends StatefulWidget {
 
   const CourseElementDisplay(
       {Key? key,
-      this.coursePage,
-      this.courseContents,
-      this.courseModule,
-      this.course})
+        this.coursePage,
+        this.courseContents,
+        this.courseModule,
+        this.course})
       : super(key: key);
 
   @override
@@ -42,7 +41,13 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: bookHtmlPagerUi(),
+      child: FutureBuilder<Widget>(
+          future: bookHtmlPagerUi(),
+          builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+            if (snapshot.hasData) return snapshot.data!;
+            return Container(child: CircularProgressIndicator());
+            // return snapshot.data != null ? snapshot.data! : new Container();
+          }),
     );
   }
 
@@ -72,82 +77,89 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
     }
   }
 
-  Widget bookHtmlPagerUi() {
+  // https://flutterappworld.com/flutter-widget-from-html/
+  Future<Widget> bookHtmlPagerUi() async {
+    // print(contentText);
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          Text(
-            "Page ${widget.coursePage!.index} -  ${widget.coursePage!.title}",
-            style: TextStyle(color: Colors.white),
-          ),
+        child: Column(children: [
+          // Text(
+          //   "Page ${widget.coursePage!.index} -  ${widget.coursePage!.title}",
+          //   style: TextStyle(color: Colors.redAccent),
+          // ),
           contentText != null
-              ? Html(
-                  data: contentText,
-                  customRender: {
-                    "video": (context, child) {
-                      var baseFilePath = "contentObj.href";
-                      var videoAttr = context.tree.element!
-                          .getElementsByTagName('source')
-                          .first
-                          .attributes;
-                      String videoSourceUrl =
-                          Uri.decodeFull(videoAttr['src'].toString());
-                      // print("videoSrc attr " + videoSourceUrl);
-//                      print("videoSrc attr decode " + Uri.decodeFull(videoSourceUrl));
-                      var content = findSingleFileContent(videoSourceUrl);
+              ? RepaintBoundary(
+            child: HtmlWidget(
+              contentText!,
+              customStylesBuilder: (element) {
+                if (element.localName == 'h3') {
+                  return {'color': '#CD5C5C'};
+                }
+                return null;
+              },
+              customWidgetBuilder: (element) {
+                if (element.localName == 'video') {
+                  var videoAttr =
+                      element.getElementsByTagName('source').first.attributes;
+                  String videoSourceUrl =
+                  Uri.decodeFull(videoAttr['src'].toString());
+                  var content = findSingleFileContent(videoSourceUrl);
+                  if (content != null)
+                    return _htmlVideoCardFromOnline(
+                        "${content['Fileurl']}", "${content['Fileurl']}");
+                  else
+                    return SizedBox(height: 1.0);
+                }
+                if (element.localName == 'img') {
+                  String videoSourceUrl =
+                  Uri.decodeFull(element.attributes['src'].toString());
+                  var content = findSingleFileContent(videoSourceUrl);
+                  // String keyvalue = "${content['Fileurl']}";
+                  if (content != null)
+                    return _displayFSImage(content, "${content['Fileurl']}");
+                  else
+                    return Image.asset('assets/images/grid.png');
+                }
+                return null;
+              },
+              textStyle: TextStyle(color: Colors.black54),
+            ),
+          )
+              : Text('Loading')
+        ]));
+  }
 
-//                      print("attr " + attributes.toString());
-//                      print("Base file path " + baseFilePath);
-
-                      baseFilePath = baseFilePath.substring(
-                          0, baseFilePath.lastIndexOf("/") + 1);
-//                      print("added file path " + baseFilePath);
-
-                      //return _htmlVideoCard(Uri.decodeFull(imageCoverUrl), Uri.decodeFull(videoUrl));
-                      if (content != null)
-                        return _htmlVideoCardFromOnline(
-                            "${content['Fileurl']}", "${content['Fileurl']}");
-                      else
-                        return SizedBox(height: 1.0);
-                    },
-                    "img": (context, child) {
-                      String videoSourceUrl = Uri.decodeFull(
-                          context.tree.element!.attributes['src'].toString());
-                      var content = findSingleFileContent(videoSourceUrl);
-                      if (content != null) {
-                        var s = "${content['Fileurl']}";
-                        return FileImageDisplay(s);
-                      } else
-                        return SizedBox(height: 1.0);
-                    }
-                  },
-                )
-              : Text('Loading'),
-        ],
+  Widget _displayFSImagenn(dynamic content, String imageUrl) {
+    print("FS image path >>+$imageUrl");
+    return Image(
+      image: FirebaseImage(
+          'gs://he-test-server.appspot.com/bookresource/app.healthyentrepreneurs.nl/webservice/pluginfile.php/148/mod_book/chapter/10/HIV1.png',
+          shouldCache: true, // The image should be cached (default: True)
+          maxSizeBytes: 6000 * 1000, // 3MB max file size (default: 2.5MB)
+          cacheRefreshStrategy: CacheRefreshStrategy
+              .BY_METADATA_DATE // Switch off update checking
       ),
+      fit: BoxFit.cover,
     );
   }
 
-
-  Future<Widget> displayFSImage(String imageUrl) async {
-    var file = await getFirebaseFile("$imageUrl");
-    print("${file.path}");
-    if (file != null)
-      return Image.file(
-        file,
-        height: 50.0,
-        width: 240,
-        fit: BoxFit.cover,
-      );
-    else
-      return Container(
-        height: 240,
-        color: Colors.grey.shade100,
-      );
+  Widget _displayFSImage(dynamic content, String imageUrl) {
+    //print("FS image path >>+$imageUrl");
+    return FutureBuilder(
+        future: getFirebaseFile("$imageUrl"),
+        builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+          return snapshot.data != null
+              ? new Image.file(
+            snapshot.data!,
+            fit: BoxFit.cover,
+            // height: 100.0,
+            // width: 200.0,
+          )
+              : new Image.asset('assets/images/grid.png');
+          ;
+        });
   }
 
   Widget _displayImage(ModuleContent content, String imageUrl) {
-    getFirebaseFile("$imageUrl");
     if (offline == "on") {
       print("offline image path >>+$mainOfflinePath$imageUrl");
       return Image.file(new File("$mainOfflinePath$imageUrl"));
@@ -290,7 +302,7 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
       var courseContents = widget.courseContents;
       var list = courseContents!
           .where((c) =>
-              "${c['Filepath']}".toLowerCase() == chapterIdPath.toLowerCase())
+      "${c['Filepath']}".toLowerCase() == chapterIdPath.toLowerCase())
           .toList();
       if (list.length > 0) {
         // print(">>>File download link Index ${list.first['Fileurl']} title ${e.title}");

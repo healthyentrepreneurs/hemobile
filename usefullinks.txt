@@ -15,3 +15,10 @@ https://blog.codemagic.io/inappwebview-the-real-power-of-webviews-in-flutter/
 
 CONFIGURE FIREBASE:
 https://stackoverflow.com/questions/58693838/flutter-firebase-configure-app-to-use-local-firebase-emulator
+
+Thumbnail
+https://pub.dev/packages?q=thumbnail+
+https://pub.dev/packages/flutter_cache_manager_firebase
+
+IMAGES IN FLUTTER:
+https://educity.app/flutter/how-to-display-images-from-internet-in-flutter

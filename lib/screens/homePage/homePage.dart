@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,7 +9,6 @@ import 'package:nl_health_app/screens/login/login_logic.dart';
 import 'package:nl_health_app/screens/offline/survey_data_set_sync.dart';
 import 'package:nl_health_app/screens/survey/survey.dart';
 import 'package:nl_health_app/screens/utilits/customDrawer.dart';
-import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/home_helper.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/models/user_model.dart';
@@ -33,9 +31,9 @@ class _HomepageState extends State<Homepage> {
   // final Stream<QuerySnapshot> _usersStream = FirebaseFirestore.instance.collection('survey').snapshots();
   // final Stream<QuerySnapshot> _usersStream = FirebaseFirestore.instance.collection('courses').snapshots();
   final Stream<QuerySnapshot> _coursesStream =
-      FirebaseFirestore.instance.collection('courses').snapshots();
+  FirebaseFirestore.instance.collection('courses').snapshots();
   final Stream<QuerySnapshot> _surveyStream =
-      FirebaseFirestore.instance.collection('survey').snapshots();
+  FirebaseFirestore.instance.collection('survey').snapshots();
 
   late Stream<DocumentSnapshot>? _userdataStream;
 
@@ -51,9 +49,9 @@ class _HomepageState extends State<Homepage> {
         .snapshots();
 
     if (_userdataStream != null)
-    _userdataStream!.forEach((t) {
-      print("User data .... " + t.data().toString());
-    });
+      _userdataStream!.forEach((t) {
+        print("User data .... " + t.data().toString());
+      });
   }
 
   void initState() {
@@ -84,9 +82,9 @@ class _HomepageState extends State<Homepage> {
 
                 return ListView(
                   children:
-                      snapshot.data!.docs.map((DocumentSnapshot document) {
+                  snapshot.data!.docs.map((DocumentSnapshot document) {
                     Map<String, dynamic> data =
-                        document.data()! as Map<String, dynamic>;
+                    document.data()! as Map<String, dynamic>;
                     // print(">xxx" + data.toString());
                     if (data['Source'] == 'moodle')
                       return ListTile(
@@ -194,17 +192,17 @@ class _HomepageState extends State<Homepage> {
               child: count < 1
                   ? Text('')
                   : InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LocalSurveySyncPage()));
-                      },
-                      child: ListTile(
-                        title: _iconTextItem('You have $count unsent surveys',
-                            FontAwesomeIcons.sync),
-                      ),
-                    ),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => LocalSurveySyncPage()));
+                },
+                child: ListTile(
+                  title: _iconTextItem('You have $count unsent surveys',
+                      FontAwesomeIcons.sync),
+                ),
+              ),
             ),
 
             appTitle("What do you need?"),
@@ -291,7 +289,7 @@ class _HomepageState extends State<Homepage> {
               ]),
           child: Padding(
             padding:
-                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+            const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
