@@ -81,7 +81,9 @@ class _ChapterDetailsState extends State<ChapterDetails> {
             alignment: Alignment.bottomCenter,
           ),
 
-         /* Positioned(
+         /*
+         //The old pagination hook
+         Positioned(
             bottom: 0.0,
             left: 0.0,
             right: 0.0,

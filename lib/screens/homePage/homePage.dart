@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:nl_health_app/models/utils.dart';
+import 'package:nl_health_app/screens/chapterDetails/image_display_widget.dart';
 import 'package:nl_health_app/screens/course/coursesPage.dart';
 import 'package:nl_health_app/screens/login/login_logic.dart';
 import 'package:nl_health_app/screens/offline/survey_data_set_sync.dart';
@@ -206,6 +207,8 @@ class _HomepageState extends State<Homepage> {
 
             appTitle("What do you need?"),
             //----
+           // const FileImageDisplay("/bookresource/app.healthyentrepreneurs.nl/webservice/pluginfile.php/148/mod_book/chapter/10/HIV1.png"),
+
 
             if (_userdataStream != null)
               Center(
