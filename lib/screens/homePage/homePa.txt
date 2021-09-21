@@ -253,6 +253,6 @@ class _FilmList extends State<JajaApp> {
     );
   }
 }
-
+//RepaintBoundary
 // WhenRebuilder https://github.com/GIfatahTH/states_rebuilder/issues/75
 //AsyncBuilder https://pub.dev/packages/async_builder

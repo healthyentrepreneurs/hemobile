@@ -8,7 +8,6 @@ import 'package:nl_health_app/screens/login/login_logic.dart';
 import 'package:nl_health_app/screens/offline/survey_data_set_sync.dart';
 import 'package:nl_health_app/screens/survey/survey.dart';
 import 'package:nl_health_app/screens/utilits/customDrawer.dart';
-import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/home_helper.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/models/user_model.dart';

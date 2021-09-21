@@ -29,3 +29,7 @@ Increase to 10k, Add Kubernates Helm, Operaters, ElASTIC stack
 check out John Snow Behead, Rock Star
 #Remeber
 (Bob Battled with his own success)
+
+/bookresource/app.healthyentrepreneurs.nl/webservice/pluginfile.php/148/mod_book/chapter/10/HIV1.png
+
+gs://he-test-server.appspot.com/bookresource/app.healthyentrepreneurs.nl/webservice/pluginfile.php/148/mod_book/chapter/10

@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:firebase_image/firebase_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nl_health_app/db2/survey_nosql_model.dart';
 import 'package:nl_health_app/models/utils.dart';
@@ -39,7 +41,13 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: bookHtmlPagerUi(),
+      child: FutureBuilder<Widget>(
+          future: bookHtmlPagerUi(),
+          builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+            if (snapshot.hasData) return snapshot.data!;
+            return Container(child: CircularProgressIndicator());
+            // return snapshot.data != null ? snapshot.data! : new Container();
+          }),
     );
   }
 
@@ -69,67 +77,72 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
     }
   }
 
-  Widget bookHtmlPagerUi() {
+  // https://flutterappworld.com/flutter-widget-from-html/
+  Future<Widget> bookHtmlPagerUi() async {
+    // print(contentText);
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          Text(
-            "Page ${widget.coursePage!.index} -  ${widget.coursePage!.title}",
-            style: TextStyle(color: Colors.white),
-          ),
-          contentText != null
-              ? Html(
-                  data: contentText,
-                  customRender: {
-                    "video": (context, child) {
-                      var baseFilePath = "contentObj.href";
-                      var videoAttr = context.tree.element!
-                          .getElementsByTagName('source')
-                          .first
-                          .attributes;
-                      String videoSourceUrl =
-                          Uri.decodeFull(videoAttr['src'].toString());
-                      // print("videoSrc attr " + videoSourceUrl);
-//                      print("videoSrc attr decode " + Uri.decodeFull(videoSourceUrl));
-                      var content = findSingleFileContent(videoSourceUrl);
-
-//                      print("attr " + attributes.toString());
-//                      print("Base file path " + baseFilePath);
-
-                      baseFilePath = baseFilePath.substring(
-                          0, baseFilePath.lastIndexOf("/") + 1);
-//                      print("added file path " + baseFilePath);
-
-
-                      //return _htmlVideoCard(Uri.decodeFull(imageCoverUrl), Uri.decodeFull(videoUrl));
-                      if (content != null)
-                        return _htmlVideoCardFromOnline("${content['Fileurl']}", "${content['Fileurl']}");
-                      else
-                        return SizedBox(height: 1.0);
-                    },
-                    "img": (context, child) {
-                      String videoSourceUrl = Uri.decodeFull(
-                          context.tree.element!.attributes['src'].toString());
-                      //print("Images path attr " + videoSourceUrl);
-//                      print("videoSrc attr decode " + Uri.decodeFull(videoSourceUrl));
-                      var content = findSingleFileContent(videoSourceUrl);
-                      //print("Online Image display ... ${content?.fileurl}");
-                      if (content != null)
-                        return _displayFSImage(
-                            content, "${content['Fileurl']}");
-                      else
-                        return SizedBox(height: 1.0);
-                      //return Text("Image replace here .. $content",style: TextStyle(color: Colors.red,fontSize: 30.0),);
-                    }
-                  },
-                )
-              : Text('Loading'),
-        ],
-      ),
-    );
+        child: Column(children: [
+      // Text(
+      //   "Page ${widget.coursePage!.index} -  ${widget.coursePage!.title}",
+      //   style: TextStyle(color: Colors.redAccent),
+      // ),
+      contentText != null
+          ? RepaintBoundary(
+              child: HtmlWidget(
+                contentText!,
+                customStylesBuilder: (element) {
+                  if (element.localName == 'h3') {
+                    return {'color': '#CD5C5C'};
+                  }
+                  return null;
+                },
+                customWidgetBuilder: (element) {
+                  if (element.localName == 'video') {
+                    var videoAttr =
+                        element.getElementsByTagName('source').first.attributes;
+                    String videoSourceUrl =
+                        Uri.decodeFull(videoAttr['src'].toString());
+                    var content = findSingleFileContent(videoSourceUrl);
+                    if (content != null)
+                      return _htmlVideoCardFromOnline(
+                          "${content['Fileurl']}", "${content['Fileurl']}");
+                    else
+                      return SizedBox(height: 1.0);
+                  }
+                  if (element.localName == 'img') {
+                    String videoSourceUrl =
+                        Uri.decodeFull(element.attributes['src'].toString());
+                    var content = findSingleFileContent(videoSourceUrl);
+                    // String keyvalue = "${content['Fileurl']}";
+                    if (content != null)
+                      return _displayFSImage(content, "${content['Fileurl']}");
+                    else
+                      return Image.asset('assets/images/grid.png');
+                  }
+                  return null;
+                },
+                textStyle: TextStyle(color: Colors.black54),
+              ),
+            )
+          : Text('Loading')
+    ]));
   }
 
   Widget _displayFSImage(dynamic content, String imageUrl) {
+    print("FS image path >>+$imageUrl");
+    return Image(
+      image: FirebaseImage(
+          'gs://he-test-server.appspot.com/bookresource/app.healthyentrepreneurs.nl/webservice/pluginfile.php/148/mod_book/chapter/10/HIV1.png',
+          shouldCache: true, // The image should be cached (default: True)
+          maxSizeBytes: 6000 * 1000, // 3MB max file size (default: 2.5MB)
+          cacheRefreshStrategy: CacheRefreshStrategy
+              .BY_METADATA_DATE // Switch off update checking
+          ),
+      fit: BoxFit.cover,
+    );
+  }
+
+  Widget _displayFSImagex(dynamic content, String imageUrl) {
     //print("FS image path >>+$imageUrl");
     return FutureBuilder(
         future: getFirebaseFile("$imageUrl"),
@@ -137,10 +150,12 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
           return snapshot.data != null
               ? new Image.file(
                   snapshot.data!,
-                  height: 50.0,
-                  width: 50.0,
+                  fit: BoxFit.cover,
+                  // height: 100.0,
+                  // width: 200.0,
                 )
-              : new Container();
+              : new Image.asset('assets/images/grid.png');
+          ;
         });
   }
 
@@ -158,7 +173,7 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
     return Padding(
       padding: const EdgeInsets.only(top: 3, bottom: 6.0),
       child: InkWell(
-        onTap: (){
+        onTap: () {
           Navigator.push(
               context,
               MaterialPageRoute(
@@ -227,7 +242,6 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
     await _getPref();
     this.readContentFile();
 
-
     addViewStat();
   }
 
@@ -273,7 +287,7 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
   }
 
   Future<void> readContentFile() async {
-     try {
+    try {
       User? user = (await preferenceUtil.getUser());
       privateToken = user?.privatetoken;
       token = user?.token;
