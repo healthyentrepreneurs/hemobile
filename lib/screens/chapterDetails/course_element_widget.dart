@@ -128,7 +128,7 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
     ]));
   }
 
-  Widget _displayFSImage(dynamic content, String imageUrl) {
+  Widget _displayFSImagenn(dynamic content, String imageUrl) {
     print("FS image path >>+$imageUrl");
     return Image(
       image: FirebaseImage(
@@ -142,7 +142,7 @@ class _CourseElementDisplayState extends State<CourseElementDisplay> {
     );
   }
 
-  Widget _displayFSImagex(dynamic content, String imageUrl) {
+  Widget _displayFSImage(dynamic content, String imageUrl) {
     //print("FS image path >>+$imageUrl");
     return FutureBuilder(
         future: getFirebaseFile("$imageUrl"),
