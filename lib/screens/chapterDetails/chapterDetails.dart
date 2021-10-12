@@ -10,7 +10,7 @@ import 'package:nl_health_app/widgets/dot_pagination.dart';
 import 'package:nl_health_app/widgets/dots_indicator_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'course_element_widget.dart';
+import 'course_detail_display_widget.dart';
 
 class ChapterDetails extends StatefulWidget {
   // final CourseModule? courseModule;
@@ -53,15 +53,13 @@ class _ChapterDetailsState extends State<ChapterDetails> {
             child: PageView.builder(
               itemCount: _coursePagerList.length,
               itemBuilder: (context, index) {
-                return CourseElementDisplay(
+                return CourseDetailDisplay(
                   coursePage: _coursePagerList[index],
                   courseContents:
                       widget.courseModule['Contents'] as List<dynamic>,
                   courseModule: widget.courseModule,
                   course: widget.course,
                 );
-                //return bookHtmlPagerUi(index);
-                //return coursePagerUi(contentObj);
               },
               controller: _pageController,
               scrollDirection: Axis.horizontal,
@@ -81,94 +79,6 @@ class _ChapterDetailsState extends State<ChapterDetails> {
             alignment: Alignment.bottomCenter,
           ),
 
-         /*
-         //The old pagination hook
-         Positioned(
-            bottom: 0.0,
-            left: 0.0,
-            right: 0.0,
-            child: new Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5.0),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey,
-                    offset: Offset(0.0, 1.0), //(x,y)
-                    blurRadius: 6.0,
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.all(20.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(children: [
-                    Container(
-                      width: 35,
-                      height: 35,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
-                        borderRadius: BorderRadius.all(Radius.circular(5)),
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          int p = _pageController.page!.toInt();
-                          if (p < _coursePagerList.length && (p - 1) >= 0) {
-                            _pageController.jumpToPage(p - 1);
-                          }
-                        },
-                        iconSize: 20,
-                        icon: Icon(
-                          FontAwesomeIcons.angleLeft,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ]),
-                  new Center(
-                    child: new DotsIndicator(
-                      controller: _pageController,
-                      itemCount: _coursePagerList.length,
-                      color: Theme.of(context).primaryColor,
-                      onPageSelected: (int page) {
-                        _pageController.animateToPage(
-                          page,
-                          duration: _kDuration,
-                          curve: _kCurve,
-                        );
-                      },
-                    ),
-                  ),
-                  Column(children: [
-                    Container(
-                      width: 35,
-                      height: 35,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
-                        borderRadius: BorderRadius.all(Radius.circular(5)),
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          int p = _pageController.page!.toInt();
-                          if (p < _coursePagerList.length &&
-                              (p + 1) != _coursePagerList.length) {
-                            _pageController.jumpToPage(p + 1);
-                          }
-                        },
-                        iconSize: 20,
-                        icon: Icon(
-                          FontAwesomeIcons.angleRight,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ]),
-                ],
-              ),
-            ),
-          ),*/
         ]));
   }
 
@@ -311,10 +221,6 @@ class _ChapterDetailsState extends State<ChapterDetails> {
       SharedPreferences preferences = await SharedPreferences.getInstance();
       privateToken = preferences.getString("privatetoken")!;
 
-      /*for (int x = 0; x < coursePagerList.length; x++) {
-        contentText.add("");
-      }*/
-      //coursePagerList.sort((a, b) => a.index.compareTo(b.index));
       List<PageItem> cp = <PageItem>[];
 
       coursePagerList.forEach((e) async {

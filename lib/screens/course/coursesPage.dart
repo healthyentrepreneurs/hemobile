@@ -10,6 +10,7 @@ import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
+import 'package:nl_health_app/screens/utilits/utils.dart';
 import 'coursesSubPage.dart';
 
 class CoursesPage extends StatefulWidget {
@@ -22,10 +23,9 @@ class CoursesPage extends StatefulWidget {
 }
 
 class _CoursesPageState extends State<CoursesPage> {
-
-  late Stream<DocumentSnapshot>? _booksStream;
-
+  Stream<DocumentSnapshot>? _booksStream;
   dynamic dataX;
+
   Future<void> initSurveyDataHomePage() async {
     _booksStream = FirebaseFirestore.instance
         .collection('books')
@@ -42,7 +42,6 @@ class _CoursesPageState extends State<CoursesPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: ToolsUtilities.whiteColor,
       appBar: AppBar(
@@ -84,10 +83,8 @@ class _CoursesPageState extends State<CoursesPage> {
               ),
               // SizedBox(height: 30.0),
 
-
               Container(
                 child: SingleChildScrollView(
-
                   child: GridView.builder(
                       shrinkWrap: true,
                       physics: ClampingScrollPhysics(),
@@ -97,17 +94,22 @@ class _CoursesPageState extends State<CoursesPage> {
                       ),
                       itemBuilder: (BuildContext context, int index) {
                         var subCourse = this.dataX[index];
-                        return new GestureDetector(
-                          child: _courseCard(subCourse!),
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => CoursesSubPage(
-                                        subCourse: subCourse,
-                                        course: widget.course)));
-                          },
-                        );
+                        if (subCourse != null) {
+                          return new GestureDetector(
+                            child: _courseCard(subCourse!),
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => CoursesSubPage(
+                                          subCourse: subCourse,
+                                          course: widget.course)));
+                            },
+                          );
+                        } else {
+                          return SizedBox(height: 10);
+                        }
+
                       }),
                 ),
               ),
@@ -136,15 +138,15 @@ class _CoursesPageState extends State<CoursesPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 FutureBuilder(
-                    future:  getFirebaseFile(widget.course.imageUrlSmall),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<File> snapshot) {
+                    future: getFirebaseFile(widget.course.imageUrlSmall),
+                    builder:
+                        (BuildContext context, AsyncSnapshot<File> snapshot) {
                       return snapshot.data != null
                           ? new Image.file(
-                        snapshot.data!,
-                        height: 50.0,
-                        width: 50.0,
-                      )
+                              snapshot.data!,
+                              height: 50.0,
+                              width: 50.0,
+                            )
                           : new Container();
                     }),
                 Padding(
@@ -169,34 +171,15 @@ class _CoursesPageState extends State<CoursesPage> {
     );
   }
 
-  Future<File> _getLocalFile(String filename) async {
-    String dir = await FileSystemUtil().extDownloadsPath + "/HE Health";
-    File f = new File('$dir$filename');
-    return f;
-  }
-
-  Future<File> _getLocalFileX(String filename) async {
-    var file = await FirebaseCacheManager().getSingleFile("/bookresource/app.healthyentrepreneurs.nl/theme/image.php/_s/academi/book/1631050397/placeholderimage.png");
-    String dir = await FileSystemUtil().extDownloadsPath + "/HE Health";
-    File f = new File('$dir$filename');
-    return f;
-  }
-
   @override
   void initState() {
     initApp();
-    initSurveyDataHomePage();
     super.initState();
   }
 
   void initApp() async {
     await _getPref();
-
-    if (offline == "on") {
-      _loadCourseDataOffline();
-    } else {
-      this._loadCourseData();
-    }
+    await initSurveyDataHomePage();
   }
 
   late String firstName;
@@ -205,92 +188,15 @@ class _CoursesPageState extends State<CoursesPage> {
   _getPref() async {
     String? firstNameLocal = (await preferenceUtil.getUser())?.firstname;
     String? offlineLocal = await preferenceUtil.getOnline();
-    // offline = await preferenceUtil.getOnline();
-    // firstNameLocal != null
-    //     ? setState(() {
-    //         firstName = firstNameLocal;
-    //       })
-    //     : null;
+
     setState(() {
       if (firstNameLocal != null) {
         firstName = firstNameLocal;
       }
       offline = offlineLocal;
     });
+    await switchMode(offlineLocal);
   }
 
   late String mainOfflinePath;
-
-  Future<String?> _loadCourseDataOffline() async {
-    mainOfflinePath = await FileSystemUtil().extDownloadsPath + "/HE Health";
-    String p = await FileSystemUtil().extDownloadsPath + "/HE Health/";
-    try {
-      final file = File("$mainOfflinePath${widget.course.nextLink}");
-      print("Next link od course ${widget.course.nextLink}");
-
-      // Read the file.
-      String contents = await file.readAsString();
-      _processJson(contents);
-      return contents;
-    } catch (e) {
-      // If encountering an error, return 0.
-      return null;
-    }
-  }
-
-  ///Load courses data list and encode it to
-  _loadCourseData() {
-    print(widget.course.nextLink);
-    OpenApi()
-        .listSubCourses(widget.course.nextLink)
-        .then((data) => {
-              //close the dialoge
-              print(">> " + data.body),
-              _processJson(data.body)
-            })
-        .catchError((err) => {print("Error  coursesPage " + err.toString())});
-  }
-
-  List<SubCourse>? _subCourseList;
-
-  _processJson(dynamic json) {
-    //print(body);
-    var courseJsonList = json as List;
-    List<SubCourse> coursesObjs =
-        courseJsonList.map((tagJson) => SubCourse.fromJson(tagJson)).toList();
-
-    if (coursesObjs != null) {
-      print("Got Sub courses -->${coursesObjs.length}");
-      setState(() {
-        _subCourseList = coursesObjs;
-      });
-      return coursesObjs;
-    } else {
-      showAlertDialog(
-          context, "Courses Loading Error!", "Failed to load courses");
-      return null;
-    }
-  }
-
-  /*_processJson(String body) {
-    //print(body);
-    var json = jsonDecode(body);
-    var courseJsonList = json['data'] as List;
-    List<SubCourse> coursesObjs =
-        courseJsonList.map((tagJson) => SubCourse.fromJson(tagJson)).toList();
-
-    if (coursesObjs != null) {
-      print("Got Sub courses -->${coursesObjs.length}");
-      setState(() {
-        _subCourseList = coursesObjs;
-      });
-      return coursesObjs;
-    } else {
-      showAlertDialog(
-          context, "Courses Loading Error!", "Failed to load courses");
-      return null;
-    }
-  }*/
-
-
 }

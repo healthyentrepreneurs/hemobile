@@ -14,6 +14,7 @@ import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/models/user_model.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:nl_health_app/screens/utilits/utils.dart';
 import 'package:nl_health_app/services/service_locator.dart';
 import 'package:nl_health_app/widgets/ProgressWidget.dart';
 import 'package:nl_health_app/widgets/commons_widget.dart';
@@ -28,14 +29,8 @@ class _HomepageState extends State<Homepage> {
   final storeHelper = getIt<HomeHelper>();
   final stateManager = getIt<LoginManager>();
 
-  // final Stream<QuerySnapshot> _usersStream = FirebaseFirestore.instance.collection('survey').snapshots();
-  // final Stream<QuerySnapshot> _usersStream = FirebaseFirestore.instance.collection('courses').snapshots();
-  final Stream<QuerySnapshot> _coursesStream =
-  FirebaseFirestore.instance.collection('courses').snapshots();
-  final Stream<QuerySnapshot> _surveyStream =
-  FirebaseFirestore.instance.collection('survey').snapshots();
 
-  late Stream<DocumentSnapshot>? _userdataStream;
+  Stream<DocumentSnapshot>? _userdataStream;
 
   Future<void> initUserDataHomePage() async {
     User? user = (await preferenceUtil.getUser());
@@ -43,6 +38,7 @@ class _HomepageState extends State<Homepage> {
       print("User is null");
       return;
     }
+
     _userdataStream = FirebaseFirestore.instance
         .collection('userdata')
         .doc("${user.id}")
@@ -61,52 +57,8 @@ class _HomepageState extends State<Homepage> {
     initUserDataHomePage();
   }
 
+
   @override
-  Widget buildX(BuildContext context) {
-    return ValueListenableBuilder<int>(
-      valueListenable: stateManager.loginStateNotifier,
-      builder: (context, _, __) {
-        return Scaffold(
-          body: Center(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: _coursesStream,
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.hasError) {
-                  return Text('Something went wrong');
-                }
-
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Text("Loading");
-                }
-
-                return ListView(
-                  children:
-                  snapshot.data!.docs.map((DocumentSnapshot document) {
-                    Map<String, dynamic> data =
-                    document.data()! as Map<String, dynamic>;
-                    // print(">xxx" + data.toString());
-                    if (data['Source'] == 'moodle')
-                      return ListTile(
-                        title: Text("${data['NAME']}"),
-                        subtitle: Text("Survey"),
-                      );
-                    else
-                      return ListTile(
-                        title: Text("${data['Fullname']}"),
-                        subtitle: Text("SummaryCustome"),
-                      );
-                  }).toList(),
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  //@override
   Widget build(BuildContext context) {
     // Phoenix.rebirth(context);
     return ValueListenableBuilder<int>(
@@ -182,7 +134,9 @@ class _HomepageState extends State<Homepage> {
               child: Text(
                 "Hi${firstName == null ? '' : ', ' + firstName!}!",
                 style: TextStyle(
-                    color: Theme.of(context).primaryColor,
+                    color: Theme
+                        .of(context)
+                        .primaryColor,
                     fontSize: 30.0,
                     fontWeight: FontWeight.bold),
               ),
@@ -207,7 +161,7 @@ class _HomepageState extends State<Homepage> {
 
             appTitle("What do you need?"),
             //----
-           // const FileImageDisplay("/bookresource/app.healthyentrepreneurs.nl/webservice/pluginfile.php/148/mod_book/chapter/10/HIV1.png"),
+            // const FileImageDisplay("/bookresource/app.healthyentrepreneurs.nl/webservice/pluginfile.php/148/mod_book/chapter/10/HIV1.png"),
 
 
             if (_userdataStream != null)
@@ -223,46 +177,53 @@ class _HomepageState extends State<Homepage> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Text("Loading");
                     }
-                    final data1 = snapshot.data!.data() as Map<String, dynamic>;
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      padding: EdgeInsets.only(bottom: 40),
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: data1['Subscriptions'].length,
-                      itemBuilder: (context, index) {
-                        var data = data1['Subscriptions'][index];
-                        return _subjectCardWidget(
-                            "${data['Fullname']}",
-                            "${data['SummaryCustome']}",
-                            "${data['ImageURLSmall']}", () {
-                          //Content Form Survey
-                          Course c = Course(
-                              id: "${data['ID']}",
-                              fullName: "${data['Fullname']}",
-                              source: "${data['Source']}",
-                              summaryCustom: "${data['SummaryCustome']}",
-                              nextLink: "${data['nextLink']}",
-                              imageUrlSmall: "${data['ImageURLSmall']}",
-                              imageUrl: "${data['ImageUrl']}");
+                    final data1 = snapshot.data!.data() as Map<String,
+                        dynamic>?;
+                    if (data1 != null) {
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.only(bottom: 40),
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: data1['Subscriptions'].length,
+                        itemBuilder: (context, index) {
+                          var data = data1['Subscriptions'][index];
+                          return _subjectCardWidget(
+                              "${data['Fullname']}",
+                              "${data['SummaryCustome']}",
+                              "${data['ImageURLSmall']}", () {
+                            //Content Form Survey
+                            Course c = Course(
+                                id: "${data['ID']}",
+                                fullName: "${data['Fullname']}",
+                                source: "${data['Source']}",
+                                summaryCustom: "${data['SummaryCustome']}",
+                                nextLink: "${data['nextLink']}",
+                                imageUrlSmall: "${data['ImageURLSmall']}",
+                                imageUrl: "${data['ImageUrl']}");
 
-                          print("Clicked --- ${data['Source']}");
-                          if ("${data['Source']}" == 'originalm') {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      SurveyMainPage(course: c),
-                                ));
-                          } else {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => CoursesPage(course: c),
-                                ));
-                          }
-                        });
-                      },
-                    );
+                            print("Clicked --- ${data['Source']}");
+                            if ("${data['Source']}" == 'originalm') {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        SurveyMainPage(course: c),
+                                  ));
+                            } else {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        CoursesPage(course: c),
+                                  ));
+                            }
+                          });
+                        },
+                      );
+                    } else {
+                      return SizedBox(height: 10);
+                  }
+
                   },
                 ),
               ),
@@ -295,7 +256,10 @@ class _HomepageState extends State<Homepage> {
               children: <Widget>[
                 Container(
                   color: Colors.white,
-                  width: MediaQuery.of(context).size.width * 0.5,
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width * 0.5,
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,7 +287,8 @@ class _HomepageState extends State<Homepage> {
                 ),
                 FutureBuilder(
                     future: getFirebaseFile(iconName!),
-                    builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+                    builder: (BuildContext context,
+                        AsyncSnapshot<File> snapshot) {
                       return snapshot.data != null
                           ? new Image.file(
                         snapshot.data!,
@@ -339,7 +304,6 @@ class _HomepageState extends State<Homepage> {
   }
 
 
-
   String? firstName;
   late String offline;
 
@@ -348,8 +312,6 @@ class _HomepageState extends State<Homepage> {
 
   @override
   void dispose() {
-    // storeHelper.closeDb();
-    // _store.getStore().close();
     super.dispose();
   }
 
@@ -364,10 +326,11 @@ class _HomepageState extends State<Homepage> {
       }
       offline = offlineLocal;
     });
+
+    await switchMode(offlineLocal);
   }
 
   late int isNewUser;
-  late String mainOfflinePath;
 
   void checkLoginStatus(BuildContext context) async {
     isLoading = true;
