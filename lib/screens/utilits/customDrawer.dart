@@ -49,10 +49,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   image: offline == "off"
                                       ? NetworkImage(profileImage == null
                                           ? 'https://i.imgur.com/zsMvHeF.jpg'
-                                          : profileImage!)
+                                          : profileImage!,
+                                  )
                                       : AssetImage(
                                               'assets/images/grid.png')
-                                          as ImageProvider)),
+                                          as ImageProvider),
+                          ),
                         )
                       : Container(
                           height: 100,

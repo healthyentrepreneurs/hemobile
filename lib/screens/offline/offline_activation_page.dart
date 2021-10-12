@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cool_stepper/cool_stepper.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,6 @@ import 'package:toggle_switch/toggle_switch.dart';
 import 'dart:io';
 // import 'package:universal_html/html.dart';
 
-
 class OfflineModulePage extends StatefulWidget {
   @override
   _OfflineModulePageState createState() => _OfflineModulePageState();
@@ -19,6 +19,7 @@ class OfflineModulePage extends StatefulWidget {
 
 class _OfflineModulePageState extends State<OfflineModulePage> {
   final preferenceUtil = getIt<StorageService>();
+
   @override
   Widget build(BuildContext context) {
     return _uiSetup(context);
@@ -82,15 +83,16 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
               onToggle: (index) {
                 //To Be Revisited
                 var x = index == 0 ? 'on' : 'off';
+                switchFirestore(index);
                 setState(() {
                   _offlineModeStatus = x;
                 });
 
-                if(x=="on"){
+                if (x == "on") {
                   print("Okay Fuck tomo $x");
                   preferenceUtil.setOnline(x);
                 }
-                if(x=="off"){
+                if (x == "off") {
                   print("Okay Fuck now $x");
                   preferenceUtil.setOffline(x);
                 }
@@ -286,6 +288,12 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
       print(e);
     }
     //---
+  }
+
+  Future<void> switchFirestore(int index) async {
+    index == 0
+        ? await FirebaseFirestore.instance.disableNetwork()
+        : await FirebaseFirestore.instance.enableNetwork();
   }
 
 //---

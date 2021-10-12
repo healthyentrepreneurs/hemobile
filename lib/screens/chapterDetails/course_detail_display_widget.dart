@@ -17,13 +17,13 @@ import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:nl_health_app/services/service_locator.dart';
 
-class CourseElementDisplay extends StatefulWidget {
+class CourseDetailDisplay extends StatefulWidget {
   final dynamic courseModule;
   final ContentStructure? coursePage;
   final Course? course;
   final List<dynamic>? courseContents;
 
-  const CourseElementDisplay(
+  const CourseDetailDisplay(
       {Key? key,
         this.coursePage,
         this.courseContents,
@@ -32,15 +32,16 @@ class CourseElementDisplay extends StatefulWidget {
       : super(key: key);
 
   @override
-  _CourseElementDisplayState createState() => _CourseElementDisplayState();
+  _CourseDetailDisplayState createState() => _CourseDetailDisplayState();
 }
 
-class _CourseElementDisplayState extends State<CourseElementDisplay> {
+class _CourseDetailDisplayState extends State<CourseDetailDisplay> {
   final storeHelper = getIt<HomeHelper>();
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.only(left: 10,right: 10,),
       child: FutureBuilder<Widget>(
           future: bookHtmlPagerUi(),
           builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {

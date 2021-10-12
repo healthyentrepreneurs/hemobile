@@ -249,13 +249,6 @@ class LocalSurveySyncPageState extends State {
         surveyUploadDate = surveyUploadLocal;
       });
     }
-    // preferenceUtil.getSurveyUploadDate().then((value) => {
-    //       value != null
-    //           ? setState(() {
-    //               surveyUploadDate = value;
-    //             })
-    //           : null
-    //     });
     print("What Have We Done? Naki $surveyUploadDate");
   }
 

@@ -56,6 +56,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final stateManager = getIt<LoginManager>();
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<int>(
@@ -66,17 +67,17 @@ class _MyAppState extends State<MyApp> {
           title: 'HE Health',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-            primaryColor: Color(0xff1ab394),
-            accentColor: Colors.green,
-            primarySwatch: Colors.green,
-            visualDensity: VisualDensity.adaptivePlatformDensity,
-            fontFamily: 'Raleway'
-          ),
+              primaryColor: Color(0xff1ab394),
+              visualDensity: VisualDensity.adaptivePlatformDensity,
+              fontFamily: 'Raleway',
+              colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.green)
+                  .copyWith(secondary: Colors.green)),
           home: papa == 1 ? LoginPage() : Homepage(),
         );
       },
     );
   }
+
   // void checkMyName(BuildContext context){
   //   Phoenix.rebirth(context);
   // }

@@ -9,6 +9,7 @@ import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/models/user_model.dart';
 import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
+import 'package:nl_health_app/screens/utilits/utils.dart';
 import 'package:nl_health_app/widgets/ProgressWidget.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -66,7 +67,7 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
     initSurveyDataHomePage();
   }
 
-  late Stream<DocumentSnapshot>? _surveyStream;
+  Stream<DocumentSnapshot>? _surveyStream;
 
   Future<void> initSurveyDataHomePage() async {
     _surveyStream = FirebaseFirestore.instance
@@ -97,6 +98,7 @@ class _SurveyMainPageState extends State<SurveyMainPage> {
       }
       offline = offlineLocal;
     });
+    await switchMode(offlineLocal);
   }
 
   _processJson(String body) {
