@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:nl_health_app/models/utils.dart';
 import 'package:nl_health_app/screens/chapterDetails/image_display_widget.dart';
 import 'package:nl_health_app/screens/course/coursesPage.dart';
+import 'package:nl_health_app/screens/course/future_image_view.dart';
 import 'package:nl_health_app/screens/login/login_logic.dart';
 import 'package:nl_health_app/screens/offline/survey_data_set_sync.dart';
 import 'package:nl_health_app/screens/survey/survey.dart';
@@ -29,7 +30,6 @@ class _HomepageState extends State<Homepage> {
   final storeHelper = getIt<HomeHelper>();
   final stateManager = getIt<LoginManager>();
 
-
   Stream<DocumentSnapshot>? _userdataStream;
 
   Future<void> initUserDataHomePage() async {
@@ -38,6 +38,9 @@ class _HomepageState extends State<Homepage> {
       print("User is null");
       return;
     }
+
+    downloadBundle("${user.id}", "survey");
+    downloadBundle("${user.id}", "books");
 
     _userdataStream = FirebaseFirestore.instance
         .collection('userdata')
@@ -56,7 +59,6 @@ class _HomepageState extends State<Homepage> {
     // initStore();
     initUserDataHomePage();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -134,9 +136,7 @@ class _HomepageState extends State<Homepage> {
               child: Text(
                 "Hi${firstName == null ? '' : ', ' + firstName!}!",
                 style: TextStyle(
-                    color: Theme
-                        .of(context)
-                        .primaryColor,
+                    color: Theme.of(context).primaryColor,
                     fontSize: 30.0,
                     fontWeight: FontWeight.bold),
               ),
@@ -146,23 +146,22 @@ class _HomepageState extends State<Homepage> {
               child: count < 1
                   ? Text('')
                   : InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => LocalSurveySyncPage()));
-                },
-                child: ListTile(
-                  title: _iconTextItem('You have $count unsent surveys',
-                      FontAwesomeIcons.sync),
-                ),
-              ),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LocalSurveySyncPage()));
+                      },
+                      child: ListTile(
+                        title: _iconTextItem('You have $count unsent surveys',
+                            FontAwesomeIcons.sync),
+                      ),
+                    ),
             ),
 
             appTitle("What do you need?"),
             //----
             // const FileImageDisplay("/bookresource/app.healthyentrepreneurs.nl/webservice/pluginfile.php/148/mod_book/chapter/10/HIV1.png"),
-
 
             if (_userdataStream != null)
               Center(
@@ -177,8 +176,8 @@ class _HomepageState extends State<Homepage> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Text("Loading");
                     }
-                    final data1 = snapshot.data!.data() as Map<String,
-                        dynamic>?;
+                    final data1 =
+                        snapshot.data!.data() as Map<String, dynamic>?;
                     if (data1 != null) {
                       return ListView.builder(
                         shrinkWrap: true,
@@ -190,7 +189,9 @@ class _HomepageState extends State<Homepage> {
                           return _subjectCardWidget(
                               "${data['Fullname']}",
                               "${data['SummaryCustome']}",
-                              "${data['ImageURLSmall']}", () {
+                              "${data['ID']}",
+                              "${data['ImageURLSmall']}",
+                                  () {
                             //Content Form Survey
                             Course c = Course(
                                 id: "${data['ID']}",
@@ -222,8 +223,7 @@ class _HomepageState extends State<Homepage> {
                       );
                     } else {
                       return SizedBox(height: 10);
-                  }
-
+                    }
                   },
                 ),
               ),
@@ -234,7 +234,7 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  Widget _subjectCardWidget(String title, String description,
+  Widget _subjectCardWidget(String title, String description,String courseId,
       [String? iconName, Function? onTap]) {
     return GestureDetector(
       onTap: () {
@@ -250,16 +250,13 @@ class _HomepageState extends State<Homepage> {
               ]),
           child: Padding(
             padding:
-            const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Container(
                   color: Colors.white,
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width * 0.5,
+                  width: MediaQuery.of(context).size.width * 0.5,
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,24 +282,33 @@ class _HomepageState extends State<Homepage> {
                 SizedBox(
                   width: 10.0,
                 ),
-                FutureBuilder(
+                FutureImageView(
+                  path: "$iconName",
+                  courseId: "0",
+                ),
+
+               /* FutureBuilder(
                     future: getFirebaseFile(iconName!),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<File> snapshot) {
+                    builder:
+                        (BuildContext context, AsyncSnapshot<File> snapshot) {
+
                       return snapshot.data != null
                           ? new Image.file(
-                        snapshot.data!,
-                        height: 50.0,
-                        width: 50.0,
-                      )
+                              snapshot.data!,
+                              height: 50.0,
+                              width: 50.0,
+                              errorBuilder: (a, b, c) {
+                                //addFileToFirebaseCache(iconName,courseId);
+                                return Image.asset("assets/images/default.png",height: 50, width: 50);
+                              },
+                            )
                           : new Container();
-                    }),
+                    }),*/
               ],
             ),
           )),
     );
   }
-
 
   String? firstName;
   late String offline;

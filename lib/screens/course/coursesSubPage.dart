@@ -9,6 +9,8 @@ import 'package:nl_health_app/screens/utilits/models/courses_model.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:nl_health_app/screens/utilits/utils.dart';
 
+import 'future_image_view.dart';
+
 class CoursesSubPage extends StatefulWidget {
   final Course course;
   final dynamic subCourse;
@@ -110,18 +112,10 @@ class _CoursesSubPageState extends State<CoursesSubPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 //Text("calling $offline"),
-                FutureBuilder(
-                    future: getFirebaseFile("${courseModule['Modicon']}"),
-                    builder:
-                        (BuildContext context, AsyncSnapshot<File> snapshot) {
-                      return snapshot.data != null
-                          ? new Image.file(
-                              snapshot.data!,
-                              height: 50.0,
-                              width: 50.0,
-                            )
-                          : new Container();
-                    }),
+                FutureImageView(
+                  path: "${courseModule['Modicon']}",
+                  courseId: "${widget.course.id}",
+                ),
                 Padding(
                   padding:
                       const EdgeInsets.only(top: 6.0, left: 5.0, right: 5.0),

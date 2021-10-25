@@ -89,11 +89,9 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
                 });
 
                 if (x == "on") {
-                  print("Okay Fuck tomo $x");
                   preferenceUtil.setOnline(x);
                 }
                 if (x == "off") {
-                  print("Okay Fuck now $x");
                   preferenceUtil.setOffline(x);
                 }
                 // x=="on"?preferenceUtil.setOnline():preferenceUtil.setOffline();
@@ -112,7 +110,7 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
       CoolStep(
         title: "Download Offline File",
         subtitle:
-            "Please after downloading offline zip to you device, you can select it, If you have it you can skip this step",
+            "Please after downloading offline zip to you device, \nyou have to copy it /Downloads/nl_health_app_storage/ and extract it to HE Health/ folder , If you have it you can skip this step",
         content: Container(
           child: Column(
             children: [
@@ -121,28 +119,13 @@ class _OfflineModulePageState extends State<OfflineModulePage> {
                 height: 45,
                 width: double.infinity,
                 decoration: BoxDecoration(),
-                child: RaisedButton(
-                  onPressed: () async {
-                    int? userId = (await preferenceUtil.getUser())?.id;
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => UniFileDownloader(
-                                fileSystemUtil: FileSystemUtil(),
-                                imgUrl:
-                                    "http://helper.healthyentrepreneurs.nl/downloadable/create_content/$userId",
-                                fileName: "HE Health.zip")));
-                  },
-                  color: Theme.of(context).primaryColor,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      side: BorderSide(color: Theme.of(context).primaryColor)),
+                child: Center(
                   child: Text(
-                    'Download Offline HE Health.zip',
+                    'Tap NEXT to Continue to extract the HE Health.zip file.',
                     style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontWeight: FontWeight.bold,
-                        fontSize: 20),
+                        fontSize: 18),
                   ),
                 ),
               ),

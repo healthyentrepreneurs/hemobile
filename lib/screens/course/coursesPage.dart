@@ -12,6 +12,7 @@ import 'package:nl_health_app/screens/utilits/open_api.dart';
 import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:nl_health_app/screens/utilits/utils.dart';
 import 'coursesSubPage.dart';
+import 'future_image_view.dart';
 
 class CoursesPage extends StatefulWidget {
   final Course course;
@@ -137,18 +138,11 @@ class _CoursesPageState extends State<CoursesPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                FutureBuilder(
-                    future: getFirebaseFile(widget.course.imageUrlSmall),
-                    builder:
-                        (BuildContext context, AsyncSnapshot<File> snapshot) {
-                      return snapshot.data != null
-                          ? new Image.file(
-                              snapshot.data!,
-                              height: 50.0,
-                              width: 50.0,
-                            )
-                          : new Container();
-                    }),
+                FutureImageView(
+                  path: "${widget.course.imageUrlSmall}",
+                  courseId: "${widget.course.id}",
+                ),
+
                 Padding(
                   padding:
                       const EdgeInsets.only(top: 6.0, left: 5.0, right: 5.0),
