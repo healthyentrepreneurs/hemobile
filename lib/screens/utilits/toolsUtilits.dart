@@ -21,7 +21,7 @@ class ToolsUtilities {
   static final whiteColor = Color(0xffffffff);
   static final greenColor = Color(0xff16f16c);
   static final redColor = Color(0xffff5446);
-  static final mainPrimaryColor = Color(0xff1ab394);
+  static final mainPrimaryColor = Color(0xff349141);
   static final mainLightBgColor = Color(0xfff5f5f5);
   static Widget iconTextItem(String title, IconData icon) {
     return Row(

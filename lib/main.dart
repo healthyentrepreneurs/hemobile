@@ -67,7 +67,7 @@ class _MyAppState extends State<MyApp> {
           title: 'HE Health',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-              primaryColor: Color(0xff1ab394),
+              primaryColor: Color(0xff349141),
               visualDensity: VisualDensity.adaptivePlatformDensity,
               fontFamily: 'Raleway',
               colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.green)

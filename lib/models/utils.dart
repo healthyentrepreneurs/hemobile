@@ -34,6 +34,7 @@ Future<File> getFirebaseFile(String url, [String courseId = "0"]) async {
       var f = await addFileToFirebaseCache(url, courseId);
       if (f == null) {
         var file = await FirebaseCacheManager().getSingleFile(url);
+        addFilePathToFirebaseCache("$url", file);
         return file;
       } else {
         return f;
@@ -75,5 +76,24 @@ Future<File?> addFileToFirebaseCache(String url, String courseId) async {
 }
 
 
+Future<File?> addFilePathToFirebaseCache(String url, File file) async {
+  try {
+    //read the local file - Like /images/$userId"+"small_loginimage.png"
+    String fileName = basename(file.path);
+    var uint8list = file.readAsBytesSync();
+    //print("Got The file $fileLocalPath going to add it");
+    //add bytes to the catch
+    var f = await FirebaseCacheManager().putFile(url, uint8list,
+        eTag: "${fileName.split(".").first}",
+        maxAge: Duration(days: 60),
+        fileExtension: "${fileName.split(".").last}");
+    return f;
+  } catch (e) {
+    print("Failed to add $url to firebase cache");
+    return null;
+  }
+}
 
-const color1 = Color(0xff1ab394);
+
+
+const color1 = Color(0xff349141);

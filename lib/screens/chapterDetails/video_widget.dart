@@ -52,11 +52,13 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
       setState(() {
         videoDownloading = true;
       });
-      var file = await FirebaseCacheManager().getSingleFile("${widget.videoUrl}");
+      var file =
+          await FirebaseCacheManager().getSingleFile("${widget.videoUrl}");
       setState(() {
         videoDownloading = false;
         f = file;
       });
+      addFilePathToFirebaseCache("${widget.videoUrl}", file);
     } catch (e) {
       setState(() {
         videoDownloading = false;
@@ -126,7 +128,9 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                videoDownloading?Text("Wait Video is Downloading ..."):Text("Download Video"),
+                videoDownloading
+                    ? Text("Wait Video is Downloading ...")
+                    : Text("Download Video"),
                 IconButton(
                   onPressed: () {
                     downloadVideoFile();

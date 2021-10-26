@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager_firebase/flutter_cache_manager_firebase.dart';
 import 'package:nl_health_app/models/utils.dart';
 import 'package:nl_health_app/screens/chapterDetails/image_display_widget.dart';
 import 'package:nl_health_app/screens/course/coursesPage.dart';
@@ -55,6 +56,7 @@ class _HomepageState extends State<Homepage> {
 
   void initState() {
     super.initState();
+
     initApp();
     // initStore();
     initUserDataHomePage();
@@ -322,6 +324,8 @@ class _HomepageState extends State<Homepage> {
   }
 
   _getPref() async {
+   //await FirebaseCacheManager().emptyCache();
+
     User? user = (await preferenceUtil.getUser());
     String? firstNameLocal = user?.firstname;
     String? offlineLocal = (await preferenceUtil.getOnline());
