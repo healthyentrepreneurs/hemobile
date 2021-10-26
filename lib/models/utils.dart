@@ -8,20 +8,36 @@ import 'package:nl_health_app/screens/utilits/toolsUtilits.dart';
 import 'package:nl_health_app/screens/utilits/utils.dart';
 import 'package:path/path.dart';
 
-Future<File> getFirebaseFile(String url, [String courseid = "0"]) async {
+Future<File> getFirebaseFileX(String url, [String courseid = "0"]) async {
+  try {
+    var file = await FirebaseCacheManager().getSingleFile(url);
+    return file;
+  } catch (e) {
+    var file = await FirebaseCacheManager().getSingleFile(
+        "/bookresource/app.healthyentrepreneurs.nl/theme/image.php/_s/academi/book/1631050397/placeholderimage.png");
+    return file;
+  }
+}
+
+Future<File> getFirebaseFile(String url, [String courseId = "0"]) async {
   try {
     var cachedFile = await FirebaseCacheManager().getFileFromCache(url);
     if (cachedFile != null) {
-
       if (cachedFile.validTill.isBefore(DateTime.now())) {
-        return cachedFile.file;
-      } else {
-        var f = await addFileToFirebaseCache(url, courseid);
+        var f = await addFileToFirebaseCache(url, courseId);
         return f!;
+      } else {
+        return cachedFile.file;
       }
     } else {
-      var file = await FirebaseCacheManager().getSingleFile(url);
-      return file;
+      print("> Download from the net --> $url");
+      var f = await addFileToFirebaseCache(url, courseId);
+      if (f == null) {
+        var file = await FirebaseCacheManager().getSingleFile(url);
+        return file;
+      } else {
+        return f;
+      }
     }
   } catch (e) {
     print(e);
@@ -31,11 +47,11 @@ Future<File> getFirebaseFile(String url, [String courseid = "0"]) async {
   }
 }
 
-Future<File?> addFileToFirebaseCache(String url, String courseid) async {
+Future<File?> addFileToFirebaseCache(String url, String courseId) async {
   try {
     User? user = (await preferenceUtil.getUser());
     //get the local file path
-    var fileLocalPath = JoelPaths(url, "${user!.id}", courseid);
+    var fileLocalPath = joelPaths(url, "${user!.id}", courseId);
 
     //read the local file - Like /images/$userId"+"small_loginimage.png"
     var file = await FileSystemUtil().getLocalFile(fileLocalPath);
@@ -57,5 +73,7 @@ Future<File?> addFileToFirebaseCache(String url, String courseid) async {
     return null;
   }
 }
+
+
 
 const color1 = Color(0xff1ab394);

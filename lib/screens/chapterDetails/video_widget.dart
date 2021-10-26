@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager_firebase/flutter_cache_manager_firebase.dart';
 import 'package:nl_health_app/models/utils.dart';
 import 'package:nl_health_app/screens/utilits/file_system_utill.dart';
 import 'package:nl_health_app/screens/utilits/models/user_model.dart';
@@ -25,6 +26,9 @@ class ChewieVideoViewOnline extends StatefulWidget {
 class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
   VideoPlayerController? _controller;
   ChewieController? _chewieController;
+  late String firstName;
+  File? f;
+  bool videoDownloading = false;
 
   @override
   void initState() {
@@ -43,8 +47,22 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
     this.initializePlayer();
   }
 
-  late String firstName;
-  File? f;
+  Future<void> downloadVideoFile() async {
+    try {
+      setState(() {
+        videoDownloading = true;
+      });
+      var file = await FirebaseCacheManager().getSingleFile("${widget.videoUrl}");
+      setState(() {
+        videoDownloading = false;
+        f = file;
+      });
+    } catch (e) {
+      setState(() {
+        videoDownloading = false;
+      });
+    }
+  }
 
   _getPref() async {
     User? user = (await preferenceUtil.getUser());
@@ -103,7 +121,21 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
   @override
   Widget build(BuildContext context) {
     return (f == null)
-        ? Center(child: Text("Download Video"))
+        ? Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                videoDownloading?Text("Wait Video is Downloading ..."):Text("Download Video"),
+                IconButton(
+                  onPressed: () {
+                    downloadVideoFile();
+                  },
+                  icon: Icon(Icons.cloud_download),
+                )
+              ],
+            ),
+          )
         : Container(
             width: MediaQuery.of(context).size.width * .90,
             child: Center(
@@ -125,5 +157,6 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
             ),
           );
   }
+
 //download file if its not existing
 }
