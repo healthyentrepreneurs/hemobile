@@ -63,7 +63,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                               //To Be Revisited #Njovu
                               future: FileSystemUtil().getLocalFile(
                                   profileImage == null
-                                      ? "/images/59small_loginimage.png"
+                                      ? "/images/72small_loginimage.png"
                                       :"/images/$userId"+"small_loginimage.png"),
                               builder: (BuildContext context,
                                   AsyncSnapshot<File> snapshot) {

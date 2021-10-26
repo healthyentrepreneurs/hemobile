@@ -76,6 +76,7 @@ dependencies:
 #  firestore_ui: ^1.20.0
   image_picker: ^0.8.3+2
   flutter_cache_manager_firebase: ^2.0.1
+  path: ^1.8.0
 #  oktoast: ^3.1.1
 
 dev_dependencies:

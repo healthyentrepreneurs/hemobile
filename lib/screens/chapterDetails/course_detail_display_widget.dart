@@ -25,10 +25,10 @@ class CourseDetailDisplay extends StatefulWidget {
 
   const CourseDetailDisplay(
       {Key? key,
-        this.coursePage,
-        this.courseContents,
-        this.courseModule,
-        this.course})
+      this.coursePage,
+      this.courseContents,
+      this.courseModule,
+      this.course})
       : super(key: key);
 
   @override
@@ -41,7 +41,10 @@ class _CourseDetailDisplayState extends State<CourseDetailDisplay> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left: 10,right: 10,),
+      padding: EdgeInsets.only(
+        left: 10,
+        right: 10,
+      ),
       child: FutureBuilder<Widget>(
           future: bookHtmlPagerUi(),
           builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
@@ -82,7 +85,7 @@ class _CourseDetailDisplayState extends State<CourseDetailDisplay> {
   Future<Widget> bookHtmlPagerUi() async {
     // print(contentText);
     return SingleChildScrollView(
-      padding: EdgeInsets.only(left: 10,right: 10),
+        padding: EdgeInsets.only(left: 10, right: 10),
         child: Column(children: [
           // Text(
           //   "Page ${widget.coursePage!.index} -  ${widget.coursePage!.title}",
@@ -90,41 +93,47 @@ class _CourseDetailDisplayState extends State<CourseDetailDisplay> {
           // ),
           contentText != null
               ? RepaintBoundary(
-            child: HtmlWidget(
-              contentText!,
-              customStylesBuilder: (element) {
-                if (element.localName == 'h3') {
-                  return {'color': '#CD5C5C'};
-                }
-                return null;
-              },
-              customWidgetBuilder: (element) {
-                if (element.localName == 'video') {
-                  var videoAttr =
-                      element.getElementsByTagName('source').first.attributes;
-                  String videoSourceUrl =
-                  Uri.decodeFull(videoAttr['src'].toString());
-                  var content = findSingleFileContent(videoSourceUrl);
-                  if (content != null)
-                    return _htmlVideoCardFromOnline( "${content['Fileurl']}");
-                  else
-                    return SizedBox(height: 1.0);
-                }
-                if (element.localName == 'img') {
-                  String videoSourceUrl =
-                  Uri.decodeFull(element.attributes['src'].toString());
-                  var content = findSingleFileContent(videoSourceUrl);
-                  // String keyvalue = "${content['Fileurl']}";
-                  if (content != null)
-                    return _displayFSImage(content, "${content['Fileurl']}");
-                  else
-                    return Image.asset('assets/images/grid.png');
-                }
-                return null;
-              },
-              textStyle: TextStyle(color: Colors.black54),
-            ),
-          )
+                  child: HtmlWidget(
+                    contentText!,
+                    customStylesBuilder: (element) {
+                      if (element.localName == 'h3') {
+                        return {'color': '#CD5C5C'};
+                      }
+                      return null;
+                    },
+                    customWidgetBuilder: (element) {
+                      if (element.localName == 'video') {
+                        var videoAttr = element
+                            .getElementsByTagName('source')
+                            .first
+                            .attributes;
+                        String videoSourceUrl =
+                            Uri.decodeFull(videoAttr['src'].toString());
+                        var content = findSingleFileContent(videoSourceUrl);
+                        if (content != null) {
+                          print("Video -->${content['Fileurl']}");
+                          return _htmlVideoCardFromOnline(
+                              "${content['Fileurl']}");
+                        } else
+                          return SizedBox(height: 1.0);
+                      }
+                      if (element.localName == 'img') {
+                        String videoSourceUrl = Uri.decodeFull(
+                            element.attributes['src'].toString());
+                        var content = findSingleFileContent(videoSourceUrl);
+                        // String keyvalue = "${content['Fileurl']}";
+                        if (content != null) {
+                          print("Image -->${content['Fileurl']}");
+                          return _displayFSImage(
+                              content, "${content['Fileurl']}");
+                        } else
+                          return Image.asset('assets/images/grid.png');
+                      }
+                      return null;
+                    },
+                    textStyle: TextStyle(color: Colors.black54),
+                  ),
+                )
               : Text('Loading')
         ]));
   }
@@ -138,7 +147,7 @@ class _CourseDetailDisplayState extends State<CourseDetailDisplay> {
           maxSizeBytes: 6000 * 1000, // 3MB max file size (default: 2.5MB)
           cacheRefreshStrategy: CacheRefreshStrategy
               .BY_METADATA_DATE // Switch off update checking
-      ),
+          ),
       fit: BoxFit.cover,
     );
   }
@@ -146,15 +155,15 @@ class _CourseDetailDisplayState extends State<CourseDetailDisplay> {
   Widget _displayFSImage(dynamic content, String imageUrl) {
     //print("FS image path >>+$imageUrl");
     return FutureBuilder(
-        future: getFirebaseFile("$imageUrl"),
+        future: getFirebaseFile("$imageUrl","${widget.course!.id.toString()}"),
         builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
           return snapshot.data != null
               ? new Image.file(
-            snapshot.data!,
-            fit: BoxFit.cover,
-            // height: 100.0,
-            // width: 200.0,
-          )
+                  snapshot.data!,
+                  fit: BoxFit.cover,
+                  // height: 100.0,
+                  // width: 200.0,
+                )
               : new Image.asset('assets/images/grid.png');
           ;
         });
@@ -170,7 +179,8 @@ class _CourseDetailDisplayState extends State<CourseDetailDisplay> {
   }
 
   Widget _htmlVideoCardFromOnline(String videoUrl) {
-    // print("Online video display ... $videoUrl");
+    print("Video View ... $videoUrl");
+
     return Padding(
       padding: const EdgeInsets.only(top: 3, bottom: 6.0),
       child: InkWell(
@@ -179,7 +189,7 @@ class _CourseDetailDisplayState extends State<CourseDetailDisplay> {
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      ChewieVideoViewOnline(videoUrl: videoUrl)));
+                      ChewieVideoViewOnline(videoUrl: videoUrl,courseId:"${widget.course!.id.toString()}")));
         },
         child: Center(
           child: Stack(
@@ -193,7 +203,7 @@ class _CourseDetailDisplayState extends State<CourseDetailDisplay> {
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       color: Colors.white38),
-                  child: ChewieVideoViewOnline(videoUrl: videoUrl),
+                  child: ChewieVideoViewOnline(videoUrl: videoUrl,courseId:"${widget.course!.id.toString()}"),
                 ),
               ),
             ],
@@ -213,7 +223,7 @@ class _CourseDetailDisplayState extends State<CourseDetailDisplay> {
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      ChewieVideoViewOnline(videoUrl: videoUrl)));
+                      ChewieVideoViewOnline(videoUrl: videoUrl,courseId:"${widget.course!.id.toString()}")));
         },
         child: Center(
           child: Stack(
@@ -240,7 +250,7 @@ class _CourseDetailDisplayState extends State<CourseDetailDisplay> {
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
-                                ChewieVideoViewOnline(videoUrl: videoUrl)));
+                                ChewieVideoViewOnline(videoUrl: videoUrl,courseId:"${widget.course!.id.toString()}")));
                   },
                   icon: Icon(
                     FontAwesomeIcons.playCircle,
@@ -337,7 +347,7 @@ class _CourseDetailDisplayState extends State<CourseDetailDisplay> {
       var courseContents = widget.courseContents;
       var list = courseContents!
           .where((c) =>
-      "${c['Filepath']}".toLowerCase() == chapterIdPath.toLowerCase())
+              "${c['Filepath']}".toLowerCase() == chapterIdPath.toLowerCase())
           .toList();
       if (list.length > 0) {
         // print(">>>File download link Index ${list.first['Fileurl']} title ${e.title}");
