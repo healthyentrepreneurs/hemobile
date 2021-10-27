@@ -30,7 +30,7 @@ Future<File> getFirebaseFile(String url, [String courseId = "0"]) async {
         return cachedFile.file;
       }
     } else {
-      print("> Download from the net --> $url");
+      //print("> Download from the net --> $url");
       var f = await addFileToFirebaseCache(url, courseId);
       if (f == null) {
         var file = await FirebaseCacheManager().getSingleFile(url);
@@ -57,7 +57,7 @@ Future<File?> addFileToFirebaseCache(String url, String courseId) async {
     //read the local file - Like /images/$userId"+"small_loginimage.png"
     var file = await FileSystemUtil().getLocalFile(fileLocalPath);
     if (!file.existsSync()) {
-      print("The file $fileLocalPath does not exist.");
+      //print("The file $fileLocalPath does not exist.");
       return null;
     }
     String fileName = basename(file.path);

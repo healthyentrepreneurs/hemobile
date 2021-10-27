@@ -31,6 +31,7 @@ class LocalSurveySyncPage extends StatefulWidget {
 class LocalSurveySyncPageState extends State {
   final preferenceUtil = getIt<StorageService>();
   final storeHelper = getIt<HomeHelper>();
+
   LocalSurveySyncPageState();
 
   @override
@@ -55,7 +56,7 @@ class LocalSurveySyncPageState extends State {
 
   Widget _uiSetup(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("Sync Data Sets")),
+        appBar: AppBar(title: Text("Sync Details")),
         body: Container(
           alignment: Alignment.topCenter,
           width: double.infinity,
@@ -63,30 +64,53 @@ class LocalSurveySyncPageState extends State {
           child: SingleChildScrollView(
             padding: EdgeInsets.all(30.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                SizedBox(height: 50.0),
+                SizedBox(height: 20.0),
+                Text(
+                    "Items To Be Synced",
+                    style:
+                    TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
+                SizedBox(height: 10.0),
                 Text("$reportMessage",
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 17,
                         color: Colors.orange)),
                 SizedBox(height: 50.0),
-                Text("Total Survey Data Sets $count",
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                ListTile(
+                  leading: Icon(Icons.pending_actions_rounded),
+                  minLeadingWidth: 5,
+                  title: Text(
+                    "Survey $count",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                ),
+
+                Divider(
+                  color: Colors.blueGrey,
+                  height: 1,
+                  thickness: 1.0,
+                ),
                 SizedBox(height: 20.0),
-                Text("Other Data Sets $countDataSet",
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                ListTile(
+                  leading: Icon(Icons.book),
+                  minLeadingWidth: 5,
+                  title: Text("Books Views $countDataSet",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                ),
+                Divider(
+                  color: Colors.blueGrey,
+                  height: 1,
+                  thickness: 1.0,
+                ),
                 SizedBox(height: 10.0),
-                surveyUploadDate != null
-                    ? Text("Last Update date $surveyUploadDate",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20))
-                    : Text(""),
-                SizedBox(height: 10.0),
+
+
+                SizedBox(height: 30.0),
+
                 Text(
                     "You can upload the local data sets when you get online by tapping the below button.",
                     style:
@@ -109,7 +133,7 @@ class LocalSurveySyncPageState extends State {
                           side: BorderSide(
                               color: Theme.of(context).primaryColor)),
                       child: Text(
-                        'Upload Survey Data',
+                        'Sync Now',
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -118,6 +142,15 @@ class LocalSurveySyncPageState extends State {
                     ),
                   ),
                 ),
+                surveyUploadDate != null
+                    ? Center(
+                      child: Text("Last Sync date: $surveyUploadDate",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 15)),
+                    )
+                    : Text(""),
+                SizedBox(height: 10.0),
+
                 showAlert
                     ? alertCardPopup('Sync Info',
                         "Failed to submit data You can upload the local data sets when")
