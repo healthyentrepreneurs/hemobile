@@ -95,7 +95,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 title: _menuItem('Home', FontAwesomeIcons.home),
               ),
             ),
-            InkWell(
+            /*InkWell(
               onTap: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => Homesec()));
@@ -103,7 +103,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
               child: ListTile(
                 title: _menuItem('Test Books', FontAwesomeIcons.addressCard),
               ),
-            ),
+            ),*/
             InkWell(
               onTap: () {
                 Navigator.push(context,
@@ -133,7 +133,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
               },
               child: ListTile(
                 title: _menuItem(
-                    'Upload Survey Data', FontAwesomeIcons.cloudUploadAlt),
+                    'Sync Details', FontAwesomeIcons.cloudUploadAlt),
               ),
             ),
             const SizedBox(

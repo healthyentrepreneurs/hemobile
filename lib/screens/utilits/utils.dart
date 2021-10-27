@@ -15,8 +15,7 @@ Future<void> switchMode(String offlineLocal) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       await FirebaseFirestore.instance.disableNetwork();
-      toast_("No internet, we running in offline mode");
-      return;
+       return;
     }
     if (offlineLocal == 'on') {
       await FirebaseFirestore.instance.disableNetwork();
@@ -51,8 +50,7 @@ Future<void> downloadBundle(String userId, String collectionName) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       await FirebaseFirestore.instance.disableNetwork();
-      toast_("No internet, we running in offline mode");
-      return;
+       return;
     }
 
     if (connectivityResult == ConnectivityResult.none) {
@@ -99,13 +97,11 @@ Future<void> cacheLoadedBundle(Uint8List buffer, String collectionName) async {
         .get(const GetOptions(source: Source.cache));
 
     if (snapshot.size >= 1) {
-      toast_("Got ${snapshot.size} $collectionName bundles");
-      snapshot.docs.forEach((e) {
+       snapshot.docs.forEach((e) {
         print(">> --- ${e.data()}");
       });
     } else {
-      toast_("No data sets from bundle");
-    }
+     }
   } catch (e) {
     print(e);
   }

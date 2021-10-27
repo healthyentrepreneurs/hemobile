@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager_firebase/flutter_cache_manager_firebase.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:nl_health_app/models/utils.dart';
 import 'package:nl_health_app/screens/chapterDetails/image_display_widget.dart';
 import 'package:nl_health_app/screens/course/coursesPage.dart';
@@ -55,6 +57,7 @@ class _HomepageState extends State<Homepage> {
 
   void initState() {
     super.initState();
+
     initApp();
     // initStore();
     initUserDataHomePage();
@@ -174,7 +177,22 @@ class _HomepageState extends State<Homepage> {
                     }
 
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Text("Loading");
+                      return Center(
+                        child: Container(
+                          padding: EdgeInsets.all(50),
+                            child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text("Loading"),
+                            IconButton(
+                                onPressed: () {
+                                  Phoenix.rebirth(context);
+                                },
+                                icon: Icon(Icons.refresh))
+                          ],
+                        )),
+                      );
                     }
                     final data1 =
                         snapshot.data!.data() as Map<String, dynamic>?;
@@ -188,10 +206,10 @@ class _HomepageState extends State<Homepage> {
                           var data = data1['Subscriptions'][index];
                           return _subjectCardWidget(
                               "${data['Fullname']}",
+                              // "${data['ImageURLSmall']}",
                               "${data['SummaryCustome']}",
                               "${data['ID']}",
-                              "${data['ImageURLSmall']}",
-                                  () {
+                              "${data['ImageURLSmall']}", () {
                             //Content Form Survey
                             Course c = Course(
                                 id: "${data['ID']}",
@@ -202,7 +220,7 @@ class _HomepageState extends State<Homepage> {
                                 imageUrlSmall: "${data['ImageURLSmall']}",
                                 imageUrl: "${data['ImageUrl']}");
 
-                            print("Clicked --- ${data['Source']}");
+                            //print("Clicked --- ${data['Source']}");
                             if ("${data['Source']}" == 'originalm') {
                               Navigator.push(
                                   context,
@@ -234,7 +252,7 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  Widget _subjectCardWidget(String title, String description,String courseId,
+  Widget _subjectCardWidget(String title, String description, String courseId,
       [String? iconName, Function? onTap]) {
     return GestureDetector(
       onTap: () {
@@ -286,24 +304,6 @@ class _HomepageState extends State<Homepage> {
                   path: "$iconName",
                   courseId: "0",
                 ),
-
-               /* FutureBuilder(
-                    future: getFirebaseFile(iconName!),
-                    builder:
-                        (BuildContext context, AsyncSnapshot<File> snapshot) {
-
-                      return snapshot.data != null
-                          ? new Image.file(
-                              snapshot.data!,
-                              height: 50.0,
-                              width: 50.0,
-                              errorBuilder: (a, b, c) {
-                                //addFileToFirebaseCache(iconName,courseId);
-                                return Image.asset("assets/images/default.png",height: 50, width: 50);
-                              },
-                            )
-                          : new Container();
-                    }),*/
               ],
             ),
           )),
@@ -322,6 +322,8 @@ class _HomepageState extends State<Homepage> {
   }
 
   _getPref() async {
+    // await FirebaseCacheManager().emptyCache();
+
     User? user = (await preferenceUtil.getUser());
     String? firstNameLocal = user?.firstname;
     String? offlineLocal = (await preferenceUtil.getOnline());
