@@ -1,0 +1,12 @@
+Plugins For Translation:
+
+https://pub.dev/packages/i18n_extension
+https://pub.dev/packages/easy_localization
+
+To Rebuild Widget:
+https://stackoverflow.com/questions/43778488/how-to-force-flutter-to-rebuild-redraw-all-widgets/61106204
+https://stackoverflow.com/questions/48481590/how-to-set-update-state-of-statefulwidget-from-other-statefulwidget-in-flutter
+
+Examples :
+https://abcdevops.com/blog/2019/07/01/Flutter-Internationalization-with-Manual-Locale-switch.html
+https://medium.com/@devexps/localization-switching-locales-in-flutter-c42cf203602d

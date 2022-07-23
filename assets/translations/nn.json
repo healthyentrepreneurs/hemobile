@@ -1,0 +1,16 @@
+{
+  "welcome": "Welcome NN nn!",
+  "login": {
+    "welcome": "Welcome nn",
+    "welcome_msg": "Sign into your account nn",
+    "username": "usernamern",
+    "password": "passwordrn",
+    "signbutton": "Sign in nn",
+    "languages": "Languages nn",
+    "about": "About HE! nn"
+  },
+  "test": {
+    "title": "KLocalizations demo! nn",
+    "counter": "Has clicado {{count}} veces nn"
+  }
+}

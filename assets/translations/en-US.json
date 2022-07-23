@@ -1,0 +1,33 @@
+{
+  "welcome": "welcome english!",
+  "login": {
+    "welcome": "Welcome",
+    "welcome_msg": "Sign into your account",
+    "username": "username",
+    "password": "password",
+    "signbutton": "Sign in",
+    "languages": "Languages",
+    "about": "About HE"
+  },
+  "navbar": {
+    "home": "Home",
+    "tools": {
+      "toolsname": "Tools",
+      "books": "Books",
+      "quiz": "Quiz",
+      "surveys": "Surveys"
+    },
+    "offlinesetting": "Offline Settings",
+    "syncdetails": "Sync Details",
+    "logout": "Logout"
+  },
+  "logout": {
+    "title": "Confirm Logout ?",
+    "logoutdetails": "Please fill your password to logout!",
+    "confirmlogout": "Comfirm"
+  },
+  "test": {
+    "title": "KLocalizations demo!",
+    "counter": "Has clicado {{count}} veces"
+  }
+}

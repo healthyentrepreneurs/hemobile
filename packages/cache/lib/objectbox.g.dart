@@ -1,0 +1,184 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+// ignore_for_file: camel_case_types
+
+import 'dart:typed_data';
+
+import 'package:objectbox/flatbuffers/flat_buffers.dart' as fb;
+import 'package:objectbox/internal.dart'; // generated code can access "internal" functionality
+import 'package:objectbox/objectbox.dart';
+import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
+
+import 'src/databaseobj/langobject.dart';
+import 'src/databaseobj/userobject.dart';
+
+export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
+
+final _entities = <ModelEntity>[
+  ModelEntity(
+      id: const IdUid(1, 2329883275256695914),
+      name: 'Langobject',
+      lastPropertyId: const IdUid(3, 6809566296579099161),
+      flags: 0,
+      properties: <ModelProperty>[
+        ModelProperty(
+            id: const IdUid(1, 2530625685523757775),
+            name: 'id',
+            type: 6,
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(2, 5769568791195778956),
+            name: 'code',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(3, 6809566296579099161),
+            name: 'uppercode',
+            type: 9,
+            flags: 0)
+      ],
+      relations: <ModelRelation>[],
+      backlinks: <ModelBacklink>[]),
+  ModelEntity(
+      id: const IdUid(2, 1218573144486712740),
+      name: 'Userobject',
+      lastPropertyId: const IdUid(2, 7820576176324334824),
+      flags: 0,
+      properties: <ModelProperty>[
+        ModelProperty(
+            id: const IdUid(1, 5691752753368400324),
+            name: 'userid',
+            type: 6,
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(2, 7820576176324334824),
+            name: 'email',
+            type: 9,
+            flags: 0)
+      ],
+      relations: <ModelRelation>[],
+      backlinks: <ModelBacklink>[])
+];
+
+/// Open an ObjectBox store with the model declared in this file.
+Future<Store> openStore(
+        {String? directory,
+        int? maxDBSizeInKB,
+        int? fileMode,
+        int? maxReaders,
+        bool queriesCaseSensitiveDefault = true,
+        String? macosApplicationGroup}) async =>
+    Store(getObjectBoxModel(),
+        directory: directory ?? (await defaultStoreDirectory()).path,
+        maxDBSizeInKB: maxDBSizeInKB,
+        fileMode: fileMode,
+        maxReaders: maxReaders,
+        queriesCaseSensitiveDefault: queriesCaseSensitiveDefault,
+        macosApplicationGroup: macosApplicationGroup);
+
+/// ObjectBox model definition, pass it to [Store] - Store(getObjectBoxModel())
+ModelDefinition getObjectBoxModel() {
+  final model = ModelInfo(
+      entities: _entities,
+      lastEntityId: const IdUid(2, 1218573144486712740),
+      lastIndexId: const IdUid(0, 0),
+      lastRelationId: const IdUid(0, 0),
+      lastSequenceId: const IdUid(0, 0),
+      retiredEntityUids: const [],
+      retiredIndexUids: const [],
+      retiredPropertyUids: const [],
+      retiredRelationUids: const [],
+      modelVersion: 5,
+      modelVersionParserMinimum: 5,
+      version: 1);
+
+  final bindings = <Type, EntityDefinition>{
+    Langobject: EntityDefinition<Langobject>(
+        model: _entities[0],
+        toOneRelations: (Langobject object) => [],
+        toManyRelations: (Langobject object) => {},
+        getId: (Langobject object) => object.id,
+        setId: (Langobject object, int id) {
+          object.id = id;
+        },
+        objectToFB: (Langobject object, fb.Builder fbb) {
+          final codeOffset = fbb.writeString(object.code);
+          final uppercodeOffset = fbb.writeString(object.uppercode);
+          fbb.startTable(4);
+          fbb.addInt64(0, object.id);
+          fbb.addOffset(1, codeOffset);
+          fbb.addOffset(2, uppercodeOffset);
+          fbb.finish(fbb.endTable());
+          return object.id;
+        },
+        objectFromFB: (Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+
+          final object = Langobject()
+            ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
+            ..code =
+                const fb.StringReader().vTableGet(buffer, rootOffset, 6, '')
+            ..uppercode =
+                const fb.StringReader().vTableGet(buffer, rootOffset, 8, '');
+
+          return object;
+        }),
+    Userobject: EntityDefinition<Userobject>(
+        model: _entities[1],
+        toOneRelations: (Userobject object) => [],
+        toManyRelations: (Userobject object) => {},
+        getId: (Userobject object) => object.userid,
+        setId: (Userobject object, int id) {
+          object.userid = id;
+        },
+        objectToFB: (Userobject object, fb.Builder fbb) {
+          final emailOffset = fbb.writeString(object.email);
+          fbb.startTable(3);
+          fbb.addInt64(0, object.userid);
+          fbb.addOffset(1, emailOffset);
+          fbb.finish(fbb.endTable());
+          return object.userid;
+        },
+        objectFromFB: (Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+
+          final object = Userobject()
+            ..userid =
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
+            ..email =
+                const fb.StringReader().vTableGet(buffer, rootOffset, 6, '');
+
+          return object;
+        })
+  };
+
+  return ModelDefinition(model, bindings);
+}
+
+/// [Langobject] entity fields to define ObjectBox queries.
+class Langobject_ {
+  /// see [Langobject.id]
+  static final id =
+      QueryIntegerProperty<Langobject>(_entities[0].properties[0]);
+
+  /// see [Langobject.code]
+  static final code =
+      QueryStringProperty<Langobject>(_entities[0].properties[1]);
+
+  /// see [Langobject.uppercode]
+  static final uppercode =
+      QueryStringProperty<Langobject>(_entities[0].properties[2]);
+}
+
+/// [Userobject] entity fields to define ObjectBox queries.
+class Userobject_ {
+  /// see [Userobject.userid]
+  static final userid =
+      QueryIntegerProperty<Userobject>(_entities[1].properties[0]);
+
+  /// see [Userobject.email]
+  static final email =
+      QueryStringProperty<Userobject>(_entities[1].properties[1]);
+}

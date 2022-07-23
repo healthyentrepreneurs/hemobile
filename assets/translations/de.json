@@ -1,0 +1,33 @@
+{
+  "welcome": "Twakwakila",
+  "login": {
+    "welcome": "Twakwakila",
+    "welcome_msg": "Za omu account Yawe",
+    "username": "izina",
+    "password": "ekyahma",
+    "signbutton": "Sinig aha",
+    "languages": "Edimi",
+    "about": "HE! Nibaha"
+  },
+  "navbar": {
+    "home": "Aho kutadikila",
+    "tools": {
+      "toolsname": "Tools",
+      "books": "Ebiboh",
+      "quiz": "Ebyokubuzibwha",
+      "surveys": "Emihendo"
+    },
+    "offlinesetting": "Gwagutaliho",
+    "syncdetails": "Sindika Emilimo",
+    "logout": "Okulugamu"
+  },
+  "logout": {
+    "title": "Okuhamya Hatiya?",
+    "logoutdetails": "Tukushaba okutekhamu passiwadi yaweh!",
+    "confirmlogout": "Hamya"
+  },
+  "test": {
+    "title": "KLocalizations demo! ru",
+    "counter": "Has clicado {{count}} veces ru"
+  }
+}

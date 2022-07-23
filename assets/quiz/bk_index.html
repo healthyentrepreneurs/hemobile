@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <script type="text/javascript" src="jquery.min.js" ></script>
+    <link rel="stylesheet" href="w3.css">
+    <link rel="stylesheet" href="quiz.css">
+</head>
+
+<body>
+<form id="form-formhealty" name="form-formhealty">
+    <div id="walahcontent" style="display:inline-block;width:100%;">
+    </div>
+    <input type="hidden" id="currentpageid" name="currentpageid" value="20" class="stayclass">
+    <input type="hidden" id="nextpageid" name="nextpageid" value="30" class="stayclass">
+    <input type="hidden" id="hashvalueid" name="hashvalueid" value="1" class="stayclass">
+    <div id="quizResult" style="width:100%;"></div>
+</form>
+<h1 id="title">Hello World!</h1>
+</body>
+<script type="text/javascript" src="index.js">
+</script>
+<script type="text/javascript">
+            function fromFlutter(newTitle) {
+                document.getElementById("title").innerHTML = newTitle;
+                sendBack();
+             }
+
+             function sendBack() {
+                messageHandler.postMessage("Hello from JS");
+             }
+             function sendFormValues() {
+                var data_array = $("form").find("input[name!=nextpageid][name!=currentpageid]").serializeArray();
+                var data = JSON.stringify(data_array);
+                messageHandler.postMessage(data);
+             }
+
+             function setHmlContent(currentpage,nextpageid,encodedString){
+
+             document.getElementById('currentpageid').value = currentpage;
+                  document.getElementById('nextpageid').value = nextpageid;
+                  document.getElementById('hashvalueid').value = encodedString;
+                  var val_current = parseInt($('#currentpageid').val());
+                   if ($("#" + val_current + "_content").length == 0) {
+//                        var encordedstring = $('#hashvalueid').val();
+                        const newDiv = document.createElement('div');
+                        newDiv.id = val_current + "_content";
+                        const currentDiv = document.getElementById("walahcontent");
+                        currentDiv.appendChild(newDiv);
+                        var container = document.getElementById(val_current + "_content");
+                        container.innerHTML += Base64.decode(encodedString)
+//                        hidshownavbuttons("nextpageid", "currentpageid");
+                        removeinfodivs();
+                        style_inputfield();
+                   }
+             }
+</script>
+<script>
+    removeinfodivs = function () {
+        $("div").remove(".info");
+        $("h4").remove(".accesshide");
+        $("div").remove(".qtype_multichoice_clearchoice");
+        $("div").remove(".attachments");
+    }
+    style_inputfield = function () {
+        var divTags = $("div");
+        var pTags = $("p");
+        var textareaTags = $("textarea");
+        textareaTags.removeAttr('rows');
+        textareaTags.prop('rows', 3);
+        if (pTags.parent().is("div") && divTags.hasClass("flex-fill")) {
+            // $("p").unwrap();
+            // $('div p').contents().unwrap();
+            $('div p').contents().unwrap().siblings('p').remove();
+            $('.flex-fill').contents().unwrap();
+            $('.d-flex').contents().unwrap();
+        }
+        $('input').each(function (index) {
+            var element = $(this);
+            if (element.is(':text')) {
+                element.removeAttr('size');
+                element.addClass("w3-input w3-border")
+            }
+        });
+    }
+    var Base64 = {
+        // private property
+        _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+        // public method for decoding
+        decode: function (input) {
+            var output = "";
+            var chr1, chr2, chr3;
+            var enc1, enc2, enc3, enc4;
+            var i = 0;
+
+            input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+            while (i < input.length) {
+
+                enc1 = Base64._keyStr.indexOf(input.charAt(i++));
+                enc2 = Base64._keyStr.indexOf(input.charAt(i++));
+                enc3 = Base64._keyStr.indexOf(input.charAt(i++));
+                enc4 = Base64._keyStr.indexOf(input.charAt(i++));
+
+                chr1 = (enc1 << 2) | (enc2 >> 4);
+                chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+                chr3 = ((enc3 & 3) << 6) | enc4;
+
+                output = output + String.fromCharCode(chr1);
+
+                if (enc3 != 64) {
+                    output = output + String.fromCharCode(chr2);
+                }
+                if (enc4 != 64) {
+                    output = output + String.fromCharCode(chr3);
+                }
+            }
+
+            output = Base64._utf8_decode(output);
+
+            return output;
+        },
+        // private method for UTF-8 decoding
+        _utf8_decode: function (utftext) {
+            var string = "";
+            var i = 0;
+            var c = c1 = c2 = 0;
+
+            while (i < utftext.length) {
+
+                c = utftext.charCodeAt(i);
+
+                if (c < 128) {
+                    string += String.fromCharCode(c);
+                    i++;
+                }
+                else if ((c > 191) && (c < 224)) {
+                    c2 = utftext.charCodeAt(i + 1);
+                    string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+                    i += 2;
+                }
+                else {
+                    c2 = utftext.charCodeAt(i + 1);
+                    c3 = utftext.charCodeAt(i + 2);
+                    string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+                    i += 3;
+                }
+            }
+            return string;
+        }
+    }
+</script>
+</html>

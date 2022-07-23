@@ -1,0 +1,3 @@
+https://pub.dev/packages/flutter_autoupdate
+https://pub.dev/packages/auto_update
+https://pub.dev/packages/ota_update

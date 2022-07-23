@@ -1,88 +1,42 @@
-import 'dart:async';
 import 'dart:io';
+
+import 'package:auth_repository/auth_repository.dart';
+import 'package:bloc/bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'package:nl_health_app/screens/homePage/homePage.dart';
-import 'package:nl_health_app/screens/login/loginPage.dart';
-import 'package:nl_health_app/screens/login/login_logic.dart';
-import 'package:nl_health_app/services/service_locator.dart';
-// https://api.flutter.dev/flutter/widgets/StreamBuilder-class.html Borrow streams for login state
+import 'package:flutter/widgets.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'app/app.dart';
+import 'firebase_options.dart';
+import 'helper/helper_functions.dart';
 
 Future<void> main() async {
-  FlutterError.onError = (FlutterErrorDetails details) async {
-    final exception = details.exception;
-    final StackTrace? stackTrace = details.stack;
-    if (kDebugMode) {
-      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
-      FlutterError.dumpErrorToConsole(details);
-    } else {
-      Zone.current.handleUncaughtError(exception, stackTrace!);
-    }
-  };
-  runZonedGuarded<Future<void>>(() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp();
-    if (Platform.isAndroid) {
-      await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
-    }
-    setupGetIt();
-
-    runApp(Phoenix(child: MyApp()));
-    //https://firebase.google.com/docs/crashlytics/test-implementation?platform=android#enable_debug_logging
-    //Had to manually add this
-    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-  }, (error, stackTrace) async {
-    print('Caught Dart Error!');
-    // kDebugMode
-    if (kDebugMode) {
-      //Print The errors
-      print('$error');
-      print('$stackTrace');
-    } else {
-      //Send to Error reporting System
-      FirebaseCrashlytics.instance.recordError(error, stackTrace);
-    }
-  });
-}
-
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  final stateManager = getIt<LoginManager>();
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<int>(
-      valueListenable: stateManager.loginStateNotifier,
-      builder: (context, whatsIssue, __) {
-        int papa = stateManager.isSignedIn();
-        return MaterialApp(
-          title: 'HE Health',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-              primaryColor: Color(0xff349141),
-              visualDensity: VisualDensity.adaptivePlatformDensity,
-              fontFamily: 'Raleway',
-              colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.green)
-                  .copyWith(secondary: Colors.green)),
-          home: papa == 1 ? LoginPage() : Homepage(),
-        );
-      },
-    );
-  }
-
-  // void checkMyName(BuildContext context){
-  //   Phoenix.rebirth(context);
+  WidgetsFlutterBinding.ensureInitialized();
+  // if (Platform.isAndroid) {
+  //   await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
   // }
-  @override
-  void initState() {
-    super.initState();
-  }
+  await Permission.camera.request();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  userEmulator(true);
+  await EasyLocalization.ensureInitialized();
+  final authenticationRepository = AuthenticationRepository();
+  await authenticationRepository.user.first;
+  Locale localeCurrent = await authenticationRepository.currentLocale;
+  BlocOverrides.runZoned(
+    () => runApp(EasyLocalization(
+      supportedLocales: const [
+        Locale('en', 'US'),
+        Locale('es', ''),
+        Locale('de', ''),
+        Locale('nn', '')
+      ],
+      path:
+          'assets/translations', // <-- change the path of the translation files
+      fallbackLocale: localeCurrent,
+      child: App(authenticationRepository: authenticationRepository),
+    )),
+    blocObserver: AppBlocObserver(),
+  );
 }
