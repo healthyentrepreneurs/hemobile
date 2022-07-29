@@ -6,6 +6,7 @@ import 'package:he/helper/toolutils.dart';
 import 'package:he/home/home.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/langhe/langhe.dart';
+import 'package:he/home/widgets/menuItem.dart' as items;
 
 class CustomDrawer extends StatefulWidget {
   const CustomDrawer({Key? key}) : super(key: key);
@@ -46,7 +47,8 @@ class _CustomDrawer extends State<CustomDrawer> {
                     MaterialPageRoute(builder: (context) => const HomePage()));
               },
               child: ListTile(
-                title: MenuItem(title: 'navbar.home'.tr(), icon: Icons.home),
+                title:
+                    items.MenuItem(title: 'navbar.home'.tr(), icon: Icons.home),
               ),
             ),
             ExpansionTile(
@@ -65,7 +67,7 @@ class _CustomDrawer extends State<CustomDrawer> {
                 InkWell(
                   onTap: () {},
                   child: ListTile(
-                    title: MenuItem(
+                    title: items.MenuItem(
                         title: 'navbar.tools.books'.tr(),
                         icon: Icons.menu_book),
                   ),
@@ -79,14 +81,14 @@ class _CustomDrawer extends State<CustomDrawer> {
                         ));
                   },
                   child: ListTile(
-                    title: MenuItem(
+                    title: items.MenuItem(
                         title: 'navbar.tools.quiz'.tr(), icon: Icons.quiz),
                   ),
                 ),
                 InkWell(
                   onTap: () {},
                   child: ListTile(
-                    title: MenuItem(
+                    title: items.MenuItem(
                         title: 'navbar.tools.surveys'.tr(),
                         icon: Icons.library_books),
                   ),
@@ -96,14 +98,14 @@ class _CustomDrawer extends State<CustomDrawer> {
             InkWell(
               onTap: () {},
               child: ListTile(
-                title: MenuItem(
+                title: items.MenuItem(
                     title: 'navbar.offlinesetting'.tr(), icon: Icons.sync),
               ),
             ),
             InkWell(
               onTap: () {},
               child: ListTile(
-                title: MenuItem(
+                title: items.MenuItem(
                     title: 'navbar.syncdetails'.tr(),
                     icon: Icons.cloud_upload_rounded),
               ),
@@ -119,7 +121,7 @@ class _CustomDrawer extends State<CustomDrawer> {
                 );
               },
               child: ListTile(
-                title: MenuItem(
+                title: items.MenuItem(
                     title: 'login.languages'.tr(), icon: Icons.arrow_drop_down),
               ),
             ),
@@ -137,7 +139,7 @@ class _CustomDrawer extends State<CustomDrawer> {
                 _showMyDialog();
               },
               child: ListTile(
-                title: MenuItem(
+                title: items.MenuItem(
                     title: 'navbar.logout'.tr(), icon: Icons.exit_to_app),
               ),
             )
@@ -210,4 +212,3 @@ class _CustomDrawer extends State<CustomDrawer> {
     );
   }
 }
-

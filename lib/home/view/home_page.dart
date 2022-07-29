@@ -3,6 +3,7 @@ import 'package:he/app/bloc/app_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/helper/toolutils.dart';
 import 'package:he/home/home.dart';
+import 'package:he/home/widgets/menuItem.dart' as items;
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -44,11 +45,11 @@ class HomePage extends StatelessWidget {
             width: double.infinity,
             child: InkWell(
               child: ListTile(
-                title: const MenuItem().iconTextItemGreen(
+                title: const items.MenuItem().iconTextItemGreen(
                     'You have 20 unsent surveys', Icons.sync),
               ),
             )),
-        const MenuItem().appTitle('What do you need ?'),
+        const items.MenuItem().appTitle('What do you need ?'),
         const Center(child: UserProfile())
       ]),
     );

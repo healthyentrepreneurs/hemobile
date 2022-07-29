@@ -19,7 +19,7 @@ bool get isInDebugMode {
 ///Base Url for user api
 // const baseUrl = '192.168.0.26:5051';
 // const baseUrl = '192.168.0.26:5051';
-const baseUrl = '192.168.0.26:5051';
+const baseUrl = 'http://stagingapp.healthyentrepreneurs.nl';
 
 ///Url for login
 const userLoginUrl = '$baseUrl/userlogin';

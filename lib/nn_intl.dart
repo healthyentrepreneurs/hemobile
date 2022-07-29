@@ -325,17 +325,17 @@ class NnMaterialLocalizations extends GlobalMaterialLocalizations {
     required intl.NumberFormat decimalFormat,
     required intl.NumberFormat twoDigitZeroPaddedFormat,
   }) : super(
-    localeName: localeName,
-    fullYearFormat: fullYearFormat,
-    compactDateFormat: compactDateFormat,
-    shortDateFormat: shortDateFormat,
-    mediumDateFormat: mediumDateFormat,
-    longDateFormat: longDateFormat,
-    yearMonthFormat: yearMonthFormat,
-    shortMonthDayFormat: shortMonthDayFormat,
-    decimalFormat: decimalFormat,
-    twoDigitZeroPaddedFormat: twoDigitZeroPaddedFormat,
-  );
+          localeName: localeName,
+          fullYearFormat: fullYearFormat,
+          compactDateFormat: compactDateFormat,
+          shortDateFormat: shortDateFormat,
+          mediumDateFormat: mediumDateFormat,
+          longDateFormat: longDateFormat,
+          yearMonthFormat: yearMonthFormat,
+          shortMonthDayFormat: shortMonthDayFormat,
+          decimalFormat: decimalFormat,
+          twoDigitZeroPaddedFormat: twoDigitZeroPaddedFormat,
+        );
 
 // #docregion Getters
   @override
@@ -541,7 +541,7 @@ class NnMaterialLocalizations extends GlobalMaterialLocalizations {
   int get firstDayOfWeekIndex => 0;
 
   static const LocalizationsDelegate<MaterialLocalizations> delegate =
-  _NnMaterialLocalizationsDelegate();
+      _NnMaterialLocalizationsDelegate();
 
   @override
   String get calendarModeButtonLabel => r'Switch to calendar';
@@ -620,4 +620,7 @@ class NnMaterialLocalizations extends GlobalMaterialLocalizations {
 
   @override
   String get unspecifiedDateRange => 'Date Range';
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
