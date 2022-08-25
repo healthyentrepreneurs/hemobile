@@ -137,7 +137,7 @@ class AuthenticationRepository {
   }) async {
     try {
       final user = await _userApiClient.customeLogin(username, password);
-      await logInWithEmailAndPassword(email: user.email!, password: password);
+      // await logInWithEmailAndPassword(email: user.email!, password: password);
       return User(
         id: user.id.toString(),
         username: user.username,

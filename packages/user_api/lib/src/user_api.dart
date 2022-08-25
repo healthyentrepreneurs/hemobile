@@ -51,8 +51,8 @@ class UserApiClient {
       final loginResponse = await httpP(
         _httpClient,
         baseUrl,
-        '/userlogin',
-        <String, String>{'username': username, 'password': password},
+        '/login',
+        <String, dynamic>{'username': username, 'password': password},
         'post',
       );
 
