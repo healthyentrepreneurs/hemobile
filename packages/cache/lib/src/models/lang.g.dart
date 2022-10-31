@@ -8,13 +8,15 @@ part of 'lang.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Lang _$LangFromJson(Map<String, dynamic> json) {
-  return $checkedNew('Lang', json, () {
-    final val = Lang(
-      id: $checkedConvert(json, 'id', (v) => v as int?),
-      code: $checkedConvert(json, 'code', (v) => v as String),
-      uppercode: $checkedConvert(json, 'uppercode', (v) => v as String?),
+Lang _$LangFromJson(Map<String, dynamic> json) => $checkedCreate(
+      'Lang',
+      json,
+      ($checkedConvert) {
+        final val = Lang(
+          id: $checkedConvert('id', (v) => v as int?),
+          code: $checkedConvert('code', (v) => v as String? ?? ''),
+          uppercode: $checkedConvert('uppercode', (v) => v as String?),
+        );
+        return val;
+      },
     );
-    return val;
-  });
-}

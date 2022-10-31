@@ -8,24 +8,25 @@ part of 'user.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-User _$UserFromJson(Map<String, dynamic> json) {
-  return $checkedNew('User', json, () {
-    final val = User(
-      id: $checkedConvert(json, 'id', (v) => v as String?),
-      email: $checkedConvert(json, 'email', (v) => v as String?),
-      name: $checkedConvert(json, 'name', (v) => v as String?),
-      username: $checkedConvert(json, 'username', (v) => v as String?),
-      photo: $checkedConvert(json, 'photo', (v) => v as String?),
-      token: $checkedConvert(json, 'token', (v) => v as String?),
-      lang: $checkedConvert(json, 'lang', (v) => v as String?),
-      country: $checkedConvert(json, 'country', (v) => v as String?),
-      subscriptions: $checkedConvert(
-          json,
-          'subscriptions',
-          (v) => (v as List<dynamic>?)
-              ?.map((e) => Subscription.fromJson(e as Map<String, dynamic>))
-              .toList()),
+User _$UserFromJson(Map<String, dynamic> json) => $checkedCreate(
+      'User',
+      json,
+      ($checkedConvert) {
+        final val = User(
+          id: $checkedConvert('id', (v) => v as String?),
+          email: $checkedConvert('email', (v) => v as String?),
+          name: $checkedConvert('name', (v) => v as String?),
+          username: $checkedConvert('username', (v) => v as String? ?? ''),
+          photo: $checkedConvert('photo', (v) => v as String?),
+          token: $checkedConvert('token', (v) => v as String?),
+          lang: $checkedConvert('lang', (v) => v as String?),
+          country: $checkedConvert('country', (v) => v as String?),
+          subscriptions: $checkedConvert(
+              'subscriptions',
+              (v) => (v as List<dynamic>?)
+                  ?.map((e) => Subscription.fromJson(e as Map<String, dynamic>))
+                  .toList()),
+        );
+        return val;
+      },
     );
-    return val;
-  });
-}

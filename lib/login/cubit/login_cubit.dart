@@ -1,6 +1,6 @@
 import 'package:auth_repository/auth_repository.dart' hide Lang;
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_inputs/form_inputs.dart';
 import 'package:formz/formz.dart';
 part 'login_state.dart';
@@ -30,6 +30,7 @@ class LoginCubit extends Cubit<LoginState> {
     if (!state.status.isValidated) return;
     emit(state.copyWith(status: FormzStatus.submissionInProgress));
     try {
+
       await _authenticationRepository.logInWithUsernameAndPassword(
         username: state.username.value,
         password: state.password.value,

@@ -145,6 +145,7 @@ class _UserInformationState extends State<UserInformation> {
                             onClickInstallApk(
                                 filePath, newUpdate, updateStatus);
                             setState(() {
+                              _isButtonDisabled = false;
                               _isDownloading = false;
                             });
                             debugPrint('>>> success');

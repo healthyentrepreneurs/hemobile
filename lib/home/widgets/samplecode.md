@@ -38,3 +38,32 @@
                   printOnlyDebugWrapped("joashpa ${e.toString()}");
                 }
  @End Add_Files_to_Firestore
+ 
+@Start Pass Unonimous Function
+
+Widget _buildCounterButton() {
+return new RaisedButton(
+child: new Text(
+_isButtonDisabled ? "Hold on..." : "Increment"
+),
+onPressed: _counterButtonPress(),
+);
+}
+
+Function _counterButtonPress() {
+if (_isButtonDisabled) {
+return null;
+} else {
+return () {
+// do anything else you may want to here
+_incrementCounter();
+};
+}
+}
+
+@End Pass Unonimous Function
+
+@Start Render Box Solution and Drawer
+https://www.fluttercampus.com/guide/228/renderbox-was-not-laid-out-error/
+https://stackoverflow.com/questions/63042859/drawer-footer-items
+@End Render

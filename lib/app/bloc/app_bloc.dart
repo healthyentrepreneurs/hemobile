@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:auth_repository/auth_repository.dart' hide Lang;
-import 'package:bloc/bloc.dart';
 import 'package:cache/cache.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:very_good_analysis/very_good_analysis.dart';
 
 part 'app_event.dart';

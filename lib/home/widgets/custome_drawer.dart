@@ -1,3 +1,4 @@
+import 'package:cache/cache.dart';
 import 'package:easy_localization/src/public_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:he/app/app.dart';
@@ -8,7 +9,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/langhe/langhe.dart';
 
 class CustomDrawer extends StatefulWidget {
-  const CustomDrawer({Key? key}) : super(key: key);
+  final User user;
+  const CustomDrawer({Key? key, required this.user}) : super(key: key);
 
   @override
   _CustomDrawer createState() => _CustomDrawer();
@@ -17,141 +19,189 @@ class CustomDrawer extends StatefulWidget {
 class _CustomDrawer extends State<CustomDrawer> {
   @override
   Widget build(BuildContext context) {
-    final user = context.select((AppBloc bloc) => bloc.state.user);
+    // final user = context.select((AppBloc bloc) => bloc.state.user);
     // final textTheme = Theme.of(context).textTheme;
     return Drawer(
       child: Container(
         color: ToolUtils.mainPrimaryColor,
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              child: Column(
-                children: [
-                  Avatar(photo: user.photo),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Text(user.name ?? '',
-                      style: const TextStyle(
-                          color: ToolUtils.whiteColor,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const HomePage()));
-              },
-              child: ListTile(
-                title: MenuItem(title: 'navbar.home'.tr(), icon: Icons.home),
-              ),
-            ),
-            ExpansionTile(
-              trailing: const Icon(
-                Icons.arrow_drop_down_circle_outlined,
-                color: ToolUtils.whiteColor,
-                size: 21,
-              ),
-              title: Container(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                  child: Text('navbar.tools.toolsname'.tr(),
-                      style: const TextStyle(
-                          color: ToolUtils.whiteColor,
-                          fontWeight: FontWeight.bold))),
-              children: <Widget>[
-                InkWell(
-                  onTap: () {},
-                  child: ListTile(
-                    title: MenuItem(
-                        title: 'navbar.tools.books'.tr(),
-                        icon: Icons.menu_book),
-                  ),
+        child: Column(
+          children: <Widget>[
+            ListView(padding: EdgeInsets.zero, shrinkWrap: true, children: [
+              DrawerHeader(
+                // https://docs.flutter.dev/cookbook/design/drawer
+                decoration: BoxDecoration(
+                  color: ToolUtils.colorGreenOne,
                 ),
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const FormList(),
-                        ));
-                  },
-                  child: ListTile(
-                    title: MenuItem(
-                        title: 'navbar.tools.quiz'.tr(), icon: Icons.quiz),
-                  ),
+                child: Column(
+                  children: [
+                    Avatar(photo: widget.user.photo),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(widget.user.name ?? '',
+                        style: const TextStyle(
+                            color: ToolUtils.whiteColor,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold)),
+                  ],
                 ),
-                InkWell(
-                  onTap: () {},
-                  child: ListTile(
-                    title: MenuItem(
-                        title: 'navbar.tools.surveys'.tr(),
-                        icon: Icons.library_books),
-                  ),
-                )
-              ],
+              )
+            ]),
+            Expanded(
+              child: ListView(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  children: <Widget>[
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const HomePage()));
+                      },
+                      child: ListTile(
+                        title: MenuItemHe(
+                            title: 'navbar.home'.tr(), icon: Icons.home),
+                      ),
+                    ),
+                    ExpansionTile(
+                      trailing: const Icon(
+                        Icons.arrow_drop_down_circle_outlined,
+                        color: ToolUtils.whiteColor,
+                        size: 21,
+                      ),
+                      title: Container(
+                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                          child: Text('navbar.tools.toolsname'.tr(),
+                              style: const TextStyle(
+                                  color: ToolUtils.whiteColor,
+                                  fontWeight: FontWeight.bold))),
+                      children: <Widget>[
+                        InkWell(
+                          onTap: () {},
+                          child: ListTile(
+                            title: MenuItemHe(
+                                title: 'navbar.tools.books'.tr(),
+                                icon: Icons.menu_book),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const FormList(),
+                                ));
+                          },
+                          child: ListTile(
+                            title: MenuItemHe(
+                                title: 'navbar.tools.quiz'.tr(),
+                                icon: Icons.quiz),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            debugPrint("Surveys");
+                          },
+                          child: ListTile(
+                            title: MenuItemHe(
+                                title: 'navbar.tools.surveys'.tr(),
+                                icon: Icons.library_books),
+                          ),
+                        )
+                      ],
+                    ),
+                    InkWell(
+                      onTap: () {},
+                      child: ListTile(
+                        title: MenuItemHe(
+                            title: 'navbar.offlinesetting'.tr(),
+                            icon: Icons.sync),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {},
+                      child: ListTile(
+                        title: MenuItemHe(
+                            title: 'navbar.syncdetails'.tr(),
+                            icon: Icons.cloud_upload_rounded),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (BuildContext context) =>
+                                const LangsPage(),
+                            fullscreenDialog: true,
+                          ),
+                        );
+                      },
+                      child: ListTile(
+                        title: MenuItemHe(
+                            title: 'login.languages'.tr(),
+                            icon: Icons.translate),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const Divider(
+                      color: Colors.white70,
+                      thickness: 2,
+                      height: 1,
+                    )
+                  ]),
             ),
-            InkWell(
-              onTap: () {},
-              child: ListTile(
-                title: MenuItem(
-                    title: 'navbar.offlinesetting'.tr(), icon: Icons.sync),
-              ),
-            ),
-            InkWell(
-              onTap: () {},
-              child: ListTile(
-                title: MenuItem(
-                    title: 'navbar.syncdetails'.tr(),
-                    icon: Icons.cloud_upload_rounded),
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (BuildContext context) => const LangsPage(),
-                    fullscreenDialog: true,
-                  ),
-                );
-              },
-              child: ListTile(
-                title: MenuItem(
-                    title: 'login.languages'.tr(), icon: Icons.arrow_drop_down),
-              ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            const Divider(
-              color: Colors.white70,
-              thickness: 2,
-              height: 1,
-            ),
-            InkWell(
-              onTap: () {
-                // _PasswordLogout(context: context)._showMyDialog();
-                _showMyDialog();
-              },
-              child: ListTile(
-                title: MenuItem(
-                    title: 'navbar.logout'.tr(), icon: Icons.exit_to_app),
-              ),
-            )
+            Container(
+                child: Align(
+                    alignment: FractionalOffset.bottomCenter,
+                    child: Column(
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            Text("Version",
+                                style: const TextStyle(
+                                    color: Colors.black, fontSize: 10)),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.info_rounded,
+                                color: ToolUtils.colorBlueOne,
+                              ),
+                              tooltip: 'Your Application needs Update!',
+                              onPressed: () {
+                                debugPrint("Mama Jaja ");
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.logout_sharp,
+                                color: Colors.white,
+                              ),
+                              tooltip: 'Click Here To Logout',
+                              onPressed: () {
+                                _showMyDialog(context);
+                              },
+                            ),
+                          ],
+                        )
+                        // ListTile(
+                        //     leading: Icon(Icons.help), title: Text('Instagram'))
+                      ],
+                    ))),
           ],
         ),
       ),
     );
   }
 
-  Future<void> _showMyDialog() async {
+  Future<void> _showMyDialog(BuildContext context) async {
     return showDialog<void>(
       context: context,
       // barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
+      builder: (context) {
         return AlertDialog(
           contentPadding: const EdgeInsets.fromLTRB(10, 5, 5, 5),
           // insetPadding: EdgeInsets.zero,
@@ -210,4 +260,3 @@ class _CustomDrawer extends State<CustomDrawer> {
     );
   }
 }
-

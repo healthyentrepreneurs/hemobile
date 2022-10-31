@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:he/helper/toolutils.dart';
 
-class MenuItem extends StatelessWidget {
-  const MenuItem({Key? key, this.title, this.icon}) : super(key: key);
+class MenuItemHe extends StatelessWidget {
+  const MenuItemHe({Key? key, this.title, this.icon}) : super(key: key);
   final String? title;
   final IconData? icon;
   @override
@@ -38,7 +38,7 @@ class MenuItem extends StatelessWidget {
       children: [
         Icon(
           icon,
-          color: ToolUtils.mainPrimaryColor,
+          color: ToolUtils.colorGreenOne,
           size: 20,
         ),
         const SizedBox(

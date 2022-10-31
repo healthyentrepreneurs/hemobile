@@ -40,8 +40,19 @@ https://pub.dev/packages/i18n_remote_config
 
 Flutter Commands:
 
-flutter build apk
+flutter build apk || flutter build apk --debug
 flutter install
+flutter clean && flutter run
+flutter pub get
+flutter pub cache clean
+
+## Start Debugging 
+flutter pub upgrade --dry-run
+dart pub upgrade
+flutter pub outdated
+flutter pub upgrade --major-versions
+flutter pub outdated
+## End Debugging
 
 build/app/outputs/flutter-apk/app-release.apk
 

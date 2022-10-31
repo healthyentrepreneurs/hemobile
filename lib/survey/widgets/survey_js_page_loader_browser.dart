@@ -11,7 +11,7 @@ class SurveyJsPageLoaderBrowser extends StatefulWidget {
   // final Course course;
   final ObjectSubscription course;
 
-   SurveyJsPageLoaderBrowser(
+  SurveyJsPageLoaderBrowser(
       {required this.jsonData,
       required this.jsonDataStr,
       required this.course});
@@ -220,21 +220,21 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
       child: Column(
         children: [
           ListTile(
-            leading: Icon(Icons.sync_rounded, color: Colors.white),
-            title: Text(title, style: TextStyle(color: Colors.white)),
+            leading: const Icon(Icons.sync_rounded, color: Colors.white),
+            title: Text(title, style: const TextStyle(color: Colors.white)),
           ),
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Text(
               reportMessage,
-              style: TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white),
             ),
           ),
           ButtonBar(
             alignment: MainAxisAlignment.spaceEvenly,
-            children: !this.status
+            children: !status
                 ? [
-                    FlatButton(
+                    MaterialButton(
                       textColor: Colors.white,
                       onPressed: () {
                         // Perform some action
@@ -242,7 +242,7 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
                       },
                       child: const Text('TRY AGAIN'),
                     ),
-                    FlatButton(
+                    MaterialButton(
                       textColor: Colors.white,
                       onPressed: () {
                         // Perform some action
@@ -250,21 +250,21 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
                       },
                       child: const Text('SEND LATER'),
                     ),
-                    FlatButton(
+                    MaterialButton(
                       textColor: Colors.white,
                       onPressed: () {
                         // Perform some action
-                        this.closeAlert();
+                        closeAlert();
                       },
                       child: const Text('CLOSE'),
                     ),
                   ]
                 : [
-                    FlatButton(
+                    MaterialButton(
                       textColor: Colors.white,
                       onPressed: () {
                         // Perform some action
-                        this.closeAlertSuccess();
+                        closeAlertSuccess();
                       },
                       child: const Text('CLOSE'),
                     )
@@ -280,7 +280,7 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
         body: SafeArea(
             child: Column(children: <Widget>[
       Container(
-          padding: EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(10.0),
           child: progress < 1.0
               ? LinearProgressIndicator(value: progress)
               : Container()),
@@ -313,10 +313,8 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
                   handlerName: "sendResults",
                   callback: (args) {
                     //print(">>Submit to server >${args.toString()}");
-                    // ignore: deprecated_member_use
-                    Scaffold.of(context).showSnackBar(
-                      SnackBar(content: Text("posting data..")),
-                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("posting data..")));
                     // postJsonData(args[0].toString());
                     print(args[0]);
                   });
@@ -390,7 +388,7 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
           ),
         ),
       ),
-      status ? alertCardPopup("Upload Survey Info") : Text('')
+      status ? alertCardPopup("Upload Survey Info") : const Text('')
     ])));
   }
 

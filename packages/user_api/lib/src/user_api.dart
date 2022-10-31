@@ -45,7 +45,7 @@ class UserApiClient {
 
   final http.Client _httpClient;
 
-  /// Finds a [User] `/login`.
+  // Finds a [User] `/login`.
   Future<User> customeLogin(String username, String password) async {
     try {
       final loginResponse = await httpP(
@@ -57,7 +57,7 @@ class UserApiClient {
       );
 
       if (loginResponse.statusCode != 200) {
-        printOnlyDebug("whats the issue ${loginResponse.body}");
+        printOnlyDebug('whats the issue ${loginResponse.body}');
         throw const UserRequestFailure();
       }
       final userJson = jsonDecode(loginResponse.body) as Map<String, dynamic>;

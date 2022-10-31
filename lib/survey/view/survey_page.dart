@@ -1,11 +1,10 @@
-import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:he/helper/toolutils.dart';
 import 'package:he/objects/objectsubscription.dart';
-import 'package:he/survey/widgets/progresswidget.dart';
-import 'package:he/survey/widgets/survey_js_page_loader_browser.dart';
+import 'package:he/objects/objectsurvey.dart';
+import 'package:he/survey/widgets/widgets.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SurveyPage extends StatefulWidget {
@@ -18,103 +17,97 @@ class SurveyPage extends StatefulWidget {
 class _SurveyPageState extends State<SurveyPage> {
   dynamic surveyData;
   late String surveyDataString;
-  bool isLoading = false;
+  // bool isLoading = false;
   @override
   Widget build(BuildContext context) {
+    // var surveyCollection =
+    //     FirebaseFirestore.instance.collection(surveyCollectionString);
     return ProgressWidget(
       child: _uiSetup(context),
-      inAsyncCall: isLoading,
+      inAsyncCall: false,
       opacity: 0.3,
     );
   }
 
   Widget _uiSetup(BuildContext context) {
     return Scaffold(
-        backgroundColor: ToolUtils.mainBgColor,
+        backgroundColor: ToolUtils.whiteColor,
         appBar: AppBar(
           title: Text(
-            "" + widget.course.fullname!,
+            widget.course.fullname!,
             style: const TextStyle(color: ToolUtils.mainPrimaryColor),
           ),
           backgroundColor: Colors.white,
-          elevation: 1,
+          elevation: 0,
           centerTitle: true,
           iconTheme: const IconThemeData(color: ToolUtils.mainPrimaryColor),
         ),
-        body: (surveyData != null)
-            ? SurveyJsPageLoaderBrowser(
-                jsonData: surveyData,
-                jsonDataStr: surveyDataString,
-                course: widget.course)
-            : const Text('XXXX'));
+        body: (
+            // QuerySnapshot
+            // DocumentSnapshot
+            StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('surveys')
+              .doc(widget.course.id.toString())
+              .snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+            if (snapshot.hasError) {
+              //To be refactored
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 60,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Text('Error: ${snapshot.error}'),
+                    )
+                  ],
+                ),
+              );
+            } else {
+              if (!snapshot.hasData) {
+                var children = const <Widget>[
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: CircularProgressIndicator(),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: Text('Awaiting bids...'),
+                  ),
+                ];
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: children,
+                  ),
+                );
+                // return const CircularProgressIndicator();
+              }else {
+                var surveyData = snapshot.data?.data();
+                ObjectSurvey dataSurvey = ObjectSurvey.fromJson(
+                    surveyData as Map<String, dynamic>);
+                // return Text("data");
+                return SurveyPageBrowser(
+                  surveyobject: dataSurvey,);
+              }
+              // isLoading=true; needs to be set
+            }
+          },
+        )));
   }
 
   @override
   void initState() {
     super.initState();
     loadPerms();
-    initSurveyDataHomePage();
-  }
-
-  Stream<DocumentSnapshot>? _surveyStream;
-
-  Future<void> initSurveyDataHomePage() async {
-    _surveyStream = FirebaseFirestore.instance
-        .collection('survey')
-        .doc("${widget.course.id}")
-        .snapshots();
-    var d = await _surveyStream!.first;
-    var data = d.data() as Map<String, dynamic>;
-    _processJson("${data['surveyjson']}");
-  }
-
-  _processJson(String body) {
-    try {
-      setState(() {
-        surveyDataString = body;
-      });
-      print(body);
-      var json = jsonDecode(body);
-      if (json != null) {
-        setState(() {
-          surveyData = json;
-        });
-      } else {
-        showAlertDialog(context, "Quiz Loading Error!", "Failed to load quiz");
-        return null;
-      }
-    } catch (e) {
-      print('json error $e');
-    }
-  }
-
-  showAlertDialog(BuildContext context, String title, String msg,
-      [Function? _onPressed]) {
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: Text(title),
-      content: Text(msg),
-      actions: [
-        TextButton(
-          child: Text("OK"),
-          onPressed: () {
-            Navigator.of(context).pop();
-            // https://stackoverflow.com/questions/64278595/null-check-operator-used-on-a-null-value
-            if (_onPressed != null) {
-              _onPressed();
-            }
-          },
-        )
-      ],
-    );
-
-    // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
   }
 
   Future<void> loadPerms() async {

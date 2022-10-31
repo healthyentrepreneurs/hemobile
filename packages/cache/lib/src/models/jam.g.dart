@@ -8,12 +8,14 @@ part of 'jam.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Jam _$JamFromJson(Map<String, dynamic> json) {
-  return $checkedNew('Jam', json, () {
-    final val = Jam(
-      $checkedConvert(json, 'name', (v) => v as String),
-      $checkedConvert(json, 'email', (v) => v as String),
+Jam _$JamFromJson(Map<String, dynamic> json) => $checkedCreate(
+      'Jam',
+      json,
+      ($checkedConvert) {
+        final val = Jam(
+          $checkedConvert('name', (v) => v as String),
+          $checkedConvert('email', (v) => v as String),
+        );
+        return val;
+      },
     );
-    return val;
-  });
-}

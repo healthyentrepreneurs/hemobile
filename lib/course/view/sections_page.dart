@@ -18,10 +18,10 @@ class _SectionsPageState extends State<SectionsPage> {
   @override
   Widget build(BuildContext context) {
     // widget.course
-    String coursecollection =
+    String courseCollectionString =
         "source_one_course_" + widget.course.id.toString();
     var courseCollection =
-        FirebaseFirestore.instance.collection(coursecollection);
+        FirebaseFirestore.instance.collection(courseCollectionString);
     return Scaffold(
       // resizeToAvoidBottomInset: true,
       backgroundColor: ToolUtils.whiteColor,

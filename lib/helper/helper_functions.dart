@@ -20,16 +20,13 @@ void printOnlyDebugWrapped(var objectPrint) {
 
 // debugPrint('Received click');
 Future<void> userEmulator(bool emulator) async {
-  // const String host = '192.168.0.26';
-  // const String host = '192.168.43.88';
-  // const String host = '192.168.0.26';
-  const String host = '192.168.0.26';
+  const String host = '192.168.0.12';
   if (Platform.isAndroid && emulator) {
     FirebaseFirestore.instance
         .useFirestoreEmulator(host, 8080, sslEnabled: false);
     FirebaseFirestore.instance.settings =
         const Settings(persistenceEnabled: false);
-    await FirebaseStorage.instanceFor(bucket: "default-bucket")
+    await FirebaseStorage.instanceFor(bucket: "he-test-server.appspot.com")
         .useStorageEmulator(host, 9199);
   }
 }

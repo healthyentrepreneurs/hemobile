@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:he/helper/toolutils.dart';
 import 'package:he/objects/objectquizcontent.dart';
-import 'package:he/quiz/quiz.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class QuizPage extends StatefulWidget {
@@ -182,8 +181,6 @@ class _QuizPageState extends State<QuizPage> {
                 return NavigationActionPolicy.ALLOW;
               },
             )),
-            ButtonBar(
-                alignment: MainAxisAlignment.center, children: bottomNav()),
             // currentKey = valCurrentPageId;
             // nextKey = valNextPageId;
             // QuizNav(

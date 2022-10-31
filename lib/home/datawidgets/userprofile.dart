@@ -1,19 +1,20 @@
+import 'package:cache/cache.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:he/course/course.dart';
 import 'package:he/objects/objectsubscription.dart';
 import 'package:he/objects/objectuser.dart';
-import 'package:he/survey/view/survey_page.dart';
+import 'package:he/survey/view/view.dart';
 import 'userlanding.dart';
 
 class UserProfile extends StatefulWidget {
-  const UserProfile({Key? key}) : super(key: key);
+  final User user;
+  const UserProfile({Key? key, required this.user}) : super(key: key);
   @override
   _UserProfileState createState() => _UserProfileState();
 }
 
 class _UserProfileState extends State<UserProfile> {
-  // final Stream _userCred = FirebaseFirestore.instance.collection('userdata').doc('3').snapshots();
   @override
   Widget build(BuildContext context) {
     final Stream<DocumentSnapshot>? _userStream =
@@ -80,6 +81,7 @@ class _UserProfileState extends State<UserProfile> {
                               builder: (context) => SurveyPage(course: c),
                             ));
                       } else {
+                        //Course content Books, Quiz Etc
                         Navigator.push(
                             context,
                             MaterialPageRoute(
