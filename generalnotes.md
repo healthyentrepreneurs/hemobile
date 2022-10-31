@@ -38,3 +38,10 @@ https://material.io/components/
 Config App Translation:
 https://pub.dev/packages/i18n_remote_config
 
+Flutter Commands:
+
+flutter build apk
+flutter install
+
+build/app/outputs/flutter-apk/app-release.apk
+

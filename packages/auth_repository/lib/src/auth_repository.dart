@@ -59,7 +59,7 @@ class AuthenticationRepository {
     firebase_auth.FirebaseAuth? firebaseAuth,
   })  : _cache = cache ?? CacheClient(),
         _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance
-          ..useAuthEmulator('192.168.0.26', 9099);
+          ..useAuthEmulator('192.168.0.12', 9099);
   final CacheClient _cache;
   final firebase_auth.FirebaseAuth _firebaseAuth;
 
@@ -137,6 +137,7 @@ class AuthenticationRepository {
   }) async {
     try {
       final user = await _userApiClient.customeLogin(username, password);
+      printOnlyDebug(user.email!);
       await logInWithEmailAndPassword(email: user.email!, password: password);
       return User(
         id: user.id.toString(),
@@ -156,6 +157,7 @@ class AuthenticationRepository {
     } on FailedConnection catch (e) {
       throw const FailedConnection().message;
     } catch (e, stacktrace) {
+      printOnlyDebug(stacktrace);
       rethrow;
     }
   }
@@ -172,6 +174,7 @@ class AuthenticationRepository {
         password: password,
       );
     } on FirebaseAuthException catch (e) {
+      printOnlyDebug(e);
       throw LogInWithEmailAndPasswordFailure.fromCode(e.code);
     } catch (en) {
       throw const LogInWithEmailAndPasswordFailure();

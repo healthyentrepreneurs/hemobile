@@ -4,7 +4,6 @@ import 'package:cache/cache.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -30,37 +29,7 @@ class MockUserCredential extends Mock implements firebase_auth.UserCredential {}
 class FakeAuthCredential extends Fake implements firebase_auth.AuthCredential {}
 
 class FakeAuthProvider extends Fake implements AuthProvider {}
-
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-  MethodChannelFirebase.channel.setMockMethodCallHandler((call) async {
-    if (call.method == 'Firebase#initializeCore') {
-      return [
-        {
-          'name': defaultFirebaseAppName,
-          'options': {
-            'apiKey': '123',
-            'appId': '123',
-            'messagingSenderId': '123',
-            'projectId': '123',
-          },
-          'pluginConstants': const <String, String>{},
-        }
-      ];
-    }
-
-    if (call.method == 'Firebase#initializeApp') {
-      final arguments = call.arguments as Map<String, dynamic>;
-      return <String, dynamic>{
-        'name': arguments['appName'],
-        'options': arguments['options'],
-        'pluginConstants': const <String, String>{},
-      };
-    }
-
-    return null;
-  });
-
   TestWidgetsFlutterBinding.ensureInitialized();
   Firebase.initializeApp();
 
