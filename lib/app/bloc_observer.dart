@@ -5,27 +5,28 @@ class AppBlocObserver extends BlocObserver {
   @override
   void onEvent(Bloc bloc, Object? event) {
     super.onEvent(bloc, event);
-    printOnlyDebug(event);
+    printOnlyDebug('Josh Event ${bloc.runtimeType} $event');
   }
 
   @override
   void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
-    printOnlyDebug(error);
+    printOnlyDebug('Josh Error ${bloc.runtimeType} $error $stackTrace');
     super.onError(bloc, error, stackTrace);
   }
 
   @override
   void onChange(BlocBase bloc, Change change) {
     super.onChange(bloc, change);
-    printOnlyDebug(change);
-    if (bloc.runtimeType.toString() == "LangHeCubit") {
-
-    }
+    printOnlyDebug("Josh Runtime ${bloc.runtimeType.toString()} and Josh Change $change");
+    // if (bloc.runtimeType.toString() == "LangHeCubit") {
+    //
+    // }
   }
 
   @override
   void onTransition(Bloc bloc, Transition transition) {
+    // capture information about what triggered the state change
     super.onTransition(bloc, transition);
-    printOnlyDebug(transition);
+    printOnlyDebug("Josh Transition ${bloc.runtimeType} $transition");
   }
 }

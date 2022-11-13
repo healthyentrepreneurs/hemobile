@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:he/helper/toolutils.dart';
@@ -90,13 +89,14 @@ class _SurveyPageState extends State<SurveyPage> {
                   ),
                 );
                 // return const CircularProgressIndicator();
-              }else {
+              } else {
                 var surveyData = snapshot.data?.data();
-                ObjectSurvey dataSurvey = ObjectSurvey.fromJson(
-                    surveyData as Map<String, dynamic>);
+                ObjectSurvey dataSurvey =
+                    ObjectSurvey.fromJson(surveyData as Map<String, dynamic>);
                 // return Text("data");
                 return SurveyPageBrowser(
-                  surveyobject: dataSurvey,);
+                  surveyobject: dataSurvey,
+                );
               }
               // isLoading=true; needs to be set
             }

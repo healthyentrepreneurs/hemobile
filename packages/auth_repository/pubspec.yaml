@@ -10,7 +10,6 @@ dependencies:
   cache:
     path: ../cache
   equatable: ^2.0.3
-#  firebase_auth: 3.3.6
   firebase_auth: 4.1.0
   firebase_core: 2.1.1
 #  firebase_core: ^1.11.0

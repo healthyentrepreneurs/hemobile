@@ -1,2 +1,2 @@
-### JSON and SERIALIZATION:
-> https://docs.flutter.dev/development/data-and-backend/json
+https://pub.dev/packages/json_serializable
+https://pub.dev/packages/equatable

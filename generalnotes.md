@@ -46,7 +46,7 @@ flutter clean && flutter run
 flutter pub get
 flutter pub cache clean
 
-## Start Debugging 
+## Start Debugging Steps
 flutter pub upgrade --dry-run
 dart pub upgrade
 flutter pub outdated
@@ -54,5 +54,20 @@ flutter pub upgrade --major-versions
 flutter pub outdated
 ## End Debugging
 
+## Create / Test Packages
+flutter create --template=package open_meteo_api
+very_good create firebase_repository -o packages -t dart_pkg --desc "Channel Data Sources From Repo"
+
+## Blocs Info
+https://bloclibrary.dev/#/coreconcepts?id=observing-a-bloc
+https://verygood.ventures/blog/how-to-use-bloc-with-streams-and-concurrency
+
 build/app/outputs/flutter-apk/app-release.apk
+
+## Flutter Downloader
+https://pub.dev/packages/flutter_downloader
+
+### JSON and SERIALIZATION:
+> https://docs.flutter.dev/development/data-and-backend/json
+(Naming Convention)[https://bloclibrary.dev/#/blocnamingconventions?id=subclasses-1]
 
