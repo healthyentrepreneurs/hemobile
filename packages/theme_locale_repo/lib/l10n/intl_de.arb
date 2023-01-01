@@ -1,0 +1,45 @@
+{
+  "@@locale": "de",
+  "dark_theme": "Dark theme",
+  "light_theme": "Light theme",
+  "current_theme_is": "Current theme is {themeTitle}",
+  "@current_theme_is" : {
+    "description" : "theme title",
+    "placeholders": {
+      "themeTitle": {
+        "type":"String"
+      }
+    }
+  },
+  "current_language_is": "Current language is {langName}",
+  "change_theme_success": "Change theme successfully",
+  "change_theme_failure": "Change theme failure",
+  "change_theme_failure_cause_by": "Change theme failure cause by error: {error}",
+  "change_language_success": "Change locale successfully",
+  "change_language_failure": "Change locale failure",
+  "change_language_failure_cause_by": "Change locale failure cause by error: {error}",
+  "pageHomeBalance" : "Your balance is {amount} on {date}",
+  "welcome": "Twakwakila",
+  "login_welcome": "Twakwakila",
+  "login_welcome_msg": "Za omu account Yawe",
+  "login_username": "izina",
+  "login_password": "ekyahma",
+  "login_signbutton": "Sinig aha",
+  "login_languages": "Edimi",
+  "login_about": "HE! Nibaha",
+
+  "navbar_home": "Aho kutadikila",
+  "navbar_tools_toolsname": "Tools",
+  "navbar_tools_books": "Ebiboh",
+  "navbar_tools_quiz": "Ebyokubuzibwha",
+  "navbar_tools_surveys": "Emihendo",
+  "navbar_offlinesetting": "Gwagutaliho",
+  "navbar_syncdetails": "Sindika Emilimo",
+  "navbar_logout": "Okulugamu",
+
+  "logout_title": "Okuhamya Hatiya?",
+  "logout_logoutdetails": "Tukushaba okutekhamu passiwadi yaweh!",
+  "logout_confirmlogout": "Hamya",
+  "test_title": "KLocalizations demo!",
+  "counter": "Has clicado {{count}} veces"
+}

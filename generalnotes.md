@@ -1,6 +1,7 @@
+[Test Library](https://ricardo-castellanos-herreros.medium.com/unit-widget-and-integration-testing-in-flutter-14-best-packages-for-testing-386930b8e2a8)
+
 Tools Used:
-https://pub.dev/packages/very_good_cli
-https://pub.dev/packages/very_good_analysis
+https://pub.dev/packages/very_good_cli | very_good_analysis
 
 Trans
 https://pub.dev/packages/klocalizations_flutter
@@ -15,13 +16,11 @@ android:networkSecurityConfig="@xml/network_security_config"
 Running Tests:
 flutter pub run test --chain-stack-traces
 flutter test test/models/user_test.dart
+flutter test test/src/tlcl_stg_account_api_test.dart --plain-name 'deleteAccount'
 
-flutter test --coverage
+flutter test --coverage 
 genhtml coverage/lcov.info -o coverage
 open coverage/index.html
-
-Code Generation:
-flutter packages pub run build_runner build
 
 https://medium.com/flutter-community/parsing-complex-json-in-flutter-747c46655f51
 
@@ -33,7 +32,7 @@ https://gallery.flutter.dev/#/demo/nav_drawer and
 https://api.flutter.dev/ (fine tuned)
 
 Material Design:
-https://material.io/components/
+https://material.io/components
 
 Config App Translation:
 https://pub.dev/packages/i18n_remote_config
@@ -70,4 +69,14 @@ https://pub.dev/packages/flutter_downloader
 ### JSON and SERIALIZATION:
 > https://docs.flutter.dev/development/data-and-backend/json
 (Naming Convention)[https://bloclibrary.dev/#/blocnamingconventions?id=subclasses-1]
+
+[zsh: command not found: very_good](https://bytemeta.vip/repo/VeryGoodOpenSource/very_good_cli/issues/100)
+
+create package:datalayer under packages/datalayer
+
+very_good create local_storage_todos_api -o packages -t flutter_pkg --desc "A Flutter implementation of the TodosApi that uses local storage."
+
+very_good packages get --recursive
+
+flutter run --flavor development --target lib/main_development.dart
 

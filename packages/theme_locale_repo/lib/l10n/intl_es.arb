@@ -1,0 +1,45 @@
+{
+  "@@locale": "es",
+  "dark_theme": "Dark theme",
+  "light_theme": "Light theme",
+  "current_theme_is": "Current theme is {themeTitle}",
+  "@current_theme_is" : {
+    "description" : "theme title",
+    "placeholders": {
+      "themeTitle": {
+        "type":"String"
+      }
+    }
+  },
+  "current_language_is": "Current language is {langName}",
+  "change_theme_success": "Change theme successfully",
+  "change_theme_failure": "Change theme failure",
+  "change_theme_failure_cause_by": "Change theme failure cause by error: {error}",
+  "change_language_success": "Change locale successfully",
+  "change_language_failure": "Change locale failure",
+  "change_language_failure_cause_by": "Change locale failure cause by error: {error}",
+  "pageHomeBalance" : "Your balance is {amount} on {date}",
+  "welcome": "Webale",
+  "login_welcome": "Webale",
+  "login_welcome_msg": "Genda mu account yo",
+  "login_username": "linyalyo",
+  "login_password": "akyama",
+  "login_signbutton": "Sininga wano",
+  "login_languages": "Enimi",
+  "login_about": "HE Bebani!",
+
+  "navbar_home": "Wotandikila",
+  "navbar_tools_toolsname": "Tools",
+  "navbar_tools_books": "Bitabo",
+  "navbar_tools_quiz": "Bibuzo",
+  "navbar_tools_surveys": "Emiwendo",
+  "navbar_offlinesetting": "Nga Tekuli?",
+  "navbar_syncdetails": "Sendika Emulimi",
+  "navbar_logout": "Fuluma",
+
+  "logout_title": "Kakasa Kati ?",
+  "logout_logoutdetails": "Tukusaba okujuza passiwadi yo!",
+  "logout_confirmlogout": "Kakasa",
+  "test_title": "KLocalizations demo!",
+  "counter": "Has clicado {{count}} veces"
+}

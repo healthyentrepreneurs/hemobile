@@ -1,36 +1,52 @@
-import 'package:auth_repository/auth_repository.dart';
-import 'package:easy_localization/src/public_ext.dart';
+import 'package:auth_repo/auth_repo.dart';
 import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/app/app.dart';
 import 'package:he/langhe/langhe.dart';
-import 'package:he/nn_intl.dart';
-import 'package:he/theme.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:he/login/login.dart';
+import 'package:theme_locale_repo/generated/l10n.dart';
+import 'package:theme_locale_repo/theme_locale_repo.dart';
 
 class App extends StatelessWidget {
   const App({
     Key? key,
-    required AuthenticationRepository authenticationRepository,
-  })  : _authenticationRepository = authenticationRepository,
+    required HeAuthRepository heAuthRepository,
+    required ThemeLocaleIntRepository themeLocaleIntRepository,
+  })  : _heAuthRepository = heAuthRepository,
+        _themeLocaleIntRepository = themeLocaleIntRepository,
         super(key: key);
-  final AuthenticationRepository _authenticationRepository;
+  final HeAuthRepository _heAuthRepository;
+  final ThemeLocaleIntRepository _themeLocaleIntRepository;
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider.value(
-      value: _authenticationRepository,
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<ThemeLocaleIntRepository>(
+          create: (context) => _themeLocaleIntRepository,
+        ),
+        RepositoryProvider<HeAuthRepository>(
+          create: (context) => _heAuthRepository,
+        ),
+      ],
       child: MultiBlocProvider(
         providers: [
-          BlocProvider<AppBloc>(
-            create: (_) => AppBloc(
-              authenticationRepository: _authenticationRepository,
-            ),
-          ),
-          BlocProvider<LangHeCubit>(
-              create: (BuildContext context) =>
-                  LangHeCubit(_authenticationRepository)..languagesFetched()
-              // ..languageSelected(context.locale.toString()),
+          BlocProvider<ThemeLangBloc>(
+              create: (_) => ThemeLangBloc(
+                    themeLocaleIntRepository: _themeLocaleIntRepository,
+                  )
               ),
+          BlocProvider<LoginBloc>(
+              create: (_) => LoginBloc(
+                heAuthRepository: _heAuthRepository,
+              )
+          ),
+          BlocProvider<AppBloc>(
+              create: (_) => AppBloc(
+                heAuthRepository: _heAuthRepository,
+              )
+          ),
         ],
         child: const AppView(),
       ),
@@ -46,34 +62,29 @@ class AppView extends StatefulWidget {
 
 class _AppView extends State<AppView> {
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    rebuildAllChildren(context);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'HE Health',
-      debugShowCheckedModeBanner: true,
-      theme: theme,
-      localizationsDelegates: context.localizationDelegates
-        ..add(NnMaterialLocalizations.delegate),
-      supportedLocales: context.supportedLocales,
-      locale: context.locale,
-      home: FlowBuilder<AppStatus>(
-        state: context.select((AppBloc bloc) => bloc.state.status),
-        onGeneratePages: onGenerateAppViewPages,
-      ),
+    return BlocBuilder<ThemeLangBloc, ThemeLangState>(
+      buildWhen: (previous, current) => previous.props != current.props,
+      builder: (context, state) {
+        return MaterialApp(
+          title: 'HE Health',
+          debugShowCheckedModeBanner: true,
+          theme: state.themeandlocalestate.item1.themeData,
+          // darkTheme: FlutterTodosTheme.dark,
+          locale: state.themeandlocalestate.item2,
+          supportedLocales: S.delegate.supportedLocales,
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: FlowBuilder<HeAuthStatus>(
+            state: context.select((AppBloc bloc) => bloc.state.status),
+            onGeneratePages: onGenerateAppViewPages,
+          ),
+        );
+      },
     );
   }
-}
-
-void rebuildAllChildren(BuildContext context) {
-  void rebuild(Element el) {
-    el.markNeedsBuild();
-    el.visitChildren(rebuild);
-  }
-
-  (context as Element).visitChildren(rebuild);
 }

@@ -40,9 +40,8 @@ class FileSystemUtil {
   }
 
   Future<String> get extDownloadsPath async {
-    String path = await ExternalPath.getExternalStoragePublicDirectory(
-            ExternalPath.DIRECTORY_DOWNLOADS) +
-        "/$appDir";
+    String path = "${await ExternalPath.getExternalStoragePublicDirectory(
+            ExternalPath.DIRECTORY_DOWNLOADS)}/$appDir";
     //print(">>> Ext Download $path");
 
     if (await File(path).exists()) {

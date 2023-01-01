@@ -17,7 +17,8 @@ class AppBlocObserver extends BlocObserver {
   @override
   void onChange(BlocBase bloc, Change change) {
     super.onChange(bloc, change);
-    printOnlyDebug("Josh Runtime ${bloc.runtimeType.toString()} and Josh Change $change");
+    printOnlyDebug(
+        "Josh Runtime ${bloc.runtimeType.toString()} and Josh Change $change");
     // if (bloc.runtimeType.toString() == "LangHeCubit") {
     //
     // }

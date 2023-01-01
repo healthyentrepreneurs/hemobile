@@ -1,0 +1,45 @@
+{
+  "@@locale": "en",
+  "dark_theme": "Dark theme",
+  "light_theme": "Light theme",
+  "current_theme_is": "Current theme is {themeTitle}",
+  "@current_theme_is" : {
+    "description" : "theme title",
+    "placeholders": {
+      "themeTitle": {
+        "type":"String"
+      }
+    }
+  },
+  "current_language_is": "Current language is {langName}",
+  "change_theme_success": "Change theme successfully",
+  "change_theme_failure": "Change theme failure",
+  "change_theme_failure_cause_by": "Change theme failure cause by error: {error}",
+  "change_language_success": "Change locale successfully",
+  "change_language_failure": "Change locale failure",
+  "change_language_failure_cause_by": "Change locale failure cause by error: {error}",
+  "pageHomeBalance" : "Your balance is {amount} on {date}",
+  "welcome": "welcome english!",
+  "login_welcome": "Welcome",
+  "login_welcome_msg": "Sign into your account",
+  "login_username": "username",
+  "login_password": "password",
+  "login_signbutton": "Sign in",
+  "login_languages": "Languages",
+  "login_about": "About HE",
+
+  "navbar_home": "Home",
+  "navbar_tools_toolsname": "Tools",
+  "navbar_tools_books": "Books",
+  "navbar_tools_quiz": "Quiz",
+  "navbar_tools_surveys": "Surveys",
+  "navbar_offlinesetting": "Offline Settings",
+  "navbar_syncdetails": "Sync Details",
+  "navbar_logout": "Logout",
+
+  "logout_title": "Confirm Logout ?",
+  "logout_logoutdetails": "Please fill your password to logout!",
+  "logout_confirmlogout": "Confirm",
+  "test_title": "KLocalizations demo!",
+  "counter": "Has clicado {{count}} veces"
+}

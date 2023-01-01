@@ -1,0 +1,35 @@
+name: he_storage
+description: HE implementation of the local storage that uses local storage.
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  sdk: ">=2.18.0 <3.0.0"
+  flutter: 3.3.7
+
+dependencies:
+  #stream test
+  either_dart: ^0.3.0
+  equatable: ^2.0.3
+  flutter:
+    sdk: flutter
+  he_api:
+    path: ../he_api
+  json_annotation: ^4.7.0
+  meta: ^1.7.0
+  rx_shared_preferences: ^3.0.0
+  rxdart: ^0.27.7
+  shared_preferences: ^2.0.0-nullsafety
+
+dev_dependencies:
+  #stream test
+  build_runner: ^2.2.0
+  flutter_test:
+    sdk: flutter
+  mocktail: ^0.3.0
+  #stream test
+  plugin_platform_interface: ^2.1.3
+  very_good_analysis: ^3.1.0
+#  shared_preferences_platform_interface: ^2.1.0
+#  built_value_generator: ^8.4.2
+

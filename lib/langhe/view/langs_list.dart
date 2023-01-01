@@ -10,30 +10,22 @@ class LangsList extends StatefulWidget {
 
 class _LangsListState extends State<LangsList> {
   @override
-  void initState() {
-    super.initState();
-  }
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   printOnlyDebug("Jeje Changed");
-  // }
-
-  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LangHeCubit, LangHeState>(
+    return BlocBuilder<ThemeLangBloc, ThemeLangState>(
       builder: (context, state) {
+        final _bloclocalepopupmenu = BlocProvider.of<ThemeLangBloc>(context);
         switch (state.status) {
-          case LangHeStatus.failure:
+          case ThemeLangStatus.changelocalefailure:
             return const Center(child: Text('failed to fetch languages'));
-          case LangHeStatus.success:
-            if (state.languages.isEmpty) {
-              return const Center(child: Text('no languages'));
-            }
+          case ThemeLangStatus.changelocalesuccess:
             return ListView.builder(
-              itemCount: state.languages.length,
+              itemCount: _bloclocalepopupmenu.themeLocaleIntRepository
+                  .getLocalsApi$.supportedLocales.length,
               itemBuilder: (BuildContext context, int index) {
-                return LanguageListItem(language: state.languages[index]);
+                return LanguageListItem(
+                    language: _bloclocalepopupmenu.themeLocaleIntRepository
+                        .getLocalsApi$.supportedLocales[index],
+                    currentLocale: state.themeandlocalestate.item2);
               },
             );
           default:
