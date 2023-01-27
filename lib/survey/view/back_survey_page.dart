@@ -3,13 +3,13 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:he/helper/toolutils.dart';
-import 'package:he/objects/objectsubscription.dart';
 import 'package:he/survey/widgets/progresswidget.dart';
 import 'package:he/survey/widgets/survey_js_page_loader_browser.dart';
+import 'package:he_api/he_api.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SurveyPage extends StatefulWidget {
-  final ObjectSubscription course;
+  final Subscription course;
   const SurveyPage({Key? key, required this.course}) : super(key: key);
   @override
   _SurveyPageState createState() => _SurveyPageState();
@@ -22,9 +22,9 @@ class _SurveyPageState extends State<SurveyPage> {
   @override
   Widget build(BuildContext context) {
     return ProgressWidget(
-      child: _uiSetup(context),
       inAsyncCall: isLoading,
       opacity: 0.3,
+      child: _uiSetup(context),
     );
   }
 
@@ -33,7 +33,7 @@ class _SurveyPageState extends State<SurveyPage> {
         backgroundColor: ToolUtils.mainBgColor,
         appBar: AppBar(
           title: Text(
-            "" + widget.course.fullname!,
+            widget.course.fullname!,
             style: const TextStyle(color: ToolUtils.mainPrimaryColor),
           ),
           backgroundColor: Colors.white,

@@ -77,7 +77,7 @@ void main() async {
     });
   });
 
-  group('- Base Login Functions', () {
+  group('BaseLoginFunctions', () {
     late DioAdapter dioAdapter;
     setUp(() {
       dioAdapter = DioAdapter(

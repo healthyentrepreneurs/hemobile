@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:he/helper/toolutils.dart';
-import 'package:he/objects/objectsubscription.dart';
 import 'package:he/objects/objectsurvey.dart';
 import 'package:he/survey/widgets/widgets.dart';
+import 'package:he_api/he_api.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SurveyPage extends StatefulWidget {
-  final ObjectSubscription course;
+  final Subscription course;
   const SurveyPage({Key? key, required this.course}) : super(key: key);
   @override
   _SurveyPageState createState() => _SurveyPageState();

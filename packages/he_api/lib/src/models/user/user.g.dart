@@ -33,5 +33,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'firstname': instance.firstname,
       'lastname': instance.lastname,
       'profileimageurlsmall': instance.profileimageurlsmall,
-      'subscriptions': instance.subscriptions,
+      'subscriptions': instance.subscriptions?.map((e) => e?.toJson()).toList(),
     };

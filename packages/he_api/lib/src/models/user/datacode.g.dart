@@ -17,5 +17,5 @@ DataCode _$DataCodeFromJson(Map<String, dynamic> json) => DataCode(
 Map<String, dynamic> _$DataCodeToJson(DataCode instance) => <String, dynamic>{
       'code': instance.code,
       'msg': instance.msg,
-      'data': instance.data,
+      'data': instance.data?.toJson(),
     };

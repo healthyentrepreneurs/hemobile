@@ -14,6 +14,7 @@ class _LangsListState extends State<LangsList> {
     return BlocBuilder<ThemeLangBloc, ThemeLangState>(
       builder: (context, state) {
         final _bloclocalepopupmenu = BlocProvider.of<ThemeLangBloc>(context);
+
         switch (state.status) {
           case ThemeLangStatus.changelocalefailure:
             return const Center(child: Text('failed to fetch languages'));

@@ -1,0 +1,1 @@
+export 'appupdate_view.dart';

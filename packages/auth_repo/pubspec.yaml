@@ -10,7 +10,7 @@ environment:
 dependencies:
   equatable: ^2.0.3
   firebase_auth: 4.1.0
-  firebase_core: 2.1.1
+  firebase_core: ^2.4.1
   firebase_core_platform_interface: ^4.5.1
   # Unfortunately, a breaking change was introduced in 4.5.2.
   # https://github.com/firebase/flutterfire/issues/9806
@@ -21,6 +21,7 @@ dependencies:
   he_storage:
     path: ../he_storage
   meta: ^1.7.0
+  objectbox: ^1.7.0
 
 dev_dependencies:
   flutter_test:

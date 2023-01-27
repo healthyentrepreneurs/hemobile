@@ -4,7 +4,8 @@ part 'profile.g.dart';
 
 /*{@template profile}
  {@contemplate}*/
-@JsonSerializable()
+// @JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Profile extends Account {
   /// {@macro profile}
   const Profile({

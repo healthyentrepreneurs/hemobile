@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:he/injection.dart';
 import 'package:he/langhe/bloc/theme_lang_bloc.dart';
 import 'package:theme_locale_repo/generated/l10n.dart';
 import 'package:theme_locale_repo/theme_locale_repo.dart';
@@ -39,11 +40,11 @@ class LangSnackMsg extends StatelessWidget {
     // Scaffold(
     //   body: showSnackBar(_stringMessage,context),
     // );
-    return showSnackBar(_stringMessage, context);
+    return showSnackBar(_stringMessage);
   }
-
-  showSnackBar(String message, BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
+  showSnackBar(String message) {
+    final ScaffoldMessengerState _scaffold = scaffoldKey.currentState!;
+    _scaffold.showSnackBar(
       SnackBar(
         content: Text(message),
         duration: const Duration(seconds: 2),

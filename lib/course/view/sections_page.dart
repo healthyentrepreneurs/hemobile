@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:he/course/course.dart';
 import 'package:he/helper/toolutils.dart';
 import 'package:he/objects/objectsection.dart';
-import 'package:he/objects/objectsubscription.dart';
+import 'package:he_api/he_api.dart';
 
 class SectionsPage extends StatefulWidget {
-  final ObjectSubscription course;
+  final Subscription course;
   const SectionsPage({Key? key, required this.course}) : super(key: key);
   @override
   _SectionsPageState createState() => _SectionsPageState();
@@ -19,7 +19,7 @@ class _SectionsPageState extends State<SectionsPage> {
   Widget build(BuildContext context) {
     // widget.course
     String courseCollectionString =
-        "source_one_course_" + widget.course.id.toString();
+        "source_one_course_${widget.course.id}";
     var courseCollection =
         FirebaseFirestore.instance.collection(courseCollectionString);
     return Scaffold(

@@ -5,7 +5,7 @@ const _bookSize = 20.0;
 
 class SectionIcon extends StatelessWidget {
   const SectionIcon({Key? key, this.photo}) : super(key: key);
-
+  //njovu
   final String? photo;
 
   @override

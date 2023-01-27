@@ -1,12 +1,12 @@
 import 'package:he_api/he_api.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:meta/meta.dart';
 
 part 'user.g.dart';
 
 /// {@template user}
-@immutable
-@JsonSerializable()
+// @immutable
+// @JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class User extends Profile {
   /// {@macro user}
   const User({
@@ -23,6 +23,7 @@ class User extends Profile {
   });
   // ignore: public_member_api_docs
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+
   @override
   Map<String, dynamic> toJson() => _$UserToJson(this);
 

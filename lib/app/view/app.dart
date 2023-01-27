@@ -3,22 +3,31 @@ import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/app/app.dart';
+import 'package:he/injection.dart';
 import 'package:he/langhe/langhe.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:he/login/login.dart';
+import 'package:he/objects/blocs/apkupdate/bloc/apk_bloc.dart';
+import 'package:he/objects/blocs/repo/apk_repo.dart';
+import 'package:he_storage/he_storage.dart';
 import 'package:theme_locale_repo/generated/l10n.dart';
 import 'package:theme_locale_repo/theme_locale_repo.dart';
 
+import '../../home/appupdate/appupdate.dart';
+
 class App extends StatelessWidget {
-  const App({
-    Key? key,
-    required HeAuthRepository heAuthRepository,
-    required ThemeLocaleIntRepository themeLocaleIntRepository,
-  })  : _heAuthRepository = heAuthRepository,
+  App(
+      {Key? key,
+      required HeAuthRepository heAuthRepository,
+      required ThemeLocaleIntRepository themeLocaleIntRepository})
+      : _heAuthRepository = heAuthRepository,
         _themeLocaleIntRepository = themeLocaleIntRepository,
         super(key: key);
   final HeAuthRepository _heAuthRepository;
   final ThemeLocaleIntRepository _themeLocaleIntRepository;
+  final LogRepository _logRepository = getIt<LogRepository>();
+  final ApkupdateRepository _gsApkUpdateApi = getIt<ApkupdateRepository>();
+  // final storage = getIt<FirebaseStorage>();
   @override
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
@@ -29,24 +38,39 @@ class App extends StatelessWidget {
         RepositoryProvider<HeAuthRepository>(
           create: (context) => _heAuthRepository,
         ),
+        RepositoryProvider<LogRepository>(
+          create: (context) => _logRepository,
+        ),
+        RepositoryProvider<ApkupdateRepository>(
+          create: (context) => _gsApkUpdateApi,
+        ),
       ],
+      // dddd
       child: MultiBlocProvider(
         providers: [
           BlocProvider<ThemeLangBloc>(
               create: (_) => ThemeLangBloc(
                     themeLocaleIntRepository: _themeLocaleIntRepository,
-                  )
-              ),
+                  )),
           BlocProvider<LoginBloc>(
               create: (_) => LoginBloc(
-                heAuthRepository: _heAuthRepository,
-              )
-          ),
+                    heAuthRepository: _heAuthRepository,
+                  )),
           BlocProvider<AppBloc>(
               create: (_) => AppBloc(
-                heAuthRepository: _heAuthRepository,
-              )
-          ),
+                    heAuthRepository: _heAuthRepository,
+                  )),
+          BlocProvider<ApkBloc>(
+              create: (_) => ApkBloc(
+                    repository: _logRepository,
+                  )),
+          BlocProvider<AppudateBloc>(
+              create: (_) => AppudateBloc(
+              )),
+          BlocProvider<ApkseenBloc>(
+              create: (_) => ApkseenBloc(repository: _gsApkUpdateApi
+              )),
+
         ],
         child: const AppView(),
       ),
@@ -61,6 +85,7 @@ class AppView extends StatefulWidget {
 }
 
 class _AppView extends State<AppView> {
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeLangBloc, ThemeLangState>(
@@ -68,6 +93,7 @@ class _AppView extends State<AppView> {
       builder: (context, state) {
         return MaterialApp(
           title: 'HE Health',
+          scaffoldMessengerKey: scaffoldKey,
           debugShowCheckedModeBanner: true,
           theme: state.themeandlocalestate.item1.themeData,
           // darkTheme: FlutterTodosTheme.dark,

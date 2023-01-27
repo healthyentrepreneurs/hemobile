@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:he/objects/objectsubscription.dart';
 import 'package:he/survey/widgets/progresswidget.dart';
+import 'package:he_api/he_api.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class SurveyJsPageLoaderBrowser extends StatefulWidget {
   final dynamic jsonData;
   final dynamic jsonDataStr;
   // final Course course;
-  final ObjectSubscription course;
+  final Subscription course;
 
   SurveyJsPageLoaderBrowser(
       {required this.jsonData,
@@ -66,23 +65,10 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
   @override
   Widget build(BuildContext context) {
     return ProgressWidget(
-      child: _uiSetup2(context),
       inAsyncCall: isLoading,
       opacity: 0.3,
+      child: _uiSetup2(context),
     );
-  }
-
-  JavascriptChannel _toasterJavascriptChannel(BuildContext context) {
-    return JavascriptChannel(
-        name: 'Toaster',
-        onMessageReceived: (JavascriptMessage message) {
-          print(">>Submit to server >${message.message}");
-
-          setState(() {
-            postDataText = message.message;
-          });
-          // postJsonData(message.message);
-        });
   }
 
   /// Save the survey item locally

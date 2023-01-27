@@ -29,6 +29,6 @@ dev_dependencies:
 
 
 flutter:
-  generate: true
+#  generate: true
   # The following line ensures that the Material Icons font is jquery.min.js
   uses-material-design: true

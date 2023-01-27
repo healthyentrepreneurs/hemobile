@@ -7,8 +7,9 @@ part 'subscription.g.dart';
 /// {@template subscription}
 /// [Subscription.empty] represents user without content.
 /// {@contemplate}
-@immutable
-@JsonSerializable()
+// @immutable
+// @JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Subscription extends Equatable {
   /// {@macro subscription}
   const Subscription({
@@ -23,6 +24,7 @@ class Subscription extends Equatable {
   factory Subscription.fromJson(Map<String, dynamic> json) =>
       _$SubscriptionFromJson(json);
 
+  Map<String, dynamic> toJson() => _$SubscriptionToJson(this);
   /// The current user's id.
   final int? id;
 

@@ -7,7 +7,8 @@ part 'account.g.dart';
 
 /// {@template account}
 /// {@contemplate}
-@JsonSerializable()
+// @JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Account extends Equatable {
   /// {@macro account}
   const Account({this.id, this.username, this.email, this.lang, this.country});

@@ -22,8 +22,8 @@ class DataCodeApiClient {
         dio: dio,
         retries: 2,
         retryDelays: const [
-          Duration(seconds: 2),
-          Duration(seconds: 2),
+          Duration(seconds: 1),
+          Duration(seconds: 1),
         ],
       ),
     );
@@ -33,23 +33,22 @@ class DataCodeApiClient {
   Future<DataCode?> userLogin(String username, String password) async {
     final token = CancelToken();
     try {
-      // final logRes = await _dio.post(
-      //   Endpoints.userLoginPath,
-      //   cancelToken: token,
-      //   data: {'username': username, 'password': password},
-      //   options: Options(contentType: Headers.formUrlEncodedContentType),
-      // );
-      final logRes = await _dio.post(Endpoints.userLoginPath,
-          data: FormData.fromMap({'username': username,
-          'password': password}),);
+      final logRes = await _dio.post(
+        Endpoints.userLoginPath,
+        cancelToken: token,
+        data: {'username': username, 'password': password},
+        options: Options(contentType: Headers.formUrlEncodedContentType),
+      );
+      // final logRes = await _dio.post(Endpoints.userLoginPath,
+      //     data: FormData.fromMap({'username': username,
+      //     'password': password}),);
       return DataCode.fromJson(logRes.data as Map<String, dynamic>);
     } on DioError catch (ex) {
       if (ex.type == DioErrorType.connectTimeout) {
-        print('Namu ${ex.error.toString()}');
         token.cancel('Connection timeout');
         return DataCode.fromJson(<String, dynamic>{
           'code': 403,
-          'msg': 'No Internet connection',
+          'msg': ex.error.toString(),
           'data': User.empty.toJson()
         });
         // throw const DataCodeConnectTimeout();
@@ -92,7 +91,7 @@ class DataCodeApiClient {
       if (ex.type == DioErrorType.other) {
         return DataCode.fromJson(<String, dynamic>{
           'code': 600,
-          'msg': 'Invalid argument(s): No host specified in URI /userlogin',
+          'msg': ex.error.toString(),
           'data': User.empty.toJson()
         });
       } else {

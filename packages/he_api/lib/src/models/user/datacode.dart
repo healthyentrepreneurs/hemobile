@@ -6,7 +6,8 @@ part 'datacode.g.dart';
 
 /// {@template user}
 /// {@contemplate}
-@JsonSerializable()
+// @JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DataCode extends Equatable {
   /// {@macro user}
   const DataCode({
