@@ -28,8 +28,8 @@ class FileSystemUtil {
    */
   Future<String> get localDocumentsPath async {
     var directory = await getApplicationDocumentsDirectory();
-    String path = directory.path + "/$appDir";
-    print(">>> $path");
+    String path = "${directory.path}/$appDir";
+    debugPrint('>>> Path $path');
     if (await Directory(path).exists()) {
       return path;
     } else {
@@ -73,7 +73,7 @@ class FileSystemUtil {
 
   Future<File> get localAppFolder async {
     final path = await localPath;
-    print(path.parent.path);
+    debugPrint('>>> Path ${path.parent.path}');
     return File('${path.path}/$appDir');
   }
 
@@ -81,7 +81,7 @@ class FileSystemUtil {
     try {
       final storageDirectory = await localDocumentsPath;
       final filePath = '$storageDirectory$path';
-      print("Read file path ->$filePath");
+      debugPrint("Read file path ->$filePath");
       final file = File(filePath);
       String body = await file.readAsString();
       //body = await this.parseProcessHtml(body);
@@ -117,19 +117,17 @@ class FileSystemUtil {
       var document = parse(body);
       var videosList = document.getElementsByTagName("video");
       var sourceElm = videosList.removeAt(0).getElementsByTagName('source');
-      sourceElm.first.attributes['src'] = '$storageDirectory/2/' +
-          sourceElm.first.attributeSpans!['src'].toString();
-
-      print(sourceElm.first.attributes['src']);
+      sourceElm.first.attributes['src'] = '$storageDirectory/2/${sourceElm.first.attributeSpans!['src']}';
+      debugPrint(sourceElm.first.attributes['src']);
       return document.outerHtml;
     } catch (e) {
-      print("error reading html$e");
+      debugPrint("error reading html$e");
       return body;
     }
   }
 
   Future<File> getLocalFile(String filename) async {
-    String dir = await FileSystemUtil().extDownloadsPath + "/HE Health";
+    String dir = "${await FileSystemUtil().extDownloadsPath}/HE Health";
     File f = File('$dir$filename');
     return f;
   }
@@ -183,14 +181,14 @@ Future<Image?> _loadThumb(BuildContext context, File imgFile,
 //new stuff
 Future<Uint8List> _readFileBytep(String filePath) async {
   Uri myUri = Uri.parse(filePath);
-  File audioFile = new File.fromUri(myUri);
+  File audioFile = File.fromUri(myUri);
   late Uint8List bytes;
   await audioFile.readAsBytes().then((value) {
     bytes = Uint8List.fromList(value);
-    print('reading of bytes is completed');
+    debugPrint('reading of bytes is completed');
   }).catchError((onError) {
-    print(
-        'Exception Error while reading audio from path:' + onError.toString());
+    debugPrint(
+        'Exception Error while reading audio from path:$onError');
   });
   return bytes;
 }
@@ -202,7 +200,7 @@ Future<String?> fileToBase64String(String myPath) async {
     return audioString;
   } catch (e) {
     // if path invalid or not able to read
-    print(e);
+    debugPrint(e.toString());
     return null;
   }
 }
@@ -235,7 +233,7 @@ Future<void> createDownloadFile() async {
       //
       // }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 }
