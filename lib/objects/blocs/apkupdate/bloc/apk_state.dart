@@ -12,9 +12,9 @@ class ApkLoadingState extends ApkState {
 class ApkFetchedState extends ApkState {
   final DocumentSnapshot snapshot;
   final PackageInfo? apkinfo;
-  const ApkFetchedState(this.snapshot,this.apkinfo);
+  const ApkFetchedState(this.snapshot, this.apkinfo);
   @override
-  List<Object> get props => [snapshot,apkinfo!];
+  List<Object> get props => [snapshot, apkinfo!];
 }
 
 class ApkErrorState extends ApkState {

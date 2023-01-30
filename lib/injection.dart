@@ -15,11 +15,14 @@ final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
 @injectableInit
 void configureInjections(GetIt getIt) {
-  final firebaseInjectableModule = AppModuleImp();
+  final injectableModule = AppModuleImp();
   getIt.registerLazySingleton<ApkupdateRepository>(() => ApkupdateRepository(
           apkupdateApi: GsApkUpdateApi(
-        box: firebaseInjectableModule.box,
+        box: injectableModule.box,
       )));
   getIt.registerLazySingleton<LogRepository>(
-      () => LogRepository(firebaseInjectableModule.firestore));
+      () => LogRepository(injectableModule.firestore));
+
+  getIt.registerLazySingleton<DatabaseRepository>(
+      () => DatabaseRepository(injectableModule.firestore));
 }

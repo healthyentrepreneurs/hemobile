@@ -4,7 +4,6 @@ import 'package:he/objects/blocs/apkupdate/bloc/apk_bloc.dart';
 
 import '../../apkdownload/apkdownload.dart';
 
-
 class AppUpdatActions extends StatelessWidget {
   final String userId;
   const AppUpdatActions({
@@ -31,7 +30,8 @@ class AppUpdatActions extends StatelessWidget {
             Map<String, dynamic> data = logs.data() as Map<String, dynamic>;
             // testBloc.apkBlocRepository.
             if (appVersion!.version != data['version']) {
-              debugPrint("Mongos , Local ${appVersion!.version} From Cloud ${data['version']}");
+              debugPrint(
+                  "Mongos , Local ${appVersion!.version} From Cloud ${data['version']}");
               return AppVerView(latestapk: logs, appversion: appVersion);
             } else {
               debugPrint("appVersion C");

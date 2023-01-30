@@ -23,7 +23,7 @@ class _CustomDrawer extends State<CustomDrawer> {
     // final textTheme = Theme.of(context).textTheme;
     // final user = context.select((AppBloc bloc) => bloc.state.user);
     final apkSceenState =
-        context.select((ApkseenBloc bloc) => bloc.state.status);
+    context.select((ApkseenBloc bloc) => bloc.state.status);
     final s = S.of(context);
     return Drawer(
       child: Container(
@@ -65,7 +65,7 @@ class _CustomDrawer extends State<CustomDrawer> {
                       },
                       child: ListTile(
                         title:
-                            MenuItemHe(title: s.navbar_home, icon: Icons.home),
+                        MenuItemHe(title: s.navbar_home, icon: Icons.home),
                       ),
                     ),
                     ExpansionTile(
@@ -135,7 +135,7 @@ class _CustomDrawer extends State<CustomDrawer> {
                           context,
                           MaterialPageRoute<void>(
                             builder: (BuildContext context) =>
-                                const LangsPage(),
+                            const LangsPage(),
                             fullscreenDialog: true,
                           ),
                         );
@@ -237,7 +237,7 @@ class _CustomDrawer extends State<CustomDrawer> {
                         // errorText: 'invalid password',
                         border: const OutlineInputBorder(
                             borderRadius:
-                                BorderRadius.all(Radius.circular(2.0)))),
+                            BorderRadius.all(Radius.circular(2.0)))),
                   ),
                 ],
               ),

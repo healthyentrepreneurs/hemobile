@@ -21,7 +21,7 @@ Future<void> main() async {
   //   await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
   // }
   await configureDependencies();
-  userEmulator(true);
+  // userEmulator(true);
   // final getIt = GetIt.instance;
   configureInjections(getIt);
   // final logRepository = getIt<LogRepository>();

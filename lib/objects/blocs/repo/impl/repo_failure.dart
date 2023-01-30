@@ -8,13 +8,13 @@ class RepositoryFailure extends Failure {
   RepositoryFailure(this.message);
 }
 
-class FirestoreFailure extends Failure{
+class FirestoreFailure extends Failure {
   @override
   final String message;
   FirestoreFailure(this.message);
 }
 
-class ApkDownloadFailure extends Failure{
+class ApkDownloadFailure extends Failure {
   @override
   final String message;
   ApkDownloadFailure(this.message);

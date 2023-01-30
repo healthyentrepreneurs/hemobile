@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
+import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
 import 'package:he_api/he_api.dart';
 import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
@@ -16,10 +20,29 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
         super(DatabaseInitial()) {
     on<DatabaseFetched>(_fetchUserData);
   }
-  IDatabaseRepository _databaseRepository;
-  _fetchUserData(DatabaseFetched event, Emitter<DatabaseState> emit) async {
-    List<Subscription?> listofSubscriptionData =
+  final IDatabaseRepository _databaseRepository;
+
+  _fetchUserDataFuture(
+      DatabaseFetched event, Emitter<DatabaseState> emit) async {
+    var listOfSubscription =
         await _databaseRepository.retrieveSubscriptionData();
-    emit(DatabaseSuccess(listofSubscriptionData, event.displayName));
+    emit(listOfSubscription.fold(
+      (failure) => DatabaseError(failure),
+      (listOfSubscription) =>
+          DatabaseSuccess(listOfSubscription, event.displayName),
+    ));
+  }
+
+  _fetchUserData(DatabaseFetched event, Emitter<DatabaseState> emit) async {
+    await emit.forEach(_databaseRepository.retrieveSubscriptionDataStream(),
+        onData: (Either<Failure, List<Subscription?>> listOfSubscription) {
+      // Stream<Either<Failure, List<Subscription?>>> listOfSubscription =
+      //     _databaseRepository.retrieveSubscriptionDataStream();
+      return listOfSubscription.fold(
+        (failure) => DatabaseError(failure),
+        (listOfSubscription) =>
+            DatabaseSuccess(listOfSubscription, event.displayName),
+      );
+    });
   }
 }

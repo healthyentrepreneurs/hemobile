@@ -20,6 +20,8 @@ class DatabaseSuccess extends DatabaseState {
 }
 
 class DatabaseError extends DatabaseState {
+  final Failure error;
+  const DatabaseError(this.error);
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [error];
 }

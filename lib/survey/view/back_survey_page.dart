@@ -8,14 +8,14 @@ import 'package:he/survey/widgets/survey_js_page_loader_browser.dart';
 import 'package:he_api/he_api.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class SurveyPage extends StatefulWidget {
+class SurveyPageX extends StatefulWidget {
   final Subscription course;
-  const SurveyPage({Key? key, required this.course}) : super(key: key);
+  const SurveyPageX({Key? key, required this.course}) : super(key: key);
   @override
-  _SurveyPageState createState() => _SurveyPageState();
+  _SurveyPageStateX createState() => _SurveyPageStateX();
 }
 
-class _SurveyPageState extends State<SurveyPage> {
+class _SurveyPageStateX extends State<SurveyPageX> {
   dynamic surveyData;
   late String surveyDataString;
   bool isLoading = false;

@@ -22,7 +22,9 @@ abstract class AppModule {
 
   @lazySingleton
   @injectable
-  FirebaseFirestore get firestore => FirebaseFirestore.instance;
+  FirebaseFirestore get firestore => FirebaseFirestore.instance
+    ..useFirestoreEmulator(Endpoints.localEmulatorIp, 8080, sslEnabled: false)
+    ..settings = const Settings(persistenceEnabled: false);
 
   @lazySingleton
   @injectable
@@ -31,5 +33,12 @@ abstract class AppModule {
 
   @lazySingleton
   @injectable
-  FirebaseStorage get storage => FirebaseStorage.instance;
+  FirebaseStorage get storage => FirebaseStorage.instance
+    ..bucket = Endpoints.bucketUrl
+    ..useStorageEmulator(Endpoints.localEmulatorIp, 9199);
+
+  // void tempJe(){
+  //   FirebaseStorage get storage => FirebaseStorage.instanceFor(bucket: Endpoints.bucketUrl)
+  //     ..useStorageEmulator(Endpoints.localEmulatorIp, 9199);
+  // }
 }

@@ -52,5 +52,4 @@ class LogRepository implements ILogRepository {
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     return packageInfo;
   }
-
 }

@@ -8,7 +8,9 @@ import 'package:he/langhe/langhe.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:he/login/login.dart';
 import 'package:he/objects/blocs/apkupdate/bloc/apk_bloc.dart';
+import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he/objects/blocs/repo/apk_repo.dart';
+import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he_storage/he_storage.dart';
 import 'package:theme_locale_repo/generated/l10n.dart';
 import 'package:theme_locale_repo/theme_locale_repo.dart';
@@ -27,7 +29,9 @@ class App extends StatelessWidget {
   final ThemeLocaleIntRepository _themeLocaleIntRepository;
   final LogRepository _logRepository = getIt<LogRepository>();
   final ApkupdateRepository _gsApkUpdateApi = getIt<ApkupdateRepository>();
+  final DatabaseRepository _databaseRepository = getIt<DatabaseRepository>();
   // final storage = getIt<FirebaseStorage>();
+
   @override
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
@@ -43,6 +47,9 @@ class App extends StatelessWidget {
         ),
         RepositoryProvider<ApkupdateRepository>(
           create: (context) => _gsApkUpdateApi,
+        ),
+        RepositoryProvider<DatabaseRepository>(
+          create: (context) => _databaseRepository,
         ),
       ],
       // dddd
@@ -69,6 +76,9 @@ class App extends StatelessWidget {
               )),
           BlocProvider<ApkseenBloc>(
               create: (_) => ApkseenBloc(repository: _gsApkUpdateApi
+              )),
+          BlocProvider<DatabaseBloc>(
+              create: (_) => DatabaseBloc(repository: _databaseRepository
               )),
 
         ],

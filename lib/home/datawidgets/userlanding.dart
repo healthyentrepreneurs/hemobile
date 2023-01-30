@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:he/helper/toolutils.dart';
 import 'package:he/home/home.dart';
+import 'package:he_api/he_api.dart';
 
 class UserLanding extends StatelessWidget {
-  const UserLanding(
-      {Key? key, this.title, this.description, this.iconName, this.onTap})
+  const UserLanding({Key? key,required this.subscription, this.onTap})
       : super(key: key);
-  final String? title;
-  final String? description;
-  final String? iconName;
+  // final String? title;
+  // final String? description;
+  // final String? iconName;
+  final Subscription subscription;
   final Function? onTap;
   @override
   Widget build(BuildContext context) {
@@ -38,7 +39,7 @@ class UserLanding extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        title!,
+                        subscription.fullname!,
                         style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
@@ -48,7 +49,7 @@ class UserLanding extends StatelessWidget {
                         height: 15.0,
                       ),
                       Text(
-                        description!,
+                        subscription.summaryCustome!,
                         style: const TextStyle(
                             fontSize: 15, color: Colors.blueGrey),
                       ),
@@ -58,7 +59,7 @@ class UserLanding extends StatelessWidget {
                 const SizedBox(
                   width: 5.0,
                 ),
-                HeIcon(photo: iconName),
+                HeIcon(photo: subscription.imageUrlSmall),
               ],
             ),
           )),

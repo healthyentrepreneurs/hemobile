@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dartz/dartz.dart';
 import 'package:he/objects/blocs/repo/service/service.dart';
 import 'package:he_api/he_api.dart';
 import 'package:injectable/injectable.dart';
 
 import 'impl/idatabase_repo.dart';
+import 'impl/repo_failure.dart';
 
 @LazySingleton(as: IDatabaseRepository)
 class DatabaseRepository implements IDatabaseRepository {
@@ -12,13 +14,24 @@ class DatabaseRepository implements IDatabaseRepository {
   DatabaseService service =
       DatabaseService(firestore: FirebaseFirestore.instance);
 
+  // @override
+  // Future<void> saveUserData(Subscription user) {
+  //   return service.addUserData(user);
+  // }
+
   @override
-  Future<void> saveUserData(Subscription user) {
-    return service.addUserData(user);
+  Future<Either<Failure,List<Subscription?>>> retrieveSubscriptionData() {
+    return service.retrieveSubscriptionData(3);
   }
 
   @override
-  Future<List<Subscription?>> retrieveSubscriptionData() {
-    return service.retrieveSubscriptionData(3);
+  Future<void> saveUserData(Subscription user) {
+    // TODO: implement saveUserData
+    throw UnimplementedError();
+  }
+
+  @override
+  Stream<Either<Failure, List<Subscription?>>> retrieveSubscriptionDataStream() {
+    return service.retrieveSubscriptionDataStream();
   }
 }

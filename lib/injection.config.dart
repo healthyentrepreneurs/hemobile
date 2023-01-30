@@ -12,10 +12,13 @@ import 'package:get_it/get_it.dart' as _i1;
 import 'package:get_storage/get_storage.dart' as _i10;
 import 'package:he/home/appupdate/apkdownload/bloc/appudate_bloc.dart' as _i5;
 import 'package:he/home/appupdate/apkseen/bloc/apkseen_bloc.dart' as _i3;
-import 'package:he/objects/blocs/apkupdate/bloc/apk_bloc.dart' as _i14;
-import 'package:he/objects/blocs/repo/apk_repo.dart' as _i13;
-import 'package:he/objects/blocs/repo/impl/ilog_repo.dart' as _i12;
-import 'package:he/service/app_module.dart' as _i15;
+import 'package:he/objects/blocs/apkupdate/bloc/apk_bloc.dart' as _i16;
+import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart' as _i17;
+import 'package:he/objects/blocs/repo/apk_repo.dart' as _i15;
+import 'package:he/objects/blocs/repo/database_repo.dart' as _i13;
+import 'package:he/objects/blocs/repo/impl/idatabase_repo.dart' as _i12;
+import 'package:he/objects/blocs/repo/impl/ilog_repo.dart' as _i14;
+import 'package:he/service/app_module.dart' as _i18;
 import 'package:he/service/firebase_service.dart' as _i8;
 import 'package:he/service/getstorage_service.dart' as _i11;
 import 'package:he_storage/he_storage.dart' as _i4;
@@ -50,12 +53,16 @@ extension GetItInjectableX on _i1.GetIt {
       () => appModule.getStorageService,
       preResolve: true,
     );
-    gh.lazySingleton<_i12.ILogRepository>(
-        () => _i13.LogRepository(gh<_i7.FirebaseFirestore>()));
-    gh.factory<_i14.ApkBloc>(
-        () => _i14.ApkBloc(repository: gh<_i12.ILogRepository>()));
+    gh.lazySingleton<_i12.IDatabaseRepository>(
+        () => _i13.DatabaseRepository(gh<_i7.FirebaseFirestore>()));
+    gh.lazySingleton<_i14.ILogRepository>(
+        () => _i15.LogRepository(gh<_i7.FirebaseFirestore>()));
+    gh.factory<_i16.ApkBloc>(
+        () => _i16.ApkBloc(repository: gh<_i14.ILogRepository>()));
+    gh.factory<_i17.DatabaseBloc>(
+        () => _i17.DatabaseBloc(repository: gh<_i12.IDatabaseRepository>()));
     return this;
   }
 }
 
-class _$AppModule extends _i15.AppModule {}
+class _$AppModule extends _i18.AppModule {}

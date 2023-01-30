@@ -7,7 +7,7 @@ class FirebaseService {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    userEmulator(true);
+    // userEmulator(true);
     return FirebaseService();
   }
 }

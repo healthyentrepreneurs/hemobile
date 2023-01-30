@@ -9,6 +9,6 @@ class FetchApkEvent extends ApkEvent {
   const FetchApkEvent(this.apkdoc);
   final Either<Failure, DocumentSnapshot> apkdoc;
   @override
-  List<Object> get props => [];
+  List<Object> get props => [apkdoc];
 }
 
