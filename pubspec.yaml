@@ -76,7 +76,8 @@ dependencies:
   get_storage: ^2.0.3
   image_picker: ^0.8.6
   firebase_ui_firestore: ^1.0.4
-#  connectivity_plus
+  archive: ^3.3.6
+  connectivity_plus: ^3.0.2
 
 dev_dependencies:
   bloc_test: ^9.1.0
@@ -94,7 +95,9 @@ dev_dependencies:
   freezed: ^2.2.0
   json_serializable: ^6.3.1
 
-#dependency_overrides:
+dependency_overrides:
+  async_zip: ^0.0.2
+  ffi: ^1.1.2
 #  build: ^2.0.0
 
 flutter:

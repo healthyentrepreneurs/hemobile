@@ -10,6 +10,18 @@ import 'package:html/parser.dart' show parse;
 /*
 Handle file system operations
  */
+enum HenetworkStatus {
+  loading,
+  firebaseNetworkDisabled,
+  firebaseNetworkEnabled,
+  noInternet,
+  wifiNetwork,
+  mobileNetwork,
+  vpnNetwork,
+  ethernetNetwork,
+  wimaxNetwork,
+  bluetoothNetwork,
+}
 class FileSystemUtil {
   final String appDir = 'nl_health_app_storage';
 

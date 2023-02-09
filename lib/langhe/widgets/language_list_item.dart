@@ -28,18 +28,18 @@ class LanguageListItem extends StatelessWidget {
           ),
           dense: false,
           subtitle: Text(language.languageCode, style: textTheme.caption),
-          trailing: currentLocale.languageCode==language.languageCode
+          trailing: currentLocale.languageCode == language.languageCode
               ? const Icon(
-            Icons.select_all_outlined,
-            color: Colors.red,
-          )
+                  Icons.select_all_outlined,
+                  color: Colors.red,
+                )
               : const Icon(Icons.select_all_outlined),
           onTap: () {
             debugPrint('Jaba ${language.toLanguageTag()}');
-            _bloclocalepopupmenu.themeLocaleIntRepository.changeLocale(language);
+            _bloclocalepopupmenu.themeLocaleIntRepository
+                .changeLocale(language);
             // context.read<LangHeCubit>().languageSelected(language.code);
-          }
-      ),
+          }),
     );
   }
 }

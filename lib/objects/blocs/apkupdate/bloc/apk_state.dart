@@ -3,7 +3,6 @@ part of 'apk_bloc.dart';
 abstract class ApkState extends Equatable {
   const ApkState();
 }
-
 class ApkLoadingState extends ApkState {
   @override
   List<Object> get props => [];

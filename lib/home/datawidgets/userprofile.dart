@@ -13,8 +13,6 @@ class UserProfile extends StatelessWidget {
   const UserProfile({Key? key, required this.user}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final int user_id = user.id!;
-    //use count or pageSize in FirestoreListView
     return BlocBuilder<DatabaseBloc, DatabaseState>(builder: (context, state) {
       if (state is DatabaseInitial) {
         context.read<DatabaseBloc>().add(const DatabaseFetched('displayName'));
@@ -35,7 +33,6 @@ class UserProfile extends StatelessWidget {
                   onTap: () {
                     //Content Form Survey
                     if (subscription.source == 'originalm') {
-                      // printOnlyDebug("Njovu Surveys Here");
                       Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -57,9 +54,11 @@ class UserProfile extends StatelessWidget {
         }
       }
       else if(state is DatabaseError){
+        debugPrint('UserProfile@DatabaseError ');
         return const StateLoadingHe().errorWithStackT(state.error.message);
       }
       else {
+        debugPrint('UserProfile@StateLoadingHe ');
         return const StateLoadingHe().loadingData();
       }
     });

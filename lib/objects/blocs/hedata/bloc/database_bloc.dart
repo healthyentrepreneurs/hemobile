@@ -15,15 +15,16 @@ part 'database_state.dart';
 
 @injectable
 class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
-  DatabaseBloc({required IDatabaseRepository repository})
+  IDatabaseRepository repository;
+  DatabaseBloc({required this.repository})
       : _databaseRepository = repository,
         super(DatabaseInitial()) {
     on<DatabaseFetched>(_fetchUserData);
   }
   final IDatabaseRepository _databaseRepository;
 
-  _fetchUserDataFuture(
-      DatabaseFetched event, Emitter<DatabaseState> emit) async {
+  // Sample-Future-Example
+  _fetchUserData(DatabaseFetched event, Emitter<DatabaseState> emit) async {
     var listOfSubscription =
         await _databaseRepository.retrieveSubscriptionData();
     emit(listOfSubscription.fold(
@@ -33,7 +34,8 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     ));
   }
 
-  _fetchUserData(DatabaseFetched event, Emitter<DatabaseState> emit) async {
+  _fetchUserDataStream(
+      DatabaseFetched event, Emitter<DatabaseState> emit) async {
     await emit.forEach(_databaseRepository.retrieveSubscriptionDataStream(),
         onData: (Either<Failure, List<Subscription?>> listOfSubscription) {
       // Stream<Either<Failure, List<Subscription?>>> listOfSubscription =

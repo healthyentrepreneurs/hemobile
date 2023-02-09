@@ -4,11 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
 import 'package:he_api/he_api.dart';
 
+import 'localservice/database_service_local.dart';
+
 class DatabaseService {
   // late final FirebaseFirestore _db;
   final FirebaseFirestore _firestore;
-  DatabaseService({required FirebaseFirestore firestore})
-      : _firestore = firestore;
+
+  final DatabaseServiceLocal _dataService;
+  // create _dataService getter
+  DatabaseServiceLocal get dataService => _dataService;
+  DatabaseService({
+    required FirebaseFirestore firestore,
+    DatabaseServiceLocal? dataService,
+  })  : _firestore = firestore,
+        _dataService = dataService ?? DatabaseServiceLocal();
 
   addUserData(Subscription userData) async {
     await _firestore
@@ -37,7 +46,6 @@ class DatabaseService {
       var documentSnapshotUser = await documentReferenceUser.get();
       var objectUser = documentSnapshotUser.data();
       if (objectUser!.subscriptions == null) {
-        // return Left(RepositoryFailure('No Apk found'));
         return const Right([]);
         // return [];
       }
@@ -50,6 +58,7 @@ class DatabaseService {
 
   Stream<Either<Failure, List<Subscription?>>>
       retrieveSubscriptionDataStream() {
+    // DatabaseServiceLocal _dataService = DatabaseServiceLocal();
     try {
       return _firestore
           .collection("userdata")
@@ -61,12 +70,11 @@ class DatabaseService {
           .map((event) {
         if (event.data() == null) {
           debugPrint('retrieveSubscriptionDataStream Data Loaded A');
-          return Left(RepositoryFailure('Subscription Data is null'));
+          return Left(RepositoryFailure('Subscription Data is A'));
           // return const Right([]);
         } else if (event.data()!.subscriptions == null) {
           debugPrint('retrieveSubscriptionDataStream Data Loaded B');
-          // return const Right([]);
-          return Left(RepositoryFailure('Subscription Data is null'));
+          return Left(RepositoryFailure('No Subscription Data'));
         } else {
           debugPrint('retrieveSubscriptionDataStream Data Loaded C');
           return Right(event.data()!.subscriptions!);

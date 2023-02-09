@@ -12,7 +12,6 @@ class BannerUpdate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final testBloc = BlocProvider.of<ApkBloc>(context);
     return BlocBuilder<ApkseenBloc, ApkseenState>(
         buildWhen: (previous, current) => previous != current,
         builder: (context, state) {
@@ -20,10 +19,10 @@ class BannerUpdate extends StatelessWidget {
             return AppUpdatActions(userId: userId,);
           } else if (state.status.seen == true &&
               state.status.updated == false) {
-            debugPrint("Phila seen=true and updated=false");
+            debugPrint("BannerUpdate seen=true and updated=false");
             return const SizedBox(height: 0.0);
           }
-          debugPrint("Phila seen=true and updated=true");
+          debugPrint("BannerUpdate seen=true and updated=true");
           return const SizedBox(height: 0.0);
         });
   }

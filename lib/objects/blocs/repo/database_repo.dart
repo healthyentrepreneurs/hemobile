@@ -11,27 +11,31 @@ import 'impl/repo_failure.dart';
 class DatabaseRepository implements IDatabaseRepository {
   final FirebaseFirestore _firestore;
   DatabaseRepository(this._firestore);
-  DatabaseService service =
+  final DatabaseService _service =
       DatabaseService(firestore: FirebaseFirestore.instance);
 
-  // @override
-  // Future<void> saveUserData(Subscription user) {
-  //   return service.addUserData(user);
-  // }
-
   @override
-  Future<Either<Failure,List<Subscription?>>> retrieveSubscriptionData() {
-    return service.retrieveSubscriptionData(3);
+  Future<Either<Failure, List<Subscription?>>> retrieveSubscriptionData() {
+    return _service.dataService.retrieveSubscriptionDataLocal();
+    // return _service.retrieveSubscriptionData(3);
   }
 
   @override
   Future<void> saveUserData(Subscription user) {
     // TODO: implement saveUserData
+    // return service.addUserData(user);
     throw UnimplementedError();
   }
 
   @override
-  Stream<Either<Failure, List<Subscription?>>> retrieveSubscriptionDataStream() {
-    return service.retrieveSubscriptionDataStream();
+  Stream<Either<Failure, List<Subscription?>>>
+      retrieveSubscriptionDataStream() {
+    return _service.retrieveSubscriptionDataStream();
   }
+
+  // @override
+  // Future<Either<Failure, List<Subscription?>>> retrieveSubscriptionData2() {
+  //   // TODO: implement retrieveSubscriptionData2
+  //   return _service.dataService.retrieveSubscriptionDataLocal();
+  // }
 }

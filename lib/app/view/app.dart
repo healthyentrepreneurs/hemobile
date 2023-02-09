@@ -16,6 +16,7 @@ import 'package:theme_locale_repo/generated/l10n.dart';
 import 'package:theme_locale_repo/theme_locale_repo.dart';
 
 import '../../home/appupdate/appupdate.dart';
+import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 
 class App extends StatelessWidget {
   App(
@@ -71,16 +72,12 @@ class App extends StatelessWidget {
               create: (_) => ApkBloc(
                     repository: _logRepository,
                   )),
-          BlocProvider<AppudateBloc>(
-              create: (_) => AppudateBloc(
-              )),
+          BlocProvider<AppudateBloc>(create: (_) => AppudateBloc()),
           BlocProvider<ApkseenBloc>(
-              create: (_) => ApkseenBloc(repository: _gsApkUpdateApi
-              )),
+              create: (_) => ApkseenBloc(repository: _gsApkUpdateApi)),
           BlocProvider<DatabaseBloc>(
-              create: (_) => DatabaseBloc(repository: _databaseRepository
-              )),
-
+              create: (_) => DatabaseBloc(repository: _databaseRepository)),
+          BlocProvider<HenetworkBloc>(create: (_) => HenetworkBloc()),
         ],
         child: const AppView(),
       ),
@@ -95,7 +92,6 @@ class AppView extends StatefulWidget {
 }
 
 class _AppView extends State<AppView> {
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeLangBloc, ThemeLangState>(
