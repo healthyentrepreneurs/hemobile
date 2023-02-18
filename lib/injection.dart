@@ -9,12 +9,12 @@ import 'service/appmodule_imp.dart';
 
 final getIt = GetIt.instance;
 @InjectableInit(preferRelativeImports: false)
-Future<void> configureDependencies() async => getIt.init();
+Future<void> configureDependencies() async =>  getIt.init();
 
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
 @injectableInit
-void configureInjections(GetIt getIt) {
+void configureInjections(GetIt getIt)  {
   final injectableModule = AppModuleImp();
   getIt.registerLazySingleton<ApkupdateRepository>(() => ApkupdateRepository(
           apkupdateApi: GsApkUpdateApi(
@@ -24,5 +24,5 @@ void configureInjections(GetIt getIt) {
       () => LogRepository(injectableModule.firestore));
 
   getIt.registerLazySingleton<DatabaseRepository>(
-      () => DatabaseRepository(injectableModule.firestore));
+      () => DatabaseRepository());
 }

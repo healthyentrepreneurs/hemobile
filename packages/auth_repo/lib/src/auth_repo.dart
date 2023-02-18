@@ -18,6 +18,7 @@ class HeAuthRepository {
   final CacheClient appcache = CacheClient();
   @visibleForTesting
   static const userkey = '__user_cache__';
+
   Stream<HeAuthStatus> get status async* {
     await Future<void>.delayed(const Duration(seconds: 1));
     yield HeAuthStatus.unauthenticated;

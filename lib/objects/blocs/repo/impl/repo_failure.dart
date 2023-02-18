@@ -19,3 +19,9 @@ class ApkDownloadFailure extends Failure {
   final String message;
   ApkDownloadFailure(this.message);
 }
+
+class NetworkFailure extends Failure {
+  @override
+  final String message;
+  NetworkFailure(this.message);
+}

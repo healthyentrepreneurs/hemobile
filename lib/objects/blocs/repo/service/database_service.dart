@@ -4,20 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
 import 'package:he_api/he_api.dart';
 
-import 'localservice/database_service_local.dart';
-
 class DatabaseService {
   // late final FirebaseFirestore _db;
   final FirebaseFirestore _firestore;
 
-  final DatabaseServiceLocal _dataService;
-  // create _dataService getter
-  DatabaseServiceLocal get dataService => _dataService;
   DatabaseService({
     required FirebaseFirestore firestore,
-    DatabaseServiceLocal? dataService,
-  })  : _firestore = firestore,
-        _dataService = dataService ?? DatabaseServiceLocal();
+  }) : _firestore = firestore;
 
   addUserData(Subscription userData) async {
     await _firestore
@@ -25,7 +18,7 @@ class DatabaseService {
         .doc(userData.fullname)
         .set(userData.toJson());
   }
-
+  // https://stackoverflow.com/questions/67646062/how-to-get-firebase-firestore-exception-code-on-flutter
   Future<Either<Failure, List<Subscription?>>> retrieveSubscriptionData(
       int user_id) async {
     // var _userItemsQuerySnap = _firebaseRef
@@ -43,7 +36,7 @@ class DatabaseService {
               fromFirestore: (snapshot, _) => User.fromJson(snapshot.data()!),
               toFirestore: (user, _) => user.toJson());
 
-      var documentSnapshotUser = await documentReferenceUser.get();
+      var documentSnapshotUser = await documentReferenceUser.get().catchError((err)=> debugPrint("NjovuError ${err.message}"));
       var objectUser = documentSnapshotUser.data();
       if (objectUser!.subscriptions == null) {
         return const Right([]);
@@ -81,7 +74,9 @@ class DatabaseService {
         }
       });
       // Handle case where user is not found
-    } on Exception catch (e) {
+    }
+    on Exception catch (e) {
+      debugPrint("We Have Errors Here");
       return Stream.value(Left(RepositoryFailure(e.toString())));
     }
   }

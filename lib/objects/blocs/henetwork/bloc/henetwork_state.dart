@@ -14,12 +14,8 @@ part of 'henetwork_bloc.dart';
 // }
 // https://firebase.flutter.dev/docs/firestore/usage/#access-data-offline
 // https://pub.dev/packages/connectivity_plus/example
+@immutable
 class HenetworkState extends Equatable {
-  // const HenetworkState(
-  //     {ConnectivityResult? connectivityResult, bool? firebaseEnableNetwork})
-  //     : _connectivityResult = connectivityResult ?? ConnectivityResult.none,
-  //       _firebaseEnableNetwork = firebaseEnableNetwork ?? false;
-
   const HenetworkState._({
     ConnectivityResult? connectivityResult,
     this.status = HenetworkStatus.loading,
@@ -30,8 +26,13 @@ class HenetworkState extends Equatable {
   ConnectivityResult get gconnectivityResult =>
       _connectivityResult ?? ConnectivityResult.none;
 
-  const HenetworkState.loading({ConnectivityResult? inconnectivityResult})
-      : this._(connectivityResult: inconnectivityResult);
+  HenetworkStatus get gstatus => status;
+
+  const HenetworkState.loading(
+      {ConnectivityResult? inconnectivityResult, HenetworkStatus? status})
+      : this._(
+            connectivityResult: inconnectivityResult,
+            status: status ?? HenetworkStatus.loading);
 
   HenetworkState copyWith(
       {ConnectivityResult? connectivityResult, HenetworkStatus? status}) {

@@ -39,7 +39,7 @@ https://pub.dev/packages/i18n_remote_config
 
 Flutter Commands:
 
-flutter build apk || flutter build apk --debug
+flutter build apk || flutter build apk --debug | --release | --profile
 flutter install
 flutter clean && flutter run
 flutter pub get

@@ -1,6 +1,5 @@
 part of 'database_bloc.dart';
 
-
 @immutable
 abstract class DatabaseEvent extends Equatable {
   const DatabaseEvent();
@@ -11,7 +10,8 @@ abstract class DatabaseEvent extends Equatable {
 
 class DatabaseFetched extends DatabaseEvent {
   final String? displayName;
-  const DatabaseFetched(this.displayName);
+  final HenetworkStatus? henetworkStatus;
+  const DatabaseFetched(this.displayName, this.henetworkStatus);
   @override
-  List<Object?> get props => [displayName];
+  List<Object?> get props => [displayName,henetworkStatus];
 }

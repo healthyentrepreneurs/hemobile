@@ -76,8 +76,10 @@ dependencies:
   get_storage: ^2.0.3
   image_picker: ^0.8.6
   firebase_ui_firestore: ^1.0.4
-  archive: ^3.3.6
+#  archive: ^3.3.6
   connectivity_plus: ^3.0.2
+  network_info_plus: ^3.0.2
+  async_zip: ^0.0.2
 
 dev_dependencies:
   bloc_test: ^9.1.0
@@ -94,9 +96,9 @@ dev_dependencies:
   mocktail: ^0.3.0
   freezed: ^2.2.0
   json_serializable: ^6.3.1
+#  https://pub.dev/packages/isolate_downloader
 
 dependency_overrides:
-  async_zip: ^0.0.2
   ffi: ^1.1.2
 #  build: ^2.0.0
 

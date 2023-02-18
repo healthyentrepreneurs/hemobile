@@ -31,7 +31,7 @@ class AppUpdatActions extends StatelessWidget {
             // testBloc.apkBlocRepository.
             if (appVersion!.version != data['version']) {
               debugPrint(
-                  "Mongos , Local ${appVersion!.version} From Cloud ${data['version']}");
+                  "Mongos , Local ${appVersion.version} From Cloud ${data['version']}");
               return AppVerView(latestapk: logs, appversion: appVersion);
             } else {
               debugPrint("appVersion C");

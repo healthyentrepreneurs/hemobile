@@ -6,7 +6,6 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:theme_locale_repo/theme_locale_repo.dart';
 import 'app/app.dart';
-import 'helper/helper_functions.dart';
 import 'injection.dart';
 
 Future<void> main() async {

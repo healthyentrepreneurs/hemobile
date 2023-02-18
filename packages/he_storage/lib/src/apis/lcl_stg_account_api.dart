@@ -13,7 +13,7 @@ class LclStgAccountApi extends AccountApi {
   LclStgAccountApi({required SharedPreferences plugin}) : _plugin = plugin {
     _init();
   }
-  late BehaviorSubject<Account> _actStreamCtl;
+  late final BehaviorSubject<Account> _actStreamCtl;
   final SharedPreferences _plugin;
   // ignore: public_member_api_docs
   // Account account = Account.empty;

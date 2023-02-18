@@ -31,6 +31,7 @@ class App extends StatelessWidget {
   final LogRepository _logRepository = getIt<LogRepository>();
   final ApkupdateRepository _gsApkUpdateApi = getIt<ApkupdateRepository>();
   final DatabaseRepository _databaseRepository = getIt<DatabaseRepository>();
+
   // final storage = getIt<FirebaseStorage>();
 
   @override
