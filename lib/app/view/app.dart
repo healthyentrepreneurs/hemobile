@@ -77,6 +77,7 @@ class App extends StatelessWidget {
           BlocProvider<ApkseenBloc>(
               create: (_) => ApkseenBloc(repository: _gsApkUpdateApi)),
           BlocProvider<DatabaseBloc>(
+              lazy: true,
               create: (_) => DatabaseBloc(repository: _databaseRepository)),
           BlocProvider<HenetworkBloc>(create: (_) => HenetworkBloc()),
         ],

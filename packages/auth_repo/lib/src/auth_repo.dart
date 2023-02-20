@@ -65,6 +65,6 @@ class HeAuthRepository {
 }
 
 class HeAuthException implements Exception {
-  String? message = 'An unknown exception occurred';
   HeAuthException(this.message);
+  String? message = 'An unknown exception occurred';
 }

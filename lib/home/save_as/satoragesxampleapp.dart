@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:image_picker/image_picker.dart';
 
 import 'save_as.dart';
+
 enum UploadType {
   /// Uploads a randomly generated string (as a file) to Storage.
   string,
@@ -173,8 +174,8 @@ class _TaskManager extends State<TaskManager> {
       SnackBar(
         content: Text(
           'Success!\n Downloaded ${ref.name} \n from bucket: ${ref.bucket}\n '
-              'at path: ${ref.fullPath} \n'
-              'Wrote "${ref.fullPath}" to tmp-${ref.name}',
+          'at path: ${ref.fullPath} \n'
+          'Wrote "${ref.fullPath}" to tmp-${ref.name}',
         ),
       ),
     );
@@ -213,22 +214,22 @@ class _TaskManager extends State<TaskManager> {
       body: _uploadTasks.isEmpty
           ? const Center(child: Text("Press the '+' button to add a new file."))
           : ListView.builder(
-        itemCount: _uploadTasks.length,
-        itemBuilder: (context, index) => UploadTaskListTile(
-          task: _uploadTasks[index],
-          onDismissed: () => _removeTaskAtIndex(index),
-          onDownloadLink: () async {
-            return _downloadLink(_uploadTasks[index].snapshot.ref);
-          },
-          onDownload: () async {
-            if (kIsWeb) {
-              return _downloadBytes(_uploadTasks[index].snapshot.ref);
-            } else {
-              return _downloadFile(_uploadTasks[index].snapshot.ref);
-            }
-          },
-        ),
-      ),
+              itemCount: _uploadTasks.length,
+              itemBuilder: (context, index) => UploadTaskListTile(
+                task: _uploadTasks[index],
+                onDismissed: () => _removeTaskAtIndex(index),
+                onDownloadLink: () async {
+                  return _downloadLink(_uploadTasks[index].snapshot.ref);
+                },
+                onDownload: () async {
+                  if (kIsWeb) {
+                    return _downloadBytes(_uploadTasks[index].snapshot.ref);
+                  } else {
+                    return _downloadFile(_uploadTasks[index].snapshot.ref);
+                  }
+                },
+              ),
+            ),
     );
   }
 }
@@ -265,8 +266,10 @@ class UploadTaskListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder<TaskSnapshot>(
       stream: task.snapshotEvents,
-      builder: (BuildContext context, AsyncSnapshot<TaskSnapshot> asyncSnapshot,)
-      {
+      builder: (
+        BuildContext context,
+        AsyncSnapshot<TaskSnapshot> asyncSnapshot,
+      ) {
         Widget subtitle = const Text('---');
         TaskSnapshot? snapshot = asyncSnapshot.data;
         TaskState? state = snapshot?.state;

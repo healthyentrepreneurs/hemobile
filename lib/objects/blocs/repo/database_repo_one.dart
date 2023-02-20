@@ -8,20 +8,18 @@ import 'package:he_api/he_api.dart';
 import 'package:injectable/injectable.dart';
 import 'package:rxdart/rxdart.dart';
 
+// import '../../../helper/file_system_util.dart';
 import '../../../helper/file_system_util.dart';
 import 'impl/idatabase_repo.dart';
 import 'impl/repo_failure.dart';
 
 @LazySingleton(as: IDatabaseRepository)
 class DatabaseRepository implements IDatabaseRepository {
-  // final PublishSubject<HenetworkStatus> _henetworkStatus =
-  //     PublishSubject<HenetworkStatus>();
-  final BehaviorSubject<HenetworkStatus> _henetworkStatusSubject =
-      BehaviorSubject<HenetworkStatus>.seeded(HenetworkStatus.loading);
+  final PublishSubject<HenetworkStatus> _henetworkStatus =
+      PublishSubject<HenetworkStatus>();
 
   void addHenetworkStatus(HenetworkStatus status) {
-    // _actStreamCtl = BehaviorSubject<Account>.seeded(Account.empty);
-    _henetworkStatusSubject.add(status);
+    _henetworkStatus.add(status);
   }
 
   final DatabaseService _service =
@@ -45,16 +43,17 @@ class DatabaseRepository implements IDatabaseRepository {
   @override
   Stream<Either<Failure, List<Subscription?>>>
       retrieveSubscriptionDataStream() {
-    final checkValue = _henetworkStatusSubject.valueOrNull;
-    debugPrint('Shit@retrieveSubscriptionDataStream $checkValue');
-    // checkValue != null &&
-    if (checkValue == HenetworkStatus.wifiNetwork) {
-      debugPrint('DatabaseRepository@retrieveSubscriptionDataStream connected');
-      return _service.retrieveSubscriptionDataStream();
-    } else {
-      debugPrint(
-          'DatabaseRepository@retrieveSubscriptionDataStream not connected');
-      return _serviceLocal.retrieveSubscriptionDataLocalStream();
-    }
+    return _henetworkStatus.stream.switchMap((henetworkStatus) {
+      debugPrint('DatabaseRepository@retrieveSubscriptionDataStream');
+      if (henetworkStatus == HenetworkStatus.wifiNetwork) {
+        debugPrint(
+            'DatabaseRepository@retrieveSubscriptionDataStream connected');
+        return _service.retrieveSubscriptionDataStream();
+      } else {
+        debugPrint(
+            'DatabaseRepository@retrieveSubscriptionDataStream not connected');
+        return _serviceLocal.retrieveSubscriptionDataLocalStream();
+      }
+    });
   }
 }

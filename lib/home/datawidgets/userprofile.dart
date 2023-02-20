@@ -9,69 +9,93 @@ import '../../course/view/view.dart';
 import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import '../widgets/widgets.dart';
 
-class UserProfile extends StatelessWidget {
+class UserProfile extends StatelessWidget with WidgetsBindingObserver {
   final User user;
   const UserProfile({Key? key, required this.user}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    // DatabaseBloc databasebloc = context.read<DatabaseBloc>();
-    // final databasebloc = BlocProvider.of<DatabaseBloc>(context);
+    WidgetsBinding.instance.addObserver(this);
     final henetworkstate =
         context.select((HenetworkBloc bloc) => bloc.state.status);
-    return BlocBuilder<DatabaseBloc, DatabaseState>(
-        buildWhen: (previous, current) {
-      debugPrint(
-          'NabadaA ${previous.ghenetworkStatus} and ${current.ghenetworkStatus}');
-      return previous.ghenetworkStatus != current.ghenetworkStatus;
-    }, builder: (context, state) {
-      if (state.error != null) {
-        // debugPrint('UserProfile@DatabaseError ');
-        return const StateLoadingHe().errorWithStackT(state.error!.message);
-      } else {
-        final databasebloc = BlocProvider.of<DatabaseBloc>(context);
-        if (state.ghenetworkStatus == HenetworkStatus.loading) {
-          debugPrint('UserProfile@HenetworkStatus.loading');
-          databasebloc.add(DatabaseFetched('njovu', henetworkstate));
-          return const StateLoadingHe().loadingData();
+    final databasebloc = BlocProvider.of<DatabaseBloc>(context);
+    debugPrint('UserProfile@NETWOK ${henetworkstate.name}');
+    return BlocListener<HenetworkBloc, HenetworkState>(
+      listener: (context, state) {
+        databasebloc.add(DatabaseFetched('phila', state.gstatus));
+      },
+      child: BlocBuilder<DatabaseBloc, DatabaseState>(
+          buildWhen: (previous, current) {
+        debugPrint(
+            'WHATSTATES previous ${previous.ghenetworkStatus}  current ${current.ghenetworkStatus}');
+        return previous.ghenetworkStatus != current.ghenetworkStatus;
+      }, builder: (context, state) {
+        if (state.error != null) {
+          return const StateLoadingHe().errorWithStackT(state.error!.message);
         } else {
-          debugPrint(
-              'UserProfile@DatabaseBlocB ${state.gdisplayName} then ${state.ghenetworkStatus}');
-          if (state.glistOfSubscriptionData.isEmpty) {
-            return const StateLoadingHe().noDataFound('You have no Tools');
+          if (state.ghenetworkStatus == HenetworkStatus.loading) {
+            debugPrint('UserProfile@HenetworkStatus.loading');
+            databasebloc.add(DatabaseFetched('musoke', state.ghenetworkStatus));
+            return const StateLoadingHe().loadingData();
           } else {
-            return ListView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.only(bottom: 40),
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: state.glistOfSubscriptionData.length,
-              itemBuilder: (BuildContext context, int index) {
-                var subscription = state.glistOfSubscriptionData[index]!;
-                return UserLanding(
-                    subscription: subscription,
-                    onTap: () {
-                      //Content Form Survey
-                      if (subscription.source == 'originalm') {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  SurveyPage(course: subscription),
-                            ));
-                      } else {
-                        //Course content Books, Quiz Etc
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  SectionsPage(course: subscription),
-                            ));
-                      }
-                    });
-              },
-            );
+            debugPrint(
+                'UserProfile@DatabaseBlocB ${state.gdisplayName} then ${state.ghenetworkStatus}');
+            if (state.glistOfSubscriptionData.isEmpty) {
+              return const StateLoadingHe().noDataFound('You have no Tools');
+            } else {
+              return ListView.builder(
+                key: Key(henetworkstate.name),
+                shrinkWrap: true,
+                padding: const EdgeInsets.only(bottom: 40),
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: state.glistOfSubscriptionData.length,
+                itemBuilder: (BuildContext context, int index) {
+                  var subscription = state.glistOfSubscriptionData[index]!;
+                  return UserLanding(
+                      key: Key(henetworkstate.name),
+                      subscription: subscription,
+                      onTap: () {
+                        if (subscription.source == 'originalm') {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    SurveyPage(course: subscription),
+                              ));
+                        } else {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    SectionsPage(course: subscription),
+                              ));
+                        }
+                      });
+                },
+              );
+            }
           }
         }
-      }
-    });
+      }),
+    );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        debugPrint("app in resumed");
+        break;
+      case AppLifecycleState.inactive:
+        debugPrint("app in inactive");
+        break;
+      case AppLifecycleState.paused:
+        debugPrint("app in paused");
+        break;
+      case AppLifecycleState.detached:
+        debugPrint("app in detached");
+        break;
+    }
+    // super.didChangeAppLifecycleState(state);
   }
 }

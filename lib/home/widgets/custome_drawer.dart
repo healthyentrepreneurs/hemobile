@@ -8,6 +8,8 @@ import 'package:he/langhe/langhe.dart';
 import 'package:he_api/he_api.dart';
 import 'package:theme_locale_repo/generated/l10n.dart';
 
+import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
+
 class CustomDrawer extends StatefulWidget {
   final User user;
   const CustomDrawer({Key? key, required this.user}) : super(key: key);
@@ -20,6 +22,8 @@ class _CustomDrawer extends State<CustomDrawer> {
   @override
   Widget build(BuildContext context) {
     final apkUpdateBloc = BlocProvider.of<ApkseenBloc>(context);
+    final henetworkstate =
+    context.select((HenetworkBloc bloc) => bloc.state.status);
     // final textTheme = Theme.of(context).textTheme;
     // final user = context.select((AppBloc bloc) => bloc.state.user);
     final apkSceenState =
@@ -30,7 +34,9 @@ class _CustomDrawer extends State<CustomDrawer> {
         color: ToolUtils.mainPrimaryColor,
         child: Column(
           children: <Widget>[
-            ListView(padding: EdgeInsets.zero, shrinkWrap: true, children: [
+            ListView(
+                key: Key(henetworkstate.name),
+                padding: EdgeInsets.zero, shrinkWrap: true, children: [
               DrawerHeader(
                 // https://docs.flutter.dev/cookbook/design/drawer
                 decoration: const BoxDecoration(

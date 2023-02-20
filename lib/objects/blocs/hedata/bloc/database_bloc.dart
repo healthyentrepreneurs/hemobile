@@ -7,7 +7,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
 import 'package:he_api/he_api.dart';
-import 'package:injectable/injectable.dart';
 import '../../../../helper/file_system_util.dart';
 import '../../repo/database_repo.dart';
 
@@ -25,6 +24,7 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
 
   _fetchUserData(DatabaseFetched event, Emitter<DatabaseState> emit) async {
     _databaseRepository.addHenetworkStatus(event.henetworkStatus!);
+    // await Future<void>.delayed(const Duration(seconds: 1));
     Stream<Either<Failure, List<Subscription?>>> listOfSubStream =
         _databaseRepository.retrieveSubscriptionDataStream();
     debugPrint('DatabaseBloc@_fetchUserData ${event.henetworkStatus}');

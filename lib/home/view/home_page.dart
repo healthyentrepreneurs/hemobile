@@ -15,21 +15,23 @@ class HomePage extends StatelessWidget {
   static Page page() => const MaterialPage<void>(child: HomePage());
   @override
   Widget build(BuildContext context) {
+    // final databasebloc = BlocProvider.of<DatabaseBloc>(context);
     return BlocBuilder<HenetworkBloc, HenetworkState>(
-        buildWhen: (previous, current) => previous.gconnectivityResult != current.gconnectivityResult,
-        builder: (context, state) {
-          // if (state.gconnectivityResult == ConnectivityResult.none) {
-          //   final dataBloc = BlocProvider.of<HenetworkBloc>(context);
-          //   dataBloc.add(const HeNetworkNetworkStatus());
-          //   debugPrint("HomePage@InitStateP  ${state.gconnectivityResult} and ${state.gstatus}");
-          //   // return const SizedBox(height: 0.0);
-          // }
-            final dataBloc = BlocProvider.of<HenetworkBloc>(context);
-            dataBloc.add(const HeNetworkNetworkStatus());
-            debugPrint("HomePage@InitStateP  ${state.gconnectivityResult} and ${state.gstatus}");
-          debugPrint(
-              "HomePage@ConnectionState  ${state.gconnectivityResult} and GStatus ${state.gstatus} VS ${state.status}");
-          return const MainScaffold();
-        });
+        buildWhen: (previous, current) {
+      // databasebloc.add(DatabaseFetched('musoke', current.gstatus));
+      debugPrint(
+          'Nabada previous ${previous.gstatus} current ${current.gstatus} ');
+      return previous.gconnectivityResult != current.gconnectivityResult;
+    }, builder: (context, state) {
+      if (state.gconnectivityResult == ConnectivityResult.none) {
+        final networkBloc = BlocProvider.of<HenetworkBloc>(context);
+        networkBloc.add(const HeNetworkNetworkStatus());
+        debugPrint(
+            "HomePage@InitState  ${state.gconnectivityResult} and ${state.gstatus}");
+      }
+      debugPrint(
+          "HomePage@ConnectionState  ${state.gconnectivityResult} and GStatus ${state.gstatus} VS ${state.status}");
+      return const MainScaffold();
+    });
   }
 }

@@ -22,9 +22,9 @@ class _SurveyPageState extends State<SurveyPage> {
     // var surveyCollection =
     //     FirebaseFirestore.instance.collection(surveyCollectionString);
     return ProgressWidget(
-      child: _uiSetup(context),
       inAsyncCall: false,
       opacity: 0.3,
+      child: _uiSetup(context),
     );
   }
 
