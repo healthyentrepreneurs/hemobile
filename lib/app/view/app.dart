@@ -16,6 +16,7 @@ import 'package:theme_locale_repo/generated/l10n.dart';
 import 'package:theme_locale_repo/theme_locale_repo.dart';
 
 import '../../home/appupdate/appupdate.dart';
+import '../../objects/blocs/appcycle/bloc/appcycle_bloc.dart';
 import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 
 class App extends StatelessWidget {
@@ -80,6 +81,8 @@ class App extends StatelessWidget {
               lazy: true,
               create: (_) => DatabaseBloc(repository: _databaseRepository)),
           BlocProvider<HenetworkBloc>(create: (_) => HenetworkBloc()),
+          BlocProvider<AppLifecycleStateBloc>(
+              create: (_) => AppLifecycleStateBloc()),
         ],
         child: const AppView(),
       ),
@@ -113,10 +116,14 @@ class _AppView extends State<AppView> {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          home: FlowBuilder<HeAuthStatus>(
-            state: context.select((AppBloc bloc) => bloc.state.status),
-            onGeneratePages: onGenerateAppViewPages,
-          ),
+          home: BlocBuilder<AppLifecycleStateBloc, AppLifecycleState>(
+              // https://stackoverflow.com/questions/51835039/how-do-i-check-if-the-flutter-application-is-in-the-foreground-or-not
+              builder: (context, state) {
+            return FlowBuilder<HeAuthStatus>(
+              state: context.select((AppBloc bloc) => bloc.state.status),
+              onGeneratePages: onGenerateAppViewPages,
+            );
+          }),
         );
       },
     );

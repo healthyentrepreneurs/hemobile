@@ -6,7 +6,6 @@ import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he/survey/view/view.dart';
 import 'package:he_api/he_api.dart';
 import '../../course/view/view.dart';
-import '../../objects/blocs/appcycle/bloc/appcycle_bloc.dart';
 import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import '../widgets/widgets.dart';
 
@@ -18,8 +17,6 @@ class UserProfile extends StatelessWidget {
   Widget build(BuildContext context) {
     final henetworkstate =
         context.select((HenetworkBloc bloc) => bloc.state.status);
-    final appCycle =
-        context.select((AppLifecycleStateBloc bloc) => bloc.state.name);
     final databasebloc = BlocProvider.of<DatabaseBloc>(context);
     debugPrint('UserProfile@NETWOK ${henetworkstate.name}');
     return BlocListener<HenetworkBloc, HenetworkState>(
