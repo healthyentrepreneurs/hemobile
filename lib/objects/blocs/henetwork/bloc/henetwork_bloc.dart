@@ -6,6 +6,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:he/helper/file_system_util.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 part 'henetwork_event.dart';
 part 'henetwork_state.dart';
@@ -13,7 +14,8 @@ part 'henetwork_state.dart';
 class HenetworkBloc extends Bloc<HenetworkEvent, HenetworkState> {
 // transformer: droppable()
   HenetworkBloc() : super(const HenetworkState.loading()) {
-    on<HeNetworkNetworkStatus>(_onHeNetworkNetworkStatus);
+    on<HeNetworkNetworkStatus>(_onHeNetworkNetworkStatus,
+        transformer: restartable());
   }
   final Connectivity _connectivity = Connectivity();
 

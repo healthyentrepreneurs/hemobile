@@ -1,11 +1,12 @@
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 part 'appcycle_event.dart';
 
 class AppLifecycleStateBloc
     extends Bloc<AppLifecycleStateEvent, AppLifecycleState> {
-  AppLifecycleStateBloc() : super(AppLifecycleState.resumed) {
+  AppLifecycleStateBloc() : super(AppLifecycleState.detached) {
     on<AppLifecycleStateEvent>((event, emit) {
       // create a switch statement to handle the different events
       switch (event) {

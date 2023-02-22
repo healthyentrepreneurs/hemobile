@@ -78,7 +78,6 @@ class App extends StatelessWidget {
           BlocProvider<ApkseenBloc>(
               create: (_) => ApkseenBloc(repository: _gsApkUpdateApi)),
           BlocProvider<DatabaseBloc>(
-              lazy: true,
               create: (_) => DatabaseBloc(repository: _databaseRepository)),
           BlocProvider<HenetworkBloc>(create: (_) => HenetworkBloc()),
           BlocProvider<AppLifecycleStateBloc>(
@@ -118,6 +117,9 @@ class _AppView extends State<AppView> {
           ],
           home: BlocBuilder<AppLifecycleStateBloc, AppLifecycleState>(
               // https://stackoverflow.com/questions/51835039/how-do-i-check-if-the-flutter-application-is-in-the-foreground-or-not
+              // https://stackoverflow.com/questions/62640524/does-the-widgetsbindingobserver-work-on-a-stateless-widget
+              // https://dev.to/pedromassango/onresume-and-onpause-for-widgets-on-flutter-27k2
+              // https://api.flutter.dev/flutter/widgets/SliverChildBuilderDelegate/shouldRebuild.html
               builder: (context, state) {
             return FlowBuilder<HeAuthStatus>(
               state: context.select((AppBloc bloc) => bloc.state.status),

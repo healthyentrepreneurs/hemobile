@@ -24,5 +24,5 @@ void configureInjections(GetIt getIt)  {
       () => LogRepository(injectableModule.firestore));
 
   getIt.registerLazySingleton<DatabaseRepository>(
-      () => DatabaseRepository());
+      () => DatabaseRepository(injectableModule.firestore));
 }

@@ -9,6 +9,7 @@ abstract class IDatabaseRepository {
   Future<void> saveUserData(Subscription user);
   Future<Either<Failure,List<Subscription?>>> retrieveSubscriptionData();
   Stream<Either<Failure,List<Subscription?>>> retrieveSubscriptionDataStream();
+  Future<void> addHenetworkStatus(HenetworkStatus status);
   // void addConnectivityResult(HenetworkStatus connectivityResult);
   // Stream<HenetworkStatus> getConnectivityResult();
 }

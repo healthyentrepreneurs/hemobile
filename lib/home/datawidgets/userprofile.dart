@@ -21,7 +21,9 @@ class UserProfile extends StatelessWidget {
     final appCycle =
         context.select((AppLifecycleStateBloc bloc) => bloc.state.name);
     final databasebloc = BlocProvider.of<DatabaseBloc>(context);
-    debugPrint('UserProfile@NETWOK ${henetworkstate.name}');
+
+    debugPrint(
+        'UserProfile@NETWOK ${henetworkstate.name} and APPstate $appCycle');
     return BlocListener<HenetworkBloc, HenetworkState>(
       listener: (context, state) {
         databasebloc.add(DatabaseFetched('phila', state.gstatus));

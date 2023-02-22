@@ -42,5 +42,5 @@ class HenetworkState extends Equatable {
   }
 
   @override
-  List<Object> get props => [status, gconnectivityResult];
+  List<Object> get props => [gstatus, gconnectivityResult];
 }

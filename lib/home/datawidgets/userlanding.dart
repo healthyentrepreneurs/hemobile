@@ -3,7 +3,7 @@ import 'package:he/helper/toolutils.dart';
 import 'package:he/home/home.dart';
 import 'package:he_api/he_api.dart';
 
-class UserLanding extends StatelessWidget {
+class UserLanding extends StatelessWidget{
   const UserLanding({Key? key,required this.subscription, this.onTap})
       : super(key: key);
   // final String? title;

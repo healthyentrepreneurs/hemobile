@@ -92,7 +92,7 @@ class ThemeLangBloc extends HydratedBloc<ThemeLangEvent, ThemeLangState> {
   @override
   void onError(Object error, StackTrace stackTrace) {
     super.onError(error, stackTrace);
-    debugPrint('Jeje $error');
+    // debugPrint('Jeje $error');
   }
 
   @override

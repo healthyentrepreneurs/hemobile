@@ -79,7 +79,7 @@ dependencies:
 #  archive: ^3.3.6
   connectivity_plus: ^3.0.2
   network_info_plus: ^3.0.2
-  async_zip: ^0.0.2
+#  async_zip: ^0.0.2
 
 dev_dependencies:
   bloc_test: ^9.1.0
@@ -98,8 +98,8 @@ dev_dependencies:
   json_serializable: ^6.3.1
 #  https://pub.dev/packages/isolate_downloader
 
-dependency_overrides:
-  ffi: ^1.1.2
+#dependency_overrides:
+#  ffi: ^1.1.2
 #  build: ^2.0.0
 
 flutter:
