@@ -33,7 +33,7 @@ class DatabaseServiceLocal {
         yield Left(RepositoryFailure(e.toString()));
       }
     } else {
-      debugPrint("@JEJE");
+      debugPrint("DatabaseServiceLocal@TOBECONTINUED");
       await requestPermission(Permission.storage);
     }
   }

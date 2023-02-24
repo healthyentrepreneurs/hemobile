@@ -9,6 +9,7 @@ class HeIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final photo = this.photo;
     return ClipRRect(
+      key: UniqueKey(),
       borderRadius: BorderRadius.circular(30.0),
       child: FadeInImage(
           width: 50,

@@ -16,7 +16,7 @@ class HenetworkBloc extends Bloc<HenetworkEvent, HenetworkState> {
   HenetworkBloc() : super(const HenetworkState.loading()) {
     on<HeNetworkNetworkStatus>(_onHeNetworkNetworkStatus);
     on<HeNetworkFirebaseNetworkChange>(
-        _onHeHeNetworkFirebaseAction,transformer:droppable()); // transformer:droppable() is used to drop all events when the state is not HenetworkInitial );
+        _onHeHeNetworkFirebaseAction); // transformer:droppable() is used to drop all events when the state is not HenetworkInitial );
   }
   final Connectivity _connectivity = Connectivity();
 

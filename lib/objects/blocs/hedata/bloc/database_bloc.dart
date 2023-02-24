@@ -18,7 +18,7 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
   DatabaseBloc({required this.repository})
       : _databaseRepository = repository,
         super(const DatabaseState.loading()) {
-    on<DatabaseFetched>(_fetchUserData,transformer: restartable());
+    on<DatabaseFetched>(_fetchUserData);
   }
   final DatabaseRepository _databaseRepository;
 
