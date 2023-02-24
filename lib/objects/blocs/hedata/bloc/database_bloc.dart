@@ -21,7 +21,7 @@ class DatabaseBloc extends HydratedBloc<DatabaseEvent, DatabaseState> {
   DatabaseBloc({required this.repository})
       : _databaseRepository = repository,
         super(const DatabaseState.loading()) {
-    on<DatabaseFetched>(_fetchUserData, transformer: restartable());
+    on<DatabaseFetched>(_fetchUserData, transformer: droppable());
   }
   final IDatabaseRepository _databaseRepository;
 
