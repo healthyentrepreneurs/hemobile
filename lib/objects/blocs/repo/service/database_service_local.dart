@@ -21,7 +21,7 @@ class DatabaseServiceLocal {
         String heDirectory = "${await _mainOfflinePath}/HE_Health/";
         final file = File("${heDirectory}get_moodle_courses.json");
         debugPrint(
-            'JEHOVAHS ${file.path} and Absolute ${file.absolute.toString()}');
+            'DatabaseServiceLocal@retrieveSubscriptionDataLocalStream ${file.path} and Absolute ${file.absolute.toString()}');
         String contents = await file.readAsString();
         var courseJsonList = jsonDecode(contents) as List;
         List<Subscription>? listSubscription = courseJsonList
@@ -33,6 +33,7 @@ class DatabaseServiceLocal {
         yield Left(RepositoryFailure(e.toString()));
       }
     } else {
+      debugPrint("@JEJE");
       await requestPermission(Permission.storage);
     }
   }
