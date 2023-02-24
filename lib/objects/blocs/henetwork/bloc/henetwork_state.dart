@@ -31,8 +31,8 @@ class HenetworkState extends Equatable {
   const HenetworkState.loading(
       {ConnectivityResult? inconnectivityResult, HenetworkStatus? status})
       : this._(
-            connectivityResult: inconnectivityResult,
-            status: status ?? HenetworkStatus.loading);
+      connectivityResult: inconnectivityResult,
+      status: status ?? HenetworkStatus.loading);
 
   HenetworkState copyWith(
       {ConnectivityResult? connectivityResult, HenetworkStatus? status}) {
@@ -42,5 +42,5 @@ class HenetworkState extends Equatable {
   }
 
   @override
-  List<Object> get props => [gstatus, gconnectivityResult];
+  List<Object> get props => [status, gconnectivityResult];
 }

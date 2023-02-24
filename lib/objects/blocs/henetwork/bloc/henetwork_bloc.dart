@@ -6,16 +6,17 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:he/helper/file_system_util.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 part 'henetwork_event.dart';
 part 'henetwork_state.dart';
 
 class HenetworkBloc extends Bloc<HenetworkEvent, HenetworkState> {
+  //assign connectivityResult to ConnectivityResult.none if no connectivity is available
 // transformer: droppable()
   HenetworkBloc() : super(const HenetworkState.loading()) {
-    on<HeNetworkNetworkStatus>(_onHeNetworkNetworkStatus,
-        transformer: restartable());
+    on<HeNetworkNetworkStatus>(_onHeNetworkNetworkStatus);
+    on<HeNetworkFirebaseNetworkChange>(
+        _onHeHeNetworkFirebaseAction,transformer:droppable()); // transformer:droppable() is used to drop all events when the state is not HenetworkInitial );
   }
   final Connectivity _connectivity = Connectivity();
 
@@ -23,6 +24,7 @@ class HenetworkBloc extends Bloc<HenetworkEvent, HenetworkState> {
       HeNetworkNetworkStatus event, Emitter<HenetworkState> emit) async {
     await emit.forEach(_connectivity.onConnectivityChanged,
         onData: (ConnectivityResult connectivityResult) {
+      // create a switch statement to handle the different connectivity states and emit the appropriate state
       switch (connectivityResult.name) {
         case 'none':
           debugPrint('LexFrid Is none ${connectivityResult.name}');
@@ -46,5 +48,13 @@ class HenetworkBloc extends Bloc<HenetworkEvent, HenetworkState> {
               status: HenetworkStatus.loading);
       }
     });
+  }
+
+  // return state.copyWith(connectivityResult: connectivityResult);
+  // return HenetworkState.loading(inconnectivityResult: connectivityResult);
+
+  FutureOr<void> _onHeHeNetworkFirebaseAction(
+      HeNetworkFirebaseNetworkChange event, Emitter<HenetworkState> emit) {
+    emit(state.copyWith(status: event.networkStatus));
   }
 }
