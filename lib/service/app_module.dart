@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:he/service/permit_fofi_service.dart';
 import 'package:he_api/he_api.dart';
 import 'package:injectable/injectable.dart';
 
@@ -15,6 +18,10 @@ abstract class AppModule {
 
   @preResolve
   Future<GetStorageService> get getStorageService => GetStorageService.init();
+
+  @preResolve
+  Future<PermitFoFiService> get getfolderfileService =>
+      PermitFoFiService.init();
   // create a getter for the box
   @lazySingleton
   @injectable
@@ -37,8 +44,11 @@ abstract class AppModule {
     ..bucket = Endpoints.bucketUrl
     ..useStorageEmulator(Endpoints.localEmulatorIp, 9199);
 
-  // void tempJe(){
-  //   FirebaseStorage get storage => FirebaseStorage.instanceFor(bucket: Endpoints.bucketUrl)
-  //     ..useStorageEmulator(Endpoints.localEmulatorIp, 9199);
-  // }
+  @lazySingleton
+  @injectable
+  Directory get getdirectory => PermitFoFiService.directory;
+
+  @lazySingleton
+  @injectable
+  String get getexternaldownlodpath => PermitFoFiService.externalDownlodPath;
 }

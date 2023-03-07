@@ -3,6 +3,9 @@ part 'survey.g.dart';
 
 @JsonSerializable()
 class Survey {
+
+  factory Survey.fromJson(Map<String, dynamic> json) =>
+      _$SurveyFromJson(json);
   Survey({
     required this.id,
     required this.createdby,
@@ -27,6 +30,5 @@ class Survey {
   String surveyjson;
   String type;
 
-  factory Survey.fromJson(Map<String, dynamic> json) =>
-      _$SurveyFromJson(json);
+  Map<String, dynamic> toJson() => _$SurveyToJson(this);
 }

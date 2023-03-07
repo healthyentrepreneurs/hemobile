@@ -3,7 +3,9 @@ import 'package:flutter/widgets.dart';
 import 'package:he/home/home.dart';
 import 'package:he/login/login.dart';
 
-List<Page> onGenerateAppViewPages(HeAuthStatus state, List<Page<dynamic>> pages) {
+
+List<Page> onGenerateAppViewPages(
+    HeAuthStatus state, List<Page<dynamic>> pages) {
   switch (state) {
     case HeAuthStatus.authenticated:
       return [HomePage.page()];

@@ -139,7 +139,7 @@ class FileSystemUtil {
   }
 
   Future<File> getLocalFile(String filename) async {
-    String dir = "${await FileSystemUtil().extDownloadsPath}/HE Health";
+    String dir = "${await FileSystemUtil().extDownloadsPath}/HE_Health";
     File f = File('$dir$filename');
     return f;
   }

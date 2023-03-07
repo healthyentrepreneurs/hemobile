@@ -1,24 +1,37 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:he/objects/blocs/repo/fofiperm_repo.dart';
+
+import '../../helper/file_system_util.dart';
+import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 
 const _avatarSize = 20.0;
 const _bookSize = 20.0;
 
 class SectionIcon extends StatelessWidget {
   const SectionIcon({Key? key, this.photo}) : super(key: key);
-  //njovu
+  //ToBeContinued
   final String? photo;
 
   @override
   Widget build(BuildContext context) {
+    final henetworkstate =
+        context.select((HenetworkBloc bloc) => bloc.state.status);
     final photo = this.photo;
-    return CircleAvatar(
-      radius: _avatarSize,
-      backgroundImage: photo != null ? NetworkImage(photo) : null,
-      child: photo == null
-          ? const Icon(Icons.segment_outlined, size: _avatarSize)
-          : null,
-      // onBackgroundImageError: (error, stackTrace) {},
-    );
+    if (henetworkstate == HenetworkStatus.noInternet) {
+      return _sectionIconOffline(photo!);
+    } else {
+      return CircleAvatar(
+        radius: _avatarSize,
+        backgroundImage: photo != null ? NetworkImage(photo) : null,
+        child: photo == null
+            ? const Icon(Icons.segment_outlined, size: _avatarSize)
+            : null,
+        // onBackgroundImageError: (error, stackTrace) {},
+      );
+    }
   }
 
   Widget sectionTitle(String t) {
@@ -42,5 +55,24 @@ class SectionIcon extends StatelessWidget {
             child: Icon(Icons.book_online_sharp, size: _bookSize),
           );
         });
+  }
+
+  Widget _sectionIconOffline(String photo) {
+    final FoFiRepository fofirepo = FoFiRepository();
+    File fileImage = fofirepo.getLocalFileHe(photo);
+    return Container(
+      key: UniqueKey(),
+      width: 50,
+      height: 50,
+      decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(50)),
+          color: Colors.grey),
+      child: fileImage.existsSync()
+          ? Image.file(fileImage)
+          : const CircleAvatar(
+              radius: _avatarSize,
+              child: Icon(Icons.broken_image),
+            ),
+    );
   }
 }

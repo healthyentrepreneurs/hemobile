@@ -10,8 +10,8 @@ class SurveyJsPageLoaderBrowser extends StatefulWidget {
   // final Course course;
   final Subscription course;
 
-  SurveyJsPageLoaderBrowser(
-      {required this.jsonData,
+  const SurveyJsPageLoaderBrowser(
+      {super.key, required this.jsonData,
       required this.jsonDataStr,
       required this.course});
 

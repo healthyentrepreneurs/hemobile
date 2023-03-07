@@ -34,14 +34,13 @@ class DatabaseRepository implements IDatabaseRepository {
   }
 
   @override
-  Stream<Either<Failure, List<Subscription?>>>
-      retrieveSubscriptionDataStream() {
+  Stream<Either<Failure, List<Subscription?>>> retrieveSubscriptionDataStream(
+      String userid) {
     final checkValue = _henetworkStatusSubject.valueOrNull;
-    debugPrint('Shit@retrieveSubscriptionDataStream $checkValue');
     // checkValue != null &&
     if (checkValue == HenetworkStatus.wifiNetwork) {
       debugPrint('DatabaseRepository@retrieveSubscriptionDataStream connected');
-      return _service().retrieveSubscriptionDataStream();
+      return _service().retrieveSubscriptionDataStream(userid);
     } else {
       debugPrint(
           'DatabaseRepository@retrieveSubscriptionDataStream not connected');
@@ -52,5 +51,34 @@ class DatabaseRepository implements IDatabaseRepository {
   @override
   Future<void> addHenetworkStatus(HenetworkStatus status) async {
     _henetworkStatusSubject.add(status);
+  }
+
+  @override
+  Stream<Either<Failure, List<Section?>>> retrieveBookSectionData(
+      String courseid) {
+    final checkValue = _henetworkStatusSubject.valueOrNull;
+    // debugPrint('DatabaseRepository@retrieveBookSectionData $checkValue');
+    if (checkValue == HenetworkStatus.wifiNetwork) {
+      debugPrint('DatabaseRepository@retrieveBookSectio Network $checkValue');
+      return _service().retrieveBookSection(courseid);
+    } else {
+      debugPrint('DatabaseRepository@retrieveBookSectio Nodata $checkValue');
+      // return _service().retrieveBookSection(courseid);
+      return _serviceLocal.retrieveBookSectionLocal(courseid);
+    }
+  }
+
+  @override
+  Stream<Either<Failure, String>> retrieveSurveyStream(String courseid) {
+    final checkValue = _henetworkStatusSubject.valueOrNull;
+    // debugPrint('DatabaseRepository@retrieveSurveyStream $checkValue');
+    if (checkValue == HenetworkStatus.wifiNetwork) {
+      debugPrint('DatabaseRepository@retrieveSurveyStream Network $checkValue');
+      return _service().retrieveSurveyStream(courseid);
+    } else {
+      debugPrint('DatabaseRepository@retrieveSurveyStream Nodata $checkValue');
+      // return _service().retrieveBookSection(courseid);
+      return _serviceLocal.retrieveBookSurveyLocal(courseid);
+    }
   }
 }

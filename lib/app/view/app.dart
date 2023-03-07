@@ -15,9 +15,11 @@ import 'package:he_storage/he_storage.dart';
 import 'package:theme_locale_repo/generated/l10n.dart';
 import 'package:theme_locale_repo/theme_locale_repo.dart';
 
+import '../../course/section/bloc/section_bloc.dart';
 import '../../home/appupdate/appupdate.dart';
 import '../../objects/blocs/appcycle/bloc/appcycle_bloc.dart';
 import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
+import '../../survey/bloc/survey_bloc.dart';
 
 class App extends StatelessWidget {
   App(
@@ -79,6 +81,10 @@ class App extends StatelessWidget {
               create: (_) => ApkseenBloc(repository: _gsApkUpdateApi)),
           BlocProvider<DatabaseBloc>(
               create: (_) => DatabaseBloc(repository: _databaseRepository)),
+          BlocProvider<SectionBloc>(
+              create: (_) => SectionBloc(repository: _databaseRepository)),
+          BlocProvider<SurveyBloc>(
+              create: (_) => SurveyBloc(repository: _databaseRepository)),
           BlocProvider<HenetworkBloc>(create: (_) => HenetworkBloc()),
           BlocProvider<AppLifecycleStateBloc>(
               create: (_) => AppLifecycleStateBloc()),
@@ -90,6 +96,7 @@ class App extends StatelessWidget {
 }
 
 class AppView extends StatefulWidget {
+  // https://bloclibrary.dev/#/recipesflutternavigation?id=navigation-20
   const AppView({Key? key}) : super(key: key);
   @override
   _AppView createState() => _AppView();
@@ -115,17 +122,18 @@ class _AppView extends State<AppView> {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          home: BlocBuilder<AppLifecycleStateBloc, AppLifecycleState>(
-              // https://stackoverflow.com/questions/51835039/how-do-i-check-if-the-flutter-application-is-in-the-foreground-or-not
-              // https://stackoverflow.com/questions/62640524/does-the-widgetsbindingobserver-work-on-a-stateless-widget
-              // https://dev.to/pedromassango/onresume-and-onpause-for-widgets-on-flutter-27k2
-              // https://api.flutter.dev/flutter/widgets/SliverChildBuilderDelegate/shouldRebuild.html
-              builder: (context, state) {
-            return FlowBuilder<HeAuthStatus>(
-              state: context.select((AppBloc bloc) => bloc.state.status),
-              onGeneratePages: onGenerateAppViewPages,
-            );
-          }),
+          home: FlowBuilder<HeAuthStatus>(
+            state: context.select((AppBloc bloc) => bloc.state.status),
+            onGeneratePages: onGenerateAppViewPages,
+          )
+          // BlocBuilder<AppLifecycleStateBloc, AppLifecycleState>(
+          //     builder: (context, state) {
+          //   return FlowBuilder<HeAuthStatus>(
+          //     state: context.select((AppBloc bloc) => bloc.state.status),
+          //     onGeneratePages: onGenerateAppViewPages,
+          //   );
+          // })
+          ,
         );
       },
     );

@@ -18,7 +18,7 @@ class DatabaseService {
         .doc(userData.fullname)
         .set(userData.toJson());
   }
-  // https://stackoverflow.com/questions/67646062/how-to-get-firebase-firestore-exception-code-on-flutter
+
   Future<Either<Failure, List<Subscription?>>> retrieveSubscriptionData(
       int user_id) async {
     // var _userItemsQuerySnap = _firebaseRef
@@ -27,7 +27,6 @@ class DatabaseService {
     //     .withConverter<User>(
     //     fromFirestore: (snapshot, _) => User.fromJson(snapshot.data()!),
     //     toFirestore: (user, _) => user.toJson());
-
     try {
       var documentReferenceUser = _firestore
           .collection("userdata")
@@ -36,7 +35,9 @@ class DatabaseService {
               fromFirestore: (snapshot, _) => User.fromJson(snapshot.data()!),
               toFirestore: (user, _) => user.toJson());
 
-      var documentSnapshotUser = await documentReferenceUser.get().catchError((err)=> debugPrint("NjovuError ${err.message}"));
+      var documentSnapshotUser = await documentReferenceUser
+          .get()
+          .catchError((err) => debugPrint("NjovuError ${err.message}"));
       var objectUser = documentSnapshotUser.data();
       if (objectUser!.subscriptions == null) {
         return const Right([]);
@@ -49,13 +50,12 @@ class DatabaseService {
     }
   }
 
-  Stream<Either<Failure, List<Subscription?>>>
-      retrieveSubscriptionDataStream() {
-    // DatabaseServiceLocal _dataService = DatabaseServiceLocal();
+  Stream<Either<Failure, List<Subscription?>>> retrieveSubscriptionDataStream(
+      String userId) {
     try {
       return _firestore
           .collection("userdata")
-          .doc("3")
+          .doc(userId)
           .withConverter<User>(
               fromFirestore: (snapshot, _) => User.fromJson(snapshot.data()!),
               toFirestore: (user, _) => user.toJson())
@@ -64,7 +64,6 @@ class DatabaseService {
         if (event.data() == null) {
           debugPrint('retrieveSubscriptionDataStream Data Loaded A');
           return Left(RepositoryFailure('Subscription Data is A'));
-          // return const Right([]);
         } else if (event.data()!.subscriptions == null) {
           debugPrint('retrieveSubscriptionDataStream Data Loaded B');
           return Left(RepositoryFailure('No Subscription Data'));
@@ -73,10 +72,35 @@ class DatabaseService {
           return Right(event.data()!.subscriptions!);
         }
       });
-      // Handle case where user is not found
-    }
-    on Exception catch (e) {
+    } on Exception catch (e) {
       debugPrint("We Have Errors Here");
+      return Stream.value(Left(RepositoryFailure(e.toString())));
+    }
+  }
+
+  Stream<Either<Failure, String>> retrieveSurveyStream(String courseId) {
+    try {
+      return _firestore
+          .collection("surveys")
+          .doc(courseId)
+          .withConverter<Survey>(
+              fromFirestore: (snapshot, _) => Survey.fromJson(snapshot.data()!),
+              toFirestore: (survey, _) => survey.toJson())
+          .snapshots()
+          .map((event) {
+        if (event.data() == null) {
+          debugPrint('retrieveSurveyStream Data Loaded A');
+          return Left(RepositoryFailure('No Surveys Data'));
+        } else if (event.data()?.surveyjson == null) {
+          debugPrint('retrieveSurveyStream Data Loaded B');
+          return Left(RepositoryFailure('No Surveys Data'));
+        } else {
+          debugPrint('retrieveSurveyStream Data Loaded C');
+          return Right(event.data()!.surveyjson);
+        }
+      });
+    } on Exception catch (e) {
+      debugPrint("retrieveSurveyStream@We Have Errors Here");
       return Stream.value(Left(RepositoryFailure(e.toString())));
     }
   }
@@ -85,5 +109,30 @@ class DatabaseService {
     DocumentSnapshot<Map<String, dynamic>> snapshot =
         await _firestore.collection("Users").doc(user.fullname).get();
     return snapshot.data()!["displayName"];
+  }
+
+  Stream<Either<Failure, List<Section?>>> retrieveBookSection(String courseId) {
+    try {
+      var coursePath = 'source_one_course_$courseId';
+      return _firestore
+          .collection(coursePath)
+          .withConverter(
+              fromFirestore: (snapshot, _) =>
+                  Section.fromJson(snapshot.data()!),
+              toFirestore: (section, _) => section.toJson())
+          .snapshots()
+          .map((event) {
+        if (event.docs.isEmpty) {
+          debugPrint('retrieveBookSection Data Loaded A');
+          return Left(RepositoryFailure('No Course Section Found'));
+        } else {
+          debugPrint('retrieveBookSection Data Loaded C');
+          return Right(event.docs.map((e) => e.data()).toList());
+        }
+      });
+    } on Exception catch (e) {
+      debugPrint("retrieveBookSection We Have Errors Here");
+      return Stream.value(Left(RepositoryFailure(e.toString())));
+    }
   }
 }

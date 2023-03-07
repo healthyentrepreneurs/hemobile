@@ -17,4 +17,6 @@ class Section {
 
   factory Section.fromJson(Map<String, dynamic> json) =>
       _$SectionFromJson(json);
+
+  Map<String, dynamic> toJson() => _$SectionToJson(this);
 }

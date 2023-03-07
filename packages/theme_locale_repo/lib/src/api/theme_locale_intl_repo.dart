@@ -29,9 +29,10 @@ class ThemeLocaleIntRepository {
     final Stream<ThemeModel> theme$ =
         _rxSharedPrefs.getStringStream(_themeKey).map(
       (title) {
+        // To come back changed from themes[0]
         return title != null
             ? _provider.findThemeByTitle(title)
-            : _provider.themes[0];
+            : _provider.themes[1];
       },
     );
     //create a stream to hold the locale

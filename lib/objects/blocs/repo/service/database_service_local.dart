@@ -6,11 +6,12 @@ import 'package:he/helper/file_system_util.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
 import 'package:he_api/he_api.dart';
 import 'package:permission_handler/permission_handler.dart';
-// import 'package:async_zip/async_zip.dart';
+
+import '../fofiperm_repo.dart';
 
 class DatabaseServiceLocal {
   final _mainOfflinePath = FileSystemUtil().extDownloadsPath;
-
+  final FoFiRepository _foFiRepository = FoFiRepository();
   Stream<Either<Failure, List<Subscription?>>>
       retrieveSubscriptionDataLocalStream() async* {
     // add permission check here if not already granted ask for permission
@@ -38,53 +39,6 @@ class DatabaseServiceLocal {
     }
   }
 
-  // Stream<Either<Failure, List<Subscription?>>>
-  //     retrieveSubscriptionDataLocalStream2() async* {
-  //   final reader = ZipFileReaderAsync();
-  //   try {
-  //     String heDirectory = "${await _mainOfflinePath}/2644HE_Health.zip";
-  //     reader.open(File(heDirectory));
-  //     // final data =await reader.readToFile('get_moodle_courses.json', File('get_moodle_courses.json'));
-  //     final data = await reader.read('get_moodle_courses.json');
-  //     // convert the data to a string
-  //     final String contents = String.fromCharCodes(data);
-  //     var courseJsonList = jsonDecode(contents) as List;
-  //     List<Subscription>? listSubscription = courseJsonList
-  //         .map((tagJson) => Subscription.fromJson(tagJson))
-  //         .toList();
-  //     yield Right(listSubscription);
-  //   } on ZipException catch (ex) {
-  //     // print('Could not read Zip file: ${ex.message}');
-  //     debugPrint("@DatabaseServiceLocal222 Database Offline Error: $ex");
-  //     yield Left(RepositoryFailure(ex.message));
-  //   } finally {
-  //     await reader.close();
-  //     // debugPrint("@DatabaseServiceLocal222X Database Offline Error:");
-  //     // yield Left(RepositoryFailure('Can Not Open File'));
-  //   }
-  // }
-
-  // Stream<Either<Failure, List<Subscription?>>>
-  // retrieveSubscriptionDataLocalStream3() async* {
-  //   // final pathToZipFile = 'path/to/zip/file.zip';
-  //   // final fileName = 'file/to/read.txt';
-  //   try {
-  //     String pathToZipFile = "${await _mainOfflinePath}/2644HE_Health.zip";
-  //     const fileName = 'get_moodle_courses.json';
-  //     final fileContents = await readZipFile(pathToZipFile, fileName);
-  //     // convert the data to a string
-  //     final String contents = String.fromCharCodes(fileContents);
-  //     var courseJsonList = jsonDecode(contents) as List;
-  //     List<Subscription>? listSubscription = courseJsonList
-  //         .map((tagJson) => Subscription.fromJson(tagJson))
-  //         .toList();
-  //     yield Right(listSubscription);
-  //   } on Exception catch (ex) {
-  //     debugPrint("@DatabaseServiceLocal333 Database Offline Error: $ex");
-  //     yield Left(RepositoryFailure(ex.toString()));
-  //   }
-  // }
-
   Future<Either<Failure, List<Subscription?>>>
       retrieveSubscriptionDataLocal() async {
     try {
@@ -102,17 +56,52 @@ class DatabaseServiceLocal {
     }
   }
 
-  // Future<List<int>> readZipFile(String pathToZipFile, String fileName) async {
-  //   final bytes = await File(pathToZipFile).readAsBytes();
-  //   final archive = ZipDecoder().decodeBytes(bytes);
-  //   // create a List<int> variable to store the file content
-  //   List<int> file = [];
-  //   for (final _file in archive) {
-  //     if (_file.name == fileName) {
-  //       file = _file.content as List<int>;
-  //       break;
-  //     }
+  // retrieveBookSectionLocal(String courseid) async {
+  //   try {
+  //     final file = _foFiRepository
+  //         .getLocalFileHe("/next_link/get_details_percourse/2.json");
+  //     String contents = await file.readAsString();
+  //     var sectionJson = jsonDecode(contents);
+  //     var sectionJsonList = sectionJson['data'] as List;
+  //     debugPrint('Tatiana ${sectionJsonList.toString()}');
+  //     List<Section>? listSection =
+  //     sectionJsonList.map((tagJson) => Section.fromJson(tagJson)).toList();
+  //   } catch (e) {
+  //     debugPrint("@retrieveBookSectionLocal Database Offline Error: $e");
   //   }
-  //   return file;
   // }
+  Stream<Either<Failure, List<Section?>>> retrieveBookSectionLocal(
+      String courseid) async* {
+    try {
+      final file = _foFiRepository
+          .getLocalFileHe("/next_link/get_details_percourse/2.json");
+      String contents = await file.readAsString();
+      var sectionJson = jsonDecode(contents);
+      var sectionJsonList = sectionJson['data'] as List;
+      // debugPrint('Tatiana ${sectionJsonList.toString()}');
+      List<Section>? listSection =
+          sectionJsonList.map((tagJson) => Section.fromJson(tagJson)).toList();
+      yield Right(listSection);
+    } catch (e) {
+      debugPrint("@retrieveBookSectionLocal Database Offline Error: $e");
+      yield Left(RepositoryFailure(e.toString()));
+    }
+  }
+
+  Stream<Either<Failure, String>> retrieveBookSurveyLocal(
+      String courseid) async* {
+    try {
+      final file = _foFiRepository.getLocalFileHe("/next_link/survey/45.json");
+      String contents = await file.readAsString();
+      if (contents.isEmpty) {
+        debugPrint('retrieveBookSurveyLocal No Surveys Data');
+        yield Left(RepositoryFailure('No Surveys Data'));
+      }
+      debugPrint('Tatiana $contents');
+      yield Right(contents);
+    } catch (e) {
+      debugPrint("@retrieveBookSurveyLocal Database Offline Error: $e");
+      yield Left(RepositoryFailure(e.toString()));
+    }
+  }
 }

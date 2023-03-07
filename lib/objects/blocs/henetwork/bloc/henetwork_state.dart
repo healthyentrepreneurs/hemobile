@@ -1,17 +1,5 @@
 part of 'henetwork_bloc.dart';
 
-// enum HenetworkStatus {
-//   loading,
-//   firebaseNetworkDisabled,
-//   firebaseNetworkEnabled,
-//   noInternet,
-//   wifiNetwork,
-//   mobileNetwork,
-//   vpnNetwork,
-//   ethernetNetwork,
-//   wimaxNetwork,
-//   bluetoothNetwork,
-// }
 // https://firebase.flutter.dev/docs/firestore/usage/#access-data-offline
 // https://pub.dev/packages/connectivity_plus/example
 @immutable

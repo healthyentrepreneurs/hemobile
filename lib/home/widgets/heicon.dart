@@ -1,27 +1,59 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
-const _iconSize = 30.0;
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
+import 'package:transparent_image/transparent_image.dart';
+
+import '../../helper/file_system_util.dart';
+import '../../objects/blocs/blocs.dart';
+
+const _iconSize = 29.0;
 
 class HeIcon extends StatelessWidget {
-  const HeIcon({Key? key, this.photo}) : super(key: key);
+  const HeIcon({Key? key, this.photo, required this.fofi}) : super(key: key);
   final String? photo;
+  final FoFiRepository fofi;
   @override
   Widget build(BuildContext context) {
-    final photo = this.photo;
-    return ClipRRect(
+    return BlocBuilder<HenetworkBloc, HenetworkState>(
+      builder: (_, state) => state.gstatus == HenetworkStatus.wifiNetwork
+          ? ClipRRect(
+              key: UniqueKey(),
+              borderRadius: BorderRadius.circular(30.0),
+              child: FadeInImage.memoryNetwork(
+                  width: 50,
+                  height: 50,
+                  placeholder: kTransparentImage,
+                  image: photo!,
+                  imageErrorBuilder: (context, error, stackTrace) {
+                    debugPrint('HeIconOnline@imageErrorBuilder');
+                    return const CircleAvatar(
+                      radius: _iconSize,
+                      child: Icon(Icons.broken_image),
+                    );
+                  }),
+            )
+          : heIconOffline(photo!, fofi),
+    );
+  }
+
+  Widget heIconOffline(String photo, FoFiRepository fofi) {
+    // final FoFiRepository fofirepo = FoFiRepository();
+    File fileImage = fofi.getLocalFileHe(photo);
+    return Container(
       key: UniqueKey(),
-      borderRadius: BorderRadius.circular(30.0),
-      child: FadeInImage(
-          width: 50,
-          height: 50,
-          image: NetworkImage(photo!),
-          placeholder: const AssetImage("assets/images/lake.png"),
-          imageErrorBuilder: (context, error, stackTrace) {
-            return const CircleAvatar(
+      width: 50,
+      height: 50,
+      decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(50)),
+          color: Colors.grey),
+      child: fileImage.existsSync()
+          ? Image.file(fileImage)
+          : const CircleAvatar(
               radius: _iconSize,
-              child: Icon(Icons.image_not_supported, size: 15),
-            );
-          }),
+              child: Icon(Icons.broken_image),
+            ),
     );
   }
 }
