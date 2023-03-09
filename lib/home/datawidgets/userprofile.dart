@@ -65,11 +65,12 @@ class UserProfile extends StatelessWidget {
                                         const SurveyPageBrowser(),
                                   ));
                             } else {
+                              databasebloc
+                                  .add(DatabaseSubSelected(subscription));
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        SectionsPage(course: subscription),
+                                    builder: (context) => const SectionsPage(),
                                   ));
                             }
                           });

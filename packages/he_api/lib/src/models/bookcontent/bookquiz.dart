@@ -31,4 +31,5 @@ class BookQuiz {
   });
   factory BookQuiz.fromJson(Map<String, dynamic> json) =>
       _$BookQuizFromJson(json);
+  Map<String, dynamic> toJson() => _$BookQuizToJson(this);
 }

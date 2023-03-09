@@ -2,7 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
+import 'package:he/objects/objectbookcontent.dart';
 import 'package:he_api/he_api.dart';
+
+import '../../../objectbookquiz.dart';
 
 class DatabaseService {
   // late final FirebaseFirestore _db;
@@ -132,6 +135,91 @@ class DatabaseService {
       });
     } on Exception catch (e) {
       debugPrint("retrieveBookSection We Have Errors Here");
+      return Stream.value(Left(RepositoryFailure(e.toString())));
+    }
+  }
+
+  Stream<Either<Failure, List<ObjectBookQuiz?>>> retrieveBookQuiz_optiontwo(
+      String courseId, String section) async* {
+    String courseCollectionString = "source_one_course_$courseId";
+    var courseCollection = _firestore.collection(courseCollectionString);
+    var booksCollection =
+        courseCollection.doc(section).collection("modulescollection");
+
+    try {
+      var snapshot = await booksCollection.get();
+      var bookQuizList = snapshot.docs.map((doc) {
+        var data = doc.data();
+        return ObjectBookQuiz.fromJson(data);
+      }).toList();
+      yield Right(bookQuizList);
+    } catch (e) {
+      yield Left(RepositoryFailure(e.toString()));
+    }
+    yield* booksCollection.snapshots().map((snapshot) {
+      var bookQuizList = snapshot.docs.map((doc) {
+        var data = doc.data();
+        return ObjectBookQuiz.fromJson(data);
+      }).toList();
+      return Right(bookQuizList);
+    });
+  }
+
+  Stream<Either<Failure, List<ObjectBookQuiz?>>> retrieveBookQuiz(
+      String courseId, String section) {
+    try {
+      var coursePath = 'source_one_course_$courseId';
+      return _firestore
+          .collection(coursePath)
+          .doc(section)
+          .collection("modulescollection")
+          .withConverter(
+              fromFirestore: (snapshot, _) =>
+                  ObjectBookQuiz.fromJson(snapshot.data()!),
+              toFirestore: (bookquiz, _) => bookquiz.toJson())
+          .snapshots()
+          .map((event) {
+        if (event.docs.isEmpty) {
+          debugPrint('retrieveBookQuiz Data Loaded A');
+          return Left(RepositoryFailure('No Course Section Found'));
+        } else {
+          debugPrint('retrieveBookQuiz Data Loaded C');
+          return Right(event.docs.map((e) => e.data()).toList());
+        }
+      });
+    } on Exception catch (e) {
+      debugPrint("retrieveBookQuiz We Have Errors Here");
+      return Stream.value(Left(RepositoryFailure(e.toString())));
+    }
+  }
+
+  // bookcontextid
+  Stream<Either<Failure, List<ObjectBookContent?>>> retrieveBookChapter(
+      String courseId, String section, String bookcontextid) {
+    try {
+      var coursePath = 'source_one_course_$courseId';
+      return _firestore
+          .collection(coursePath)
+          .doc(section)
+          .collection("modulescollection")
+          .doc(bookcontextid)
+          .collection("contentscollection")
+          .withConverter(
+              fromFirestore: (snapshot, _) =>
+                  ObjectBookContent.fromJson(snapshot.data()!),
+              toFirestore: (bookchapters, _) => bookchapters.toJson())
+          .snapshots()
+          .map((event) {
+        if (event.docs.isEmpty) {
+          debugPrint('retrieveBookChapter Data Loaded A');
+          return Left(RepositoryFailure('No Course Section Found'));
+        } else {
+          debugPrint('retrieveBookChapter Data Loaded C');
+          return Right(event.docs.map((e) => e.data()).toList());
+        }
+      });
+    } on Exception catch (e) {
+      debugPrint("retrieveBookChapter We Have Errors Here");
       return Stream.value(Left(RepositoryFailure(e.toString())));
     }
   }

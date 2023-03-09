@@ -52,6 +52,11 @@ class DatabaseState extends Equatable {
   Subscription? get gselectedsubscription => _selectedsubscription;
 
   @override
-  List<Object?> get props =>
-      [glistOfSubscriptionData, guserid, ghenetworkStatus,gselectedsubscription, error];
+  List<Object?> get props => [
+        glistOfSubscriptionData,
+        guserid,
+        ghenetworkStatus,
+        gselectedsubscription,
+        error
+      ];
 }

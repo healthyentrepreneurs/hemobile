@@ -8,6 +8,9 @@ import 'package:he/helper/file_system_util.dart';
 import 'package:he/objects/objects.dart';
 import 'package:he_api/he_api.dart';
 
+import '../../../objects/objectbookcontent.dart';
+import '../../../objects/objectbookquiz.dart';
+
 part 'section_event.dart';
 part 'section_state.dart';
 
@@ -17,6 +20,8 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
       : _databaseRepository = repository,
         super(const SectionState.loading()) {
     on<SectionFetched>(_onSectionFetched);
+    on<BookQuizSelected>(_onBookQuizSelected);
+    on<BookChapterSelected>(_onBookChapterSelected);
   }
   final DatabaseRepository _databaseRepository;
 
@@ -34,5 +39,35 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
             henetworkStatus: event.henetworkStatus),
       );
     });
+  }
+
+  _onBookQuizSelected(
+      BookQuizSelected event, Emitter<SectionState> emit) async {
+    Stream<Either<Failure, List<ObjectBookQuiz?>>> listBookQuizStream =
+        _databaseRepository.retrieveBookQuiz(event.courseId, event.section);
+    await emit.forEach(listBookQuizStream,
+        onData: (Either<Failure, List<ObjectBookQuiz?>> listBookQuiz) {
+      return listBookQuiz.fold(
+        (failure) => state.copyWith(error: failure),
+        (listBookQuiz) => state.copyWith(listBookQuiz: listBookQuiz),
+      );
+    });
+    // listBookQuiz
+  }
+
+  _onBookChapterSelected(
+      BookChapterSelected event, Emitter<SectionState> emit) async {
+    Stream<Either<Failure, List<ObjectBookContent?>>> listBookChapterStream =
+        _databaseRepository.retrieveBookChapter(
+            event.courseId, event.section, event.bookContextId);
+    await emit.forEach(listBookChapterStream,
+        onData: (Either<Failure, List<ObjectBookContent?>> listBookChapter) {
+      return listBookChapter.fold(
+        (failure) => state.copyWith(error: failure),
+        (listBookChapters) =>
+            state.copyWith(listBookChapters: listBookChapters),
+      );
+    });
+    // listBookQuiz
   }
 }

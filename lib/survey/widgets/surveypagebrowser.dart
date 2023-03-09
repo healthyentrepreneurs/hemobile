@@ -26,8 +26,8 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
   late InAppWebViewController webView;
   @override
   Widget build(BuildContext context) {
-    Subscription course =
-        BlocProvider.of<DatabaseBloc>(context).state.gselectedsubscription!;
+    final databasebloc = BlocProvider.of<DatabaseBloc>(context);
+    Subscription course =databasebloc.state.gselectedsubscription!;
     return Scaffold(
         backgroundColor: ToolUtils.whiteColor,
         appBar: AppBar(
@@ -203,7 +203,7 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
   @override
   void dispose() {
     // To Be Revisited
-    // storeHelper.closeDb();
+    // databasebloc.close();
     super.dispose();
   }
 

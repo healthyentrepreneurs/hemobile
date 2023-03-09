@@ -1,24 +1,28 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/course/section/bloc/section_bloc.dart';
 import 'package:he/course/section/view/sectioncard.dart';
+import 'package:he/course/view/bookquiz_page.dart';
 import 'package:he/helper/file_system_util.dart';
 import 'package:he_api/he_api.dart';
 
 import '../../../helper/toolutils.dart';
 import '../../../home/widgets/widgets.dart';
+import '../../../objects/blocs/hedata/bloc/database_bloc.dart';
 import '../../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import '../../widgets/sectionicon.dart';
 
 class SectionsPage extends StatelessWidget {
-  final Subscription course;
-  const SectionsPage({Key? key, required this.course}) : super(key: key);
+  const SectionsPage({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final heNetworkState =
-        context.select((HenetworkBloc bloc) => bloc.state.status);
-    debugPrint("COURSE IDS ${course.id}");
-    final sectionBloc = BlocProvider.of<SectionBloc>(context);
+    final databasebloc = BlocProvider.of<DatabaseBloc>(context);
+    Subscription course = databasebloc.state.gselectedsubscription!;
+    // String courseCollectionString = "source_one_course_${course.id}";
+    // var courseCollection =
+    //     FirebaseFirestore.instance.collection(courseCollectionString);
+    // final dataBloc = BlocProvider.of<DatabaseBloc>(context);
     return Scaffold(
       // resizeToAvoidBottomInset: true,
       backgroundColor: ToolUtils.whiteColor,
@@ -55,18 +59,30 @@ class SectionsPage extends StatelessWidget {
               ),
             ),
             BlocListener<HenetworkBloc, HenetworkState>(
+              listenWhen: (previous, current) {
+                var netState = previous.gstatus != current.gstatus;
+                if (netState) {
+                  Navigator.pop(context);
+                  return false;
+                }
+                return false;
+              },
               listener: (context, state) {
-                sectionBloc
+                debugPrint("BobiWine ${course.id.toString()} ${state.gstatus}");
+                BlocProvider.of<SectionBloc>(context)
                     .add(SectionFetched(course.id.toString(), state.gstatus));
               },
               child: BlocBuilder<SectionBloc, SectionState>(
                   buildWhen: (previous, current) =>
                       previous.glistofSections != current.glistofSections,
                   builder: (context, state) {
+                    final sectionBloc = BlocProvider.of<SectionBloc>(context);
                     if (state.error != null) {
                       return const StateLoadingHe()
                           .errorWithStackT(state.error!.message);
                     } else {
+                      final heNetworkState = context
+                          .select((HenetworkBloc bloc) => bloc.state.status);
                       if (state.ghenetworkStatus == HenetworkStatus.loading) {
                         debugPrint('SectionsPage@HenetworkStatus.loading');
                         sectionBloc.add(SectionFetched(
@@ -101,7 +117,32 @@ class SectionsPage extends StatelessWidget {
                                   child: SectionCard(
                                       sectionName: section.name!,
                                       imageUrl: course.imageUrlSmall!),
-                                  onTap: () {},
+                                  onTap: () async {
+                                    debugPrint(
+                                        "MoonG ${course.id} Section ${section.section.toString()}");
+                                    sectionBloc.add(BookQuizSelected(
+                                        course.id.toString(),
+                                        section.section.toString()));
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute<BookQuizPage>(
+                                        builder: (context) {
+                                          return BlocProvider.value(
+                                            value: sectionBloc,
+                                            child: BookQuizPage(
+                                              sectionname: section.name!,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    );
+                                    // Navigator.push(
+                                    //   context,
+                                    //   MaterialPageRoute<void>(
+                                    //       builder: (BuildContext context) =>
+                                    //           BookQuizPage(
+                                    //               sectionname: section.name!)),
+                                    // );
+                                  },
                                 );
                               });
                         }

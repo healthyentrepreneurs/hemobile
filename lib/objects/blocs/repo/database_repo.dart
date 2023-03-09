@@ -2,11 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:he/objects/blocs/repo/service/service.dart';
+import 'package:he/objects/objectbookcontent.dart';
 import 'package:he_api/he_api.dart';
 import 'package:injectable/injectable.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../../helper/file_system_util.dart';
+import '../../objectbookquiz.dart';
 import 'impl/idatabase_repo.dart';
 import 'impl/repo_failure.dart';
 
@@ -80,5 +82,17 @@ class DatabaseRepository implements IDatabaseRepository {
       // return _service().retrieveBookSection(courseid);
       return _serviceLocal.retrieveBookSurveyLocal(courseid);
     }
+  }
+
+  @override
+  Stream<Either<Failure, List<ObjectBookQuiz?>>> retrieveBookQuiz(
+      String courseId, String section) {
+    return _service().retrieveBookQuiz(courseId, section);
+  }
+
+  @override
+  Stream<Either<Failure, List<ObjectBookContent?>>> retrieveBookChapter(
+      String courseId, String section, String bookcontextid) {
+    return _service().retrieveBookChapter(courseId, section, bookcontextid);
   }
 }

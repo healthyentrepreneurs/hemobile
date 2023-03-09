@@ -114,7 +114,7 @@ class _ChapterDisplayState extends State<ChapterDisplay> {
 
   Widget _displayFSImage(ObjectBookContent content, String imageUrl) {
     String _imageUrl =
-        imageUrl + "?token=" + "a8400b6d821f54442b9696a03e89e330";
+        "$imageUrl?token=a8400b6d821f54442b9696a03e89e330";
     printOnlyDebug("Image in pager $_imageUrl");
     return Image.network(
       _imageUrl,

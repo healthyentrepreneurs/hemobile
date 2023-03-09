@@ -72,11 +72,11 @@ class _BookChapState extends State<BookChapters> {
                       ),
                     ),
                     Align(
+                      alignment: Alignment.bottomCenter,
                       child: DotPagination(
                         itemCount: _coursePagerList.length,
                         activeIndex: _currentPage,
                       ),
-                      alignment: Alignment.bottomCenter,
                     )
                   ],
                 );
