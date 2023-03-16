@@ -2,10 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
-import 'package:he/objects/objectbookcontent.dart';
 import 'package:he_api/he_api.dart';
 
-import '../../../objectbookquiz.dart';
+// import '../../../objectbookquiz.dart';
 
 class DatabaseService {
   // late final FirebaseFirestore _db;
@@ -81,7 +80,7 @@ class DatabaseService {
     }
   }
 
-  Stream<Either<Failure, String>> retrieveSurveyStream(String courseId) {
+  Stream<Either<Failure, String>> retrieveSurvey(String courseId) {
     try {
       return _firestore
           .collection("surveys")
@@ -139,7 +138,7 @@ class DatabaseService {
     }
   }
 
-  Stream<Either<Failure, List<ObjectBookQuiz?>>> retrieveBookQuiz_optiontwo(
+  Stream<Either<Failure, List<BookQuiz?>>> retrieveBookQuiz_optiontwo(
       String courseId, String section) async* {
     String courseCollectionString = "source_one_course_$courseId";
     var courseCollection = _firestore.collection(courseCollectionString);
@@ -150,7 +149,7 @@ class DatabaseService {
       var snapshot = await booksCollection.get();
       var bookQuizList = snapshot.docs.map((doc) {
         var data = doc.data();
-        return ObjectBookQuiz.fromJson(data);
+        return BookQuiz.fromJson(data);
       }).toList();
       yield Right(bookQuizList);
     } catch (e) {
@@ -159,13 +158,13 @@ class DatabaseService {
     yield* booksCollection.snapshots().map((snapshot) {
       var bookQuizList = snapshot.docs.map((doc) {
         var data = doc.data();
-        return ObjectBookQuiz.fromJson(data);
+        return BookQuiz.fromJson(data);
       }).toList();
       return Right(bookQuizList);
     });
   }
 
-  Stream<Either<Failure, List<ObjectBookQuiz?>>> retrieveBookQuiz(
+  Stream<Either<Failure, List<BookQuiz?>>> retrieveBookQuiz(
       String courseId, String section) {
     try {
       var coursePath = 'source_one_course_$courseId';
@@ -175,7 +174,7 @@ class DatabaseService {
           .collection("modulescollection")
           .withConverter(
               fromFirestore: (snapshot, _) =>
-                  ObjectBookQuiz.fromJson(snapshot.data()!),
+                  BookQuiz.fromJson(snapshot.data()!),
               toFirestore: (bookquiz, _) => bookquiz.toJson())
           .snapshots()
           .map((event) {
@@ -193,8 +192,7 @@ class DatabaseService {
     }
   }
 
-  // bookcontextid
-  Stream<Either<Failure, List<ObjectBookContent?>>> retrieveBookChapter(
+  Stream<Either<Failure, List<BookContent>>> retrieveBookChapter(
       String courseId, String section, String bookcontextid) {
     try {
       var coursePath = 'source_one_course_$courseId';
@@ -206,7 +204,7 @@ class DatabaseService {
           .collection("contentscollection")
           .withConverter(
               fromFirestore: (snapshot, _) =>
-                  ObjectBookContent.fromJson(snapshot.data()!),
+                  BookContent.fromJson(snapshot.data()!),
               toFirestore: (bookchapters, _) => bookchapters.toJson())
           .snapshots()
           .map((event) {
@@ -214,8 +212,9 @@ class DatabaseService {
           debugPrint('retrieveBookChapter Data Loaded A');
           return Left(RepositoryFailure('No Course Section Found'));
         } else {
-          debugPrint('retrieveBookChapter Data Loaded C');
-          return Right(event.docs.map((e) => e.data()).toList());
+          var mama = event.docs.map((e) => e.data()).toList();
+          debugPrint('Online Tatiana Data Loaded C ${mama.toString()}');
+          return Right(mama);
         }
       });
     } on Exception catch (e) {

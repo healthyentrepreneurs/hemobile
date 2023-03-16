@@ -25,8 +25,5 @@ void configureInjections(GetIt getIt) {
 
   getIt.registerLazySingleton<DatabaseRepository>(
       () => DatabaseRepository(injectableModule.firestore));
-
-  // getIt.registerLazySingleton<FoFiRepository>(() => FoFiRepository(
-  //     injectableModule.getexternaldownlodpath, injectableModule.getdirectory));
-  getIt.registerLazySingleton<FoFiRepository>(() => FoFiRepository());
+  // getIt.registerLazySingleton<FoFiRepository>(() => FoFiRepository());
 }

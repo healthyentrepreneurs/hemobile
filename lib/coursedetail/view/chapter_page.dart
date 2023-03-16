@@ -1,20 +1,30 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:he/coursedetail/coursedetail.dart';
 import 'package:he/helper/helper_functions.dart';
-import 'package:he/objects/objectbookcontent.dart';
+import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import 'package:he/objects/objectbookquiz.dart';
 import 'package:he/objects/objectcontentstructure.dart';
+import 'package:he_api/he_api.dart';
+
+import '../../helper/file_system_util.dart';
+import '../../objects/blocs/repo/fofiperm_repo.dart';
 
 class ChapterDisplay extends StatefulWidget {
   final ObjectBookQuiz? courseModule;
   final ObjectContentStructure? coursePage;
-  final List<ObjectBookContent>? courseContents;
+  final List<BookContent>? courseContents;
+  final String courseId;
 
   const ChapterDisplay(
-      {Key? key, this.coursePage, this.courseContents, this.courseModule})
+      {Key? key,
+      required this.courseId,
+      this.coursePage,
+      this.courseContents,
+      this.courseModule})
       : super(key: key);
 
   @override
@@ -24,16 +34,31 @@ class ChapterDisplay extends StatefulWidget {
 class _ChapterDisplayState extends State<ChapterDisplay> {
   @override
   Widget build(BuildContext context) {
+    final heNetworkState =
+        context.select((HenetworkBloc bloc) => bloc.state.status);
     ObjectContentStructure _coursePage = widget.coursePage!;
-    List<ObjectBookContent>? _courseContents = widget.courseContents;
+    List<BookContent>? _courseContents = widget.courseContents;
     final chapterIdPath = "/${_coursePage.chapterId}/";
+    final FoFiRepository fofirepo = FoFiRepository();
     String? contentText;
     var _htmlContentList = _courseContents!
         .where((c) => c.filepath.toLowerCase() == chapterIdPath.toLowerCase())
         .where((cname) => cname.filename == "index.html")
         .toList();
-    if (_htmlContentList.isNotEmpty) {
+    // if (_htmlContentList.isNotEmpty) {
+    //   contentText = _htmlContentList.first.fileurl;
+    // }
+    if (_htmlContentList.isNotEmpty &&
+        heNetworkState != HenetworkStatus.noInternet) {
       contentText = _htmlContentList.first.fileurl;
+    } else if (_htmlContentList.isNotEmpty &&
+        heNetworkState == HenetworkStatus.noInternet) {
+      File fileImage = fofirepo.getLocalFileHe(_htmlContentList.first.fileurl!);
+      if (fileImage.existsSync()) {
+        contentText = fileImage.readAsStringSync();
+      } else {
+        contentText = fileImage.path;
+      }
     }
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 10, right: 10),
@@ -69,7 +94,8 @@ class _ChapterDisplayState extends State<ChapterDisplay> {
                     }
                     var content = findSingleFileContent(videoSourceUrl);
                     if (content != null) {
-                      return _htmlVideoCardFromOnline("${content.fileurl}");
+                      return _htmlVideoCardFromOnline(
+                          "${content.fileurl}", widget.courseId);
                     } else {
                       return const SizedBox(height: 1.0);
                     }
@@ -108,8 +134,9 @@ class _ChapterDisplayState extends State<ChapterDisplay> {
     );
   }
 
-  Widget _htmlVideoCardFromOnline(String videoUrl) {
+  Widget _htmlVideoCardFromOnline(String videoUrl, String courseId) {
     // print("Online video display ... $videoUrl");
+
     return Padding(
       padding: const EdgeInsets.only(top: 3, bottom: 6.0),
       child: InkWell(
@@ -119,7 +146,7 @@ class _ChapterDisplayState extends State<ChapterDisplay> {
               MaterialPageRoute(
                   builder: (context) => ChewieVideoViewOnline(
                         videoUrl: videoUrl,
-                        courseId: "3",
+                        courseId: courseId,
                       )));
         },
         child: Center(
@@ -136,7 +163,7 @@ class _ChapterDisplayState extends State<ChapterDisplay> {
                       color: Colors.white38),
                   child: ChewieVideoViewOnline(
                     videoUrl: videoUrl,
-                    courseId: "3",
+                    courseId: courseId,
                   ),
                 ),
               ),
@@ -147,8 +174,8 @@ class _ChapterDisplayState extends State<ChapterDisplay> {
     );
   }
 
-  ObjectBookContent? findSingleFileContent(String fileName) {
-    printOnlyDebug("filename $fileName");
+  BookContent? findSingleFileContent(String fileName) {
+    printOnlyDebug("HeOfflineMedia A $fileName");
     try {
       // 7-LU.mp4?time=1606398138322
       if (fileName.contains('?')) {
@@ -160,25 +187,38 @@ class _ChapterDisplayState extends State<ChapterDisplay> {
           .toList();
       if (list.isNotEmpty) {
         printOnlyDebug(
-            "findSingleFileContent  list available ${list.first.filename}");
+            "HeOfflineMedia B findSingleFileContent  list available ${list.first.filename}");
         return list.first;
       } else {
-        printOnlyDebug("findSingleFileContent available null");
+        printOnlyDebug("HeOfflineMedia C findSingleFileContent available null");
       }
       return null;
     } catch (e) {
       printOnlyDebug("Items $fileName");
-      printOnlyDebug("findSingleFileContent error $e");
+      printOnlyDebug("HeOfflineMedia E findSingleFileContent error $e");
       return null;
     }
   }
 
-  Widget _displayFSImage(ObjectBookContent content, String imageUrl) {
-    String _imageUrl =
-        "$imageUrl?token=a8400b6d821f54442b9696a03e89e330";
+  Widget _displayFSImage(BookContent content, String imageUrl) {
     // printOnlyDebug("Image in pager $_imageUrl");
+    debugPrint("Davos $imageUrl");
     return Image.network(
-      _imageUrl,
+      imageUrl,
+      fit: BoxFit.cover,
+    );
+  }
+
+  Widget chapterImageOffline(String photo, FoFiRepository fofi) {
+    File fileImage = fofi.getLocalFileHe(photo);
+    if (!fileImage.existsSync()) {
+      return Image.asset(
+        'assets/images/grid.png',
+        fit: BoxFit.cover,
+      );
+    }
+    return Image.file(
+      fileImage,
       fit: BoxFit.cover,
     );
   }

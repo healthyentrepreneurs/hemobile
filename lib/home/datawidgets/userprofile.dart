@@ -5,21 +5,22 @@ import 'package:he/helper/file_system_util.dart';
 import 'package:he/home/datawidgets/userlanding.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he_api/he_api.dart';
+import '../../course/section/bloc/section_bloc.dart';
 import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import '../../survey/bloc/survey_bloc.dart';
 import '../../survey/widgets/surveypagebrowser.dart';
 import '../widgets/widgets.dart';
 
 class UserProfile extends StatelessWidget {
-  final User user;
-  const UserProfile({Key? key, required this.user}) : super(key: key);
+  final String userid;
+  const UserProfile({Key? key, required this.userid}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<HenetworkBloc, HenetworkState>(
       listener: (context, state) {
         BlocProvider.of<DatabaseBloc>(context)
-            .add(DatabaseFetched('${user.id}', state.gstatus));
+            .add(DatabaseFetched(userid, state.gstatus));
       },
       child: BlocBuilder<DatabaseBloc, DatabaseState>(
           buildWhen: (previous, current) =>
@@ -31,17 +32,15 @@ class UserProfile extends StatelessWidget {
                   .errorWithStackT(state.error!.message);
             } else {
               if (state.ghenetworkStatus == HenetworkStatus.loading) {
-                debugPrint('UserProfile@HenetworkStatus.loading');
-                databasebloc.add(DatabaseFetched('${user.id}',
+                databasebloc.add(DatabaseFetched(userid,
                     context.select((HenetworkBloc bloc) => bloc.state.status)));
                 return const StateLoadingHe().loadingData();
               } else {
-                debugPrint(
-                    'UserProfile@DatabaseBlocB ${state.guserid} then ${state.ghenetworkStatus}');
                 if (state.glistOfSubscriptionData.isEmpty) {
                   return const StateLoadingHe()
                       .noDataFound('You have no Tools');
                 } else {
+                  // final sectionBloc = BlocProvider.of<SectionBloc>(context);
                   return ListView.builder(
                     shrinkWrap: true,
                     padding: const EdgeInsets.only(bottom: 40),
@@ -67,11 +66,24 @@ class UserProfile extends StatelessWidget {
                             } else {
                               databasebloc
                                   .add(DatabaseSubSelected(subscription));
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const SectionsPage(),
-                                  ));
+                              BlocProvider.of<SectionBloc>(context).add(
+                                  SectionFetched('${subscription.id}',
+                                      state.ghenetworkStatus));
+                              Navigator.of(context).push(
+                                MaterialPageRoute<SectionsPage>(
+                                  builder: (context) {
+                                    return BlocProvider.value(
+                                      value: databasebloc,
+                                      child: const SectionsPage(),
+                                    );
+                                  },
+                                ),
+                              );
+                              // Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //       builder: (context) =>  const SectionsPage(),
+                              //     ));
                             }
                           });
                     },

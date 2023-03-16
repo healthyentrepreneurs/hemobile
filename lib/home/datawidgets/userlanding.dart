@@ -12,7 +12,7 @@ class UserLanding extends StatelessWidget {
   final Function? onTap;
   @override
   Widget build(BuildContext context) {
-    final FoFiRepository _fofi = getIt<FoFiRepository>();
+    final FoFiRepository _fofi = FoFiRepository();
     return GestureDetector(
       onTap: () {
         onTap!();

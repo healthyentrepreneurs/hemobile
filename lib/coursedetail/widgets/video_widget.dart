@@ -110,8 +110,8 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 videoDownloading
-                    ? Text("Wait Video is Downloading ...")
-                    : Text("Download Video"),
+                    ? const Text("Wait Video is Downloading ...")
+                    : const Text("Download Video"),
                 IconButton(
                   onPressed: () {
                     downloadVideoFile();
@@ -133,7 +133,7 @@ class _ChewieVideoViewOnlineState extends State<ChewieVideoViewOnline> {
                   : Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
+                      children: const [
                         CircularProgressIndicator(),
                         SizedBox(height: 20),
                         Text('Loading'),

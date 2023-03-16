@@ -41,7 +41,6 @@ dependencies:
   path_provider: ^2.0.8
   transparent_image: ^2.0.0
 
-
   #Start File System Plugins
   external_path: ^1.0.1
   permission_handler: ^10.2.0
@@ -80,6 +79,7 @@ dependencies:
   archive: ^3.3.6
   connectivity_plus: ^3.0.2
   network_info_plus: ^3.0.2
+  collection: ^1.17.0
 
 dev_dependencies:
   bloc_test: ^9.1.0

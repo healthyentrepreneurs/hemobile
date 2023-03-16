@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/course/section/bloc/section_bloc.dart';
@@ -17,12 +16,11 @@ class SectionsPage extends StatelessWidget {
   const SectionsPage({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final databasebloc = BlocProvider.of<DatabaseBloc>(context);
-    Subscription course = databasebloc.state.gselectedsubscription!;
-    // String courseCollectionString = "source_one_course_${course.id}";
-    // var courseCollection =
-    //     FirebaseFirestore.instance.collection(courseCollectionString);
-    // final dataBloc = BlocProvider.of<DatabaseBloc>(context);
+    Subscription course =
+        BlocProvider.of<DatabaseBloc>(context).state.gselectedsubscription!;
+    final sectionBloc = BlocProvider.of<SectionBloc>(context);
+    final heNetworkState =
+        context.select((HenetworkBloc bloc) => bloc.state.status);
     return Scaffold(
       // resizeToAvoidBottomInset: true,
       backgroundColor: ToolUtils.whiteColor,
@@ -58,102 +56,104 @@ class SectionsPage extends StatelessWidget {
                 ],
               ),
             ),
-            BlocListener<HenetworkBloc, HenetworkState>(
-              listenWhen: (previous, current) {
-                var netState = previous.gstatus != current.gstatus;
-                if (netState) {
-                  Navigator.pop(context);
-                  return false;
+            BlocBuilder<SectionBloc, SectionState>(
+                buildWhen: (previous, current) {
+              var _one_section = previous.glistofSections
+                  .map((section) => section?.toJson() ?? 'null')
+                  .join(', ');
+              var _two_section = current.glistofSections
+                  .map((section) => section?.toJson() ?? 'null')
+                  .join(', ');
+              var rebuild = _one_section != _two_section;
+              var rebuildError = previous.error != current.error;
+              if (previous.error == null && current.error != null) {
+                sectionBloc.add(SectionFetchedError(
+                    heNetworkState, const <Section>[], current.error));
+              } else if (current.error == null && previous.error != null) {
+                sectionBloc
+                    .add(SectionFetched(course.id.toString(), heNetworkState));
+              } else if (rebuild) {
+                sectionBloc.add(SectionFetchedError(
+                    heNetworkState, current.glistofSections, null));
+              }
+              debugPrint("BlocBuilder@SectionBloc@buildWhen --> $rebuild");
+              return rebuildError || rebuild;
+            }, builder: (context, state) {
+              if (heNetworkState != state.ghenetworkStatus) {
+                Navigator.pop(context);
+                return const StateLoadingHe().loadingData();
+              }
+              if (state.error != null) {
+                sectionBloc.add(SectionFetchedError(
+                    heNetworkState, const <Section>[], state.error));
+                return const StateLoadingHe()
+                    .errorWithStackT(state.error!.message);
+              } else {
+                if (state.ghenetworkStatus == HenetworkStatus.loading) {
+                  debugPrint('SectionsPage@HenetworkStatus.loading');
+                  sectionBloc.add(
+                      SectionFetched(course.id.toString(), heNetworkState));
+                  return const StateLoadingHe().loadingData();
+                } else {
+                  if (state.glistofSections.isEmpty) {
+                    return const StateLoadingHe()
+                        .noDataFound('You have no Sections');
+                  } else {
+                    return GridView.builder(
+                        shrinkWrap: true,
+                        primary: false,
+                        padding: const EdgeInsets.all(20),
+                        physics: const ClampingScrollPhysics(),
+                        itemCount: state.glistofSections.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          mainAxisSpacing: 10,
+                          crossAxisSpacing: 10,
+                          childAspectRatio: MediaQuery.of(context).size.width /
+                              (MediaQuery.of(context).size.height / 1.6),
+                        ),
+                        itemBuilder: (BuildContext context, int index) {
+                          var section = state.glistofSections[index]!;
+                          return GestureDetector(
+                            child: SectionCard(
+                                sectionName: section.name!,
+                                imageUrl: course.imageUrlSmall!),
+                            onTap: () {
+                              // if (heNetworkState ==
+                              //     HenetworkStatus.noInternet) {
+                              //   addBookSelectedStateOffline(context);
+                              // } else if (heNetworkState ==
+                              //     HenetworkStatus.wifiNetwork) {
+                              //
+                              // }
+                              sectionBloc.add(BookQuizSelected(
+                                  course.id.toString(),
+                                  section.section.toString()));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute<void>(
+                                    builder: (BuildContext context) =>
+                                        BookQuizPage(
+                                            sectionName: section.name!,
+                                            courseId: course.id.toString(),
+                                            sectionSection:
+                                                section.section.toString())),
+                              );
+                            },
+                          );
+                        });
+                  }
                 }
-                return false;
-              },
-              listener: (context, state) {
-                debugPrint("BobiWine ${course.id.toString()} ${state.gstatus}");
-                BlocProvider.of<SectionBloc>(context)
-                    .add(SectionFetched(course.id.toString(), state.gstatus));
-              },
-              child: BlocBuilder<SectionBloc, SectionState>(
-                  buildWhen: (previous, current) =>
-                      previous.glistofSections != current.glistofSections,
-                  builder: (context, state) {
-                    final sectionBloc = BlocProvider.of<SectionBloc>(context);
-                    if (state.error != null) {
-                      return const StateLoadingHe()
-                          .errorWithStackT(state.error!.message);
-                    } else {
-                      final heNetworkState = context
-                          .select((HenetworkBloc bloc) => bloc.state.status);
-                      if (state.ghenetworkStatus == HenetworkStatus.loading) {
-                        debugPrint('SectionsPage@HenetworkStatus.loading');
-                        sectionBloc.add(SectionFetched(
-                            course.id.toString(), heNetworkState));
-                        return const StateLoadingHe().loadingData();
-                      } else {
-                        debugPrint(
-                            'SectionsPage@SectionBlocB  ${state.ghenetworkStatus}');
-                        if (state.glistofSections.isEmpty) {
-                          return const StateLoadingHe()
-                              .noDataFound('You have no Sections');
-                        } else {
-                          return GridView.builder(
-                              shrinkWrap: true,
-                              primary: false,
-                              padding: const EdgeInsets.all(20),
-                              physics: const ClampingScrollPhysics(),
-                              itemCount: state.glistofSections.length,
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                mainAxisSpacing: 10,
-                                crossAxisSpacing: 10,
-                                childAspectRatio: MediaQuery.of(context)
-                                        .size
-                                        .width /
-                                    (MediaQuery.of(context).size.height / 1.6),
-                              ),
-                              itemBuilder: (BuildContext context, int index) {
-                                var section = state.glistofSections[index]!;
-                                return GestureDetector(
-                                  child: SectionCard(
-                                      sectionName: section.name!,
-                                      imageUrl: course.imageUrlSmall!),
-                                  onTap: () async {
-                                    debugPrint(
-                                        "MoonG ${course.id} Section ${section.section.toString()}");
-                                    sectionBloc.add(BookQuizSelected(
-                                        course.id.toString(),
-                                        section.section.toString()));
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute<BookQuizPage>(
-                                        builder: (context) {
-                                          return BlocProvider.value(
-                                            value: sectionBloc,
-                                            child: BookQuizPage(
-                                              sectionname: section.name!,
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    );
-                                    // Navigator.push(
-                                    //   context,
-                                    //   MaterialPageRoute<void>(
-                                    //       builder: (BuildContext context) =>
-                                    //           BookQuizPage(
-                                    //               sectionname: section.name!)),
-                                    // );
-                                  },
-                                );
-                              });
-                        }
-                      }
-                    }
-                  }),
-            )
+              }
+            })
           ],
         ),
       ),
       //endDrawer: CustomDrawer(),
     );
+  }
+
+  void addBookSelectedStateOffline(BuildContext context) {
+    debugPrint("Offline Option");
   }
 }

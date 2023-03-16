@@ -25,6 +25,7 @@ class Subscription extends Equatable {
       _$SubscriptionFromJson(json);
 
   Map<String, dynamic> toJson() => _$SubscriptionToJson(this);
+
   /// The current user's id.
   final int? id;
 

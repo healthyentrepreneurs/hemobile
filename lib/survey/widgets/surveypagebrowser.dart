@@ -27,7 +27,7 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
   @override
   Widget build(BuildContext context) {
     final databasebloc = BlocProvider.of<DatabaseBloc>(context);
-    Subscription course =databasebloc.state.gselectedsubscription!;
+    Subscription course = databasebloc.state.gselectedsubscription!;
     return Scaffold(
         backgroundColor: ToolUtils.whiteColor,
         appBar: AppBar(

@@ -1,10 +1,22 @@
-// To parse this JSON data, do
+import 'package:copy_with_extension/copy_with_extension.dart';
+import 'package:equatable/equatable.dart';
+import 'package:he_api/he_api.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import 'enum_converters.dart';
 
 part 'bookcontent.g.dart';
 
-@JsonSerializable()
-class BookContent {
+@JsonSerializable(explicitToJson: true)
+@CopyWith()
+class BookContent extends Equatable {
+  factory BookContent.fromJson(
+    Map<String, dynamic> json, {
+    bool readUrlFlag = false,
+  }) {
+    final bookContent = _$BookContentFromJson(json);
+    return bookContent._updateFileUrlIfNeeded(readUrlFlag);
+  }
   BookContent({
     this.id,
     required this.type,
@@ -19,38 +31,63 @@ class BookContent {
     this.content,
     this.mimetype,
     this.videocaption,
+    this.readUrlFlag = false,
   });
 
-  int? id;
-  Type type;
-  String filename;
-  String filepath;
-  int filesize;
-  String? fileurl;
-  int? timecreated;
-  int? timemodified;
-  int? sortorder;
-  double? userid;
-  String? content;
-  Mimetype? mimetype;
-  String? videocaption;
+  final int? id;
 
-  factory BookContent.fromJson(Map<String, dynamic> json) =>
-      _$BookContentFromJson(json);
+  @TypeConverter()
+  final Type type;
+
+  final String filename;
+  final String filepath;
+  final int filesize;
+  final String? fileurl;
+  final int? timecreated;
+  final int? timemodified;
+  final int? sortorder;
+  final double? userid;
+  final String? content;
+
+  @MimetypeConverter()
+  final Mimetype? mimetype;
+
+  final String? videocaption;
+  final bool readUrlFlag;
+
+  BookContent _updateFileUrlIfNeeded(bool readUrlFlag) {
+    if (readUrlFlag) {
+      // String? newFileUrl =
+      //     '<h1>Contents in html</h1>'; // Replace this line with the actual logic
+      // return copyWith(fileurl: newFileUrl);
+    }
+    return this;
+  }
+
+  Map<String, dynamic> toJson() => _$BookContentToJson(this);
+
+  @override
+  List<Object?> get props => [
+        id,
+        type,
+        filename,
+        filepath,
+        filesize,
+        fileurl,
+        timecreated,
+        timemodified,
+        sortorder,
+        userid,
+        content,
+        mimetype,
+        videocaption,
+      ];
+
+  String? get fileUrl {
+    return fileurl;
+  }
 }
 
 enum Mimetype { VIDEO_MP4, IMAGE_PNG, IMAGE_JPEG }
 
 enum Type { CONTENT, FILE }
-
-class EnumValues<T> {
-  Map<String, T> map;
-  late Map<T, String> reverseMap;
-
-  EnumValues(this.map);
-
-  Map<T, String> get reverse {
-    reverseMap;
-    return reverseMap;
-  }
-}

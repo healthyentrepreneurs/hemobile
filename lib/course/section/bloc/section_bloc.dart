@@ -8,8 +8,6 @@ import 'package:he/helper/file_system_util.dart';
 import 'package:he/objects/objects.dart';
 import 'package:he_api/he_api.dart';
 
-import '../../../objects/objectbookcontent.dart';
-import '../../../objects/objectbookquiz.dart';
 
 part 'section_event.dart';
 part 'section_state.dart';
@@ -22,6 +20,9 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
     on<SectionFetched>(_onSectionFetched);
     on<BookQuizSelected>(_onBookQuizSelected);
     on<BookChapterSelected>(_onBookChapterSelected);
+    // ,transformer: droppable()
+    on<SectionFetchedError>(_onSectionFetchedError);
+    // ErrorCounted
   }
   final DatabaseRepository _databaseRepository;
 
@@ -43,10 +44,10 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
 
   _onBookQuizSelected(
       BookQuizSelected event, Emitter<SectionState> emit) async {
-    Stream<Either<Failure, List<ObjectBookQuiz?>>> listBookQuizStream =
+    Stream<Either<Failure, List<BookQuiz?>>> listBookQuizStream =
         _databaseRepository.retrieveBookQuiz(event.courseId, event.section);
     await emit.forEach(listBookQuizStream,
-        onData: (Either<Failure, List<ObjectBookQuiz?>> listBookQuiz) {
+        onData: (Either<Failure, List<BookQuiz?>> listBookQuiz) {
       return listBookQuiz.fold(
         (failure) => state.copyWith(error: failure),
         (listBookQuiz) => state.copyWith(listBookQuiz: listBookQuiz),
@@ -57,11 +58,11 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
 
   _onBookChapterSelected(
       BookChapterSelected event, Emitter<SectionState> emit) async {
-    Stream<Either<Failure, List<ObjectBookContent?>>> listBookChapterStream =
+    Stream<Either<Failure, List<BookContent>>> listBookChapterStream =
         _databaseRepository.retrieveBookChapter(
-            event.courseId, event.section, event.bookContextId);
+            event.courseId, event.section, event.bookContextId,event.bookIndex);
     await emit.forEach(listBookChapterStream,
-        onData: (Either<Failure, List<ObjectBookContent?>> listBookChapter) {
+        onData: (Either<Failure, List<BookContent>> listBookChapter) {
       return listBookChapter.fold(
         (failure) => state.copyWith(error: failure),
         (listBookChapters) =>
@@ -69,5 +70,15 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
       );
     });
     // listBookQuiz
+  }
+
+  _onSectionFetchedError(
+      SectionFetchedError event, Emitter<SectionState> emit) {
+    //add wait of 2 seconds
+    // await Future.delayed(const Duration(seconds: 2));
+    emit(SectionState.withError(
+        listofSections: event.listofSections,
+        henetworkStatus: event.henetworkStatus,
+        error: event.error));
   }
 }

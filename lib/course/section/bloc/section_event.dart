@@ -25,7 +25,19 @@ class BookChapterSelected extends SectionEvent {
   final String courseId;
   final String section;
   final String bookContextId;
-  const BookChapterSelected(this.courseId, this.section, this.bookContextId);
+  final int bookIndex;
+  const BookChapterSelected(
+      this.courseId, this.section, this.bookContextId, this.bookIndex);
   @override
-  List<Object?> get props => [courseId, section];
+  List<Object?> get props => [courseId, section, bookContextId];
+}
+
+class SectionFetchedError extends SectionEvent {
+  final HenetworkStatus? henetworkStatus;
+  final List<Section?>? listofSections;
+  final Failure? error;
+  const SectionFetchedError(
+      this.henetworkStatus, this.listofSections, this.error);
+  @override
+  List<Object?> get props => [henetworkStatus, listofSections, error];
 }

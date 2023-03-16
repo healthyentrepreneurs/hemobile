@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -21,7 +22,9 @@ enum HenetworkStatus {
   ethernetNetwork,
   wimaxNetwork,
   bluetoothNetwork,
+  reload
 }
+
 class FileSystemUtil {
   final String appDir = 'nl_health_app_storage';
 
@@ -52,8 +55,8 @@ class FileSystemUtil {
   }
 
   Future<String> get extDownloadsPath async {
-    String path = "${await ExternalPath.getExternalStoragePublicDirectory(
-            ExternalPath.DIRECTORY_DOWNLOADS)}/$appDir";
+    String path =
+        "${await ExternalPath.getExternalStoragePublicDirectory(ExternalPath.DIRECTORY_DOWNLOADS)}/$appDir";
     //print(">>> Ext Download $path");
 
     if (await File(path).exists()) {
@@ -129,7 +132,8 @@ class FileSystemUtil {
       var document = parse(body);
       var videosList = document.getElementsByTagName("video");
       var sourceElm = videosList.removeAt(0).getElementsByTagName('source');
-      sourceElm.first.attributes['src'] = '$storageDirectory/2/${sourceElm.first.attributeSpans!['src']}';
+      sourceElm.first.attributes['src'] =
+          '$storageDirectory/2/${sourceElm.first.attributeSpans!['src']}';
       debugPrint(sourceElm.first.attributes['src']);
       return document.outerHtml;
     } catch (e) {
@@ -144,7 +148,6 @@ class FileSystemUtil {
     return f;
   }
 //file
-
 }
 
 /// Load images from file system as bytes
@@ -199,8 +202,7 @@ Future<Uint8List> _readFileBytep(String filePath) async {
     bytes = Uint8List.fromList(value);
     debugPrint('reading of bytes is completed');
   }).catchError((onError) {
-    debugPrint(
-        'Exception Error while reading audio from path:$onError');
+    debugPrint('Exception Error while reading audio from path:$onError');
   });
   return bytes;
 }
@@ -220,6 +222,19 @@ Future<String?> fileToBase64String(String myPath) async {
 Future<PermissionStatus> requestPermission(Permission permission) async {
   final status = await permission.request();
   return status;
+}
+
+Future<bool> isConnected() async {
+  var connectivityResult = await (Connectivity().checkConnectivity());
+  if (connectivityResult == ConnectivityResult.mobile) {
+    // I am connected to a mobile network.
+    return true;
+  } else if (connectivityResult == ConnectivityResult.wifi) {
+    // I am connected to a wifi network.
+    return true;
+  } else {
+    return false;
+  }
 }
 
 Future<void> createDownloadFile() async {

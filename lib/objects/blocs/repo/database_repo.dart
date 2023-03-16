@@ -2,13 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:he/objects/blocs/repo/service/service.dart';
-import 'package:he/objects/objectbookcontent.dart';
 import 'package:he_api/he_api.dart';
 import 'package:injectable/injectable.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../../helper/file_system_util.dart';
-import '../../objectbookquiz.dart';
 import 'impl/idatabase_repo.dart';
 import 'impl/repo_failure.dart';
 
@@ -61,10 +59,10 @@ class DatabaseRepository implements IDatabaseRepository {
     final checkValue = _henetworkStatusSubject.valueOrNull;
     // debugPrint('DatabaseRepository@retrieveBookSectionData $checkValue');
     if (checkValue == HenetworkStatus.wifiNetwork) {
-      debugPrint('DatabaseRepository@retrieveBookSectio Network $checkValue');
+      debugPrint('DatabaseRepository@retrieveBookSection Network $checkValue');
       return _service().retrieveBookSection(courseid);
     } else {
-      debugPrint('DatabaseRepository@retrieveBookSectio Nodata $checkValue');
+      debugPrint('DatabaseRepository@retrieveBookSection Nodata $checkValue');
       // return _service().retrieveBookSection(courseid);
       return _serviceLocal.retrieveBookSectionLocal(courseid);
     }
@@ -75,24 +73,42 @@ class DatabaseRepository implements IDatabaseRepository {
     final checkValue = _henetworkStatusSubject.valueOrNull;
     // debugPrint('DatabaseRepository@retrieveSurveyStream $checkValue');
     if (checkValue == HenetworkStatus.wifiNetwork) {
-      debugPrint('DatabaseRepository@retrieveSurveyStream Network $checkValue');
-      return _service().retrieveSurveyStream(courseid);
+      debugPrint('DatabaseRepository@retrieveSurvey Network $checkValue');
+      return _service().retrieveSurvey(courseid);
     } else {
-      debugPrint('DatabaseRepository@retrieveSurveyStream Nodata $checkValue');
+      debugPrint(
+          'DatabaseRepository@retrieveBookSurveyLocal Nodata $checkValue');
       // return _service().retrieveBookSection(courseid);
       return _serviceLocal.retrieveBookSurveyLocal(courseid);
     }
   }
 
   @override
-  Stream<Either<Failure, List<ObjectBookQuiz?>>> retrieveBookQuiz(
+  Stream<Either<Failure, List<BookQuiz?>>> retrieveBookQuiz(
       String courseId, String section) {
-    return _service().retrieveBookQuiz(courseId, section);
+    final checkValue = _henetworkStatusSubject.valueOrNull;
+    if (checkValue == HenetworkStatus.wifiNetwork) {
+      debugPrint('DatabaseRepository@retrieveBookQuiz Network $checkValue');
+      return _service().retrieveBookQuiz(courseId, section);
+    } else {
+      debugPrint('DatabaseRepository@retrieveBookQuizLocal Nodata $checkValue');
+      return _serviceLocal.retrieveBookQuizLocal(courseId, section);
+    }
   }
 
   @override
-  Stream<Either<Failure, List<ObjectBookContent?>>> retrieveBookChapter(
-      String courseId, String section, String bookcontextid) {
-    return _service().retrieveBookChapter(courseId, section, bookcontextid);
+  Stream<Either<Failure, List<BookContent>>> retrieveBookChapter(
+      String courseId, String section, String bookcontextid, int bookIndex) {
+    debugPrint("WHERE ARE WE JACK");
+    final checkValue = _henetworkStatusSubject.valueOrNull;
+    if (checkValue == HenetworkStatus.wifiNetwork) {
+      debugPrint('DatabaseRepository@retrieveBookChapter Network $checkValue');
+      return _service().retrieveBookChapter(courseId, section, bookcontextid);
+    } else {
+      debugPrint(
+          'DatabaseRepository@retrieveBookChapterLocal Nodata $checkValue');
+      return _serviceLocal.retrieveBookChapterLocal(
+          courseId, section, int.parse(bookcontextid),bookIndex);
+    }
   }
 }

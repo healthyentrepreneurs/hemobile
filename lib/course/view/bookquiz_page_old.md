@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:he/course/course.dart';
-import 'package:he/coursedetail/coursedetail.dart';
 import 'package:he/helper/toolutils.dart';
 import 'package:he/objects/objectbookcontent.dart';
 import 'package:he/objects/objectbookquiz.dart';
 import 'package:he/objects/objectquizcontent.dart';
 import 'package:he/quiz/quiz.dart';
+
+import '../../coursedetail/view/book_chapters_bk.dart';
 
 class BookQuizPage extends StatelessWidget {
   const BookQuizPage(
@@ -85,7 +86,7 @@ class BookQuizPage extends StatelessWidget {
                                   context,
                                   MaterialPageRoute<void>(
                                       builder: (BuildContext context) =>
-                                          BookChapters(
+                                          BookChaptersBk(
                                             bookContent: contentPerBook(
                                                 _chapterCollection),
                                             book: _bookquiz,

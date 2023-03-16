@@ -1,9 +1,7 @@
 import 'package:dartz/dartz.dart';
-import 'package:he/objects/objectbookcontent.dart';
 import 'package:he_api/he_api.dart';
 
 import '../../../../helper/file_system_util.dart';
-import '../../../objectbookquiz.dart';
 import 'repo_failure.dart';
 
 abstract class IDatabaseRepository {
@@ -14,9 +12,9 @@ abstract class IDatabaseRepository {
   Stream<Either<Failure, List<Section?>>> retrieveBookSectionData(
       String courseid);
   Stream<Either<Failure, String>> retrieveSurveyStream(String courseid);
-  Stream<Either<Failure, List<ObjectBookQuiz?>>> retrieveBookQuiz(
+  Stream<Either<Failure, List<BookQuiz?>>> retrieveBookQuiz(
       String courseId, String section);
-  Stream<Either<Failure, List<ObjectBookContent?>>> retrieveBookChapter(
-      String courseId, String section, String bookcontextid);
+  Stream<Either<Failure, List<BookContent?>>> retrieveBookChapter(
+      String courseId, String section, String bookcontextid,int bookIndex);
   Future<void> addHenetworkStatus(HenetworkStatus status);
 }

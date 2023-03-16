@@ -2,22 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/course/course.dart';
 import 'package:he/course/section/bloc/section_bloc.dart';
+import 'package:he/coursedetail/view/book_chapters.dart';
 import 'package:he/helper/toolutils.dart';
 import 'package:he/objects/objectquizcontent.dart';
 import 'package:he/quiz/quiz.dart';
+import 'package:he_api/he_api.dart';
 
-import '../../objects/objectbookquiz.dart';
+// import '../../objects/objectbookquiz.dart';
 
 class BookQuizPage extends StatelessWidget {
-  const BookQuizPage({Key? key, required String sectionname})
-      : _sectionname = sectionname,
+  const BookQuizPage(
+      {Key? key,
+      required String sectionName,
+      required String courseId,
+      required String sectionSection})
+      : _sectionname = sectionName,
+        _courseid = courseId,
+        _sectionsection = sectionSection,
         super(key: key);
   final String _sectionname;
+  final String _courseid;
+  final String _sectionsection;
   @override
   Widget build(BuildContext context) {
-    // final dataBloc = BlocProvider.of<DatabaseBloc>(context);
-    // final _booksStream = _bookcollection.snapshots();
-    // debugPrint("Data Here ${dataBloc.state.glistBookQuiz.toString()}");
     return Scaffold(
       backgroundColor: ToolUtils.mainBgColor,
       appBar: AppBar(
@@ -31,14 +38,24 @@ class BookQuizPage extends StatelessWidget {
         iconTheme: const IconThemeData(color: ToolUtils.mainPrimaryColor),
       ),
       body: BlocBuilder<SectionBloc, SectionState>(
+        buildWhen: (previous, current) {
+          var _one_listbook_quiz = previous.glistBookQuiz
+              .map((bookquiz) => bookquiz?.toJson() ?? 'null')
+              .join(', ');
+          var _two_listbook_quiz = current.glistBookQuiz
+              .map((bookquiz) => bookquiz?.toJson() ?? 'null')
+              .join(', ');
+          var rebuild = _one_listbook_quiz != _two_listbook_quiz;
+          // return  previous.glistBookQuiz != current.glistBookQuiz;
+          return rebuild;
+        },
         builder: (context, state) {
-          List<ObjectBookQuiz?> _listBookQuiz = state.glistBookQuiz;
-          // print all _listBookQuiz using for loop
+          final sectionBloc = BlocProvider.of<SectionBloc>(context);
+          List<BookQuiz?> _listBookQuiz = state.glistBookQuiz;
           return GridView.builder(
               shrinkWrap: true,
               physics: const ClampingScrollPhysics(),
               padding: const EdgeInsets.all(20),
-              // ignore: unnecessary_null_comparison
               itemCount: _listBookQuiz.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
@@ -47,23 +64,24 @@ class BookQuizPage extends StatelessWidget {
               ),
               itemBuilder: (BuildContext context, int index) {
                 // var _module = _datamodule as Map<String, dynamic>;
-                ObjectBookQuiz _bookquiz = _listBookQuiz[index]!;
+                BookQuiz _bookquiz = _listBookQuiz[index]!;
+                // debugPrint("NYEGEGA ${_bookquiz.toJson()}");
                 return GestureDetector(
                   child: _bookQuizModuleCard(_bookquiz, context),
                   onTap: () {
                     if (_bookquiz.modname == "book") {
-                      // var _chapterCollection = _bookcollection
-                      //     .doc(_bookquiz.contextid.toString())
-                      //     .collection("contentscollection");
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute<void>(
-                      //         builder: (BuildContext context) =>
-                      //             BookChapters(
-                      //               bookContent: contentPerBook(
-                      //                   _chapterCollection),
-                      //               book: _bookquiz,
-                      //             )));
+                      sectionBloc.add(BookChapterSelected(
+                          _courseid,
+                          _sectionsection,
+                          _bookquiz.contextid.toString(),
+                          index));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                              builder: (BuildContext context) => BookChapters(
+                                    book: _bookquiz,
+                                    courseId: _courseid,
+                                  )));
                     }
                     if (_bookquiz.modname == "quiz") {
                       final _quizArray =
@@ -86,8 +104,7 @@ class BookQuizPage extends StatelessWidget {
     );
   }
 
-  Widget _bookQuizModuleCard(
-      ObjectBookQuiz bookQuizModule, BuildContext context) {
+  Widget _bookQuizModuleCard(BookQuiz bookQuizModule, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 5.0),
       child: Container(
