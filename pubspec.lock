@@ -528,22 +528,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.23"
-  firebase_ui_firestore:
-    dependency: "direct main"
-    description:
-      name: firebase_ui_firestore
-      sha256: "28db0d81a0d695c06fe5b689239eaee4642bf0bfa76c2a6337530363d21b4fc1"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.8"
-  firebase_ui_localizations:
-    dependency: transitive
-    description:
-      name: firebase_ui_localizations
-      sha256: "8ab06ef14bbad6c2f8af63aa2995016996c205fd05db7912df18838a51d023e4"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.0"
   fixnum:
     dependency: transitive
     description:
@@ -1797,6 +1781,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.14"
+  video_thumbnail:
+    dependency: "direct main"
+    description:
+      name: video_thumbnail
+      sha256: "005bf7898bf6cddbf5f079e2618f3d3cb83dd2712714f0042b5a018c2b32e7d6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.6"
   vm_service:
     dependency: transitive
     description:

@@ -40,24 +40,24 @@ class _ChewieVideoViewState extends State<ChewieVideoView> {
   }
 
   void _initializePlayer() {
+    debugPrint("BetterCallSaul ${widget.videoUrl}");
     if (widget.heNetworkState == HenetworkStatus.noInternet) {
-      File fileVideo = FoFiRepository().getLocalFileHe(widget.videoUrl);
+      debugPrint("OfflineBitch ${widget.videoUrl}");
+      final FoFiRepository _fofi = FoFiRepository();
+      File fileVideo = _fofi.getLocalFileHe(widget.videoUrl);
       _videoPlayerController = VideoPlayerController.file(fileVideo);
-    } else {
+    } else if (widget.heNetworkState != HenetworkStatus.noInternet) {
+      debugPrint("OnlineBitch ${widget.videoUrl}");
       _videoPlayerController = VideoPlayerController.network(widget.videoUrl);
     }
+    // _videoPlayerController = VideoPlayerController.network(widget.videoUrl);
 
-    _videoPlayerController.initialize().then((_) {
-      _chewieController = ChewieController(
-        videoPlayerController: _videoPlayerController,
-        aspectRatio:
-        _videoPlayerController.value.aspectRatio, // Set aspect ratio
-        autoPlay: false,
-        looping: false,
-        autoInitialize: true,
-      );
-      setState(() {});
-    });
+    _chewieController = ChewieController(
+      videoPlayerController: _videoPlayerController,
+      autoPlay: false,
+      looping: false,
+      autoInitialize: true,
+    );
   }
 
   @override
@@ -69,7 +69,7 @@ class _ChewieVideoViewState extends State<ChewieVideoView> {
 
   Widget _videoPlay() {
     return SizedBox(
-      // width: MediaQuery.of(context).size.width * .90,
+      width: MediaQuery.of(context).size.width * .90,
       child: Center(
         child: Chewie(
           controller: _chewieController!,

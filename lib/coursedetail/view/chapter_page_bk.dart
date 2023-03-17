@@ -140,33 +140,38 @@ class _ChapterDisplayState extends State<ChapterDisplay> {
       String videoUrl, String courseId, HenetworkStatus heNetworkState) {
     debugPrint("Online-video-display ... $videoUrl");
     return Padding(
-      padding: const EdgeInsets.only(top: 1, bottom: 3.0),
-      child: Center(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            AspectRatio(
-              aspectRatio: 16 / 9, // Modify this ratio according to your needs
-              child: ChewieVideoView(
-                  videoUrl: videoUrl,
-                  courseId: courseId,
-                  heNetworkState: heNetworkState),
-            ),
-            // ClipRRect(
-            //   borderRadius: BorderRadius.circular(10),
-            //   child: Container(
-            //     width: MediaQuery.of(context).size.width * .97,
-            //     height: MediaQuery.of(context).size.height * .32,
-            //     decoration: BoxDecoration(
-            //         borderRadius: BorderRadius.circular(10),
-            //         color: Colors.white38),
-            //     child: ChewieVideoView(
-            //         videoUrl: videoUrl,
-            //         courseId: courseId,
-            //         heNetworkState: heNetworkState),
-            //   ),
-            // ),
-          ],
+      padding: const EdgeInsets.only(top: 3, bottom: 6.0),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ChewieVideoView(
+                        videoUrl: videoUrl,
+                        courseId: courseId,
+                        heNetworkState: heNetworkState,
+                      )));
+        },
+        child: Center(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  width: MediaQuery.of(context).size.width * .97,
+                  height: MediaQuery.of(context).size.height * .32,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white38),
+                  child: ChewieVideoView(
+                      videoUrl: videoUrl,
+                      courseId: courseId,
+                      heNetworkState: heNetworkState),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

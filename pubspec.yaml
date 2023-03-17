@@ -75,11 +75,12 @@ dependencies:
   json_annotation: ^4.7.0
   get_storage: ^2.0.3
   image_picker: ^0.8.6
-  firebase_ui_firestore: ^1.0.4
+#  firebase_ui_firestore: ^1.0.4
   archive: ^3.3.6
   connectivity_plus: ^3.0.2
   network_info_plus: ^3.0.2
   collection: ^1.17.0
+  video_thumbnail: ^0.4.3
 
 dev_dependencies:
   bloc_test: ^9.1.0
