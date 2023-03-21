@@ -4,7 +4,6 @@ import 'package:he/course/section/view/view.dart';
 import 'package:he/helper/file_system_util.dart';
 import 'package:he/home/datawidgets/userlanding.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
-import 'package:he_api/he_api.dart';
 import '../../course/section/bloc/section_bloc.dart';
 import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import '../../survey/bloc/survey_bloc.dart';

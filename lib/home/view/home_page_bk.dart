@@ -5,16 +5,10 @@ import 'package:he/home/datawidgets/datawidget.dart';
 
 import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
 
   static Page page() => const MaterialPage<void>(child: HomePage());
-
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HenetworkBloc, HenetworkState>(
