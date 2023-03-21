@@ -63,7 +63,6 @@ class DatabaseRepository implements IDatabaseRepository {
       return _service().retrieveBookSection(courseid);
     } else {
       debugPrint('DatabaseRepository@retrieveBookSection Nodata $checkValue');
-      // return _service().retrieveBookSection(courseid);
       return _serviceLocal.retrieveBookSectionLocal(courseid);
     }
   }

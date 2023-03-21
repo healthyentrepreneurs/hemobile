@@ -118,8 +118,8 @@ class ThemeLocaleIntRepository {
     required this.message$,
     required this.getLocalsApi$,
   });
-  static const _themeKey = 'com.hoc.flutter_change_theme.theme';
-  static const _localeKey = 'com.hoc.flutter_change_theme.locale';
+  static const _themeKey = 'app.healthyentrepreneurs.nl.he.theme';
+  static const _localeKey = 'app.healthyentrepreneurs.nl.he.locale';
 
   ///
   /// Input

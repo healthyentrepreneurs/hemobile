@@ -36,7 +36,6 @@ class DatabaseService {
           .withConverter<User>(
               fromFirestore: (snapshot, _) => User.fromJson(snapshot.data()!),
               toFirestore: (user, _) => user.toJson());
-
       var documentSnapshotUser = await documentReferenceUser
           .get()
           .catchError((err) => debugPrint("NjovuError ${err.message}"));

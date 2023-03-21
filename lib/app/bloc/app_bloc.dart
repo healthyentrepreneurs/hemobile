@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:auth_repo/auth_repo.dart';
+import 'package:flutter/material.dart';
 import 'package:he_api/he_api.dart';
 
 part 'app_event.dart';
 part 'app_state.dart';
 
-class AppBloc
-    extends Bloc<AppEvent, AppState> {
+class AppBloc extends Bloc<AppEvent, AppState> {
   AppBloc({
     required HeAuthRepository heAuthRepository,
   })  : _heAuthRepository = heAuthRepository,

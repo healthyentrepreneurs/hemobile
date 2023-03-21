@@ -19,6 +19,11 @@ class FoFiRepository {
     File f = File('$dir$filename');
     return f;
   }
+  File getLocalFileHeZip() {
+    String dir = "${PermitFoFiService.externalDownlodPath}/$appDir/2644HE_Health.zip";
+    File f = File(dir);
+    return f;
+  }
 
   // @override
   bool checkFilePresentHe(String path) {

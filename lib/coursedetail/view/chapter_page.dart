@@ -1,10 +1,14 @@
 import 'dart:io';
 
+// import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:he/coursedetail/coursedetail.dart';
 import 'package:he/helper/helper_functions.dart';
+import 'package:he/injection.dart';
 import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import 'package:he/objects/objectbookquiz.dart';
 import 'package:he/objects/objectcontentstructure.dart';
@@ -152,20 +156,6 @@ class _ChapterDisplayState extends State<ChapterDisplay> {
                   courseId: courseId,
                   heNetworkState: heNetworkState),
             ),
-            // ClipRRect(
-            //   borderRadius: BorderRadius.circular(10),
-            //   child: Container(
-            //     width: MediaQuery.of(context).size.width * .97,
-            //     height: MediaQuery.of(context).size.height * .32,
-            //     decoration: BoxDecoration(
-            //         borderRadius: BorderRadius.circular(10),
-            //         color: Colors.white38),
-            //     child: ChewieVideoView(
-            //         videoUrl: videoUrl,
-            //         courseId: courseId,
-            //         heNetworkState: heNetworkState),
-            //   ),
-            // ),
           ],
         ),
       ),
@@ -203,17 +193,37 @@ class _ChapterDisplayState extends State<ChapterDisplay> {
     final FoFiRepository _fofi = FoFiRepository();
     if (heNetworkState == HenetworkStatus.noInternet) {
       return chapterImageOffline(imageUrl, _fofi);
-    } else if (heNetworkState != HenetworkStatus.noInternet) {
-      return Image.network(
-        imageUrl,
-        fit: BoxFit.cover,
-      );
     } else {
-      return Image.asset(
-        'assets/images/grid.png',
-        fit: BoxFit.cover,
+      // imageUrl
+      // FLilq-XXEAQkE4C.jpeg
+      return FutureBuilder<String>(
+        future: _getImageUrlFromFirebase('FLilq-XXEAQkE4C.jpeg'),
+        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData) {
+              return Image.network(
+                snapshot.data!,
+                fit: BoxFit.cover,
+              );
+            } else {
+              return Image.asset(
+                'assets/images/grid.png',
+                fit: BoxFit.cover,
+              );
+            }
+          } else {
+            return const Center(child: SpinKitThreeBounce(color: Colors.blue));
+          }
+        },
       );
     }
+  }
+
+  Future<String> _getImageUrlFromFirebase(String path) async {
+    final storageRef = getIt<FirebaseStorage>().ref();
+    final ref = storageRef.child(path);
+    final String imageUrl = await ref.getDownloadURL();
+    return imageUrl;
   }
 
   Widget chapterImageOffline(String photo, FoFiRepository fofi) {

@@ -3,15 +3,18 @@ import 'dart:io';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:he/helper/file_system_util.dart';
+import 'package:he/injection.dart';
 import 'package:he/objects/blocs/repo/fofiperm_repo.dart';
 import 'package:video_player/video_player.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class ChewieVideoView extends StatefulWidget {
   final String videoUrl;
   final String courseId;
   final HenetworkStatus heNetworkState;
 
-  ChewieVideoView({
+  const ChewieVideoView({
     Key? key,
     required this.videoUrl,
     required this.courseId,
@@ -25,6 +28,7 @@ class ChewieVideoView extends StatefulWidget {
 class _ChewieVideoViewState extends State<ChewieVideoView> {
   late VideoPlayerController _videoPlayerController;
   ChewieController? _chewieController;
+  bool _videoExists = true;
 
   @override
   void initState() {
@@ -39,37 +43,92 @@ class _ChewieVideoViewState extends State<ChewieVideoView> {
     super.dispose();
   }
 
-  void _initializePlayer() {
-    if (widget.heNetworkState == HenetworkStatus.noInternet) {
-      File fileVideo = FoFiRepository().getLocalFileHe(widget.videoUrl);
-      _videoPlayerController = VideoPlayerController.file(fileVideo);
-    } else {
-      _videoPlayerController = VideoPlayerController.network(widget.videoUrl);
-    }
+  // Future<void> _initializePlayer() async {
+  //   if (widget.heNetworkState == HenetworkStatus.noInternet) {
+  //     File fileVideo = FoFiRepository().getLocalFileHe(widget.videoUrl);
+  //     _videoPlayerController = VideoPlayerController.file(fileVideo);
+  //     _videoPlayerController.initialize().then((_) {
+  //       _chewieController = ChewieController(
+  //         videoPlayerController: _videoPlayerController,
+  //         aspectRatio: _videoPlayerController.value.aspectRatio,
+  //         autoPlay: false,
+  //         looping: false,
+  //         autoInitialize: true,
+  //       );
+  //       setState(() {});
+  //     });
+  //   } else {
+  //     // widget.videoUrl
+  //     String videoUrl = await _getVideoUrlFromFirebase('15-LU.mp4');
+  //     _videoPlayerController = VideoPlayerController.network(videoUrl);
+  //     _videoPlayerController.initialize().then((_) {
+  //       _chewieController = ChewieController(
+  //         videoPlayerController: _videoPlayerController,
+  //         aspectRatio: _videoPlayerController.value.aspectRatio,
+  //         autoPlay: false,
+  //         looping: false,
+  //         autoInitialize: true,
+  //       );
+  //       setState(() {});
+  //     });
+  //   }
+  // }
+  Future<void> _initializePlayer() async {
+    try {
+      if (widget.heNetworkState == HenetworkStatus.noInternet) {
+        File fileVideo = FoFiRepository().getLocalFileHe(widget.videoUrl);
+        if (await fileVideo.exists()) {
+          _videoPlayerController = VideoPlayerController.file(fileVideo);
+          await _videoPlayerController.initialize();
+        } else {
+          _videoExists = false;
+        }
+      } else {
+        String videoUrl = await _getVideoUrlFromFirebase('15-LU.mp4');
+        _videoPlayerController = VideoPlayerController.network(videoUrl);
+        await _videoPlayerController.initialize();
+      }
 
-    _videoPlayerController.initialize().then((_) {
-      _chewieController = ChewieController(
-        videoPlayerController: _videoPlayerController,
-        aspectRatio:
-        _videoPlayerController.value.aspectRatio, // Set aspect ratio
-        autoPlay: false,
-        looping: false,
-        autoInitialize: true,
-      );
+      if (_videoExists) {
+        _chewieController = ChewieController(
+          videoPlayerController: _videoPlayerController,
+          aspectRatio: _videoPlayerController.value.aspectRatio,
+          autoPlay: false,
+          looping: false,
+          autoInitialize: true,
+        );
+      }
+    } catch (e) {
+      _videoExists = false;
+    } finally {
       setState(() {});
-    });
+    }
+  }
+
+  Future<String> _getVideoUrlFromFirebase(String path) async {
+    final storageRef = getIt<FirebaseStorage>().ref();
+    final ref = storageRef.child(path);
+    final String videoUrl = await ref.getDownloadURL();
+    return videoUrl;
   }
 
   @override
   Widget build(BuildContext context) {
-    return _chewieController != null
-        ? _videoPlay()
-        : const Center(child: Text("To Be Continued ."));
+    // /next_link/get_details_percourse/2/148/mod_book/chapter/7/15-LU.mp4
+    if (_chewieController != null && _videoExists) {
+      return _videoPlay();
+    } else if (!_videoExists) {
+      return Image.asset(
+        'assets/images/grid.png',
+        fit: BoxFit.cover,
+      );
+    } else {
+      return const Center(child: SpinKitThreeBounce(color: Colors.blue));
+    }
   }
 
   Widget _videoPlay() {
     return SizedBox(
-      // width: MediaQuery.of(context).size.width * .90,
       child: Center(
         child: Chewie(
           controller: _chewieController!,
