@@ -6,7 +6,6 @@ import 'package:he/app/app.dart';
 import 'package:he/injection.dart';
 import 'package:he/langhe/langhe.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:he/login/login.dart';
 import 'package:he/objects/blocs/apkupdate/bloc/apk_bloc.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he/objects/blocs/repo/apk_repo.dart';
@@ -15,6 +14,8 @@ import 'package:he_storage/he_storage.dart';
 import 'package:theme_locale_repo/generated/l10n.dart';
 import 'package:theme_locale_repo/theme_locale_repo.dart';
 
+import '../../auth/auth.dart';
+import '../../auth/login/login.dart';
 import '../../course/section/bloc/section_bloc.dart';
 import '../../home/appupdate/appupdate.dart';
 import '../../objects/blocs/appcycle/bloc/appcycle_bloc.dart';
@@ -68,8 +69,8 @@ class App extends StatelessWidget {
               create: (_) => LoginBloc(
                     heAuthRepository: _heAuthRepository,
                   )),
-          BlocProvider<AppBloc>(
-              create: (_) => AppBloc(
+          BlocProvider<AuthenticationBloc>(
+              create: (_) => AuthenticationBloc(
                     heAuthRepository: _heAuthRepository,
                   )),
           BlocProvider<ApkBloc>(
@@ -123,17 +124,10 @@ class _AppView extends State<AppView> {
             GlobalCupertinoLocalizations.delegate,
           ],
           home: FlowBuilder<HeAuthStatus>(
-            state: context.select((AppBloc bloc) => bloc.state.status),
-            onGeneratePages: onGenerateAppViewPages,
-          )
-          // BlocBuilder<AppLifecycleStateBloc, AppLifecycleState>(
-          //     builder: (context, state) {
-          //   return FlowBuilder<HeAuthStatus>(
-          //     state: context.select((AppBloc bloc) => bloc.state.status),
-          //     onGeneratePages: onGenerateAppViewPages,
-          //   );
-          // })
-          ,
+            state:
+                context.select((AuthenticationBloc bloc) => bloc.state.status),
+            onGeneratePages: onGeneratePages,
+          ),
         );
       },
     );

@@ -2,13 +2,15 @@ import 'package:auth_repo/auth_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/langhe/langhe.dart';
-import 'package:he/login/bloc/login_bloc.dart';
 import 'package:theme_locale_repo/generated/l10n.dart';
 import 'login_form.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
   static Page page() => const MaterialPage<void>(child: LoginPage());
+  static Route<void> route() {
+    return MaterialPageRoute<void>(builder: (_) => const LoginPage());
+  }
 
   @override
   Widget build(BuildContext context) {

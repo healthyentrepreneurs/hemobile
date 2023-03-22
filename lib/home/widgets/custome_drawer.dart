@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:he/app/bloc/app_bloc.dart';
+import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
 import 'package:he/helper/toolutils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/home/appupdate/apkseen/bloc/apkseen_bloc.dart';
@@ -253,7 +253,7 @@ class _CustomDrawer extends State<CustomDrawer> {
           ),
           actions: <Widget>[
             ElevatedButton(
-              key: const Key('confirm_logout_raisedButton'),
+              key: const Key('confirm_logout_raisedbutton'),
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(1),
@@ -267,7 +267,7 @@ class _CustomDrawer extends State<CustomDrawer> {
                 //     seen: false, updated: false);
                 // apkUpdateBloc.add(
                 //     UpdateSeenStatusEvent(status: updateStatus));
-                context.read<AppBloc>().add(AuthenticationLogoutRequested());
+                context.read<AuthenticationBloc>().add(AuthenticationLogoutRequested());
                 Navigator.of(context).pop();
               },
             ),

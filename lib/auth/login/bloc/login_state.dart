@@ -1,5 +1,6 @@
 part of 'login_bloc.dart';
 
+
 class LoginState extends Equatable {
   const LoginState({
     this.status = FormzStatus.pure,

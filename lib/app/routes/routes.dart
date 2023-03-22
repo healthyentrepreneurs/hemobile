@@ -1,10 +1,10 @@
 import 'package:auth_repo/auth_repo.dart';
 import 'package:flutter/widgets.dart';
+import 'package:he/auth/login/login.dart';
 import 'package:he/home/home.dart';
-import 'package:he/login/login.dart';
 
 
-List<Page> onGenerateAppViewPages(
+List<Page> onGeneratePages(
     HeAuthStatus state, List<Page<dynamic>> pages) {
   switch (state) {
     case HeAuthStatus.authenticated:

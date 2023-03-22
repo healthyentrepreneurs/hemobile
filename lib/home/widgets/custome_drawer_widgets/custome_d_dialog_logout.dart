@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
 import 'package:theme_locale_repo/generated/l10n.dart';
 
-import '../../../app/bloc/app_bloc.dart';
 import '../../appupdate/apkseen/apkseen.dart';
 
 class CusomeLogout extends StatelessWidget {
@@ -63,7 +63,9 @@ class CusomeLogout extends StatelessWidget {
             //     seen: false, updated: false);
             // apkUpdateBloc.add(
             //     UpdateSeenStatusEvent(status: updateStatus));
-            context.read<AppBloc>().add(AuthenticationLogoutRequested());
+            context
+                .read<AuthenticationBloc>()
+                .add(AuthenticationLogoutRequested());
             Navigator.of(context).pop();
           },
         ),

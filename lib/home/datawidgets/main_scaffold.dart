@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
 import 'package:he/helper/toolutils.dart';
 import 'package:he/home/home.dart';
-import 'package:he/app/bloc/app_bloc.dart';
 
 class MainScaffold extends StatelessWidget {
   const MainScaffold({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final user = context.select((AppBloc bloc) => bloc.state.user);
+    final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
     return Scaffold(
       backgroundColor: ToolUtils.whiteColor,
       appBar: AppBar(

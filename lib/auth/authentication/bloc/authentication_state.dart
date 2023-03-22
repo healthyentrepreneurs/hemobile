@@ -1,17 +1,18 @@
-part of 'app_bloc.dart';
+part of 'authentication_bloc.dart';
 
-class AppState extends Equatable {
-  const AppState._({
+
+class AuthenticationState extends Equatable {
+  const AuthenticationState._({
     this.status = HeAuthStatus.unknown,
     this.user = User.empty,
   });
 
-  const AppState.unknown() : this._();
+  const AuthenticationState.unknown() : this._();
 
-  const AppState.authenticated(User user)
+  const AuthenticationState.authenticated(User user)
       : this._(status: HeAuthStatus.authenticated, user: user);
 
-  const AppState.unauthenticated()
+  const AuthenticationState.unauthenticated()
       : this._(status: HeAuthStatus.unauthenticated);
 
   final HeAuthStatus status;
