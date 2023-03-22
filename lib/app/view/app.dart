@@ -15,7 +15,6 @@ import 'package:theme_locale_repo/generated/l10n.dart';
 import 'package:theme_locale_repo/theme_locale_repo.dart';
 
 import '../../auth/auth.dart';
-import '../../auth/login/login.dart';
 import '../../course/section/bloc/section_bloc.dart';
 import '../../home/appupdate/appupdate.dart';
 import '../../objects/blocs/appcycle/bloc/appcycle_bloc.dart';
@@ -123,10 +122,22 @@ class _AppView extends State<AppView> {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          home: FlowBuilder<HeAuthStatus>(
-            state:
-                context.select((AuthenticationBloc bloc) => bloc.state.status),
-            onGeneratePages: onGeneratePages,
+          home: BlocProvider(
+            create: (BuildContext context) => AppBloc(
+              authenticationBloc: context.read<AuthenticationBloc>(),
+              databaseBloc: context.read<DatabaseBloc>(),
+              sectionBloc: context.read<SectionBloc>(),
+              surveyBloc: context.read<SurveyBloc>(),
+              henetworkBloc: context.read<HenetworkBloc>(),
+            ),
+            child: Builder(
+              builder: (BuildContext context) {
+                return FlowBuilder<AppState>(
+                  state: context.select((AppBloc bloc) => bloc.state),
+                  onGeneratePages: onGeneratePages,
+                );
+              },
+            ),
           ),
         );
       },

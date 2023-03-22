@@ -14,6 +14,7 @@ import '../../widgets/sectionicon.dart';
 
 class SectionsPage extends StatelessWidget {
   const SectionsPage({Key? key}) : super(key: key);
+  static Page page() => const MaterialPage<void>(child: SectionsPage());
   @override
   Widget build(BuildContext context) {
     Subscription course =

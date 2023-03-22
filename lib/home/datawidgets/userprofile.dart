@@ -1,96 +1,135 @@
+import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:he/course/section/view/view.dart';
-import 'package:he/helper/file_system_util.dart';
-import 'package:he/home/datawidgets/userlanding.dart';
-import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
-import '../../course/section/bloc/section_bloc.dart';
-import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
-import '../../survey/bloc/survey_bloc.dart';
-import '../../survey/widgets/surveypagebrowser.dart';
-import '../widgets/widgets.dart';
+import 'package:he/app/bloc/app_bloc.dart';
+
+const _onboardingInfoHeroTag = '__onboarding_info_hero_tag__';
+
+enum OnboardingState {
+  initial,
+  welcomeComplete,
+  usageComplete,
+  onboardingComplete,
+}
 
 class UserProfile extends StatelessWidget {
   final String userid;
-  const UserProfile({Key? key, required this.userid}) : super(key: key);
+  final FlowController<AppState> flowController;
+  const UserProfile(
+      {Key? key, required this.userid, required this.flowController})
+      : super(key: key);
+
+  static Page page(
+      {required String userid,
+      required FlowController<AppState> flowController}) {
+    return MaterialPage(
+      child: UserProfile(userid: userid, flowController: flowController),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<HenetworkBloc, HenetworkState>(
-      listener: (context, state) {
-        BlocProvider.of<DatabaseBloc>(context)
-            .add(DatabaseFetched(userid, state.gstatus));
+    return FlowBuilder<AppState>(
+      controller: flowController,
+      state: context.select((AppBloc bloc) => bloc.state),
+      onGeneratePages: (state, pages) {
+        switch (state.status) {
+          default:
+            return [
+              OnboardingWelcome.page(),
+            ];
+        }
+        // Add your onGeneratePages logic here for UserProfile
       },
-      child: BlocBuilder<DatabaseBloc, DatabaseState>(
-          buildWhen: (previous, current) =>
-              previous.ghenetworkStatus != current.ghenetworkStatus,
-          builder: (context, state) {
-            final databasebloc = BlocProvider.of<DatabaseBloc>(context);
-            if (state.error != null) {
-              return const StateLoadingHe()
-                  .errorWithStackT(state.error!.message);
-            } else {
-              if (state.ghenetworkStatus == HenetworkStatus.loading) {
-                databasebloc.add(DatabaseFetched(userid,
-                    context.select((HenetworkBloc bloc) => bloc.state.status)));
-                return const StateLoadingHe().loadingData();
-              } else {
-                if (state.glistOfSubscriptionData.isEmpty) {
-                  return const StateLoadingHe()
-                      .noDataFound('You have no Tools');
-                } else {
-                  // final sectionBloc = BlocProvider.of<SectionBloc>(context);
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.only(bottom: 40),
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: state.glistOfSubscriptionData.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      var subscription = state.glistOfSubscriptionData[index]!;
-                      return UserLanding(
-                          subscription: subscription,
-                          onTap: () {
-                            if (subscription.source == 'originalm') {
-                              databasebloc
-                                  .add(DatabaseSubSelected(subscription));
-                              BlocProvider.of<SurveyBloc>(context).add(
-                                  SurveyFetched('${subscription.id}',
-                                      state.ghenetworkStatus));
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const SurveyPageBrowser(),
-                                  ));
-                            } else {
-                              databasebloc
-                                  .add(DatabaseSubSelected(subscription));
-                              BlocProvider.of<SectionBloc>(context).add(
-                                  SectionFetched('${subscription.id}',
-                                      state.ghenetworkStatus));
-                              Navigator.of(context).push(
-                                MaterialPageRoute<SectionsPage>(
-                                  builder: (context) {
-                                    return BlocProvider.value(
-                                      value: databasebloc,
-                                      child: const SectionsPage(),
-                                    );
-                                  },
-                                ),
-                              );
-                              // Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //       builder: (context) =>  const SectionsPage(),
-                              //     ));
-                            }
-                          });
-                    },
-                  );
-                }
-              }
-            }
-          }),
+    );
+  }
+}
+
+class OnboardingWelcome extends StatelessWidget {
+  const OnboardingWelcome._();
+
+  static Page<void> page() => const MyPage<void>(child: OnboardingWelcome._());
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      backgroundColor: Colors.yellow,
+      appBar: AppBar(
+        leading: BackButton(
+          onPressed: () => context.flow<OnboardingState>().complete(),
+        ),
+        title: const Text('Welcome'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Stack(
+          children: [
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Welcome Text',
+                    style: theme.textTheme.headline3,
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              top: 10,
+              right: 10,
+              child: FloatingActionButton(
+                heroTag: _onboardingInfoHeroTag,
+                backgroundColor: Colors.orange,
+                child: const Icon(Icons.info),
+                onPressed: () {},
+              ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: 0,
+            onPressed: () => context.flow<OnboardingState>().complete(),
+            child: const Icon(Icons.clear),
+          ),
+          const SizedBox(width: 8),
+          FloatingActionButton(
+            heroTag: 1,
+            onPressed: () {
+              context
+                  .flow<OnboardingState>()
+                  .update((_) => OnboardingState.welcomeComplete);
+            },
+            child: const Icon(Icons.arrow_forward_ios_rounded),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MyPage<T> extends Page<T> {
+  const MyPage({required this.child, super.key});
+
+  final Widget child;
+
+  @override
+  Route<T> createRoute(BuildContext context) {
+    return PageRouteBuilder(
+      settings: this,
+      pageBuilder: (
+        BuildContext context,
+        Animation<double> animation,
+        Animation<double> secondaryAnimation,
+      ) {
+        return FadeTransition(opacity: animation, child: child);
+      },
     );
   }
 }

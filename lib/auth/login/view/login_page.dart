@@ -1,6 +1,4 @@
-import 'package:auth_repo/auth_repo.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/langhe/langhe.dart';
 import 'package:theme_locale_repo/generated/l10n.dart';
 import 'login_form.dart';

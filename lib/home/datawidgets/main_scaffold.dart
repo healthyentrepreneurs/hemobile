@@ -1,6 +1,7 @@
+import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
+import 'package:he/app/app.dart';
 import 'package:he/helper/toolutils.dart';
 import 'package:he/home/home.dart';
 
@@ -8,7 +9,7 @@ class MainScaffold extends StatelessWidget {
   const MainScaffold({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
+    final user = context.select((AppBloc bloc) => bloc.state.user)!;
     return Scaffold(
       backgroundColor: ToolUtils.whiteColor,
       appBar: AppBar(
@@ -54,7 +55,8 @@ class MainScaffold extends StatelessWidget {
         const MenuItemHe().appTitle('What do you need ?'),
         Center(
             child: UserProfile(
-              userid: user.id.toString(),
+          userid: user.id.toString(),
+              flowController: context.flow<AppState>(),
         ))
       ]),
     );

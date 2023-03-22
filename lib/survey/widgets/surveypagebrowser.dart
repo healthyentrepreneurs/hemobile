@@ -12,9 +12,8 @@ import '../../objects/blocs/hedata/bloc/database_bloc.dart';
 import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 
 class SurveyPageBrowser extends StatefulWidget {
-  const SurveyPageBrowser({
-    Key? key,
-  }) : super(key: key);
+  const SurveyPageBrowser({Key? key,}) : super(key: key);
+  static Page page() => const MaterialPage<void>(child: SurveyPageBrowser());
   @override
   _SurveyPageBrowser createState() => _SurveyPageBrowser();
 }
