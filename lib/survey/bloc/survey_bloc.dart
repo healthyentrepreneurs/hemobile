@@ -18,6 +18,7 @@ class SurveyBloc extends Bloc<SurveyEvent, SurveyState> {
       : _databaseRepository = repository,
         super(const SurveyState.loading()) {
     on<SurveyFetched>(_onSurveyFetched);
+    on<SurveyReset>(_onSurveyReset);
   }
   final DatabaseRepository _databaseRepository;
 
@@ -34,5 +35,9 @@ class SurveyBloc extends Bloc<SurveyEvent, SurveyState> {
             surveyjson: surveyjson, henetworkStatus: event.henetworkStatus),
       );
     });
+  }
+
+  void _onSurveyReset(SurveyReset event, Emitter<SurveyState> emit) {
+    emit(const SurveyState.loading());
   }
 }

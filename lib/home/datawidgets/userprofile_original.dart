@@ -1,7 +1,5 @@
-import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:he/app/bloc/app_bloc.dart';
 import 'package:he/course/section/view/view.dart';
 import 'package:he/helper/file_system_util.dart';
 import 'package:he/home/datawidgets/userlanding.dart';
@@ -14,18 +12,12 @@ import '../widgets/widgets.dart';
 
 class UserProfile extends StatelessWidget {
   final String userid;
-  final FlowController<AppState> flowController;
-  const UserProfile(
-      {Key? key, required this.userid, required this.flowController})
-      : super(key: key);
+  const UserProfile({Key? key, required this.userid}) : super(key: key);
 
-  static Page page(
-      {required String userid,
-      required FlowController<AppState> flowController}) {
+  static Page page({required String userid}) {
     return MaterialPage(
       child: UserProfile(
         userid: userid,
-        flowController: flowController,
       ),
     );
   }
@@ -39,7 +31,7 @@ class UserProfile extends StatelessWidget {
       },
       child: BlocBuilder<DatabaseBloc, DatabaseState>(
           buildWhen: (previous, current) =>
-              previous.ghenetworkStatus != current.ghenetworkStatus,
+          previous.ghenetworkStatus != current.ghenetworkStatus,
           builder: (context, state) {
             final databasebloc = BlocProvider.of<DatabaseBloc>(context);
             if (state.error != null) {
@@ -76,7 +68,7 @@ class UserProfile extends StatelessWidget {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        const SurveyPageBrowser(),
+                                    const SurveyPageBrowser(),
                                   ));
                             } else {
                               databasebloc

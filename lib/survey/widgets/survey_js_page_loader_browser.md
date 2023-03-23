@@ -300,7 +300,7 @@ class _SurveyJsPageLoaderBrowserState extends State<SurveyJsPageLoaderBrowser> {
                   callback: (args) {
                     //print(">>Submit to server >${args.toString()}");
                     ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("posting data..")));
+                        const SnackBar(content: Text("posting data..")));
                     // postJsonData(args[0].toString());
                     print(args[0]);
                   });

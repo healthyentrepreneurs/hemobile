@@ -12,3 +12,9 @@ class SurveyFetched extends SurveyEvent {
   @override
   List<Object?> get props => [courseid, henetworkStatus];
 }
+
+class SurveyReset extends SurveyEvent {
+  const SurveyReset();
+  @override
+  List<Object?> get props => [];
+}

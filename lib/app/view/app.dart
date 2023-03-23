@@ -96,7 +96,6 @@ class App extends StatelessWidget {
 }
 
 class AppView extends StatefulWidget {
-  // https://bloclibrary.dev/#/recipesflutternavigation?id=navigation-20
   const AppView({Key? key}) : super(key: key);
   @override
   _AppView createState() => _AppView();

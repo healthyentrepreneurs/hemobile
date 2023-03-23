@@ -51,7 +51,9 @@ class MainScaffold extends StatelessWidget {
               ),
             )),
         const MenuItemHe().appTitle('What do you need ?'),
-        const Center(child: UserProfile())
+        const Center(
+            child: UserProfile(
+        ))
       ]),
     );
   }
