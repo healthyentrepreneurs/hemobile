@@ -10,7 +10,6 @@ import 'package:he/survey/bloc/survey_bloc.dart';
 import '../../course/section/view/section_page.dart';
 import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import '../../survey/widgets/surveypagebrowser.dart';
-import 'navigationhelper.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -24,9 +23,15 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
+enum FlowState {
+  mainScaffold,
+  surveyPage,
+  sectionsPage,
+}
+
+
 class _HomePageState extends State<HomePage> {
-  final NavigationHelper _navigationHelper = NavigationHelper();
-  NavigationState _determineFlowState(BuildContext context) {
+  FlowState _determineFlowState(BuildContext context) {
     final DatabaseState databaseState =
         context.select((DatabaseBloc bloc) => bloc.state);
     final HenetworkState henetworkState =
@@ -35,12 +40,18 @@ class _HomePageState extends State<HomePage> {
         context.select((SurveyBloc bloc) => bloc.state);
     final SectionState sectionState =
         context.select((SectionBloc bloc) => bloc.state);
-    return _navigationHelper.determineNavigationState(
-      databaseState: databaseState,
-      henetworkState: henetworkState,
-      surveyState: surveyState,
-      sectionState: sectionState,
-    );
+
+    if (databaseState.gselectedsubscription != null) {
+      if (surveyState.gsurveyjson != null &&
+          databaseState.gselectedsubscription!.source == 'originalm') {
+        return FlowState.surveyPage;
+      }
+      if (databaseState.gselectedsubscription!.source != 'originalm' &&
+          sectionState.glistofSections.isNotEmpty) {
+        return FlowState.sectionsPage;
+      }
+    }
+    return FlowState.mainScaffold;
   }
 
   @override
@@ -95,15 +106,15 @@ class _HomePageState extends State<HomePage> {
               },
             ),
           ],
-          child: FlowBuilder<NavigationState>(
+          child: FlowBuilder<FlowState>(
             state: _determineFlowState(context),
             onGeneratePages: (flowState, pages) {
               switch (flowState) {
-                case NavigationState.mainScaffold:
+                case FlowState.mainScaffold:
                   return [const MaterialPage(child: MainScaffold())];
-                case NavigationState.surveyPage:
+                case FlowState.surveyPage:
                   return [const MaterialPage(child: SurveyPageBrowser())];
-                case NavigationState.sectionsPage:
+                case FlowState.sectionsPage:
                   return [const MaterialPage(child: SectionsPage())];
               }
             },

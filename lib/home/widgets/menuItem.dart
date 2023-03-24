@@ -52,6 +52,7 @@ class MenuItemHe extends StatelessWidget {
       ],
     );
   }
+
   Widget appTitle(String t) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 1.0),
@@ -59,6 +60,71 @@ class MenuItemHe extends StatelessWidget {
           style: const TextStyle(
               color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600)),
     );
+  }
+
+  Future<bool> showExitConfirmationDialog(BuildContext context) async {
+    return (await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            // title: const Text('Are you sure ?'),
+            contentPadding: const EdgeInsets.fromLTRB(10, 5, 5, 5),
+            content: Container(
+              width: MediaQuery.of(context).size.width,
+              margin: const EdgeInsets.all(2.0),
+              child: Form(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const Icon(
+                      Icons.info_outline,
+                      color: Colors.redAccent,
+                    ),
+                    const Padding(
+                        padding: EdgeInsets.fromLTRB(20, 10, 20, 5),
+                        child: Text('Are you sure ?',
+                            style: TextStyle(fontSize: 18))),
+                    Center(
+                        child: Container(
+                            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                            child: const Text(
+                                'All the data you filled in will be lost',
+                                style: TextStyle(fontSize: 13)))),
+                  ],
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  primary: Theme.of(context).primaryColor,
+                ),
+                child: const Text('No'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              Container(
+                width: 5.0,
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  primary: Colors.redAccent,
+                ),
+                child: const Text('Yes'),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            ],
+          ),
+        )) ??
+        false;
   }
 // return const Center(child: CircularProgressIndicator());
 }

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
 import 'package:he/helper/toolutils.dart';
 import 'package:he/home/home.dart';
-import 'package:he_api/he_api.dart';
 
 class MainScaffold extends StatelessWidget {
   // final User user;

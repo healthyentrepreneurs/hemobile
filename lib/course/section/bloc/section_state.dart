@@ -41,35 +41,6 @@ class SectionState extends Equatable {
           error: error,
         );
 
-  // factory SectionState.initial() => const SectionState._(
-  //       listofSections: emptySectionList,
-  //       henetworkStatus: HenetworkStatus.loading,
-  //       listBookQuiz: emptybookQuizList,
-  //       listBookChapters: emptybookChapterList,
-  //       error: null,
-  //     );
-
-  // factory SectionState.withSections(
-  //         {required List<Section?> sections,
-  //         HenetworkStatus? henetworkStatus}) =>
-  //     SectionState._(
-  //       listofSections: sections,
-  //       henetworkStatus: henetworkStatus,
-  //       listBookQuiz: emptybookQuizList,
-  //       listBookChapters: emptybookChapterList,
-  //       error: null,
-  //     );
-
-  // factory SectionState.withError(
-  //         {required Failure error, HenetworkStatus? henetworkStatus}) =>
-  //     SectionState._(
-  //       listofSections: emptySectionList,
-  //       henetworkStatus: henetworkStatus,
-  //       listBookQuiz: emptybookQuizList,
-  //       listBookChapters: emptybookChapterList,
-  //       error: error,
-  //     );
-
   SectionState copyWith(
       {List<Section?>? listofSections,
       HenetworkStatus? henetworkStatus,

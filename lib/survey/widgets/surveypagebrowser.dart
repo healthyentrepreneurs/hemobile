@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:he/home/widgets/statuswidgets/state_loading_he.dart';
+import 'package:he/home/home.dart';
 import 'package:he/survey/bloc/survey_bloc.dart';
 import 'package:he_api/he_api.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -50,9 +50,16 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            BlocProvider.of<SurveyBloc>(context).add(const SurveyReset());
+            const MenuItemHe()
+                .showExitConfirmationDialog(context)
+                .then((value) {
+              if (value) {
+                BlocProvider.of<SurveyBloc>(context).add(const SurveyReset());
+              }
+            });
           },
         ));
+    // return ;
   }
 
   Widget _buildBody(BuildContext context, SurveyState state) {

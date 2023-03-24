@@ -6,6 +6,8 @@ import 'package:he/helper/toolutils.dart';
 import 'package:he/objects/objectquizcontent.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../home/widgets/widgets.dart';
+
 class QuizPage extends StatefulWidget {
   const QuizPage({Key? key, required this.quizArray, required this.title})
       : super(key: key);
@@ -25,7 +27,7 @@ class _QuizPageState extends State<QuizPage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: _onWillPop,
+      onWillPop: ()=> const MenuItemHe().showExitConfirmationDialog(context),
       child: Scaffold(
           appBar: AppBar(
             title: Text(

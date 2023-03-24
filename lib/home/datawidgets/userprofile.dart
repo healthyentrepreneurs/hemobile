@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:he/course/section/view/view.dart';
 import 'package:he/helper/file_system_util.dart';
 import 'package:he/home/datawidgets/userlanding.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
