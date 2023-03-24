@@ -1,7 +1,5 @@
 part of 'henetwork_bloc.dart';
 
-// https://firebase.flutter.dev/docs/firestore/usage/#access-data-offline
-// https://pub.dev/packages/connectivity_plus/example
 @immutable
 class HenetworkState extends Equatable {
   const HenetworkState._({

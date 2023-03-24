@@ -3,6 +3,7 @@ import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/app/app.dart';
+import 'package:he/home/datawidgets/main_scaffold.dart';
 import 'package:he/injection.dart';
 import 'package:he/langhe/langhe.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -121,23 +122,13 @@ class _AppView extends State<AppView> {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          home: BlocProvider(
-            create: (BuildContext context) => AppBloc(
-              authenticationBloc: context.read<AuthenticationBloc>(),
-              databaseBloc: context.read<DatabaseBloc>(),
-              sectionBloc: context.read<SectionBloc>(),
-              surveyBloc: context.read<SurveyBloc>(),
-              henetworkBloc: context.read<HenetworkBloc>(),
-            ),
-            child: Builder(
-              builder: (BuildContext context) {
-                return FlowBuilder<AppState>(
-                  state: context.select((AppBloc bloc) => bloc.state),
-                  onGeneratePages: onGeneratePages,
-                );
-              },
-            ),
+          home: FlowBuilder<HeAuthStatus>(
+            state: context.select((AuthenticationBloc bloc) => bloc.state.status),
+            onGeneratePages: onGeneratePages,
           ),
+          routes: {
+            '/mainScaffold': (context) => const MainScaffold(),
+          },
         );
       },
     );

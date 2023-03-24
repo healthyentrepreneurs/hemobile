@@ -94,13 +94,23 @@ class _HomePageState extends State<HomePage> {
                     () {}); // Trigger rebuild when the SectionBloc state changes.
               },
             ),
+            BlocListener<HenetworkBloc, HenetworkState>(
+              listenWhen: (previous, current) =>
+                  previous.gstatus != current.gstatus,
+              listener: (context, state) {
+                debugPrint("Here We are Now");
+                BlocProvider.of<SurveyBloc>(context).add(const SurveyReset());
+                setState(
+                    () {}); // Trigger rebuild when the SectionBloc state changes.
+              },
+            ),
           ],
           child: FlowBuilder<FlowState>(
             state: _determineFlowState(context),
             onGeneratePages: (flowState, pages) {
               switch (flowState) {
                 case FlowState.mainScaffold:
-                  return [MaterialPage(child: MainScaffold(user: user))];
+                  return [const MaterialPage(child: MainScaffold())];
                 case FlowState.surveyPage:
                   return [const MaterialPage(child: SurveyPageBrowser())];
                 case FlowState.sectionsPage:

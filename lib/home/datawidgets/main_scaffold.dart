@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
 import 'package:he/helper/toolutils.dart';
 import 'package:he/home/home.dart';
 import 'package:he_api/he_api.dart';
 
 class MainScaffold extends StatelessWidget {
-  final User user;
-  const MainScaffold({Key? key, required this.user}) : super(key: key);
+  // final User user;
+  const MainScaffold({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    final user = context.select((AuthenticationBloc bloc) => bloc.state.user)!;
     return Scaffold(
       backgroundColor: ToolUtils.whiteColor,
       appBar: AppBar(
@@ -51,7 +54,10 @@ class MainScaffold extends StatelessWidget {
               ),
             )),
         const MenuItemHe().appTitle('What do you need ?'),
-        const Center(child: UserProfile())
+        Center(
+            child: UserProfile(
+          userid: user.id.toString(),
+        ))
       ]),
     );
   }

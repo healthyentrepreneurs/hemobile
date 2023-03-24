@@ -29,14 +29,8 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
     return Scaffold(
       backgroundColor: ToolUtils.whiteColor,
       appBar: _buildAppBar(),
-      body: BlocListener<HenetworkBloc, HenetworkState>(
-        listenWhen: (previous, current) => previous.gstatus != current.gstatus,
-        listener: (context, state) {
-          Navigator.pop(context);
-        },
-        child: BlocBuilder<SurveyBloc, SurveyState>(
-          builder: (context, state) => _buildBody(context, state),
-        ),
+      body: BlocBuilder<SurveyBloc, SurveyState>(
+        builder: (context, state) => _buildBody(context, state),
       ),
     );
   }
