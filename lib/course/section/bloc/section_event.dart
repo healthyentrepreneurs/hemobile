@@ -13,12 +13,24 @@ class SectionFetched extends SectionEvent {
   List<Object?> get props => [courseid, henetworkStatus];
 }
 
+class SectionDeFetched extends SectionEvent {
+  const SectionDeFetched();
+  @override
+  List<Object?> get props => [];
+}
+
 class BookQuizSelected extends SectionEvent {
   final String courseId;
   final String section;
   const BookQuizSelected(this.courseId, this.section);
   @override
   List<Object?> get props => [courseId, section];
+}
+
+class BookQuizDeselected extends SectionEvent {
+  const BookQuizDeselected();
+  @override
+  List<Object?> get props => [];
 }
 
 class BookChapterSelected extends SectionEvent {

@@ -26,15 +26,29 @@ class SectionsPage extends StatelessWidget {
       // resizeToAvoidBottomInset: true,
       backgroundColor: ToolUtils.whiteColor,
       appBar: AppBar(
-        title: Text(
-          course.fullname!,
-          style: const TextStyle(color: ToolUtils.mainPrimaryColor),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: ToolUtils.mainPrimaryColor),
-      ),
+          title: Text(
+            course.fullname!,
+            style: const TextStyle(color: ToolUtils.mainPrimaryColor),
+          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          iconTheme: const IconThemeData(color: ToolUtils.mainPrimaryColor),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              const MenuItemHe()
+                  .showExitConfirmationDialog(context)
+                  .then((value) {
+                if (value) {
+                  BlocProvider.of<SectionBloc>(context)
+                      .add(const SectionDeFetched());
+                  BlocProvider.of<DatabaseBloc>(context)
+                      .add(const DatabaseSubDeSelected());
+                }
+              });
+            },
+          )),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -120,13 +134,6 @@ class SectionsPage extends StatelessWidget {
                                 sectionName: section.name!,
                                 imageUrl: course.imageUrlSmall!),
                             onTap: () {
-                              // if (heNetworkState ==
-                              //     HenetworkStatus.noInternet) {
-                              //   addBookSelectedStateOffline(context);
-                              // } else if (heNetworkState ==
-                              //     HenetworkStatus.wifiNetwork) {
-                              //
-                              // }
                               sectionBloc.add(BookQuizSelected(
                                   course.id.toString(),
                                   section.section.toString()));
@@ -152,9 +159,5 @@ class SectionsPage extends StatelessWidget {
       ),
       //endDrawer: CustomDrawer(),
     );
-  }
-
-  void addBookSelectedStateOffline(BuildContext context) {
-    debugPrint("Offline Option");
   }
 }

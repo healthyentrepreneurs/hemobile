@@ -7,6 +7,12 @@ abstract class DatabaseEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+
+class DatabaseLoadEvent extends DatabaseEvent {
+  @override
+  List<Object?> get props => [];
+}
+
 class DatabaseFetched extends DatabaseEvent {
   final String userid;
   final HenetworkStatus? henetworkStatus;
@@ -21,6 +27,7 @@ class DatabaseSubSelected extends DatabaseEvent {
   @override
   List<Object?> get props => [selectsubscription];
 }
+
 
 class DatabaseSubDeSelected extends DatabaseEvent {
   const DatabaseSubDeSelected();

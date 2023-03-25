@@ -8,7 +8,6 @@ import 'package:he/helper/file_system_util.dart';
 import 'package:he/objects/objects.dart';
 import 'package:he_api/he_api.dart';
 
-
 part 'section_event.dart';
 part 'section_state.dart';
 
@@ -18,7 +17,9 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
       : _databaseRepository = repository,
         super(const SectionState.loading()) {
     on<SectionFetched>(_onSectionFetched);
+    on<SectionDeFetched>(_onSectionDeFetched);
     on<BookQuizSelected>(_onBookQuizSelected);
+    on<BookQuizDeselected>(_onBookQuizDeselected);
     on<BookChapterSelected>(_onBookChapterSelected);
     // ,transformer: droppable()
     on<SectionFetchedError>(_onSectionFetchedError);
@@ -42,6 +43,11 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
     });
   }
 
+  FutureOr<void> _onSectionDeFetched(
+      SectionDeFetched event, Emitter<SectionState> emit) {
+    emit(state.copyWith(listofSections: <Section>[]));
+  }
+
   _onBookQuizSelected(
       BookQuizSelected event, Emitter<SectionState> emit) async {
     Stream<Either<Failure, List<BookQuiz?>>> listBookQuizStream =
@@ -56,11 +62,16 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
     // listBookQuiz
   }
 
+  FutureOr<void> _onBookQuizDeselected(
+      BookQuizDeselected event, Emitter<SectionState> emit) {
+    emit(state.copyWith(listBookQuiz: <BookQuiz>[]));
+  }
+
   _onBookChapterSelected(
       BookChapterSelected event, Emitter<SectionState> emit) async {
     Stream<Either<Failure, List<BookContent>>> listBookChapterStream =
-        _databaseRepository.retrieveBookChapter(
-            event.courseId, event.section, event.bookContextId,event.bookIndex);
+        _databaseRepository.retrieveBookChapter(event.courseId, event.section,
+            event.bookContextId, event.bookIndex);
     await emit.forEach(listBookChapterStream,
         onData: (Either<Failure, List<BookContent>> listBookChapter) {
       return listBookChapter.fold(

@@ -1,3 +1,4 @@
+import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -54,7 +55,9 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
                 .showExitConfirmationDialog(context)
                 .then((value) {
               if (value) {
+                context.flow<NavigationState>().update((_) => NavigationState.mainScaffold);
                 BlocProvider.of<SurveyBloc>(context).add(const SurveyReset());
+                BlocProvider.of<DatabaseBloc>(context).add(const DatabaseSubDeSelected());
               }
             });
           },

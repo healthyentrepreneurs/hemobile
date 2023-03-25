@@ -19,6 +19,7 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
       : _databaseRepository = repository,
         super(const DatabaseState.loading()) {
     on<DatabaseFetched>(_fetchUserData);
+    on<DatabaseLoadEvent>(_onDatabaseLoadEvent);
     on<DatabaseSubSelected>(_onDatabaseSubSelected);
     on<DatabaseSubDeSelected>(_onDatabaseSubDeSelected);
   }
@@ -50,8 +51,9 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
       DatabaseSubDeSelected event, Emitter<DatabaseState> emit) {
     emit(state.copyWith(selectedsubscription: null));
   }
+
+  FutureOr<void> _onDatabaseLoadEvent(
+      DatabaseLoadEvent event, Emitter<DatabaseState> emit) {
+    emit(const DatabaseState.loading());
+  }
 }
-// return listOfSubscription.fold(
-//   (failure) => DatabaseState.error(failure),
-//   (listOfSubscription) => DatabaseState.successful(listOfSubscription,event.henetworkStatus!,event.displayName),
-// );

@@ -26,14 +26,15 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final NavigationHelper _navigationHelper = NavigationHelper();
-  late FlowController<NavigationState> _controller;
-
-  NavigationState _determineFlowState({
-    required DatabaseState databaseState,
-    required HenetworkState henetworkState,
-    required SurveyState surveyState,
-    required SectionState sectionState,
-  }) {
+  NavigationState _determineFlowState(BuildContext context) {
+    final DatabaseState databaseState =
+        context.select((DatabaseBloc bloc) => bloc.state);
+    final HenetworkState henetworkState =
+        context.select((HenetworkBloc bloc) => bloc.state);
+    final SurveyState surveyState =
+        context.select((SurveyBloc bloc) => bloc.state);
+    final SectionState sectionState =
+        context.select((SectionBloc bloc) => bloc.state);
     return _navigationHelper.determineNavigationState(
       databaseState: databaseState,
       henetworkState: henetworkState,
@@ -43,20 +44,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _controller = FlowController(NavigationState.mainScaffold);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final user = context.select((AuthenticationBloc bloc) => bloc.state.user)!;
+
     return BlocBuilder<HenetworkBloc, HenetworkState>(
       buildWhen: (previous, current) {
         var networkChange =
@@ -78,56 +68,36 @@ class _HomePageState extends State<HomePage> {
           listeners: [
             BlocListener<DatabaseBloc, DatabaseState>(
               listener: (context, state) {
-                // HenetworkBloc
-                _controller.update((_) => _determineFlowState(
-                      databaseState: state,
-                      henetworkState: context.read<HenetworkBloc>().state,
-                      surveyState: context.read<SurveyBloc>().state,
-                      sectionState: context.read<SectionBloc>().state,
-                    ));
+                setState(
+                    () {}); // Trigger rebuild when the DatabaseBloc state changes.
               },
             ),
             BlocListener<SurveyBloc, SurveyState>(
               listener: (context, state) {
-                _controller.update((_) => _determineFlowState(
-                      databaseState: context.read<DatabaseBloc>().state,
-                      henetworkState: context.read<HenetworkBloc>().state,
-                      surveyState: state,
-                      sectionState: context.read<SectionBloc>().state,
-                    ));
+                setState(
+                    () {}); // Trigger rebuild when the SurveyBloc state changes.
               },
             ),
             BlocListener<SectionBloc, SectionState>(
               listener: (context, state) {
-                _controller.update((_) => _determineFlowState(
-                      databaseState: context.read<DatabaseBloc>().state,
-                      henetworkState: context.read<HenetworkBloc>().state,
-                      surveyState: context.read<SurveyBloc>().state,
-                      sectionState: state,
-                    ));
+                setState(
+                    () {}); // Trigger rebuild when the SectionBloc state changes.
               },
             ),
             BlocListener<HenetworkBloc, HenetworkState>(
               listenWhen: (previous, current) =>
                   previous.gstatus != current.gstatus,
               listener: (context, state) {
-                if (_controller.state.name == "surveyPage") {
-                  BlocProvider.of<SurveyBloc>(context).add(const SurveyReset());
-                  BlocProvider.of<DatabaseBloc>(context)
-                      .add(const DatabaseSubDeSelected());
-                }
-                _controller.update((_) => _determineFlowState(
-                      databaseState: context.read<DatabaseBloc>().state,
-                      henetworkState: state,
-                      surveyState: context.read<SurveyBloc>().state,
-                      sectionState: context.read<SectionBloc>().state,
-                    ));
+                debugPrint("Here We are Now");
+                // BlocProvider.of<SurveyBloc>(context).add(const SurveyReset());
+                BlocProvider.of<DatabaseBloc>(context).add(DatabaseLoadEvent());
+                setState(
+                    () {}); // Trigger rebuild when the SectionBloc state changes.
               },
             ),
           ],
           child: FlowBuilder<NavigationState>(
-            controller: _controller,
-            // state: _determineFlowState(context),
+            state: _determineFlowState(context),
             onGeneratePages: (flowState, pages) {
               switch (flowState) {
                 case NavigationState.mainScaffold:
