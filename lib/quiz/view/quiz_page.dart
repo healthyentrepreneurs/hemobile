@@ -27,7 +27,7 @@ class _QuizPageState extends State<QuizPage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: ()=> const MenuItemHe().showExitConfirmationDialog(context),
+      onWillPop: () => const MenuItemHe().showExitConfirmationDialog(context),
       child: Scaffold(
           appBar: AppBar(
             title: Text(

@@ -65,11 +65,12 @@ class _CustomDrawer extends State<CustomDrawer> {
                   shrinkWrap: true,
                   children: <Widget>[
                     InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomePage()));
+                      onTap: () async {
+                        // Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //         builder: (context) => const HomePage()));
+                        await Navigator.of(context).push(HomePage.route());
                       },
                       child: ListTile(
                         title:
@@ -267,7 +268,9 @@ class _CustomDrawer extends State<CustomDrawer> {
                 //     seen: false, updated: false);
                 // apkUpdateBloc.add(
                 //     UpdateSeenStatusEvent(status: updateStatus));
-                context.read<AuthenticationBloc>().add(AuthenticationLogoutRequested());
+                context
+                    .read<AuthenticationBloc>()
+                    .add(AuthenticationLogoutRequested());
                 Navigator.of(context).pop();
               },
             ),

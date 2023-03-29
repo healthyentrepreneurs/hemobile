@@ -2,27 +2,20 @@ import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:he/helper/toolutils.dart';
-import 'package:he/injection.dart';
-import 'package:he/objects/blocs/repo/database_repo.dart';
+import 'package:he/home/home.dart';
 import 'package:he/survey/bloc/survey_bloc.dart';
 import 'package:he_api/he_api.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../home/home.dart';
+import '../../helper/toolutils.dart';
 import '../../objects/blocs/hedata/bloc/database_bloc.dart';
+import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 
 class SurveyPageBrowser extends StatefulWidget {
-  const SurveyPageBrowser._();
-  static Route<SurveyState> route() {
-    return MaterialPageRoute(
-      builder: (_) => BlocProvider(
-        create: (_) => SurveyBloc(repository: getIt<DatabaseRepository>()),
-        child: const SurveyPageBrowser._(),
-      ),
-    );
-  }
-
+  const SurveyPageBrowser({
+    Key? key,
+  }) : super(key: key);
+  static Page page() => const MaterialPage<void>(child: SurveyPageBrowser());
   @override
   _SurveyPageBrowser createState() => _SurveyPageBrowser();
 }
@@ -31,41 +24,67 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
   String url = "";
   double progress = 0;
   late InAppWebViewController webView;
+
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: ToolUtils.whiteColor,
+      appBar: _buildAppBar(),
+      body: BlocBuilder<SurveyBloc, SurveyState>(
+        builder: (context, state) => _buildBody(context, state),
+      ),
+    );
+  }
+
+  AppBar _buildAppBar() {
     final databasebloc = BlocProvider.of<DatabaseBloc>(context);
     Subscription course = databasebloc.state.gselectedsubscription!;
-    // final heNetworkState =
-    // context.select((HenetworkBloc bloc) => bloc.state.status);
-    return BlocBuilder<SurveyBloc, SurveyState>(
-      builder: (context, state) {
-        if (state == const SurveyState.loading()) {
-          final surveyBloc = BlocProvider.of<SurveyBloc>(context);
-          surveyBloc.add(SurveyFetched(
-              '${course.id}', databasebloc.state.ghenetworkStatus));
-        }
-        return FlowBuilder<SurveyState>(
-          state: context.select((SurveyBloc bloc) => bloc.state),
-          onGeneratePages: (SurveyState state, List<Page<dynamic>> pages) {
-            Widget subWidget;
-            if (state.error != null) {
-              subWidget =
-                  const StateLoadingHe().errorWithStackT(state.error!.message);
-            } else if (state.gsurveyjson == null) {
-              subWidget =
-                  const StateLoadingHe().noDataFound('This Survey Is Empty');
-              // return [NoneKang.page()];
-            } else {
-              subWidget = _buildWebView(context, state);
-            }
-            return [
-              MaterialPage<void>(
-                  child: SurveyScaf(subwidget: subWidget, course: course)),
-            ];
+    return AppBar(
+        title: Text(
+          course.fullname!,
+          style: const TextStyle(color: ToolUtils.mainPrimaryColor),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: ToolUtils.mainPrimaryColor),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            const MenuItemHe()
+                .showExitConfirmationDialog(context)
+                .then((value) {
+              if (value) {
+                context.flow<NavigationState>().update((_) => NavigationState.mainScaffold);
+                BlocProvider.of<SurveyBloc>(context).add(const SurveyReset());
+                BlocProvider.of<DatabaseBloc>(context).add(const DatabaseSubDeSelected());
+              }
+            });
           },
-        );
-      },
-    );
+        ));
+    // return ;
+  }
+
+  Widget _buildBody(BuildContext context, SurveyState state) {
+    if (state.error != null) {
+      return const StateLoadingHe().errorWithStackT(state.error!.message);
+    } else if (state == const SurveyState.loading()) {
+      _fetchSurveyIfNecessary(context, state);
+      return const StateLoadingHe().loadingData();
+    } else {
+      return state.gsurveyjson == null
+          ? const StateLoadingHe().noDataFound('This Survey Is Empty')
+          : _buildWebView(context, state);
+    }
+  }
+
+  void _fetchSurveyIfNecessary(BuildContext context, SurveyState state) {
+    final surveyBloc = BlocProvider.of<SurveyBloc>(context);
+    final heNetworkState =
+        context.select((HenetworkBloc bloc) => bloc.state.status);
+    final databasebloc = BlocProvider.of<DatabaseBloc>(context);
+    Subscription course = databasebloc.state.gselectedsubscription!;
+    surveyBloc.add(SurveyFetched('${course.id}', heNetworkState));
   }
 
   Widget _buildWebView(BuildContext context, SurveyState state) {
@@ -184,6 +203,11 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
     ]));
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void processJsonDataContainer() {
     var jsonTxt = BlocProvider.of<SurveyBloc>(context).state.gsurveyjson;
     String _js = '''
@@ -209,39 +233,5 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
       throw 'Could not launch $url';
     }
   }
-}
-
-class SurveyScaf extends StatelessWidget {
-  const SurveyScaf({Key? key, required this.course, required this.subwidget})
-      : super(key: key);
-  final Subscription course;
-  final Widget subwidget;
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ToolUtils.whiteColor,
-      appBar: AppBar(
-          title: Text(
-            course.fullname!,
-            style: const TextStyle(color: ToolUtils.mainPrimaryColor),
-          ),
-          backgroundColor: Colors.white,
-          elevation: 0,
-          centerTitle: true,
-          iconTheme: const IconThemeData(color: ToolUtils.mainPrimaryColor),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              const MenuItemHe()
-                  .showExitConfirmationDialog(context)
-                  .then((value) {
-                if (value) {
-                  context.flow<SurveyState>().complete();
-                }
-              });
-            },
-          )),
-      body: subwidget,
-    );
-  }
+// Helper methods for WebView and other functionality
 }

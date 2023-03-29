@@ -63,9 +63,7 @@ class BookQuizPage extends StatelessWidget {
                 mainAxisSpacing: 10,
               ),
               itemBuilder: (BuildContext context, int index) {
-                // var _module = _datamodule as Map<String, dynamic>;
                 BookQuiz _bookquiz = _listBookQuiz[index]!;
-                // debugPrint("NYEGEGA ${_bookquiz.toJson()}");
                 return GestureDetector(
                   child: _bookQuizModuleCard(_bookquiz, context),
                   onTap: () {

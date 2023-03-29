@@ -7,6 +7,7 @@ enum NavigationState {
   mainScaffold,
   surveyPage,
   sectionsPage,
+  // errorPage,
   // Add more navigation states as needed
 }
 
@@ -33,14 +34,11 @@ class NavigationHelper {
           databaseState.gselectedsubscription!.source == 'originalm') {
         return NavigationState.surveyPage;
       }
-      if (databaseState.gselectedsubscription!.source != 'originalm' &&
-          sectionState.glistofSections.isNotEmpty) {
+      if (databaseState.gselectedsubscription!.source != 'originalm') {
+        // sectionState.error!=null && sectionState.glistofSections.isNotEmpty
         return NavigationState.sectionsPage;
       }
     }
     return NavigationState.mainScaffold;
   }
 }
-// enum FlowEvent { resetSurvey, pop }
-//
-// late FlowController<FlowEvent> _controller;

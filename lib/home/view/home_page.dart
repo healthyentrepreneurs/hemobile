@@ -3,144 +3,107 @@ import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
-import 'package:he/course/section/bloc/section_bloc.dart';
 import 'package:he/home/datawidgets/datawidget.dart';
+import 'package:he/injection.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
+import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
+import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he/survey/bloc/survey_bloc.dart';
-import '../../course/section/view/section_page.dart';
-import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
-import '../../survey/widgets/surveypagebrowser.dart';
-import 'navigationhelper.dart';
+import 'package:he/survey/widgets/surveypagebrowser.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+import '../../course/section/bloc/section_bloc.dart';
+import '../widgets/widgets.dart';
 
-  static Page page() => const MaterialPage<void>(child: HomePage());
-  // static Route<void> route() {
-  //   return MaterialPageRoute<void>(builder: (_) => const HomePage());
-  // }
-
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final NavigationHelper _navigationHelper = NavigationHelper();
-  late FlowController<NavigationState> _controller;
-
-  NavigationState _determineFlowState({
-    required DatabaseState databaseState,
-    required HenetworkState henetworkState,
-    required SurveyState surveyState,
-    required SectionState sectionState,
-  }) {
-    return _navigationHelper.determineNavigationState(
-      databaseState: databaseState,
-      henetworkState: henetworkState,
-      surveyState: surveyState,
-      sectionState: sectionState,
+class HomePage extends StatelessWidget {
+  const HomePage._();
+  static Page<void> page() => const MaterialPage<void>(child: HomePage._());
+  static Route<DatabaseState> route() {
+    return MaterialPageRoute(
+      builder: (_) => BlocProvider(
+        create: (_) => DatabaseBloc(repository: getIt<DatabaseRepository>()),
+        child: const HomePage._(),
+      ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = FlowController(NavigationState.mainScaffold);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final user = context.select((AuthenticationBloc bloc) => bloc.state.user)!;
     return BlocBuilder<HenetworkBloc, HenetworkState>(
-      buildWhen: (previous, current) {
-        var networkChange =
-            previous.gconnectivityResult != current.gconnectivityResult;
-        if (networkChange) {
-          BlocProvider.of<DatabaseBloc>(context)
-              .add(DatabaseFetched(user.id.toString(), current.gstatus));
-        }
-        return networkChange;
-      },
-      builder: (context, state) {
-        if (state.gconnectivityResult == ConnectivityResult.none) {
-          WidgetsBinding.instance!.addPostFrameCallback((_) {
-            final networkBloc = BlocProvider.of<HenetworkBloc>(context);
-            networkBloc.add(const HeNetworkNetworkStatus());
-          });
-        }
-        return MultiBlocListener(
-          listeners: [
-            BlocListener<DatabaseBloc, DatabaseState>(
-              listener: (context, state) {
-                // HenetworkBloc
-                _controller.update((_) => _determineFlowState(
-                      databaseState: state,
-                      henetworkState: context.read<HenetworkBloc>().state,
-                      surveyState: context.read<SurveyBloc>().state,
-                      sectionState: context.read<SectionBloc>().state,
-                    ));
-              },
-            ),
-            BlocListener<SurveyBloc, SurveyState>(
-              listener: (context, state) {
-                _controller.update((_) => _determineFlowState(
-                      databaseState: context.read<DatabaseBloc>().state,
-                      henetworkState: context.read<HenetworkBloc>().state,
-                      surveyState: state,
-                      sectionState: context.read<SectionBloc>().state,
-                    ));
-              },
-            ),
-            BlocListener<SectionBloc, SectionState>(
-              listener: (context, state) {
-                _controller.update((_) => _determineFlowState(
-                      databaseState: context.read<DatabaseBloc>().state,
-                      henetworkState: context.read<HenetworkBloc>().state,
-                      surveyState: context.read<SurveyBloc>().state,
-                      sectionState: state,
-                    ));
-              },
-            ),
-            BlocListener<HenetworkBloc, HenetworkState>(
-              listenWhen: (previous, current) =>
-                  previous.gstatus != current.gstatus,
-              listener: (context, state) {
-                if (_controller.state.name == "surveyPage") {
-                  BlocProvider.of<SurveyBloc>(context).add(const SurveyReset());
-                  BlocProvider.of<DatabaseBloc>(context)
-                      .add(const DatabaseSubDeSelected());
+        buildWhen: (previous, current) {
+      var networkChange =
+          previous.gconnectivityResult != current.gconnectivityResult;
+      if (networkChange) {
+        BlocProvider.of<DatabaseBloc>(context)
+            .add(DatabaseFetched(user.id.toString(), current.gstatus));
+      }
+      return networkChange;
+    }, builder: (context, state) {
+      if (state.gconnectivityResult == ConnectivityResult.none) {
+        final networkBloc = BlocProvider.of<HenetworkBloc>(context);
+        networkBloc.add(const HeNetworkNetworkStatus());
+      }
+      return BlocBuilder<DatabaseBloc, DatabaseState>(
+          buildWhen: (previous, current) =>
+              previous.ghenetworkStatus != current.ghenetworkStatus,
+          builder: (context, state) {
+            if (state == const DatabaseState.loading()) {
+              BlocProvider.of<DatabaseBloc>(context).add(DatabaseFetched(
+                  user.id.toString(),
+                  context.select((HenetworkBloc bloc) => bloc.state.status)));
+            }
+            return FlowBuilder<DatabaseState>(
+              state: context
+                  .select((DatabaseBloc databaseState) => databaseState.state),
+              onGeneratePages:
+                  (DatabaseState state, List<Page<dynamic>> pages) {
+                Widget subWidget;
+                if (state.error != null) {
+                  subWidget = const StateLoadingHe()
+                      .errorWithStackT(state.error!.message);
+                } else if (state.glistOfSubscriptionData.isEmpty) {
+                  subWidget =
+                      const StateLoadingHe().noDataFound('You have no Tools');
+                  // return [NoneKang.page()];
+                } else {
+                  subWidget = ListView.builder(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.only(bottom: 40),
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: state.glistOfSubscriptionData.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final databasebloc =
+                          BlocProvider.of<DatabaseBloc>(context);
+                      var subscription = state.glistOfSubscriptionData[index]!;
+                      return UserLanding(
+                        subscription: subscription,
+                        onTap: () async{
+                          databasebloc.add(DatabaseSubSelected(subscription));
+                          if (subscription.source == 'originalm') {
+                            // BlocProvider.of<SurveyBloc>(context).add(
+                            //   SurveyFetched(
+                            //       '${subscription.id}', state.ghenetworkStatus),
+                            // );
+                            await Navigator.of(context).push(
+                                SurveyPageBrowser.route());
+                          } else {
+                            BlocProvider.of<SectionBloc>(context).add(
+                              SectionFetched(
+                                  '${subscription.id}', state.ghenetworkStatus),
+                            );
+                          }
+                        },
+                      );
+                    },
+                  );
+                  // return [SubScription.page()];
                 }
-                _controller.update((_) => _determineFlowState(
-                      databaseState: context.read<DatabaseBloc>().state,
-                      henetworkState: state,
-                      surveyState: context.read<SurveyBloc>().state,
-                      sectionState: context.read<SectionBloc>().state,
-                    ));
+                return [
+                  MaterialPage<void>(child: MainScaffold(subwidget: subWidget)),
+                ];
               },
-            ),
-          ],
-          child: FlowBuilder<NavigationState>(
-            controller: _controller,
-            // state: _determineFlowState(context),
-            onGeneratePages: (flowState, pages) {
-              switch (flowState) {
-                case NavigationState.mainScaffold:
-                  return [const MaterialPage(child: MainScaffold())];
-                case NavigationState.surveyPage:
-                  return [const MaterialPage(child: SurveyPageBrowser())];
-                case NavigationState.sectionsPage:
-                  return [const MaterialPage(child: SectionsPage())];
-              }
-            },
-          ),
-        );
-      },
-    );
+            );
+          });
+    });
   }
 }

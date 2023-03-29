@@ -28,7 +28,6 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
   final DatabaseRepository _databaseRepository;
 
   _onSectionFetched(SectionFetched event, Emitter<SectionState> emit) async {
-    // _databaseRepository.addHenetworkStatus(event.henetworkStatus!);
     Stream<Either<Failure, List<Section?>>> listOfSectionStream =
         _databaseRepository.retrieveBookSectionData(event.courseid);
     debugPrint('SectionBloc@_onSectionFetched ${event.henetworkStatus}');
@@ -88,8 +87,6 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
     //add wait of 2 seconds
     // await Future.delayed(const Duration(seconds: 2));
     emit(SectionState.withError(
-        listofSections: event.listofSections,
-        henetworkStatus: event.henetworkStatus,
-        error: event.error));
+        henetworkStatus: event.henetworkStatus));
   }
 }

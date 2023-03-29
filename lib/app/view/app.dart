@@ -126,9 +126,6 @@ class _AppView extends State<AppView> {
             state: context.select((AuthenticationBloc bloc) => bloc.state.status),
             onGeneratePages: onGeneratePages,
           ),
-          routes: {
-            '/mainScaffold': (context) => const MainScaffold(),
-          },
         );
       },
     );

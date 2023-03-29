@@ -30,15 +30,13 @@ class SectionState extends Equatable {
             henetworkStatus: henetworkStatus);
   // create initial state constructor
   const SectionState.withError(
-      {List<Section?>? listofSections,
-      HenetworkStatus? henetworkStatus,
-      Failure? error})
+      {HenetworkStatus? henetworkStatus})
       : this._(
-          listofSections: listofSections ?? emptySectionList,
+          listofSections: emptySectionList,
           henetworkStatus: henetworkStatus,
           listBookQuiz: emptybookQuizList,
           listBookChapters: emptybookChapterList,
-          error: error,
+          error: null,
         );
 
   SectionState copyWith(

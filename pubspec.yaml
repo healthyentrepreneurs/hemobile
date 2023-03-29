@@ -57,6 +57,7 @@ dependencies:
   url_launcher: ^6.0.9
   path: ^1.8.0
   #remove plus
+#  webview_flutter_plus
   webview_flutter: ^4.0.2
   flutter_inappwebview: ^5.3.2
   flutter_widget_from_html: ^0.9.1
