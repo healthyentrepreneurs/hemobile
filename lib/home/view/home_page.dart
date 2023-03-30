@@ -9,40 +9,18 @@ import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he/survey/widgets/surveypagebrowser.dart';
-import 'package:he_api/he_api.dart';
 
 import '../../course/section/bloc/section_bloc.dart';
 import '../widgets/widgets.dart';
 
 class HomePage extends StatelessWidget {
-  final User user;
-  const HomePage._({required this.user});
-  // static Page<void> page(User user) => const MaterialPage<void>(child: HomePage._(user:user));
-  static Page<void> page(User user) =>
-      MaterialPage<void>(child: HomePage._(user: user));
-  // static Route<DatabaseState> route(User user) {
-  //   return MaterialPageRoute(
-  //     builder: (_) => BlocProvider(
-  //       create: (_) => DatabaseBloc(repository: getIt<DatabaseRepository>()),
-  //       child: HomePage._(user: user),
-  //     ),
-  //   );
-  // }
-
-  static Route<DatabaseState> route(User user) {
+  const HomePage._();
+  static Page<void> page() => const MaterialPage<void>(child: HomePage._());
+  static Route<DatabaseState> route() {
     return MaterialPageRoute(
-      builder: (_) => BlocBuilder<HenetworkBloc, HenetworkState>(
-        builder: (context, current) {
-          if (current.gconnectivityResult == ConnectivityResult.none) {
-            final networkBloc = BlocProvider.of<HenetworkBloc>(context);
-            networkBloc.add(const HeNetworkNetworkStatus());
-          }
-          return BlocProvider(
-            create: (_) => DatabaseBloc(repository: getIt<DatabaseRepository>())
-              ..add(DatabaseFetched(user.id.toString(), current.gstatus)),
-            child: HomePage._(user: user),
-          );
-        },
+      builder: (_) => BlocProvider(
+        create: (_) => DatabaseBloc(repository: getIt<DatabaseRepository>()),
+        child: const HomePage._(),
       ),
     );
   }
@@ -57,10 +35,12 @@ class HomePage extends StatelessWidget {
       if (networkChange) {
         BlocProvider.of<DatabaseBloc>(context)
             .add(DatabaseFetched(user.id.toString(), current.gstatus));
+        debugPrint("Mamam_Network_Damit C 114");
       }
       return networkChange;
     }, builder: (context, state) {
       if (state.gconnectivityResult == ConnectivityResult.none) {
+        debugPrint("No_Network_Damit A 104");
         final networkBloc = BlocProvider.of<HenetworkBloc>(context);
         networkBloc.add(const HeNetworkNetworkStatus());
       }
@@ -68,13 +48,20 @@ class HomePage extends StatelessWidget {
           buildWhen: (previous, current) =>
               previous.ghenetworkStatus != current.ghenetworkStatus,
           builder: (context, state) {
+            final _henetworkstate =
+                BlocProvider.of<HenetworkBloc>(context).state;
             return FlowBuilder<DatabaseState>(
               state: context
                   .select((DatabaseBloc databaseState) => databaseState.state),
               onGeneratePages:
                   (DatabaseState state, List<Page<dynamic>> pages) {
                 Widget subWidget;
-                if (state.error != null) {
+                if (state == const DatabaseState.loading()) {
+                  debugPrint("Amloading_Network_Damit B 106");
+                  subWidget = const StateLoadingHe().loadingData();
+                  BlocProvider.of<DatabaseBloc>(context).add(DatabaseFetched(
+                      user.id.toString(), _henetworkstate.status));
+                } else if (state.error != null) {
                   subWidget = const StateLoadingHe()
                       .errorWithStackT(state.error!.message);
                 } else if (state.glistOfSubscriptionData.isEmpty) {

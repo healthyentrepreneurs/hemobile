@@ -11,7 +11,6 @@ import 'package:he/home/home.dart';
 import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import 'package:he_api/he_api.dart';
 
-import '../../../auth/authentication/authentication.dart';
 import '../../../helper/toolutils.dart';
 import '../../../objects/blocs/hedata/bloc/database_bloc.dart';
 import '../../widgets/sectionicon.dart';
@@ -23,7 +22,6 @@ class SectionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     Subscription course =
         BlocProvider.of<DatabaseBloc>(context).state.gselectedsubscription!;
-    final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
 // final heNetworkState =
 //     context.select((HenetworkBloc bloc) => bloc.state.status);
     return Scaffold(
@@ -45,7 +43,7 @@ class SectionsPage extends StatelessWidget {
                   .showExitConfirmationDialog(context)
                   .then((value) {
                 if (value) {
-                  Navigator.of(context).push(HomePage.route(user));
+                  Navigator.of(context).push(HomePage.route());
                   final sectionState = context.read<SectionBloc>().state;
                   if (sectionState.error != null) {
                     BlocProvider.of<DatabaseBloc>(context)

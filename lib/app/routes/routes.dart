@@ -5,11 +5,10 @@ import 'package:he/home/home.dart';
 
 import '../../auth/authentication/authentication.dart';
 
-List<Page> onGeneratePages(
-    AuthenticationState state, List<Page<dynamic>> pages) {
+List<Page> onGeneratePages(AuthenticationState state, List<Page<dynamic>> pages) {
   switch (state.status) {
     case HeAuthStatus.authenticated:
-      return [HomePage.page(state.user)];
+      return [HomePage.page()];
     case HeAuthStatus.unauthenticated:
       return [LoginPage.page()];
     default:

@@ -70,7 +70,7 @@ class _CustomDrawer extends State<CustomDrawer> {
                         //     context,
                         //     MaterialPageRoute(
                         //         builder: (context) => const HomePage()));
-                        await Navigator.of(context).push(HomePage.route(user));
+                        await Navigator.of(context).push(HomePage.route());
                       },
                       child: ListTile(
                         title:

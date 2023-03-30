@@ -8,7 +8,6 @@ import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he/survey/bloc/survey_bloc.dart';
 import 'package:he_api/he_api.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
 import '../../home/home.dart';
 import '../../objects/blocs/hedata/bloc/database_bloc.dart';
@@ -63,8 +62,8 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
             }
             return [
               MaterialPage<void>(
-                  child: SurveyScaf(subwidget: Center(
-                      child: subWidget), course: course)),
+                  child: SurveyScaf(
+                      subwidget: Center(child: subWidget), course: course)),
             ];
           },
         );
