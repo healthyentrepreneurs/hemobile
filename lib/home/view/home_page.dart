@@ -18,12 +18,31 @@ class HomePage extends StatelessWidget {
   final User user;
   const HomePage._({required this.user});
   // static Page<void> page(User user) => const MaterialPage<void>(child: HomePage._(user:user));
-  static Page<void> page(User user) => MaterialPage<void>(child: HomePage._(user: user));
+  static Page<void> page(User user) =>
+      MaterialPage<void>(child: HomePage._(user: user));
+  // static Route<DatabaseState> route(User user) {
+  //   return MaterialPageRoute(
+  //     builder: (_) => BlocProvider(
+  //       create: (_) => DatabaseBloc(repository: getIt<DatabaseRepository>()),
+  //       child: HomePage._(user: user),
+  //     ),
+  //   );
+  // }
+
   static Route<DatabaseState> route(User user) {
     return MaterialPageRoute(
-      builder: (_) => BlocProvider(
-        create: (_) => DatabaseBloc(repository: getIt<DatabaseRepository>()),
-        child: HomePage._(user: user),
+      builder: (_) => BlocBuilder<HenetworkBloc, HenetworkState>(
+        builder: (context, current) {
+          if (current.gconnectivityResult == ConnectivityResult.none) {
+            final networkBloc = BlocProvider.of<HenetworkBloc>(context);
+            networkBloc.add(const HeNetworkNetworkStatus());
+          }
+          return BlocProvider(
+            create: (_) => DatabaseBloc(repository: getIt<DatabaseRepository>())
+              ..add(DatabaseFetched(user.id.toString(), current.gstatus)),
+            child: HomePage._(user: user),
+          );
+        },
       ),
     );
   }
