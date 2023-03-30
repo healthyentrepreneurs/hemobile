@@ -10,6 +10,7 @@ import 'package:he/home/home.dart';
 import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import 'package:he_api/he_api.dart';
 
+import '../../../auth/authentication/authentication.dart';
 import '../../../helper/toolutils.dart';
 import '../../../objects/blocs/hedata/bloc/database_bloc.dart';
 
@@ -47,6 +48,7 @@ class SectionsPage extends StatelessWidget {
   }
 
   _buildAppBar(BuildContext context, Subscription course) {
+    final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
     return AppBar(
         title: Text(
           course.fullname!,
@@ -63,7 +65,7 @@ class SectionsPage extends StatelessWidget {
                 .showExitConfirmationDialog(context)
                 .then((value) {
               if (value) {
-                Navigator.of(context).push(HomePage.route());
+                Navigator.of(context).push(HomePage.route(user));
                 final sectionState = context.read<SectionBloc>().state;
                 if (sectionState.error != null) {
                   BlocProvider.of<DatabaseBloc>(context)

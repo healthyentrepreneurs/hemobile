@@ -8,6 +8,7 @@ import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he/survey/bloc/survey_bloc.dart';
 import 'package:he_api/he_api.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
 import '../../home/home.dart';
 import '../../objects/blocs/hedata/bloc/database_bloc.dart';
@@ -29,26 +30,28 @@ class SurveyPageBrowser extends StatefulWidget {
 
 class _SurveyPageBrowser extends State<SurveyPageBrowser> {
   String url = "";
-  double progress = 0;
   late InAppWebViewController webView;
   @override
   Widget build(BuildContext context) {
     final databasebloc = BlocProvider.of<DatabaseBloc>(context);
     Subscription course = databasebloc.state.gselectedsubscription!;
-    // final heNetworkState =
-    // context.select((HenetworkBloc bloc) => bloc.state.status);
     return BlocBuilder<SurveyBloc, SurveyState>(
       builder: (context, state) {
-        if (state == const SurveyState.loading()) {
-          final surveyBloc = BlocProvider.of<SurveyBloc>(context);
-          surveyBloc.add(SurveyFetched(
-              '${course.id}', databasebloc.state.ghenetworkStatus));
-        }
+        // if (state == const SurveyState.loading()) {
+        //   final surveyBloc = BlocProvider.of<SurveyBloc>(context);
+        //   surveyBloc.add(SurveyFetched(
+        //       '${course.id}', databasebloc.state.ghenetworkStatus));
+        // }
         return FlowBuilder<SurveyState>(
           state: context.select((SurveyBloc bloc) => bloc.state),
           onGeneratePages: (SurveyState state, List<Page<dynamic>> pages) {
             Widget subWidget;
-            if (state.error != null) {
+            if (state == const SurveyState.loading()) {
+              subWidget = const StateLoadingHe().loadingData();
+              final surveyBloc = BlocProvider.of<SurveyBloc>(context);
+              surveyBloc.add(SurveyFetched(
+                  '${course.id}', databasebloc.state.ghenetworkStatus));
+            } else if (state.error != null) {
               subWidget =
                   const StateLoadingHe().errorWithStackT(state.error!.message);
             } else if (state.gsurveyjson == null) {
@@ -60,7 +63,8 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
             }
             return [
               MaterialPage<void>(
-                  child: SurveyScaf(subwidget: subWidget, course: course)),
+                  child: SurveyScaf(subwidget: Center(
+                      child: subWidget), course: course)),
             ];
           },
         );
@@ -71,11 +75,6 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
   Widget _buildWebView(BuildContext context, SurveyState state) {
     return SafeArea(
         child: Column(children: <Widget>[
-      Container(
-          padding: const EdgeInsets.all(10.0),
-          child: progress < 1.0
-              ? LinearProgressIndicator(value: progress)
-              : Container()),
       //Text("The loader offline $offline"),
       Expanded(
         child: Container(
@@ -103,13 +102,14 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
               webView = controller;
               webView.addJavaScriptHandler(
                   handlerName: "sendResults",
-                  callback: (args) {
+                  callback: (args) async {
+                    if (!mounted) return;
                     //print(">>Submit to server >${args.toString()}");
                     // ignore: deprecated_member_use
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("posting data..")));
                     // postJsonData(args[0].toString());
-                    print(args[0]);
+                    debugPrint("SendingSurveyData ${args[0]}");
                   });
             },
             onLoadStart: (InAppWebViewController controller, Uri? url) {
@@ -142,10 +142,11 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
                 "javascript",
                 "about"
               ].contains(uri!.scheme)) {
-                if (await canLaunch(url)) {
+                var _url = Uri(scheme: uri!.scheme, path: url);
+                if (await canLaunchUrl(_url)) {
                   // Launch the App
-                  await launch(
-                    url,
+                  await launchUrl(
+                    _url,
                   );
                   // and cancel the request
                   return NavigationActionPolicy.CANCEL;
@@ -160,12 +161,6 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
                 this.url = url.toString();
               });
               processJsonDataContainer();
-            },
-            onProgressChanged:
-                (InAppWebViewController controller, int progress) {
-              setState(() {
-                this.progress = progress / 100;
-              });
             },
             onUpdateVisitedHistory: (InAppWebViewController controller,
                 Uri? url, bool? androidIsReload) {
@@ -202,12 +197,12 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
     //webView.evaluateJavascript(source: "window.changeSurveyData($jsonTxt)");
   }
 
-  Future<void> _makePhoneCall(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    await launchUrl(launchUri);
   }
 }
 

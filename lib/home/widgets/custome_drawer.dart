@@ -25,7 +25,7 @@ class _CustomDrawer extends State<CustomDrawer> {
     final henetworkstate =
         context.select((HenetworkBloc bloc) => bloc.state.status);
     // final textTheme = Theme.of(context).textTheme;
-    // final user = context.select((AppBloc bloc) => bloc.state.user);
+    final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
     final apkSceenState =
         context.select((ApkseenBloc bloc) => bloc.state.status);
     final s = S.of(context);
@@ -70,7 +70,7 @@ class _CustomDrawer extends State<CustomDrawer> {
                         //     context,
                         //     MaterialPageRoute(
                         //         builder: (context) => const HomePage()));
-                        await Navigator.of(context).push(HomePage.route());
+                        await Navigator.of(context).push(HomePage.route(user));
                       },
                       child: ListTile(
                         title:

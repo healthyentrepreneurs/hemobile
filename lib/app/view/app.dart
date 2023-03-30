@@ -122,8 +122,8 @@ class _AppView extends State<AppView> {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          home: FlowBuilder<HeAuthStatus>(
-            state: context.select((AuthenticationBloc bloc) => bloc.state.status),
+          home: FlowBuilder<AuthenticationState>(
+            state: context.select((AuthenticationBloc bloc) => bloc.state),
             onGeneratePages: onGeneratePages,
           ),
         );

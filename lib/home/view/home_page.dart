@@ -8,27 +8,29 @@ import 'package:he/injection.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import 'package:he/objects/blocs/repo/database_repo.dart';
-import 'package:he/survey/bloc/survey_bloc.dart';
 import 'package:he/survey/widgets/surveypagebrowser.dart';
+import 'package:he_api/he_api.dart';
 
 import '../../course/section/bloc/section_bloc.dart';
 import '../widgets/widgets.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage._();
-  static Page<void> page() => const MaterialPage<void>(child: HomePage._());
-  static Route<DatabaseState> route() {
+  final User user;
+  const HomePage._({required this.user});
+  // static Page<void> page(User user) => const MaterialPage<void>(child: HomePage._(user:user));
+  static Page<void> page(User user) => MaterialPage<void>(child: HomePage._(user: user));
+  static Route<DatabaseState> route(User user) {
     return MaterialPageRoute(
       builder: (_) => BlocProvider(
         create: (_) => DatabaseBloc(repository: getIt<DatabaseRepository>()),
-        child: const HomePage._(),
+        child: HomePage._(user: user),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = context.select((AuthenticationBloc bloc) => bloc.state.user)!;
+    final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
     return BlocBuilder<HenetworkBloc, HenetworkState>(
         buildWhen: (previous, current) {
       var networkChange =
@@ -47,11 +49,6 @@ class HomePage extends StatelessWidget {
           buildWhen: (previous, current) =>
               previous.ghenetworkStatus != current.ghenetworkStatus,
           builder: (context, state) {
-            if (state == const DatabaseState.loading()) {
-              BlocProvider.of<DatabaseBloc>(context).add(DatabaseFetched(
-                  user.id.toString(),
-                  context.select((HenetworkBloc bloc) => bloc.state.status)));
-            }
             return FlowBuilder<DatabaseState>(
               state: context
                   .select((DatabaseBloc databaseState) => databaseState.state),
@@ -64,7 +61,6 @@ class HomePage extends StatelessWidget {
                 } else if (state.glistOfSubscriptionData.isEmpty) {
                   subWidget =
                       const StateLoadingHe().noDataFound('You have no Tools');
-                  // return [NoneKang.page()];
                 } else {
                   subWidget = ListView.builder(
                     shrinkWrap: true,
@@ -77,15 +73,15 @@ class HomePage extends StatelessWidget {
                       var subscription = state.glistOfSubscriptionData[index]!;
                       return UserLanding(
                         subscription: subscription,
-                        onTap: () async{
+                        onTap: () async {
                           databasebloc.add(DatabaseSubSelected(subscription));
                           if (subscription.source == 'originalm') {
                             // BlocProvider.of<SurveyBloc>(context).add(
                             //   SurveyFetched(
                             //       '${subscription.id}', state.ghenetworkStatus),
                             // );
-                            await Navigator.of(context).push(
-                                SurveyPageBrowser.route());
+                            await Navigator.of(context)
+                                .push(SurveyPageBrowser.route());
                           } else {
                             BlocProvider.of<SectionBloc>(context).add(
                               SectionFetched(

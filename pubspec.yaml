@@ -54,12 +54,10 @@ dependencies:
   http: ^0.13.4
   universal_html: ^2.0.8
   #  universal_io: ^2.0.4
-  url_launcher: ^6.0.9
   path: ^1.8.0
   #remove plus
-#  webview_flutter_plus
-  webview_flutter: ^4.0.2
-  flutter_inappwebview: ^5.3.2
+#  flutter_inappwebview: ^5.3.2
+  flutter_inappwebview: ^5.7.2+3
   flutter_widget_from_html: ^0.9.1
   just_audio_web: ^0.4.3
   video_player: ^2.2.3
@@ -78,7 +76,6 @@ dependencies:
   json_annotation: ^4.7.0
   get_storage: ^2.0.3
   image_picker: ^0.8.6
-#  firebase_ui_firestore: ^1.0.4
   archive: ^3.3.6
   connectivity_plus: ^3.0.2
   network_info_plus: ^3.0.2
@@ -88,6 +85,8 @@ dependencies:
     git:
       url: https://github.com/njovujsh/async-zip.git
       ref: master
+  webview_flutter_plus: ^0.3.0+2
+  url_launcher: ^6.1.10
 
 dev_dependencies:
   bloc_test: ^9.1.0
