@@ -36,17 +36,19 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
     Subscription course = databasebloc.state.gselectedsubscription!;
     return BlocBuilder<SurveyBloc, SurveyState>(
       builder: (context, state) {
-        // if (state == const SurveyState.loading()) {
-        //   final surveyBloc = BlocProvider.of<SurveyBloc>(context);
-        //   surveyBloc.add(SurveyFetched(
-        //       '${course.id}', databasebloc.state.ghenetworkStatus));
-        // }
+        if (state == const SurveyState.loading()) {
+          debugPrint("Loading-Still A");
+          final surveyBloc = BlocProvider.of<SurveyBloc>(context);
+          surveyBloc.add(SurveyFetched(
+              '${course.id}', databasebloc.state.ghenetworkStatus));
+        }
         return FlowBuilder<SurveyState>(
-          state: context.select((SurveyBloc bloc) => bloc.state),
+          state: context.select((SurveyBloc surveyBloc) => surveyBloc.state),
           onGeneratePages: (SurveyState state, List<Page<dynamic>> pages) {
             Widget subWidget;
             if (state == const SurveyState.loading()) {
-              subWidget = const StateLoadingHe().loadingData();
+              debugPrint("Loading-Still");
+              subWidget = const StateLoadingHe().loadingDataSpink();
               final surveyBloc = BlocProvider.of<SurveyBloc>(context);
               surveyBloc.add(SurveyFetched(
                   '${course.id}', databasebloc.state.ghenetworkStatus));
@@ -72,6 +74,125 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
   }
 
   Widget _buildWebView(BuildContext context, SurveyState state) {
+    return SafeArea(
+      child: Column(
+        children: <Widget>[
+          state == const SurveyState.loading()
+              ? const LinearProgressIndicator()
+              : const SizedBox.shrink(),
+          Expanded(
+            child: state == const SurveyState.loading()
+                ? const SizedBox.shrink()
+                : Container(
+                    margin: const EdgeInsets.all(10.0),
+                    decoration:
+                        BoxDecoration(border: Border.all(color: Colors.white)),
+                    child: InAppWebView(
+                      // contextMenu: contextMenu,
+                      //initialUrl: "https://github.com/flutter",
+                      initialFile: "assets/survey/index.html",
+                      initialOptions: InAppWebViewGroupOptions(
+                          crossPlatform: InAppWebViewOptions(
+                              useShouldOverrideUrlLoading: true,
+                              //mediaPlaybackRequiresUserGesture: false,
+                              javaScriptCanOpenWindowsAutomatically: true,
+                              javaScriptEnabled: true),
+                          android: AndroidInAppWebViewOptions(
+                            disableDefaultErrorPage: true,
+                            useHybridComposition: true,
+                            supportMultipleWindows: true,
+                            allowFileAccess: true,
+                            allowContentAccess: true,
+                            // allowFileAccessFromFileURLs: true,
+                          )),
+                      onWebViewCreated: (InAppWebViewController controller) {
+                        webView = controller;
+                        webView.addJavaScriptHandler(
+                            handlerName: "sendResults",
+                            callback: (args) async {
+                              if (!mounted) return;
+                              //print(">>Submit to server >${args.toString()}");
+                              // ignore: deprecated_member_use
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text("posting data..")));
+                              // postJsonData(args[0].toString());
+                              debugPrint("SendingSurveyData ${args[0]}");
+                            });
+                      },
+                      onLoadStart:
+                          (InAppWebViewController controller, Uri? url) {
+                        //print("onLoadStart $url");
+                        setState(() {
+                          this.url = url.toString();
+                        });
+                      },
+                      androidOnPermissionRequest:
+                          (InAppWebViewController controller, String origin,
+                              List<String> resources) async {
+                        return PermissionRequestResponse(
+                            resources: resources,
+                            action: PermissionRequestResponseAction.GRANT);
+                      },
+                      shouldOverrideUrlLoading:
+                          (controller, shouldOverrideUrlLoadingRequest) async {
+                        Uri? uri = shouldOverrideUrlLoadingRequest.request.url;
+                        var url = uri.toString();
+                        // print(">> $url");
+                        if (url.startsWith("tel:")) {
+                          _makePhoneCall(url);
+                        }
+
+                        if (![
+                          "http",
+                          "https",
+                          "file",
+                          "chrome",
+                          "data",
+                          "javascript",
+                          "about"
+                        ].contains(uri!.scheme)) {
+                          var _url = Uri(scheme: uri!.scheme, path: url);
+                          if (await canLaunchUrl(_url)) {
+                            // Launch the App
+                            await launchUrl(
+                              _url,
+                            );
+                            // and cancel the request
+                            return NavigationActionPolicy.CANCEL;
+                          }
+                        }
+                        return NavigationActionPolicy.ALLOW;
+                      },
+                      onLoadStop:
+                          (InAppWebViewController controller, Uri? url) async {
+                        //print("onLoadStop $url");
+                        setState(() {
+                          // isLoading = false;
+                          this.url = url.toString();
+                        });
+                        processJsonDataContainer();
+                      },
+                      onUpdateVisitedHistory:
+                          (InAppWebViewController controller, Uri? url,
+                              bool? androidIsReload) {
+                        //print("onUpdateVisitedHistory $url");
+                        setState(() {
+                          this.url = url.toString();
+                        });
+                      },
+                      onConsoleMessage: (controller, consoleMessage) {
+                        // print(consoleMessage);
+                      },
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWebViewnn(BuildContext context, SurveyState state) {
     return SafeArea(
         child: Column(children: <Widget>[
       //Text("The loader offline $offline"),

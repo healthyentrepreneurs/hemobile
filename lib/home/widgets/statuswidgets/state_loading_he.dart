@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class StateLoadingHe extends StatelessWidget {
   const StateLoadingHe({Key? key, this.title, this.icon}) : super(key: key);
@@ -33,6 +34,17 @@ class StateLoadingHe extends StatelessWidget {
       // width: double.infinity,
       child: InkWell(
         child: CircularProgressIndicator(),
+      ),
+      // width: 60,
+      // height: 60,
+    );
+  }
+
+  Widget loadingDataSpink() {
+    return const SizedBox(
+      // width: double.infinity,
+      child: InkWell(
+        child: Center(child: SpinKitFadingCircle(color: Colors.blue)),
       ),
       // width: 60,
       // height: 60,
