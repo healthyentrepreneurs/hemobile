@@ -37,12 +37,12 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
   @override
   Widget build(BuildContext context) {
     final databasebloc = BlocProvider.of<DatabaseBloc>(context);
+    final surveyBloc = BlocProvider.of<SurveyBloc>(context);
     Subscription course = databasebloc.state.gselectedsubscription!;
     return BlocBuilder<SurveyBloc, SurveyState>(
       builder: (context, state) {
         if (state == const SurveyState.loading()) {
           debugPrint("Loading-Still A");
-          final surveyBloc = BlocProvider.of<SurveyBloc>(context);
           surveyBloc.add(SurveyFetched(
               '${course.id}', databasebloc.state.ghenetworkStatus));
         }
@@ -52,9 +52,7 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
             Widget subWidget;
             if (state == const SurveyState.loading()) {
               debugPrint("Loading-Still");
-              Future.delayed(const Duration(seconds: 1));
               subWidget = const StateLoadingHe().loadingDataSpink();
-              final surveyBloc = BlocProvider.of<SurveyBloc>(context);
               surveyBloc.add(SurveyFetched(
                   '${course.id}', databasebloc.state.ghenetworkStatus));
             } else if (state.error != null) {
@@ -69,7 +67,7 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
             }
             return [
               MaterialPage<void>(
-                  child: SurveyScaf(
+                  child: SurveyScaffold(
                       subwidget: Center(child: subWidget), course: course)),
             ];
           },
@@ -225,8 +223,10 @@ class _SurveyPageBrowser extends State<SurveyPageBrowser> {
   }
 }
 
-class SurveyScaf extends StatelessWidget {
-  const SurveyScaf({Key? key, required this.course, required this.subwidget})
+class SurveyScaffold extends StatelessWidget {
+  // context.watch<SurveyBloc>().state
+  // context.select((DatabaseBloc databaseState) => databaseState.state)
+  const SurveyScaffold({Key? key, required this.course, required this.subwidget})
       : super(key: key);
   final Subscription course;
   final Widget subwidget;

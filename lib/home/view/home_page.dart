@@ -3,6 +3,7 @@ import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
+import 'package:he/course/section/view/section_page.dart';
 import 'package:he/home/datawidgets/datawidget.dart';
 import 'package:he/injection.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
@@ -83,20 +84,21 @@ class HomePage extends StatelessWidget {
                       var subscription = state.glistOfSubscriptionData[index]!;
                       return UserLanding(
                         subscription: subscription,
-                        onTap: ()  {
+                        onTap: () {
                           databasebloc.add(DatabaseSubSelected(subscription));
                           if (subscription.source == 'originalm') {
                             // BlocProvider.of<SurveyBloc>(context).add(
                             //   SurveyFetched(
                             //       '${subscription.id}', state.ghenetworkStatus),
                             // );
-                             Navigator.of(context)
+                            Navigator.of(context)
                                 .push(SurveyPageBrowser.route());
                           } else {
-                            BlocProvider.of<SectionBloc>(context).add(
-                              SectionFetched(
-                                  '${subscription.id}', state.ghenetworkStatus),
-                            );
+                            // BlocProvider.of<SectionBloc>(context).add(
+                            //   SectionFetched(
+                            //       '${subscription.id}', state.ghenetworkStatus),
+                            // );
+                            Navigator.of(context).push(SectionsPage.route());
                           }
                         },
                       );
