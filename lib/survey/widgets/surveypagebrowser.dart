@@ -9,7 +9,7 @@ import 'package:he_api/he_api.dart';
 
 import '../../home/home.dart';
 import '../../objects/blocs/hedata/bloc/database_bloc.dart';
-import 'he_webviewwidget.dart';
+import 'survey_webviewwidget.dart';
 
 class SurveyPageBrowser extends StatefulWidget {
   const SurveyPageBrowser._();
@@ -23,76 +23,88 @@ class SurveyPageBrowser extends StatefulWidget {
   }
 
   @override
-  _SurveyPageBrowser createState() => _SurveyPageBrowser();
+  _SurveyPageBrowserState createState() => _SurveyPageBrowserState();
 }
 
-class _SurveyPageBrowser extends State<SurveyPageBrowser> {
+class _SurveyPageBrowserState extends State<SurveyPageBrowser> {
+  late Subscription _course;
+
   @override
   Widget build(BuildContext context) {
-    final databasebloc = BlocProvider.of<DatabaseBloc>(context);
+    final databaseBloc = BlocProvider.of<DatabaseBloc>(context);
     final surveyBloc = BlocProvider.of<SurveyBloc>(context);
-    Subscription course = databasebloc.state.gselectedsubscription!;
+
+    _course = databaseBloc.state.gselectedsubscription!;
+
     return BlocBuilder<SurveyBloc, SurveyState>(
       builder: (context, state) {
         if (state == const SurveyState.loading()) {
-          debugPrint("Loading-Still A");
-          surveyBloc.add(SurveyFetched(
-              '${course.id}', databasebloc.state.ghenetworkStatus));
+          _fetchSurvey(surveyBloc, databaseBloc);
         }
         return FlowBuilder<SurveyState>(
           state: context.select((SurveyBloc surveyBloc) => surveyBloc.state),
-          onGeneratePages: (SurveyState state, List<Page<dynamic>> pages) {
-            Widget subWidget;
-            if (state == const SurveyState.loading()) {
-              debugPrint("Loading-Still");
-              subWidget = const StateLoadingHe().loadingDataSpink();
-              surveyBloc.add(SurveyFetched(
-                  '${course.id}', databasebloc.state.ghenetworkStatus));
-            } else if (state.error != null) {
-              subWidget =
-                  const StateLoadingHe().errorWithStackT(state.error!.message);
-            } else if (state.gsurveyjson == null) {
-              subWidget =
-                  const StateLoadingHe().noDataFound('This Survey Is Empty');
-            } else {
-              subWidget = const HEWebViewWidget();
-            }
-            return [
-              MaterialPage<void>(
-                  child: Scaffold(
-                backgroundColor: ToolUtils.whiteColor,
-                appBar: AppBar(
-                    title: Text(
-                      course.fullname!,
-                      style: const TextStyle(color: ToolUtils.mainPrimaryColor),
-                    ),
-                    backgroundColor: Colors.white,
-                    elevation: 0,
-                    centerTitle: true,
-                    iconTheme:
-                        const IconThemeData(color: ToolUtils.mainPrimaryColor),
-                    leading: Builder(
-                      builder: (BuildContext context) {
-                        return IconButton(
-                          icon: const Icon(Icons.arrow_back),
-                          onPressed: () {
-                            const MenuItemHe()
-                                .showExitConfirmationDialog(context)
-                                .then((value) {
-                              if (value) {
-                                context.flow<SurveyState>().complete();
-                              }
-                            });
-                          },
-                        );
-                      },
-                    )),
-                body: Center(child: subWidget),
-              )),
-            ];
-          },
+          onGeneratePages: _onGeneratePages,
         );
       },
     );
   }
+
+  void _fetchSurvey(SurveyBloc surveyBloc, DatabaseBloc databaseBloc) {
+    surveyBloc.add(
+      SurveyFetched(
+        '${_course.id}',
+        databaseBloc.state.ghenetworkStatus,
+      ),
+    );
+  }
+
+  List<Page<void>> _onGeneratePages(
+    SurveyState state,
+    List<Page<dynamic>> pages,
+  ) {
+    Widget subWidget;
+    if (state == const SurveyState.loading()) {
+      subWidget = const StateLoadingHe().loadingDataSpink();
+      _fetchSurvey(
+        BlocProvider.of<SurveyBloc>(context),
+        BlocProvider.of<DatabaseBloc>(context),
+      );
+    } else if (state.error != null) {
+      subWidget = const StateLoadingHe().errorWithStackT(state.error!.message);
+    } else if (state.gsurveyjson == null) {
+      subWidget = const StateLoadingHe().noDataFound('This Survey Is Empty');
+    } else {
+      subWidget = const SurveyWebViewWidget();
+    }
+
+    return [
+      MaterialPage<void>(
+        child: Scaffold(
+          backgroundColor: ToolUtils.whiteColor,
+          appBar: HeAppBar(
+            course: _course.fullname,
+            appbarwidget: Builder(
+              builder: (BuildContext context) {
+                return IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    const MenuItemHe()
+                        .showExitConfirmationDialog(context)
+                        .then((value) {
+                      if (value) {
+                        context.flow<SurveyState>().complete();
+                      }
+                    });
+                  },
+                );
+              },
+            ),
+            transparentBackground: false,
+          ),
+          body: Center(child: subWidget),
+        ),
+      ),
+    ];
+  }
+
 }

@@ -84,8 +84,8 @@ class App extends StatelessWidget {
               create: (_) => DatabaseBloc(repository: _databaseRepository)),
           BlocProvider<SectionBloc>(
               create: (_) => SectionBloc(repository: _databaseRepository)),
-          BlocProvider<SurveyBloc>(
-              create: (_) => SurveyBloc(repository: _databaseRepository)),
+          // BlocProvider<SurveyBloc>(
+          //     create: (_) => SurveyBloc(repository: _databaseRepository)),
           BlocProvider<HenetworkBloc>(create: (_) => HenetworkBloc()),
           BlocProvider<AppLifecycleStateBloc>(
               create: (_) => AppLifecycleStateBloc()),

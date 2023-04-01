@@ -4,14 +4,14 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:he/survey/bloc/survey_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class HEWebViewWidget extends StatefulWidget {
-  const HEWebViewWidget({Key? key}) : super(key: key);
+class SurveyWebViewWidget extends StatefulWidget {
+  const SurveyWebViewWidget({Key? key}) : super(key: key);
 
   @override
-  _WebViewWidgetState createState() => _WebViewWidgetState();
+  _SurveyWebViewWidgetState createState() => _SurveyWebViewWidgetState();
 }
 
-class _WebViewWidgetState extends State<HEWebViewWidget> {
+class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
   late InAppWebViewController webView;
   String url = "";
   bool isLoading = true;
