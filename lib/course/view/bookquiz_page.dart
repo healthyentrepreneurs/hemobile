@@ -65,12 +65,6 @@ class BookQuizPage extends StatelessWidget {
         transparentBackground: true,
       ),
       body: BlocConsumer<SectionBloc, SectionState>(
-        buildWhen: (previous, current) {
-          if (previous.ghenetworkStatus != current.ghenetworkStatus) {
-            context.flow<SectionState>().complete();
-          }
-          return previous.ghenetworkStatus != current.ghenetworkStatus;
-        },
         listener: (context, state) {
           if (state.glistBookQuiz.isEmpty) {
             Navigator.pop(context);
@@ -98,15 +92,22 @@ class BookQuizPage extends StatelessWidget {
                       sectionBloc.add(BookChapterSelected(
                           _courseid,
                           _sectionsection,
-                          _bookquiz.contextid.toString(),
+                          _bookquiz,
                           index));
                       Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                              builder: (BuildContext context) => BookChapters(
-                                    book: _bookquiz,
-                                    courseId: _courseid,
-                                  )));
+                        context,
+                        BookChapters.route(
+                          book: _bookquiz,
+                          courseId: _courseid,
+                        ),
+                      );
+                      // Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute<void>(
+                      //         builder: (BuildContext context) => BookChapters(
+                      //               book: _bookquiz,
+                      //               courseId: _courseid,
+                      //             )));
                     }
                     if (_bookquiz.modname == "quiz") {
                       final _quizArray =

@@ -21,6 +21,7 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
     on<BookQuizSelected>(_onBookQuizSelected);
     on<BookQuizDeselected>(_onBookQuizDeselected);
     on<BookChapterSelected>(_onBookChapterSelected);
+    on<BookChapterDeSelected>(_onBookChapterDeSelected);
     // ,transformer: droppable()
     on<SectionFetchedError>(_onSectionFetchedError);
     // ErrorCounted
@@ -63,23 +64,28 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
 
   FutureOr<void> _onBookQuizDeselected(
       BookQuizDeselected event, Emitter<SectionState> emit) {
-    emit(state.copyWith(listBookQuiz: <BookQuiz>[]));
+    emit(state.copyWith(listBookQuiz: <BookQuiz>[],section: null));
   }
 
   _onBookChapterSelected(
       BookChapterSelected event, Emitter<SectionState> emit) async {
     Stream<Either<Failure, List<BookContent>>> listBookChapterStream =
         _databaseRepository.retrieveBookChapter(event.courseId, event.section,
-            event.bookContextId, event.bookIndex);
+            event.bookquiz.contextid.toString(), event.bookIndex);
     await emit.forEach(listBookChapterStream,
         onData: (Either<Failure, List<BookContent>> listBookChapter) {
       return listBookChapter.fold(
         (failure) => state.copyWith(error: failure),
         (listBookChapters) =>
-            state.copyWith(listBookChapters: listBookChapters),
+            state.copyWith(listBookChapters: listBookChapters,bookquiz:event.bookquiz),
       );
     });
     // listBookQuiz
+  }
+
+  FutureOr<void> _onBookChapterDeSelected(
+      BookChapterDeSelected event, Emitter<SectionState> emit) {
+    emit(state.copyWith(listBookChapters: <BookContent>[],bookquiz: null));
   }
 
   _onSectionFetchedError(

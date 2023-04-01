@@ -12,6 +12,7 @@ class SectionState extends Equatable {
       List<BookQuiz?>? listBookQuiz,
       List<BookContent>? listBookChapters,
       this.section,
+      this.bookquiz,
       this.error})
       : _listofSections = listofSections ?? emptySectionList,
         _listBookQuiz = listBookQuiz ?? emptybookQuizList,
@@ -24,6 +25,7 @@ class SectionState extends Equatable {
   final List<BookContent> _listBookChapters;
   final Failure? error;
   final Section? section;
+  final BookQuiz? bookquiz;
 
   const SectionState.loading(
       {List<Section?>? listofSections, HenetworkStatus? henetworkStatus})
@@ -46,6 +48,7 @@ class SectionState extends Equatable {
       List<BookQuiz?>? listBookQuiz,
       List<BookContent>? listBookChapters,
       Section? section,
+      BookQuiz? bookquiz,
       Failure? error}) {
     return SectionState._(
         listofSections: listofSections ?? _listofSections,
@@ -53,6 +56,7 @@ class SectionState extends Equatable {
         listBookChapters: listBookChapters ?? _listBookChapters,
         henetworkStatus: henetworkStatus ?? _henetworkStatus,
         section: section ?? this.section,
+        bookquiz: bookquiz ?? this.bookquiz,
         error: error ?? this.error);
   }
 
@@ -70,6 +74,8 @@ class SectionState extends Equatable {
         ghenetworkStatus,
         glistBookQuiz,
         glistBookChapters,
+        section,
+        bookquiz,
         error
       ];
 }

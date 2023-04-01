@@ -2,6 +2,7 @@ import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/course/section/bloc/section_bloc.dart';
+import 'package:he/coursedetail/view/book_chapters.dart';
 import 'package:he/injection.dart';
 import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he_api/he_api.dart';
@@ -14,6 +15,18 @@ List<Page<dynamic>> onGenerateSectionPages(
   Subscription course,
   SectionState state,
 ) {
+  if (state.glistBookChapters.isNotEmpty && state.bookquiz != null) {
+    return [
+      const MaterialPage<void>(child: SectionsPage(), name: '/sectionlist'),
+      MaterialPage<void>(
+        child: BookChapters(
+          book: state.bookquiz,
+          courseId: course.id.toString(),
+        ),
+        name: '/bookChapters',
+      ),
+    ];
+  }
   if (state.glistBookQuiz.isNotEmpty && state.section != null) {
     return [
       const MaterialPage<void>(child: SectionsPage(), name: '/sectionlist'),
