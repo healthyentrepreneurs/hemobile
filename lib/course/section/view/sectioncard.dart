@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:he/course/widgets/sectionicon.dart';
-import 'package:he_api/he_api.dart';
 
 class SectionCard extends StatelessWidget {
   final String imageUrl;

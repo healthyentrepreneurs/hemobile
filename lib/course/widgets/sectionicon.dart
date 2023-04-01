@@ -24,6 +24,7 @@ class SectionIcon extends StatelessWidget {
       return _sectionIconOffline(photo!);
     } else {
       return CircleAvatar(
+        key: UniqueKey(),
         radius: _avatarSize,
         backgroundImage: photo != null ? NetworkImage(photo) : null,
         child: photo == null
