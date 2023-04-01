@@ -29,12 +29,12 @@ class SectionsPage extends StatelessWidget {
     final databasebloc = BlocProvider.of<DatabaseBloc>(context);
     Subscription course = databasebloc.state.gselectedsubscription!;
     return BlocBuilder<SectionBloc, SectionState>(builder: (context, state) {
-      if (state == const SectionState.loading()) {
-        debugPrint("Loading-Still A");
-        sectionBloc.add(
-          SectionFetched('${course.id}', databasebloc.state.ghenetworkStatus),
-        );
-      }
+      // if (state == const SectionState.loading()) {
+      //   debugPrint("Loading-Still A");
+      //   sectionBloc.add(
+      //     SectionFetched('${course.id}', databasebloc.state.ghenetworkStatus),
+      //   );
+      // }
       return FlowBuilder<SectionState>(
         state: context.select((SectionBloc sectionBloc) => sectionBloc.state),
         onGeneratePages: (SectionState state, List<Page<dynamic>> pages) {
