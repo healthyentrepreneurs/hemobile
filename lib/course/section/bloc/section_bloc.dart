@@ -50,12 +50,12 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
   _onBookQuizSelected(
       BookQuizSelected event, Emitter<SectionState> emit) async {
     Stream<Either<Failure, List<BookQuiz?>>> listBookQuizStream =
-        _databaseRepository.retrieveBookQuiz(event.courseId, event.section);
+        _databaseRepository.retrieveBookQuiz(event.courseId, event.section.section.toString());
     await emit.forEach(listBookQuizStream,
         onData: (Either<Failure, List<BookQuiz?>> listBookQuiz) {
       return listBookQuiz.fold(
         (failure) => state.copyWith(error: failure),
-        (listBookQuiz) => state.copyWith(listBookQuiz: listBookQuiz),
+        (listBookQuiz) => state.copyWith(listBookQuiz: listBookQuiz,section: event.section),
       );
     });
     // listBookQuiz

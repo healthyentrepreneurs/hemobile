@@ -1,14 +1,17 @@
+import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/course/course.dart';
 import 'package:he/course/section/bloc/section_bloc.dart';
 import 'package:he/coursedetail/view/book_chapters.dart';
 import 'package:he/helper/toolutils.dart';
+import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
+import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import 'package:he/objects/objectquizcontent.dart';
 import 'package:he/quiz/quiz.dart';
 import 'package:he_api/he_api.dart';
 
-// import '../../objects/objectbookquiz.dart';
+import '../../home/widgets/widgets.dart';
 
 class BookQuizPage extends StatelessWidget {
   const BookQuizPage(
@@ -23,31 +26,55 @@ class BookQuizPage extends StatelessWidget {
   final String _sectionname;
   final String _courseid;
   final String _sectionsection;
+
+  static Route<void> route(
+      {required String sectionName,
+      required String courseId,
+      required String sectionSection}) {
+    return MaterialPageRoute<void>(
+      builder: (_) => BookQuizPage(
+        sectionName: sectionName,
+        courseId: courseId,
+        sectionSection: sectionSection,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ToolUtils.mainBgColor,
-      appBar: AppBar(
-        title: Text(
-          _sectionname,
-          style: const TextStyle(color: ToolUtils.mainPrimaryColor),
+      appBar: HeAppBar(
+        course: _sectionname,
+        appbarwidget: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                const MenuItemHe()
+                    .showExitConfirmationDialog(context)
+                    .then((value) {
+                  if (value) {
+                    BlocProvider.of<SectionBloc>(context)
+                        .add(const BookQuizDeselected());
+                    // context.flow<SectionState>().complete();
+                  }
+                });
+              },
+            );
+          },
         ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: ToolUtils.mainPrimaryColor),
+        transparentBackground: true,
       ),
-      body: BlocBuilder<SectionBloc, SectionState>(
-        buildWhen: (previous, current) {
-          var _one_listbook_quiz = previous.glistBookQuiz
-              .map((bookquiz) => bookquiz?.toJson() ?? 'null')
-              .join(', ');
-          var _two_listbook_quiz = current.glistBookQuiz
-              .map((bookquiz) => bookquiz?.toJson() ?? 'null')
-              .join(', ');
-          var rebuild = _one_listbook_quiz != _two_listbook_quiz;
-          // return  previous.glistBookQuiz != current.glistBookQuiz;
-          return rebuild;
+      body: BlocConsumer<SectionBloc, SectionState>(
+        listener: (context, state) {
+          final databasestate = BlocProvider.of<HenetworkBloc>(context).state;
+          if (databasestate.gstatus != state.ghenetworkStatus) {
+            context.flow<SectionState>().complete();
+          }
+          if (state.glistBookQuiz.isEmpty) {
+            Navigator.pop(context);
+          }
         },
         builder: (context, state) {
           final sectionBloc = BlocProvider.of<SectionBloc>(context);

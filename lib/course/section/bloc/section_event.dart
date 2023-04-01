@@ -21,7 +21,8 @@ class SectionDeFetched extends SectionEvent {
 
 class BookQuizSelected extends SectionEvent {
   final String courseId;
-  final String section;
+  final Section section;
+  // final String section;
   const BookQuizSelected(this.courseId, this.section);
   @override
   List<Object?> get props => [courseId, section];

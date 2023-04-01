@@ -3,15 +3,11 @@ import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
-import 'package:he/course/section/view/section_page.dart';
+import 'package:he/course/section/view/view.dart';
 import 'package:he/home/datawidgets/datawidget.dart';
-import 'package:he/injection.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
-import 'package:he/survey/bloc/survey_bloc.dart';
 import 'package:he/survey/widgets/surveypagebrowser.dart';
-
-import '../../course/section/bloc/section_bloc.dart';
 import '../widgets/widgets.dart';
 
 class HomePage extends StatelessWidget {
@@ -20,15 +16,6 @@ class HomePage extends StatelessWidget {
   static Route<void> route() {
     return MaterialPageRoute(builder: (_) => const HomePage._());
   }
-  // static Route<DatabaseState> routex() {
-  //   return MaterialPageRoute(
-  //     builder: (_) => BlocProvider(
-  //       create: (_) => DatabaseBloc(repository: getIt<DatabaseRepository>()),
-  //       child: const HomePage._(),
-  //     ),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
@@ -98,7 +85,7 @@ class HomePage extends StatelessWidget {
                             //   SectionFetched(
                             //       '${subscription.id}', state.ghenetworkStatus),
                             // );
-                            Navigator.of(context).push(SectionsPage.route());
+                            Navigator.of(context).push(SectionsFlow.route());
                           }
                         },
                       );

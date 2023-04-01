@@ -45,16 +45,14 @@ class SectionList extends StatelessWidget {
                 onTap: () {
                   sectionBloc.add(BookQuizSelected(
                     course.id.toString(),
-                    section.section.toString(),
+                    section,
                   ));
                   Navigator.push(
                     context,
-                    MaterialPageRoute<void>(
-                      builder: (BuildContext context) => BookQuizPage(
-                        sectionName: section.name!,
-                        courseId: course.id.toString(),
-                        sectionSection: section.section.toString(),
-                      ),
+                    BookQuizPage.route(
+                      sectionName:section.name!,
+                      courseId: course.id.toString(),
+                      sectionSection: section.section.toString(),
                     ),
                   );
                 },
