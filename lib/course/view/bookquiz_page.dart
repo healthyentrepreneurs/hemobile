@@ -5,8 +5,6 @@ import 'package:he/course/course.dart';
 import 'package:he/course/section/bloc/section_bloc.dart';
 import 'package:he/coursedetail/view/book_chapters.dart';
 import 'package:he/helper/toolutils.dart';
-import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
-import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import 'package:he/objects/objectquizcontent.dart';
 import 'package:he/quiz/quiz.dart';
 import 'package:he_api/he_api.dart';
@@ -67,11 +65,13 @@ class BookQuizPage extends StatelessWidget {
         transparentBackground: true,
       ),
       body: BlocConsumer<SectionBloc, SectionState>(
-        listener: (context, state) {
-          final databasestate = BlocProvider.of<HenetworkBloc>(context).state;
-          if (databasestate.gstatus != state.ghenetworkStatus) {
+        buildWhen: (previous, current) {
+          if (previous.ghenetworkStatus != current.ghenetworkStatus) {
             context.flow<SectionState>().complete();
           }
+          return previous.ghenetworkStatus != current.ghenetworkStatus;
+        },
+        listener: (context, state) {
           if (state.glistBookQuiz.isEmpty) {
             Navigator.pop(context);
           }
@@ -118,7 +118,6 @@ class BookQuizPage extends StatelessWidget {
                                     title: _bookquiz.name!,
                                     quizArray: _quizArray,
                                   )));
-                      // printOnlyDebug("quiz Clicked ${quiz.first.nextpage}");
                     }
                   },
                 );

@@ -10,40 +10,11 @@ import '../../../objects/blocs/hedata/bloc/database_bloc.dart';
 import '../../view/bookquiz_page.dart';
 import 'section_page.dart';
 
-// List<Page<dynamic>> onGenerateSectionPages(
-//   Subscription course,
-//   SectionState state,
-// ) {
-//   if (state.glistBookQuiz.isNotEmpty) {
-//     final section = state.section;
-//     if (section == null) {
-//       return [
-//         const MaterialPage<void>(child: SectionsPage(), name: '/sectionlist')
-//       ];
-//     } else {
-//       return [
-//         const MaterialPage<void>(child: SectionsPage(), name: '/sectionlist'),
-//         MaterialPage<void>(
-//           child: BookQuizPage(
-//             sectionName: section.name!,
-//             courseId: course.id.toString(),
-//             sectionSection: section.section.toString(),
-//           ),
-//           name: '/bookQuiz',
-//         ),
-//       ];
-//     }
-//   } else {
-//     return [
-//       const MaterialPage<void>(child: SectionsPage(), name: '/sectionlist')
-//     ];
-//   }
-// }
 List<Page<dynamic>> onGenerateSectionPages(
   Subscription course,
   SectionState state,
 ) {
-  if (state.glistBookQuiz.isNotEmpty) {
+  if (state.glistBookQuiz.isNotEmpty && state.section != null) {
     return [
       const MaterialPage<void>(child: SectionsPage(), name: '/sectionlist'),
       MaterialPage<void>(
