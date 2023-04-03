@@ -93,6 +93,7 @@ class _ChapterDisplayState extends State<ChapterDisplay> {
                     }
                     if (videoSourceUrl == "none") {
                       return Image.asset('assets/images/grid.png');
+                      // return Icon(Icons.segment_outlined, size: 20.0);
                     }
                     var content = findSingleFileContent(videoSourceUrl);
                     if (content != null) {
@@ -206,10 +207,23 @@ class _ChapterDisplayState extends State<ChapterDisplay> {
                 fit: BoxFit.cover,
               );
             } else {
-              return Image.asset(
-                'assets/images/grid.png',
-                fit: BoxFit.cover,
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.broken_image,
+                  color: Colors.grey[600],
+                  size: 70,
+                ),
               );
+
+              // return const Icon(Icons.segment_outlined);
+              // return Image.asset(
+              //   'assets/images/grid.png',
+              //   fit: BoxFit.cover,
+              // );
             }
           } else {
             return const Center(child: SpinKitThreeBounce(color: Colors.blue));
@@ -229,9 +243,20 @@ class _ChapterDisplayState extends State<ChapterDisplay> {
   Widget chapterImageOffline(String photo, FoFiRepository fofi) {
     File fileImage = fofi.getLocalFileHe(photo);
     if (!fileImage.existsSync()) {
-      return Image.asset(
-        'assets/images/grid.png',
-        fit: BoxFit.cover,
+      // return Image.asset(
+      //   'assets/images/grid.png',
+      //   fit: BoxFit.cover,
+      // );
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(
+          Icons.broken_image,
+          color: Colors.grey[600],
+          size: 70,
+        ),
       );
     }
     return Image.file(

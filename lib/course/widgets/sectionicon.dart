@@ -43,21 +43,6 @@ class SectionIcon extends StatelessWidget {
               color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600)),
     );
   }
-
-  Widget bookIcon(String icon) {
-    return FadeInImage(
-        width: 50,
-        height: 50,
-        image: NetworkImage(icon),
-        placeholder: const AssetImage("assets/images/lake.png"),
-        imageErrorBuilder: (context, error, stackTrace) {
-          return const CircleAvatar(
-            radius: _bookSize,
-            child: Icon(Icons.book_online_sharp, size: _bookSize),
-          );
-        });
-  }
-
   Widget _sectionIconOffline(String photo) {
     final FoFiRepository fofirepo = FoFiRepository();
     File fileImage = fofirepo.getLocalFileHe(photo);

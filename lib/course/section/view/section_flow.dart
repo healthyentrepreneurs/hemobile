@@ -9,19 +9,34 @@ import 'package:he_api/he_api.dart';
 
 import '../../../objects/blocs/hedata/bloc/database_bloc.dart';
 import '../../view/bookquiz_page.dart';
+import 'network_status_listener.dart';
 import 'section_page.dart';
 
 List<Page<dynamic>> onGenerateSectionPages(
-  Subscription course,
-  SectionState state,
-) {
+    Subscription course, SectionState state, BuildContext context) {
+  Future<void> handleStateChange(
+      BuildContext context, DatabaseState state) async {
+    final sectionBloc = BlocProvider.of<SectionBloc>(context);
+    if (state.ghenetworkStatus != sectionBloc.state.ghenetworkStatus) {
+      context.flow<SectionState>().complete();
+    }
+  }
+
   if (state.glistBookChapters.isNotEmpty && state.bookquiz != null) {
     return [
-      const MaterialPage<void>(child: SectionsPage(), name: '/sectionlist'),
       MaterialPage<void>(
-        child: BookChapters(
-          book: state.bookquiz,
-          courseId: course.id.toString(),
+          child: NetworkStatusListener(
+            onStateChange: handleStateChange,
+            child: const SectionsPage(),
+          ),
+          name: '/sectionlist'),
+      MaterialPage<void>(
+        child: NetworkStatusListener(
+          onStateChange: handleStateChange,
+          child: BookChapters(
+            book: state.bookquiz,
+            courseId: course.id.toString(),
+          ),
         ),
         name: '/bookChapters',
       ),
@@ -29,25 +44,39 @@ List<Page<dynamic>> onGenerateSectionPages(
   }
   if (state.glistBookQuiz.isNotEmpty && state.section != null) {
     return [
-      const MaterialPage<void>(child: SectionsPage(), name: '/sectionlist'),
       MaterialPage<void>(
-        child: BookQuizPage(
-          sectionName: state.section!.name!,
-          courseId: course.id.toString(),
-          sectionSection: state.section!.section.toString(),
+          child: NetworkStatusListener(
+            onStateChange: handleStateChange,
+            child: const SectionsPage(),
+          ),
+          name: '/sectionlist'),
+      MaterialPage<void>(
+        child: NetworkStatusListener(
+          onStateChange: handleStateChange,
+          child: BookQuizPage(
+            sectionName: state.section!.name!,
+            courseId: course.id.toString(),
+            sectionSection: state.section!.section.toString(),
+          ),
         ),
         name: '/bookQuiz',
       ),
     ];
   } else {
     return [
-      const MaterialPage<void>(child: SectionsPage(), name: '/sectionlist')
+      MaterialPage<void>(
+          child: NetworkStatusListener(
+            onStateChange: handleStateChange,
+            child: const SectionsPage(),
+          ),
+          name: '/sectionlist')
     ];
   }
 }
 
-class SectionsFlow extends StatelessWidget {
+class SectionsFlow extends StatefulWidget {
   const SectionsFlow._();
+
   static Route<void> route() {
     return MaterialPageRoute(
       builder: (_) => BlocProvider(
@@ -58,14 +87,27 @@ class SectionsFlow extends StatelessWidget {
   }
 
   @override
+  _SectionsFlowState createState() => _SectionsFlowState();
+}
+
+class _SectionsFlowState extends State<SectionsFlow> {
+  late final SectionBloc _sectionBloc;
+  late final DatabaseBloc _databaseBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _sectionBloc = BlocProvider.of<SectionBloc>(context);
+    _databaseBloc = BlocProvider.of<DatabaseBloc>(context);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final databaseBloc = BlocProvider.of<DatabaseBloc>(context);
-    // final sectionBloc = BlocProvider.of<SectionBloc>(context);
     return FlowBuilder<SectionState>(
-      state: context.select((SectionBloc sectionBloc) => sectionBloc.state),
+      state: _sectionBloc.state,
       onGeneratePages: (SectionState state, List<Page<dynamic>> pages) {
-        final course = databaseBloc.state.gselectedsubscription!;
-        return onGenerateSectionPages(course, state);
+        final course = _databaseBloc.state.gselectedsubscription!;
+        return onGenerateSectionPages(course, state, context);
       },
     );
   }

@@ -28,18 +28,25 @@ class SurveyPageBrowser extends StatefulWidget {
 
 class _SurveyPageBrowserState extends State<SurveyPageBrowser> {
   late Subscription _course;
+  late final DatabaseBloc databaseBloc;
+  late final SurveyBloc surveyBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _course = context.read<DatabaseBloc>().state.gselectedsubscription!;
+    databaseBloc = BlocProvider.of<DatabaseBloc>(context);
+    surveyBloc = BlocProvider.of<SurveyBloc>(context);
+    _fetchSurvey();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final databaseBloc = BlocProvider.of<DatabaseBloc>(context);
-    final surveyBloc = BlocProvider.of<SurveyBloc>(context);
-
-    _course = databaseBloc.state.gselectedsubscription!;
-
     return BlocBuilder<SurveyBloc, SurveyState>(
+      // buildWhen: (previous, current) => previous.props != current.props,
       builder: (context, state) {
         if (state == const SurveyState.loading()) {
-          _fetchSurvey(surveyBloc, databaseBloc);
+          _fetchSurvey();
         }
         return FlowBuilder<SurveyState>(
           state: context.select((SurveyBloc surveyBloc) => surveyBloc.state),
@@ -49,7 +56,7 @@ class _SurveyPageBrowserState extends State<SurveyPageBrowser> {
     );
   }
 
-  void _fetchSurvey(SurveyBloc surveyBloc, DatabaseBloc databaseBloc) {
+  void _fetchSurvey() {
     surveyBloc.add(
       SurveyFetched(
         '${_course.id}',
@@ -64,11 +71,8 @@ class _SurveyPageBrowserState extends State<SurveyPageBrowser> {
   ) {
     Widget subWidget;
     if (state == const SurveyState.loading()) {
+      _fetchSurvey();
       subWidget = const StateLoadingHe().loadingDataSpink();
-      _fetchSurvey(
-        BlocProvider.of<SurveyBloc>(context),
-        BlocProvider.of<DatabaseBloc>(context),
-      );
     } else if (state.error != null) {
       subWidget = const StateLoadingHe().errorWithStackT(state.error!.message);
     } else if (state.gsurveyjson == null) {
@@ -79,32 +83,42 @@ class _SurveyPageBrowserState extends State<SurveyPageBrowser> {
 
     return [
       MaterialPage<void>(
-        child: Scaffold(
-          backgroundColor: ToolUtils.whiteColor,
-          appBar: HeAppBar(
-            course: _course.fullname,
-            appbarwidget: Builder(
-              builder: (BuildContext context) {
-                return IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    const MenuItemHe()
-                        .showExitConfirmationDialog(context)
-                        .then((value) {
-                      if (value) {
-                        context.flow<SurveyState>().complete();
-                      }
-                    });
-                  },
-                );
-              },
+        child: BlocListener<DatabaseBloc, DatabaseState>(
+          listenWhen: (previous, current) {
+            return previous.ghenetworkStatus != current.ghenetworkStatus;
+          },
+          listener: (context, state) {
+            if (!mounted) return;
+            if (state.ghenetworkStatus != surveyBloc.state.ghenetworkStatus) {
+              context.flow<SurveyState>().complete();
+            }
+          },
+          child: Scaffold(
+            backgroundColor: ToolUtils.whiteColor,
+            appBar: HeAppBar(
+              course: _course.fullname,
+              appbarwidget: Builder(
+                builder: (BuildContext context) {
+                  return IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      const MenuItemHe()
+                          .showExitConfirmationDialog(context)
+                          .then((value) {
+                        if (value) {
+                          context.flow<SurveyState>().complete();
+                        }
+                      });
+                    },
+                  );
+                },
+              ),
+              transparentBackground: false,
             ),
-            transparentBackground: false,
+            body: Center(child: subWidget),
           ),
-          body: Center(child: subWidget),
         ),
       ),
     ];
   }
-
 }

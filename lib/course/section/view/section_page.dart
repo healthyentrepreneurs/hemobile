@@ -18,6 +18,8 @@ class SectionsPage extends StatefulWidget {
 
 class _SectionsPageState extends State<SectionsPage> {
   late Subscription _course;
+  // late final DatabaseBloc databaseBloc;
+  // late final SectionBloc sectionBloc;
 
   @override
   void initState() {
@@ -29,13 +31,11 @@ class _SectionsPageState extends State<SectionsPage> {
   Widget build(BuildContext context) {
     return BlocBuilder<SectionBloc, SectionState>(
         builder: (BuildContext context, SectionState state) {
-      final sectionBloc = BlocProvider.of<SectionBloc>(context);
-      final databasebloc = BlocProvider.of<DatabaseBloc>(context);
       Widget subWidget;
       if (state == const SectionState.loading()) {
+        context.read<SectionBloc>().add(SectionFetched('${_course.id}',
+            BlocProvider.of<DatabaseBloc>(context).state.ghenetworkStatus));
         subWidget = const StateLoadingHe().loadingDataSpink();
-        sectionBloc.add(SectionFetched(
-            '${_course.id}', databasebloc.state.ghenetworkStatus));
       } else if (state.error != null) {
         subWidget =
             const StateLoadingHe().errorWithStackT(state.error!.message);

@@ -42,37 +42,6 @@ class _ChewieVideoViewState extends State<ChewieVideoView> {
     _chewieController?.dispose();
     super.dispose();
   }
-
-  // Future<void> _initializePlayer() async {
-  //   if (widget.heNetworkState == HenetworkStatus.noInternet) {
-  //     File fileVideo = FoFiRepository().getLocalFileHe(widget.videoUrl);
-  //     _videoPlayerController = VideoPlayerController.file(fileVideo);
-  //     _videoPlayerController.initialize().then((_) {
-  //       _chewieController = ChewieController(
-  //         videoPlayerController: _videoPlayerController,
-  //         aspectRatio: _videoPlayerController.value.aspectRatio,
-  //         autoPlay: false,
-  //         looping: false,
-  //         autoInitialize: true,
-  //       );
-  //       setState(() {});
-  //     });
-  //   } else {
-  //     // widget.videoUrl
-  //     String videoUrl = await _getVideoUrlFromFirebase('15-LU.mp4');
-  //     _videoPlayerController = VideoPlayerController.network(videoUrl);
-  //     _videoPlayerController.initialize().then((_) {
-  //       _chewieController = ChewieController(
-  //         videoPlayerController: _videoPlayerController,
-  //         aspectRatio: _videoPlayerController.value.aspectRatio,
-  //         autoPlay: false,
-  //         looping: false,
-  //         autoInitialize: true,
-  //       );
-  //       setState(() {});
-  //     });
-  //   }
-  // }
   Future<void> _initializePlayer() async {
     try {
       if (widget.heNetworkState == HenetworkStatus.noInternet) {
@@ -118,9 +87,16 @@ class _ChewieVideoViewState extends State<ChewieVideoView> {
     if (_chewieController != null && _videoExists) {
       return _videoPlay();
     } else if (!_videoExists) {
-      return Image.asset(
-        'assets/images/grid.png',
-        fit: BoxFit.cover,
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(
+          Icons.video_file,
+          color: Colors.grey[600],
+          size: 70,
+        ),
       );
     } else {
       return const Center(child: SpinKitThreeBounce(color: Colors.blue));

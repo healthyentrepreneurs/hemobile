@@ -17,8 +17,8 @@ class HenetworkState extends Equatable {
   const HenetworkState.loading(
       {ConnectivityResult? inconnectivityResult, HenetworkStatus? status})
       : this._(
-      connectivityResult: inconnectivityResult,
-      status: status ?? HenetworkStatus.loading);
+            connectivityResult: inconnectivityResult,
+            status: status ?? HenetworkStatus.loading);
 
   HenetworkState copyWith(
       {ConnectivityResult? connectivityResult, HenetworkStatus? status}) {

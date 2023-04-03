@@ -3,19 +3,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/course/section/bloc/section_bloc.dart';
 import 'package:he/coursedetail/view/book_chapters.dart';
+import 'package:he/injection.dart';
+import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he_api/he_api.dart';
 
 import '../../../objects/blocs/hedata/bloc/database_bloc.dart';
 import '../../view/bookquiz_page.dart';
+import 'network_status_listener.dart';
 import 'section_page.dart';
 
 List<Page<dynamic>> onGenerateSectionPages(
-  Subscription course,
-  SectionState state,
-) {
+    Subscription course, SectionState state, BuildContext context) {
+  Future<void> handleStateChange(BuildContext context, DatabaseState state) async {
+    final sectionBloc = BlocProvider.of<SectionBloc>(context);
+    if (state.ghenetworkStatus != sectionBloc.state.ghenetworkStatus) {
+      context.flow<SectionState>().complete();
+    }
+  }
+
   if (state.glistBookChapters.isNotEmpty && state.bookquiz != null) {
     return [
-      const MaterialPage<void>(child: SectionsPage(), name: '/sectionlist'),
+      MaterialPage<void>(
+          child: NetworkStatusListener(
+            onStateChange: handleStateChange,
+            child: const SectionsPage(),
+          ),
+          name: '/sectionlist'),
       MaterialPage<void>(
         child: BookChapters(
           book: state.bookquiz,
@@ -27,7 +40,12 @@ List<Page<dynamic>> onGenerateSectionPages(
   }
   if (state.glistBookQuiz.isNotEmpty && state.section != null) {
     return [
-      const MaterialPage<void>(child: SectionsPage(), name: '/sectionlist'),
+      MaterialPage<void>(
+          child: NetworkStatusListener(
+            onStateChange: handleStateChange,
+            child: const SectionsPage(),
+          ),
+          name: '/sectionlist'),
       MaterialPage<void>(
         child: BookQuizPage(
           sectionName: state.section!.name!,
@@ -39,7 +57,12 @@ List<Page<dynamic>> onGenerateSectionPages(
     ];
   } else {
     return [
-      const MaterialPage<void>(child: SectionsPage(), name: '/sectionlist')
+      MaterialPage<void>(
+          child: NetworkStatusListener(
+            onStateChange: handleStateChange,
+            child: const SectionsPage(),
+          ),
+          name: '/sectionlist')
     ];
   }
 }
@@ -49,7 +72,10 @@ class SectionsFlow extends StatefulWidget {
 
   static Route<void> route() {
     return MaterialPageRoute(
-      builder: (_) => const SectionsFlow._(),
+      builder: (_) => BlocProvider(
+        create: (_) => SectionBloc(repository: getIt<DatabaseRepository>()),
+        child: const SectionsFlow._(),
+      ),
     );
   }
 
@@ -70,22 +96,12 @@ class _SectionsFlowState extends State<SectionsFlow> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<DatabaseBloc, DatabaseState>(
-      listenWhen: (previous, current) {
-        return previous.ghenetworkStatus != current.ghenetworkStatus;
+    return FlowBuilder<SectionState>(
+      state: _sectionBloc.state,
+      onGeneratePages: (SectionState state, List<Page<dynamic>> pages) {
+        final course = _databaseBloc.state.gselectedsubscription!;
+        return onGenerateSectionPages(course, state, context);
       },
-      listener: (context, state) {
-        if (state.ghenetworkStatus != _sectionBloc.state.ghenetworkStatus) {
-          context.flow<SectionState>().complete();
-        }
-      },
-      child: FlowBuilder<SectionState>(
-        state: _sectionBloc.state,
-        onGeneratePages: (SectionState state, List<Page<dynamic>> pages) {
-          final course = _databaseBloc.state.gselectedsubscription!;
-          return onGenerateSectionPages(course, state);
-        },
-      ),
     );
   }
 }

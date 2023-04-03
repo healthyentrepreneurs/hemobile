@@ -1,4 +1,3 @@
-import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/course/course.dart';
@@ -90,10 +89,7 @@ class BookQuizPage extends StatelessWidget {
                   onTap: () {
                     if (_bookquiz.modname == "book") {
                       sectionBloc.add(BookChapterSelected(
-                          _courseid,
-                          _sectionsection,
-                          _bookquiz,
-                          index));
+                          _courseid, _sectionsection, _bookquiz, index));
                       Navigator.push(
                         context,
                         BookChapters.route(
@@ -101,13 +97,6 @@ class BookQuizPage extends StatelessWidget {
                           courseId: _courseid,
                         ),
                       );
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute<void>(
-                      //         builder: (BuildContext context) => BookChapters(
-                      //               book: _bookquiz,
-                      //               courseId: _courseid,
-                      //             )));
                     }
                     if (_bookquiz.modname == "quiz") {
                       final _quizArray =
@@ -147,13 +136,15 @@ class BookQuizPage extends StatelessWidget {
               ),
             ]),
         child: Column(
+          key: UniqueKey(),
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             bookQuizModule.modname == "book"
                 ? const Text('Book')
                 : const Text('Quiz'),
-            const SectionIcon().bookIcon(bookQuizModule.modicon!),
+            // const SectionIcon().bookIcon(bookQuizModule.modicon!)
+            BookIcon(icon: bookQuizModule.modicon!),
             Padding(
               padding: const EdgeInsets.only(top: 6.0, left: 5.0, right: 5.0),
               child: Text(

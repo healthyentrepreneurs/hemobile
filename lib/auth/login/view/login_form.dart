@@ -75,7 +75,8 @@ class _LoginLogo extends StatelessWidget {
       ),
       Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Text(s.login_welcome_msg,
+        child: Text(
+          s.login_welcome_msg,
           style: const TextStyle(color: Colors.blueGrey, fontSize: 18),
         ),
       )
@@ -128,6 +129,7 @@ class _PasswordInput extends StatelessWidget {
     );
   }
 }
+
 // Now
 class _LoginButton extends StatelessWidget {
   @override
