@@ -54,20 +54,20 @@ class App extends StatelessWidget {
         providers: [
           BlocProvider<ThemeLangBloc>(
               create: (_) => ThemeLangBloc(
-                themeLocaleIntRepository: _themeLocaleIntRepository,
-              )),
+                    themeLocaleIntRepository: _themeLocaleIntRepository,
+                  )),
           BlocProvider<LoginBloc>(
               create: (_) => LoginBloc(
-                heAuthRepository: _heAuthRepository,
-              )),
+                    heAuthRepository: _heAuthRepository,
+                  )),
           BlocProvider<AuthenticationBloc>(
               create: (_) => AuthenticationBloc(
-                heAuthRepository: _heAuthRepository,
-              )),
+                    heAuthRepository: _heAuthRepository,
+                  )),
           BlocProvider<ApkBloc>(
               create: (_) => ApkBloc(
-                repository: _logRepository,
-              )),
+                    repository: _logRepository,
+                  )),
           BlocProvider<AppudateBloc>(create: (_) => AppudateBloc()),
           BlocProvider<ApkseenBloc>(
               create: (_) => ApkseenBloc(repository: _gsApkUpdateApi)),

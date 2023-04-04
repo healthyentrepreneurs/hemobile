@@ -1,10 +1,11 @@
 import 'package:he_storage/he_storage.dart';
 
-abstract class ApkUpdateApi{
+abstract class ApkUpdateApi {
   const ApkUpdateApi();
-  Apkupdatestatus getSeenUpdateStatus();
-  void updateSeenUpdateStatus(Apkupdatestatus apkupdatestatus);
-  void deleteSeenUpdateStatus();
+  Future<Apkupdatestatus> getSeenUpdateStatus();
+  Future<void> updateSeenUpdateStatus(Apkupdatestatus apkupdatestatus);
+  Future<void> deleteSeenUpdateStatus();
 }
+
 /// Error thrown when a [Account] with a given id is not found.
 class ApkupdateNotFoundException implements Exception {}

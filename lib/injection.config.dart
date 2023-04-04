@@ -11,21 +11,21 @@ import 'package:cloud_firestore/cloud_firestore.dart' as _i8;
 import 'package:firebase_auth/firebase_auth.dart' as _i7;
 import 'package:firebase_storage/firebase_storage.dart' as _i10;
 import 'package:get_it/get_it.dart' as _i1;
-import 'package:get_storage/get_storage.dart' as _i11;
 import 'package:he/home/appupdate/apkdownload/bloc/appudate_bloc.dart' as _i5;
 import 'package:he/home/appupdate/apkseen/bloc/apkseen_bloc.dart' as _i3;
 import 'package:he/objects/blocs/apkupdate/bloc/apk_bloc.dart' as _i18;
-import 'package:he/objects/blocs/repo/apk_repo.dart' as _i16;
-import 'package:he/objects/blocs/repo/database_repo.dart' as _i14;
-import 'package:he/objects/blocs/repo/impl/idatabase_repo.dart' as _i13;
-import 'package:he/objects/blocs/repo/impl/ilog_repo.dart' as _i15;
+import 'package:he/objects/blocs/repo/apk_repo.dart' as _i14;
+import 'package:he/objects/blocs/repo/database_repo.dart' as _i12;
+import 'package:he/objects/blocs/repo/impl/idatabase_repo.dart' as _i11;
+import 'package:he/objects/blocs/repo/impl/ilog_repo.dart' as _i13;
 import 'package:he/service/app_module.dart' as _i19;
 import 'package:he/service/firebase_service.dart' as _i9;
-import 'package:he/service/getstorage_service.dart' as _i12;
-import 'package:he/service/permit_fofi_service.dart' as _i17;
+import 'package:he/service/permit_fofi_service.dart' as _i15;
+import 'package:he/service/rx_sharedpref_service.dart' as _i17;
 import 'package:he_storage/he_storage.dart' as _i4;
-import 'package:injectable/injectable.dart'
-    as _i2; // ignore_for_file: unnecessary_lambdas
+import 'package:injectable/injectable.dart' as _i2;
+import 'package:rx_shared_preferences/rx_shared_preferences.dart'
+    as _i16; // ignore_for_file: unnecessary_lambdas
 
 // ignore_for_file: lines_longer_than_80_chars
 extension GetItInjectableX on _i1.GetIt {
@@ -51,22 +51,23 @@ extension GetItInjectableX on _i1.GetIt {
       preResolve: true,
     );
     gh.lazySingleton<_i10.FirebaseStorage>(() => appModule.storage);
-    gh.lazySingleton<_i11.GetStorage>(() => appModule.box);
-    await gh.factoryAsync<_i12.GetStorageService>(
-      () => appModule.getStorageService,
+    gh.lazySingleton<_i11.IDatabaseRepository>(
+        () => _i12.DatabaseRepository(gh<_i8.FirebaseFirestore>()));
+    gh.lazySingleton<_i13.ILogRepository>(
+        () => _i14.LogRepository(gh<_i8.FirebaseFirestore>()));
+    await gh.factoryAsync<_i15.PermitFoFiService>(
+      () => appModule.getfolderfileService,
       preResolve: true,
     );
-    gh.lazySingleton<_i13.IDatabaseRepository>(
-        () => _i14.DatabaseRepository(gh<_i8.FirebaseFirestore>()));
-    gh.lazySingleton<_i15.ILogRepository>(
-        () => _i16.LogRepository(gh<_i8.FirebaseFirestore>()));
-    await gh.factoryAsync<_i17.PermitFoFiService>(
-      () => appModule.getfolderfileService,
+    gh.lazySingleton<_i16.RxSharedPreferences>(
+        () => appModule.getrxsharedprefrence);
+    await gh.factoryAsync<_i17.RxSharedPreferencesService>(
+      () => appModule.getRxStorageService,
       preResolve: true,
     );
     gh.lazySingleton<String>(() => appModule.getexternaldownlodpath);
     gh.factory<_i18.ApkBloc>(
-        () => _i18.ApkBloc(repository: gh<_i15.ILogRepository>()));
+        () => _i18.ApkBloc(repository: gh<_i13.ILogRepository>()));
     return this;
   }
 }

@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+// import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:he_storage/he_storage.dart';
 
 /// {@template LclRxStgAccountApi}
@@ -15,7 +16,7 @@ class LclRxStgAccountApi extends AccountApi {
   late RxSharedPreferences _rxPrefs;
   @visibleForTesting
   // ignore: public_member_api_docs
-  static const actCacheKey = Endpoints.userCacheKey;
+  static const actCacheKey = Endpoints.accountCacheKey;
 
   Future<Account?> _getValue(String key) =>
       _rxPrefs.read(key, Account.toAccountOrEmpty);
@@ -50,14 +51,31 @@ class LclRxStgAccountApi extends AccountApi {
       .map((event) => event ?? Account.empty);
 
   @override
+  // Future<void> saveAccount(Account account) async {
+  //   var _account = await _getValue(actCacheKey);
+  //   debugPrint('DarthVader ${_account?.toJson()} and ${account.toJson()}');
+  //   // if (_account!.id != account.id && account.isNotEmpty) {
+  //   if (_account!.id == 0) {
+  //     debugPrint('User added ${account.toJson()}');
+  //     return _setValue(actCacheKey, account);
+  //   } else {
+  //     debugPrint('saveAccount isEmpty ${_account!.id}');
+  //     // _removeValue(actCacheKey);
+  //     throw AccountNotFoundException();
+  //   }
+  // }
   Future<void> saveAccount(Account account) async {
     var _account = await _getValue(actCacheKey);
-    debugPrint('Darth ${_account?.toJson()}');
-    if (_account!.id != account.id && account.isNotEmpty) {
-      debugPrint('User added ${account.toJson()}');
+    debugPrint('DarthVader ${_account?.toJson()} and ${account.toJson()}');
+    if (account.isNotEmpty) {
+      if (_account == null || _account!.id != account.id) {
+        debugPrint('Account added ${account.toJson()}');
+      } else {
+        debugPrint('Account updated ${account.toJson()}');
+      }
       return _setValue(actCacheKey, account);
     } else {
-      debugPrint('saveAccount isEmpty ${account.toJson()}');
+      debugPrint('saveAccount isEmpty ${_account!.id}');
       throw AccountNotFoundException();
     }
   }

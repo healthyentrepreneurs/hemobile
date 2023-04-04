@@ -4,12 +4,13 @@ import 'package:equatable/equatable.dart';
 import 'package:auth_repo/auth_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:he_api/he_api.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 part 'authentication_event.dart';
 part 'authentication_state.dart';
 
 class AuthenticationBloc
-    extends Bloc<AuthenticationEvent, AuthenticationState> {
+    extends HydratedBloc<AuthenticationEvent, AuthenticationState> {
   AuthenticationBloc({
     required HeAuthRepository heAuthRepository,
   })  : _heAuthRepository = heAuthRepository,
@@ -53,5 +54,15 @@ class AuthenticationBloc
     Emitter<AuthenticationState> emit,
   ) {
     _heAuthRepository.logOut();
+  }
+
+  @override
+  AuthenticationState? fromJson(Map<String, dynamic> json) {
+    return AuthenticationState.fromJson(json);
+  }
+
+  @override
+  Map<String, dynamic>? toJson(AuthenticationState state) {
+    return state.toJson();
   }
 }

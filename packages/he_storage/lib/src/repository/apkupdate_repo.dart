@@ -15,9 +15,10 @@ class ApkupdateRepository {
   }) : _apkupdateApi = apkupdateApi;
 
   final ApkUpdateApi _apkupdateApi;
-  Apkupdatestatus getSeenUpdateStatus() => _apkupdateApi.getSeenUpdateStatus();
-  // Apkupdatestatus getSeenUpdateStatus();
-  void updateSeenUpdateStatus(Apkupdatestatus apkupdatestatus) =>
+  Future<Apkupdatestatus> getSeenUpdateStatus() =>
+      _apkupdateApi.getSeenUpdateStatus();
+  Future<void> updateSeenUpdateStatus(Apkupdatestatus apkupdatestatus) =>
       _apkupdateApi.updateSeenUpdateStatus(apkupdatestatus);
-  void deleteSeenUpdateStatus() => _apkupdateApi.deleteSeenUpdateStatus();
+  Future<void> deleteSeenUpdateStatus() =>
+      _apkupdateApi.deleteSeenUpdateStatus();
 }

@@ -13,7 +13,7 @@ dependencies:
 #  either_dart: ^0.3.0
   flutter:
     sdk: flutter
-  get_storage: ^2.0.3
+#  get_storage: ^2.0.3
   he_api:
     path: ../he_api
   json_annotation: ^4.7.0

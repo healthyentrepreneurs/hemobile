@@ -12,6 +12,7 @@ import '../widgets/widgets.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage._();
+  const HomePage({Key? key}) : super(key: key);
   static Page<void> page() => const MaterialPage<void>(child: HomePage._());
   static Route<void> route() {
     return MaterialPageRoute(builder: (_) => const HomePage._());

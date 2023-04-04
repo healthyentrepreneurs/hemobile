@@ -74,9 +74,9 @@ dependencies:
   freezed_annotation: ^2.2.0
   get_it: ^7.2.0
   json_annotation: ^4.7.0
-  get_storage: ^2.0.3
-  image_picker: ^0.8.6
-  archive: ^3.3.6
+#  get_storage: ^2.0.3
+#  image_picker: ^0.8.6
+#  archive: ^3.3.6
   connectivity_plus: ^3.0.2
   network_info_plus: ^3.0.2
 #  collection: ^1.17.0

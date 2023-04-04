@@ -24,10 +24,9 @@ Future<void> main() async {
   // final getIt = GetIt.instance;
   configureInjections(getIt);
   // final logRepository = getIt<LogRepository>();
-  final heAuthRepository = HeAuthRepository();
+  // final heAuthRepository = HeAuthRepository(rxPrefs: null, firebaseAuth: null);
   final themeLocaleIntRepository = ThemeLocaleIntRepository();
   runApp(App(
     themeLocaleIntRepository: themeLocaleIntRepository,
-    heAuthRepository: heAuthRepository,
   ));
 }

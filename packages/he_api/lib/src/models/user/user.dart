@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:he_api/he_api.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -79,4 +81,18 @@ class User extends Profile {
         country,
         profileimageurlsmall
       ];
+
+  static final toUserOrNull = (Object? s) => s == null
+      ? null
+      : User.fromJson(
+          jsonDecode(s as String) as Map<String, dynamic>,
+        );
+
+  static final toUserOrEmpty = (Object? s) => s == null
+      ? User.empty
+      : User.fromJson(
+          jsonDecode(s as String) as Map<String, dynamic>,
+        );
+
+  static String? userToString(User? u) => u == null ? null : jsonEncode(u);
 }

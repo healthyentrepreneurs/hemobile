@@ -14,8 +14,7 @@ class ApkseenBloc extends HydratedBloc<ApkseenEvent, ApkseenState> {
   final ApkupdateRepository _repository;
   ApkseenBloc({required ApkupdateRepository repository})
       : _repository = repository,
-        super(ApkseenState(
-            status: const Apkupdatestatus(seen: false, updated: false))) {
+        super(ApkseenState(status: repository.getSeenUpdateStatus())) {
     on<CheckForUpdateEvent>(_onCheckForUpdate);
     on<UpdateSeenStatusEvent>(_onUpdateSeenStatus);
     on<DeleteSeenStatusEvent>(_onDeleteSeenStatusEvent);
@@ -23,27 +22,25 @@ class ApkseenBloc extends HydratedBloc<ApkseenEvent, ApkseenState> {
   }
 
   FutureOr<void> _onCheckForUpdate(
-      CheckForUpdateEvent event, Emitter<ApkseenState> emit) async {
-    final status = await _repository.getSeenUpdateStatus();
-    emit(ApkseenState(status: status));
-    debugPrint('_onCheckForUpdate Not Seen ${status.toJson()}');
+      CheckForUpdateEvent event, Emitter<ApkseenState> emit) {
+    emit(ApkseenState(status: state.status));
+    debugPrint('_onCheckForUpdate Not Seen ${state.status.toJson()}');
   }
 
   FutureOr<void> _onUpdateSeenStatus(
       UpdateSeenStatusEvent event, Emitter<ApkseenState> emit) async {
-    await _repository.updateSeenUpdateStatus(event.status);
+    _repository.updateSeenUpdateStatus(event.status);
     emit(ApkseenState(status: event.status));
-    debugPrint('onUpdateSeenStatus Not Seen ${event.status.toJson()}');
+    debugPrint('onUpdateSeenStatus Not Seen ${state.status.toJson()}');
   }
 
   FutureOr<void> _onDeleteSeenStatusEvent(
-      DeleteSeenStatusEvent event, Emitter<ApkseenState> emit) async {
-    // implement delete seen status
-    final status = await _repository.getSeenUpdateStatus();
-    debugPrint('Before onDeleteSeenStatusEvent Not Seen ${status.toJson()}');
-    await _repository.deleteSeenUpdateStatus();
-    emit(ApkseenState(
-        status: const Apkupdatestatus(seen: false, updated: false)));
+      DeleteSeenStatusEvent event, Emitter<ApkseenState> emit) {
+    //implement delete seen status
+    debugPrint(
+        'Before onDeleteSeenStatusEvent Not Seen ${state.status.toJson()}');
+    _repository.deleteSeenUpdateStatus();
+    // emit(ApkseenState(status: state.status));
     debugPrint(
         'After onDeleteSeenStatusEvent Not Seen ${state.status.toJson()}');
   }

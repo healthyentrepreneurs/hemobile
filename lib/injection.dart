@@ -1,3 +1,4 @@
+import 'package:auth_repo/auth_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:he/injection.config.dart';
@@ -17,9 +18,13 @@ final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 void configureInjections(GetIt getIt) {
   final injectableModule = AppModuleImp();
   getIt.registerLazySingleton<ApkupdateRepository>(() => ApkupdateRepository(
-          apkupdateApi: GsApkUpdateApi(
-        box: injectableModule.box,
+          apkupdateApi: RxStgApkUpdateApi(
+        rxPrefs: injectableModule.getrxsharedprefrence,
       )));
+
+  getIt.registerLazySingleton<HeAuthRepository>(
+          () => HeAuthRepository(rxPrefs: injectableModule.getrxsharedprefrence, firebaseAuth: injectableModule.firebaseAuth));
+
   getIt.registerLazySingleton<LogRepository>(
       () => LogRepository(injectableModule.firestore));
 

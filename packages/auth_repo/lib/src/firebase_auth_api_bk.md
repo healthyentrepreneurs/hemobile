@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:he_storage/he_storage.dart';
 
 /// {@template log_in_with_email_and_password_failure}
-/// Thrown during the login process if a failure occurs.
 /// {@endtemplate}
 class LogInWithEmailAndPasswordFailure implements Exception {
   /// {@macro log_in_with_email_and_password_failure}
@@ -47,7 +46,6 @@ class LogInWithEmailAndPasswordFailure implements Exception {
 class LogOutFailure implements Exception {}
 
 /// {@template firebase_auth_repo}
-/// Repository which manages user authentication.
 /// {@endtemplate}
 class FirebaseAuthApi {
   /// {@macro firebase_auth_repo}

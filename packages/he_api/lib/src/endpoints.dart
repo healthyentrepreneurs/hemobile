@@ -19,8 +19,9 @@ class Endpoints {
   static const String localEmulatorIp = '192.168.100.4';
 
   static const String userCacheKey = '__user_cache_key__';
+  static const String accountCacheKey = '__account_cache_key__';
 
   static const bool userEmulator = true;
 
-  static const String bucketUrl='he-test-server.appspot.com';
+  static const String bucketUrl = 'he-test-server.appspot.com';
 }

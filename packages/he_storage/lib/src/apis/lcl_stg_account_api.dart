@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
+// import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:he_storage/he_storage.dart';
 import 'package:rxdart/subjects.dart';
 
@@ -20,7 +21,7 @@ class LclStgAccountApi extends AccountApi {
 
   @visibleForTesting
   // ignore: public_member_api_docs
-  static const actCacheKey = Endpoints.userCacheKey;
+  static const actCacheKey = Endpoints.accountCacheKey;
 
   String? _getValue(String key) => _plugin.getString(key);
 
