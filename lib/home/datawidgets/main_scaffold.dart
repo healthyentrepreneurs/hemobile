@@ -7,7 +7,7 @@ import 'package:he/home/home.dart';
 class MainScaffold extends StatelessWidget {
   // final User user;
   final Widget subwidget;
-  const MainScaffold({Key? key, required  this.subwidget}) : super(key: key);
+  const MainScaffold({Key? key, required this.subwidget}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     final user = context.select((AuthenticationBloc bloc) => bloc.state.user)!;
@@ -54,8 +54,7 @@ class MainScaffold extends StatelessWidget {
               ),
             )),
         const MenuItemHe().appTitle('What do you need ?'),
-        Center(
-            child: subwidget)
+        Center(child: subwidget)
       ]),
     );
   }

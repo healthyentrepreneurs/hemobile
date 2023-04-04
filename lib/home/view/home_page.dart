@@ -17,10 +17,10 @@ class HomePage extends StatelessWidget {
   static Route<void> route() {
     return MaterialPageRoute(builder: (_) => const HomePage._());
   }
+
   @override
   Widget build(BuildContext context) {
     final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
-    // final networkBloc = context.watch<HenetworkBloc>().state;
     return BlocBuilder<HenetworkBloc, HenetworkState>(
         buildWhen: (previous, current) {
       var networkChange =
@@ -75,17 +75,9 @@ class HomePage extends StatelessWidget {
                         onTap: () {
                           databasebloc.add(DatabaseSubSelected(subscription));
                           if (subscription.source == 'originalm') {
-                            // BlocProvider.of<SurveyBloc>(context).add(
-                            //   SurveyFetched(
-                            //       '${subscription.id}', state.ghenetworkStatus),
-                            // );
                             Navigator.of(context)
                                 .push(SurveyPageBrowser.route());
                           } else {
-                            // BlocProvider.of<SectionBloc>(context).add(
-                            //   SectionFetched(
-                            //       '${subscription.id}', state.ghenetworkStatus),
-                            // );
                             Navigator.of(context).push(SectionsFlow.route());
                           }
                         },

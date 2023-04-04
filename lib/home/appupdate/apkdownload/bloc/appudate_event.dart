@@ -6,8 +6,11 @@ abstract class AppUpdateEvent extends Equatable {
 }
 
 class StartDownloading extends AppUpdateEvent {
-  const StartDownloading();
 
+  final String url;
+  const StartDownloading(this.url);
+  // const StartDownloading(String url);
+  // final String userid;
   @override
-  List<Object> get props => [];
+  List<Object> get props => [url];
 }

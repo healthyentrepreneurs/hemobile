@@ -59,7 +59,7 @@ class AppVerView extends StatelessWidget {
                 leading: const Icon(Icons.update_outlined,
                     size: 30.0, color: ToolUtils.colorBlueOne),
                 backgroundColor: const Color(0xFFE0E0E0),
-                actions: const <Widget>[DismissButton(), UpdateButton()],
+                actions:  <Widget>[const DismissButton(), UpdateButton(url: data['url'],)],
               );
             });
           }

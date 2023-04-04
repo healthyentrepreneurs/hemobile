@@ -24,11 +24,13 @@ class AppudateBloc extends Bloc<AppUpdateEvent, AppudateState> {
   }
   // final FirebaseStorage _storage = getIt<FirebaseStorage>();
   static final storageRef = getIt<FirebaseStorage>().ref();
-  final _appRef = storageRef.child("app.apk");
   final FileSystemUtil _fileUtil = FileSystemUtil();
 
   FutureOr<void> _onStartDownloading(
       StartDownloading event, Emitter<AppudateState> emit) async {
+    // final _appRef = storageRef.child("app.apk");
+    debugPrint("AnitaData ${event.url}");
+    final _appRef = storageRef.child(event.url);
     final status = await Permission.storage.status;
     if (status != PermissionStatus.granted) {
       final granted = await Permission.storage.request().isGranted;

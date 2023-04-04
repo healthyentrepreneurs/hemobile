@@ -5,7 +5,8 @@ import 'package:he/home/appupdate/apkdownload/apkdownload.dart';
 import 'package:theme_locale_repo/generated/l10n.dart';
 
 class UpdateButton extends StatelessWidget {
-  const UpdateButton({Key? key})
+  final String url;
+  const UpdateButton({Key? key, required this.url})
       : super(key: key);
 
   @override
@@ -19,7 +20,7 @@ class UpdateButton extends StatelessWidget {
       onPressed: dataBloc.state.gisDownloading
           ? null
           : () async {
-        dataBloc.add(const StartDownloading());
+        dataBloc.add(StartDownloading(url));
       },
       child:
       const Text('UPDATE', style: TextStyle(color: ToolUtils.colorBlueOne)),
