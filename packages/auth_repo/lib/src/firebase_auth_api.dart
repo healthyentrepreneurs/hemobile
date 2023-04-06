@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/foundation.dart';
 import 'package:he_storage/he_storage.dart';
+import 'package:rxdart/rxdart.dart';
 
 /// {@template log_in_with_email_and_password_failure}
 /// {@endtemplate}
@@ -53,7 +54,9 @@ class FirebaseAuthApi {
     required LclRxStgAccountApi accountApi,
     required firebase_auth.FirebaseAuth firebaseAuth,
   })  : _accountApi = accountApi,
-        _firebaseAuth = firebaseAuth;
+        _firebaseAuth = firebaseAuth {
+    _init();
+  }
 
   final LclRxStgAccountApi _accountApi;
   final firebase_auth.FirebaseAuth _firebaseAuth;
@@ -63,17 +66,33 @@ class FirebaseAuthApi {
   /// defaults to [kIsWeb]
   @visibleForTesting
   bool isWeb = kIsWeb;
+  final BehaviorSubject<Account> _userSubject = BehaviorSubject<Account>();
 
   /// Stream of [Account] which will emit the current user when
   /// the authentication state changes.
   ///
   /// Emits [Account.empty] if the user is not authenticated.
-  Stream<Account> get user {
-    return _firebaseAuth.authStateChanges().asyncMap((firebaseUser) async {
+  // Stream<Account> get user {
+  //   return _firebaseAuth.authStateChanges().asyncMap((firebaseUser) async {
+  //     final user = firebaseUser == null ? Account.empty : firebaseUser.toUser;
+  //     debugPrint('What is here ${user.toJson()}');
+  //     await _accountApi.saveAccount(user);
+  //     return user;
+  //   });
+  // }
+  Stream<Account> get user => _userSubject.stream;
+
+  void _init() {
+    _firebaseAuth.authStateChanges().listen((firebaseUser) async {
       final user = firebaseUser == null ? Account.empty : firebaseUser.toUser;
       debugPrint('What is here ${user.toJson()}');
-      await _accountApi.saveAccount(user);
-      return user;
+      if (user.isEmpty) {
+        debugPrint('Namu is here ${user.toJson()}');
+      } else {
+        debugPrint('Jacki is here ${user.toJson()}');
+        await _accountApi.saveAccount(user);
+      }
+      _userSubject.add(user);
     });
   }
 

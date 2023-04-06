@@ -22,10 +22,12 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     on<DatabaseLoadEvent>(_onDatabaseLoadEvent);
     on<DatabaseSubSelected>(_onDatabaseSubSelected);
     on<DatabaseSubDeSelected>(_onDatabaseSubDeSelected);
+    on<DatabaseFetchedError>(_onDatabaseFetchedError);
   }
   final DatabaseRepository _databaseRepository;
 
   _fetchUserData(DatabaseFetched event, Emitter<DatabaseState> emit) async {
+    emit(const DatabaseState.loading());
     _databaseRepository.addHenetworkStatus(event.henetworkStatus!);
     Stream<Either<Failure, List<Subscription?>>> listOfSubStream =
         _databaseRepository.retrieveSubscriptionDataStream(event.userid);
@@ -33,11 +35,13 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     await emit.forEach(listOfSubStream,
         onData: (Either<Failure, List<Subscription?>> listOfSubscription) {
       return listOfSubscription.fold(
-        (failure) => state.copyWith(error: failure),
+        (failure) => state.copyWith(
+            error: failure, henetworkStatus: event.henetworkStatus),
         (listOfSubscription) => state.copyWith(
             listOfSubscriptionData: listOfSubscription,
             henetworkStatus: event.henetworkStatus,
-            userid: event.userid),
+            userid: event.userid,
+            error: null), // Reset the error to null when fetching is successful
       );
     });
   }
@@ -56,4 +60,22 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
       DatabaseLoadEvent event, Emitter<DatabaseState> emit) {
     emit(const DatabaseState.loading());
   }
+
+  _onDatabaseFetchedError(
+      DatabaseFetchedError event, Emitter<DatabaseState> emit) {
+    if (event.clearData) {
+      emit(state.copyWith(
+          error: event.error,
+          listOfSubscriptionData: emptySub,
+          henetworkStatus: event.henetworkStatus));
+    } else {
+      emit(state.copyWith(
+          error: event.error, henetworkStatus: event.henetworkStatus));
+    }
+  }
+
+  // _onDatabaseDeFetchedError(
+  //     DatabaseDeFetchedError event, Emitter<DatabaseState> emit) {
+  //   emit(state.copyWith(error: null));
+  // }
 }

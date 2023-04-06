@@ -9,20 +9,17 @@ part 'henetwork_event.dart';
 part 'henetwork_state.dart';
 
 class HenetworkBloc extends Bloc<HenetworkEvent, HenetworkState> {
+  //assign connectivityResult to ConnectivityResult.none if no connectivity is available
+// transformer: droppable()
   HenetworkBloc() : super(const HenetworkState.loading()) {
     on<HeNetworkNetworkStatus>(_onHeNetworkNetworkStatus);
-    on<HeNetworkFirebaseNetworkChange>(_onHeHeNetworkFirebaseAction);
+    on<HeNetworkFirebaseNetworkChange>(
+        _onHeHeNetworkFirebaseAction); // transformer:droppable() is used to drop all events when the state is not HenetworkInitial );
   }
-
   final Connectivity _connectivity = Connectivity();
 
   FutureOr<void> _onHeNetworkNetworkStatus(
       HeNetworkNetworkStatus event, Emitter<HenetworkState> emit) async {
-    // Get the current connectivity result
-    ConnectivityResult currentConnectivityResult =
-        await _connectivity.checkConnectivity();
-    // Emit the current connectivity state
-    emit(_emitConnectivityState(currentConnectivityResult));
     await emit.forEach(_connectivity.onConnectivityChanged,
         onData: (ConnectivityResult connectivityResult) {
       switch (connectivityResult.name) {
@@ -48,31 +45,6 @@ class HenetworkBloc extends Bloc<HenetworkEvent, HenetworkState> {
               status: HenetworkStatus.loading);
       }
     });
-  }
-
-  HenetworkState _emitConnectivityState(ConnectivityResult connectivityResult) {
-    switch (connectivityResult.name) {
-      case 'none':
-        debugPrint('MexNi Is none ${connectivityResult.name}');
-        return state.copyWith(
-            connectivityResult: connectivityResult,
-            status: HenetworkStatus.noInternet);
-      case 'mobile':
-        debugPrint('MexNi Is mobile ${connectivityResult.name}');
-        return state.copyWith(
-            connectivityResult: connectivityResult,
-            status: HenetworkStatus.mobileNetwork);
-      case 'wifi':
-        debugPrint('MexNi Is wifi ${connectivityResult.name}');
-        return state.copyWith(
-            connectivityResult: connectivityResult,
-            status: HenetworkStatus.wifiNetwork);
-      default:
-        debugPrint('MexNi Is default ${connectivityResult.name}');
-        return state.copyWith(
-            connectivityResult: connectivityResult,
-            status: HenetworkStatus.loading);
-    }
   }
 
   FutureOr<void> _onHeHeNetworkFirebaseAction(

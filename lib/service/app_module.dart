@@ -1,7 +1,8 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:he/service/permit_fofi_service.dart';
 import 'package:he/service/rx_sharedpref_service.dart';
@@ -37,10 +38,11 @@ abstract class AppModule {
 
   @lazySingleton
   @injectable
-  // firebase_auth.FirebaseAuth.instance
-  // ..useAuthEmulator(Endpoints.localEmulatorIp, 9099)
-  FirebaseAuth get firebaseAuth =>
-      FirebaseAuth.instance..useAuthEmulator(Endpoints.localEmulatorIp, 9099);
+
+  // FirebaseAuth get firebaseAuth =>
+  //     FirebaseAuth.instance..useAuthEmulator(Endpoints.localEmulatorIp, 9099);
+  firebase_auth.FirebaseAuth get firebaseAuth => firebase_auth.FirebaseAuth.instance
+    ..useAuthEmulator(Endpoints.localEmulatorIp, 9099);
 
   @lazySingleton
   @injectable

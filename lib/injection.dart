@@ -22,8 +22,9 @@ void configureInjections(GetIt getIt) {
         rxPrefs: injectableModule.getrxsharedprefrence,
       )));
 
-  getIt.registerLazySingleton<HeAuthRepository>(
-          () => HeAuthRepository(rxPrefs: injectableModule.getrxsharedprefrence, firebaseAuth: injectableModule.firebaseAuth));
+  getIt.registerLazySingleton<HeAuthRepository>(() => HeAuthRepository(
+      rxPrefs: injectableModule.getrxsharedprefrence,
+      firebaseAuth: injectableModule.firebaseAuth));
 
   getIt.registerLazySingleton<LogRepository>(
       () => LogRepository(injectableModule.firestore));

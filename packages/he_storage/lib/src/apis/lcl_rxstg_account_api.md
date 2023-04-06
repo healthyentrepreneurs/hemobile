@@ -51,33 +51,34 @@ class LclRxStgAccountApi extends AccountApi {
       .map((event) => event ?? Account.empty);
 
   @override
-  // Future<void> saveAccount(Account account) async {
-  //   var _account = await _getValue(actCacheKey);
-  //   debugPrint(
-  //       'AccountDarthVader ${_account?.toJson()} and ${account.toJson()}');
-  //   if (_account!.id != account.id && account.isNotEmpty) {
-  //     // if (_account!.id == 0) {
-  //     debugPrint('Account added ${account.toJson()}');
-  //     return _setValue(actCacheKey, account);
-  //   } else {
-  //     debugPrint('saveAccount isEmpty ${_account!.id}');
-  //     // _removeValue(actCacheKey);
-  //     throw AccountNotFoundException();
-  //   }
-  // }
   Future<void> saveAccount(Account account) async {
     var _account = await _getValue(actCacheKey);
     debugPrint(
         'AccountDarthVader ${_account?.toJson()} and ${account.toJson()}');
     if (_account!.id != account.id && account.isNotEmpty) {
+      // if (_account!.id == 0) {
       debugPrint('Account added ${account.toJson()}');
-      return _setValue(actCacheKey, account);
-    } else if (_account.id == account.id && account.isNotEmpty) {
-      debugPrint('Account updated ${account.toJson()}');
       return _setValue(actCacheKey, account);
     } else {
       debugPrint('saveAccount isEmpty ${_account!.id}');
-      throw AccountNotFoundException();
+      // _removeValue(actCacheKey);
+      // throw AccountNotFoundException();
     }
   }
+  // Future<void> saveAccount(Account account) async {
+  //   var _account = await _getValue(actCacheKey);
+  //   debugPrint(
+  //       'AccountDarthVader ${_account?.toJson()} and ${account.toJson()}');
+  //   if (account.isNotEmpty) {
+  //     if (_account == null || _account!.id != account.id) {
+  //       debugPrint('Account added ${account.toJson()}');
+  //     } else {
+  //       debugPrint('Account updated ${account.toJson()}');
+  //     }
+  //     return _setValue(actCacheKey, account);
+  //   } else {
+  //     debugPrint('saveAccount isEmpty ${_account!.id}');
+  //     throw AccountNotFoundException();
+  //   }
+  // }
 }

@@ -42,13 +42,61 @@ class HeAuthRepository {
   Stream<HeAuthStatus> get status async* {
     await _initializeUser();
     if (_user.isNotEmpty) {
-      debugPrint('CHECKWHATSHERE ${_user.toJson().toString()}');
       yield HeAuthStatus.authenticated;
     } else {
       yield HeAuthStatus.unauthenticated;
     }
     yield* _controller.stream;
   }
+
+  // Stream<HeAuthStatus> get statusxx async* {
+  //   await _initializeUser();
+  //   bool isLoggedIn = await _getLoginState();
+  //
+  //   if (isLoggedIn && _user.isNotEmpty) {
+  //     yield HeAuthStatus.authenticated;
+  //   } else {
+  //     yield HeAuthStatus.unauthenticated;
+  //   }
+  //   yield* _controller.stream;
+  // }
+
+  // Future<void> _saveLoginState(bool isLoggedIn) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.setBool('isLoggedIn', isLoggedIn);
+  // }
+
+  // Future<bool> _getLoginState() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   return prefs.getBool('isLoggedIn') ?? false;
+  // }
+
+
+   // await _saveLoginState(false);
+
+   // await _saveLoginState(true);
+
+   // Stream<HeAuthStatus> get statusxx async* {
+    //   await _initializeUser();
+    //   bool isLoggedIn = await _getLoginState();
+    //
+    //   if (isLoggedIn && _user.isNotEmpty) {
+    //     yield HeAuthStatus.authenticated;
+    //   } else {
+    //     yield HeAuthStatus.unauthenticated;
+    //   }
+    //   yield* _controller.stream;
+    // }
+
+    // Future<void> _saveLoginState(bool isLoggedIn) async {
+    //   final prefs = await SharedPreferences.getInstance();
+    //   await prefs.setBool('isLoggedIn', isLoggedIn);
+    // }
+
+    // Future<bool> _getLoginState() async {
+    //   final prefs = await SharedPreferences.getInstance();
+    //   return prefs.getBool('isLoggedIn') ?? false;
+    // }
 
   Future<User?> logIn({
     required String username,

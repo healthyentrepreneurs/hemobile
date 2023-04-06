@@ -47,32 +47,37 @@ class LclRxStgUserApi extends UserApi {
   Stream<User> getUser() => _rxPrefs
       .observe(actCacheKey, User.toUserOrNull)
       .map((event) => event ?? User.empty);
+  // @override
+  // Stream<User> getUser() => _rxPrefs
+  //     .observe(actCacheKey, User.toUserOrNull)
+  //     .map((event) => event ?? User.empty)
+  //     .where((user) => user.isNotEmpty);
 
   @override
-  // Future<void> saveUser(User user) async {
-  //   var _user = await _getValue(actCacheKey);
-  //   debugPrint('Darth ${_user?.toJson()}');
-  //   if (_user!.id != user.id && user.isNotEmpty) {
-  //     debugPrint('User added ${user.toJson()}');
-  //     return _setValue(actCacheKey, user);
-  //   } else {
-  //     debugPrint('saveUser isEmpty ${user.toJson()}');
-  //     throw UserNotFoundException();
-  //   }
-  // }
   Future<void> saveUser(User user) async {
     var _user = await _getValue(actCacheKey);
-    debugPrint('Darth ${_user?.toJson()}');
-    if (user.isNotEmpty) {
-      if (_user == null || _user!.id != user.id) {
-        debugPrint('User added ${user.toJson()}');
-      } else {
-        debugPrint('User updated ${user.toJson()}');
-      }
+    debugPrint('UserDarth ${_user?.toJson()}');
+    if (_user!.id != user.id && user.isNotEmpty) {
+      debugPrint('User added ${user.toJson()}');
       return _setValue(actCacheKey, user);
     } else {
       debugPrint('saveUser isEmpty ${user.toJson()}');
       throw UserNotFoundException();
     }
   }
+  // Future<void> saveUser(User user) async {
+  //   var _user = await _getValue(actCacheKey);
+  //   debugPrint('UserDarth ${_user?.toJson()}');
+  //   if (user.isNotEmpty) {
+  //     if (_user == null || _user!.id != user.id) {
+  //       debugPrint('User added ${user.toJson()}');
+  //     } else {
+  //       debugPrint('User updated ${user.toJson()}');
+  //     }
+  //     return _setValue(actCacheKey, user);
+  //   } else {
+  //     debugPrint('saveUser isEmpty ${user.toJson()}');
+  //     throw UserNotFoundException();
+  //   }
+  // }
 }

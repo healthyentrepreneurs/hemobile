@@ -45,6 +45,14 @@ class DatabaseState extends Equatable {
         error: error ?? this.error);
   }
 
+  const DatabaseState.withError(
+      {HenetworkStatus? henetworkStatus, Failure? error})
+      : this._(
+          listOfSubscriptionData: emptySub,
+          henetworkStatus: henetworkStatus,
+          error: error,
+        );
+
   //create a getter for the list of subscription data
   List<Subscription?> get glistOfSubscriptionData => _listOfSubscriptionData;
   HenetworkStatus get ghenetworkStatus => _henetworkStatus;
