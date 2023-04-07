@@ -1,13 +1,11 @@
 import 'package:he/course/section/bloc/section_bloc.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
-import 'package:he/survey/bloc/survey_bloc.dart';
 
 enum NavigationState {
   mainScaffold,
   surveyPage,
-  sectionsPage,
-  // errorPage,
+  errorPage,
   // Add more navigation states as needed
 }
 
@@ -25,20 +23,17 @@ class NavigationHelper {
   NavigationState determineNavigationState({
     required DatabaseState databaseState,
     required HenetworkState henetworkState,
-    required SurveyState surveyState,
-    required SectionState sectionState,
     // Add more required parameters as needed
   }) {
     if (databaseState.gselectedsubscription != null) {
-      if (surveyState.gsurveyjson != null &&
-          databaseState.gselectedsubscription!.source == 'originalm') {
-        return NavigationState.surveyPage;
+      if (databaseState.error != null) {
+        return NavigationState.errorPage;
       }
-      if (databaseState.gselectedsubscription!.source != 'originalm') {
-        // sectionState.error!=null && sectionState.glistofSections.isNotEmpty
-        return NavigationState.sectionsPage;
-      }
+      return NavigationState.mainScaffold;
+    } else if (databaseState.error != null) {
+      return NavigationState.errorPage;
+    } else {
+      return NavigationState.mainScaffold;
     }
-    return NavigationState.mainScaffold;
   }
 }

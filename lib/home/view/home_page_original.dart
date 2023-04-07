@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
 import 'package:he/course/section/view/view.dart';
+import 'package:he/helper/file_system_util.dart';
 import 'package:he/home/datawidgets/datawidget.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
@@ -22,8 +23,14 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
-    return BlocBuilder<HenetworkBloc, HenetworkState>(
-        buildWhen: (previous, current) {
+    return BlocConsumer<HenetworkBloc, HenetworkState>(
+        listenWhen: (previous, current) {
+          return previous.gstatus != current.gstatus;
+        }, listener: (context, state) {
+      if (state.gstatus != HenetworkStatus.loading) {
+        BlocProvider.of<DatabaseBloc>(context).add(DatabaseLoadEvent());
+      }
+    }, buildWhen: (previous, current) {
       var networkChange =
           previous.gconnectivityResult != current.gconnectivityResult ||
               previous.gstatus != current.gstatus;
@@ -31,8 +38,8 @@ class HomePage extends StatelessWidget {
         BlocProvider.of<DatabaseBloc>(context)
             .add(DatabaseFetched(user.id.toString(), current.gstatus));
         //More less the same thing
-        BlocProvider.of<DatabaseBloc>(context)
-            .add(DatabaseLoadEvent()); // Add this line
+        // BlocProvider.of<DatabaseBloc>(context)
+        //     .add(DatabaseLoadEvent()); // Add this line
         debugPrint("NetworkState Ends @B");
       }
       return networkChange;
@@ -44,12 +51,12 @@ class HomePage extends StatelessWidget {
       }
       return BlocBuilder<DatabaseBloc, DatabaseState>(
           buildWhen: (previous, current) {
-        var networkChange =
-            previous.ghenetworkStatus != current.ghenetworkStatus;
-        bool dataChange = !listEquals(
-            previous.glistOfSubscriptionData, current.glistOfSubscriptionData);
-        return networkChange || dataChange;
-      }, builder: (context, state) {
+            var networkChange =
+                previous.ghenetworkStatus != current.ghenetworkStatus;
+            bool dataChange = !listEquals(
+                previous.glistOfSubscriptionData, current.glistOfSubscriptionData);
+            return networkChange || dataChange;
+          }, builder: (context, state) {
         final _henetworkstate = BlocProvider.of<HenetworkBloc>(context).state;
         debugPrint('CHECHE ${_henetworkstate.status.name}');
         debugPrint(

@@ -27,11 +27,11 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
   final DatabaseRepository _databaseRepository;
 
   _fetchUserData(DatabaseFetched event, Emitter<DatabaseState> emit) async {
-    emit(const DatabaseState.loading());
+    // emit(const DatabaseState.loading());
     _databaseRepository.addHenetworkStatus(event.henetworkStatus!);
     Stream<Either<Failure, List<Subscription?>>> listOfSubStream =
         _databaseRepository.retrieveSubscriptionDataStream(event.userid);
-    debugPrint('DatabaseBloc@_fetchUserData ${event.henetworkStatus}');
+    // debugPrint('DatabaseBloc@_fetchUserData ${event.henetworkStatus}');
     await emit.forEach(listOfSubStream,
         onData: (Either<Failure, List<Subscription?>> listOfSubscription) {
       return listOfSubscription.fold(

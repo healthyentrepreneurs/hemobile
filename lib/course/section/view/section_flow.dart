@@ -13,7 +13,10 @@ import 'network_status_listener.dart';
 import 'section_page.dart';
 
 List<Page<dynamic>> onGenerateSectionPages(
-    Subscription course, SectionState state, BuildContext context) {
+    SectionState state, BuildContext context) {
+  final databaseBloc = BlocProvider.of<DatabaseBloc>(context);
+  final course =
+      databaseBloc.state.gselectedsubscription ?? const Subscription();
   Future<void> handleStateChange(
       BuildContext context, DatabaseState state) async {
     final sectionBloc = BlocProvider.of<SectionBloc>(context);
@@ -92,13 +95,11 @@ class SectionsFlow extends StatefulWidget {
 
 class _SectionsFlowState extends State<SectionsFlow> {
   late final SectionBloc _sectionBloc;
-  late final DatabaseBloc _databaseBloc;
 
   @override
   void initState() {
     super.initState();
     _sectionBloc = BlocProvider.of<SectionBloc>(context);
-    _databaseBloc = BlocProvider.of<DatabaseBloc>(context);
   }
 
   @override
@@ -106,8 +107,9 @@ class _SectionsFlowState extends State<SectionsFlow> {
     return FlowBuilder<SectionState>(
       state: _sectionBloc.state,
       onGeneratePages: (SectionState state, List<Page<dynamic>> pages) {
-        final course = _databaseBloc.state.gselectedsubscription!;
-        return onGenerateSectionPages(course, state, context);
+        // final course = _databaseBloc.state.gselectedsubscription!;
+        // course
+        return onGenerateSectionPages(state, context);
       },
     );
   }

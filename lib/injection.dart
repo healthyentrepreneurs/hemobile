@@ -7,6 +7,7 @@ import 'package:injectable/injectable.dart';
 
 import 'objects/objects.dart';
 import 'service/appmodule_imp.dart';
+import 'service/auth_state_handler.dart';
 
 final getIt = GetIt.instance;
 @InjectableInit(preferRelativeImports: false)
@@ -31,5 +32,4 @@ void configureInjections(GetIt getIt) {
 
   getIt.registerLazySingleton<DatabaseRepository>(
       () => DatabaseRepository(injectableModule.firestore));
-  // getIt.registerLazySingleton<FoFiRepository>(() => FoFiRepository());
 }

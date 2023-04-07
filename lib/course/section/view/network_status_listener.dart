@@ -14,21 +14,14 @@ class NetworkStatusListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<DatabaseBloc, DatabaseState>(
+    return BlocListener<DatabaseBloc, DatabaseState>(
       listenWhen: (previous, current) {
         return previous.ghenetworkStatus != current.ghenetworkStatus;
       },
       listener: (context, state) async {
         await onStateChange(context, state);
       },
-      buildWhen: (previous, current) {
-        return previous.ghenetworkStatus != current.ghenetworkStatus;
-      },
-      builder: (context, state) {
-        return state.ghenetworkStatus == HenetworkStatus.loading
-            ? const Center(child: CircularProgressIndicator())
-            : child;
-      },
+      child: child,
     );
   }
 }
