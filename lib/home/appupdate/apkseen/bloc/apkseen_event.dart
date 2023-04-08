@@ -15,7 +15,12 @@ class UpdateSeenStatusEvent extends ApkseenEvent {
   @override
   List<Object> get props => [status];
 }
-class AppUpdatedStatusEvent extends ApkseenEvent {}
+class AppUpdatedStatusEvent extends ApkseenEvent {
+  final String heverion;
+  const AppUpdatedStatusEvent({required this.heverion});
+  @override
+  List<Object> get props => [heverion];
+}
 
 class DeleteSeenStatusEvent extends ApkseenEvent {}
 

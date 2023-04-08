@@ -8,7 +8,8 @@ import 'package:install_plugin_v2/install_plugin_v2.dart';
 import '../../apkseen/apkseen.dart';
 
 class InstallApk extends StatelessWidget {
-  const InstallApk({super.key});
+  final String heversion;
+  const InstallApk({super.key, required this.heversion});
 
   Future<String?> installHeApk() async {
     // var permissions = await Permission.storage.status;
@@ -32,7 +33,7 @@ class InstallApk extends StatelessWidget {
             final resultInfo = snapshot.data!;
             if (resultInfo == 'Success') {
               BlocProvider.of<ApkseenBloc>(context)
-                  .add(AppUpdatedStatusEvent());
+                  .add(AppUpdatedStatusEvent(heverion: heversion));
               debugPrint("Arthur Success Apk $resultInfo");
             } else {
               debugPrint("Arthur Success Apk $resultInfo");

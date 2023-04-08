@@ -21,6 +21,9 @@ class AppUpdatActions extends StatelessWidget {
           if (state is ApkLoadingState) {
             return const SizedBox(height: 0.0);
           } else if (state is ApkErrorState) {
+            debugPrint("LUDALOGS ${state.error.message}");
+            return const SizedBox(height: 0.0);
+            //Njovu
             return Center(
               child: Text('Error: ${state.error.message}'),
             );

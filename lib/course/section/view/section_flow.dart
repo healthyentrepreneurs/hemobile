@@ -21,6 +21,7 @@ List<Page<dynamic>> onGenerateSectionPages(
       BuildContext context, DatabaseState state) async {
     final sectionBloc = BlocProvider.of<SectionBloc>(context);
     if (state.ghenetworkStatus != sectionBloc.state.ghenetworkStatus) {
+      // sectionBloc.close();
       context.flow<SectionState>().complete();
     }
   }
@@ -100,6 +101,13 @@ class _SectionsFlowState extends State<SectionsFlow> {
   void initState() {
     super.initState();
     _sectionBloc = BlocProvider.of<SectionBloc>(context);
+  }
+
+  @override
+  void dispose() {
+    // Close the _sectionBloc when the widget is disposed
+    _sectionBloc.close();
+    super.dispose();
   }
 
   @override

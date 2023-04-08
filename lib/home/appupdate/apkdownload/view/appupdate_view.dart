@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,7 +34,7 @@ class AppVerView extends StatelessWidget {
             debugPrint(
                 "What is here ${state.progress} and ${state.isDownloading}");
             if (state.progress == 1.0) {
-              return const InstallApk();
+              return InstallApk(heversion: data['version']);
             }
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -59,7 +58,12 @@ class AppVerView extends StatelessWidget {
                 leading: const Icon(Icons.update_outlined,
                     size: 30.0, color: ToolUtils.colorBlueOne),
                 backgroundColor: const Color(0xFFE0E0E0),
-                actions:  <Widget>[const DismissButton(), UpdateButton(url: data['url'],)],
+                actions: <Widget>[
+                  const DismissButton(),
+                  UpdateButton(
+                    url: data['url'],
+                  )
+                ],
               );
             });
           }

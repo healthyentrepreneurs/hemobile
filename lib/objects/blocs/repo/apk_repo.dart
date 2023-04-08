@@ -14,19 +14,19 @@ class LogRepository implements ILogRepository {
 
   LogRepository(this._firestore);
 
-  @override
-  Stream<Either<Failure, QuerySnapshot>> getApks() {
-    try {
-      return _firestore.collection('apks').snapshots().map((event) {
-        if (event.docs.isEmpty) {
-          return Left(RepositoryFailure('No Apk found'));
-        }
-        return Right(event);
-      });
-    } on Exception catch (e) {
-      return Stream.value(Left(RepositoryFailure(e.toString())));
-    }
-  }
+  // @override
+  // Stream<Either<Failure, QuerySnapshot>> getApks() {
+  //   try {
+  //     return _firestore.collection('apks').snapshots().map((event) {
+  //       if (event.docs.isEmpty) {
+  //         return Left(RepositoryFailure('No Apk found'));
+  //       }
+  //       return Right(event);
+  //     });
+  //   } on Exception catch (e) {
+  //     return Stream.value(Left(RepositoryFailure(e.toString())));
+  //   }
+  // }
 
   @override
   Stream<Either<Failure, DocumentSnapshot>> getLatestApk() {

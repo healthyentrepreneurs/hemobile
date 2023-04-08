@@ -25,7 +25,6 @@ class _CustomDrawer extends State<CustomDrawer> {
     final henetworkstate =
         context.select((HenetworkBloc bloc) => bloc.state.status);
     // final textTheme = Theme.of(context).textTheme;
-    final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
     final apkSceenState =
         context.select((ApkseenBloc bloc) => bloc.state.status);
     final s = S.of(context);

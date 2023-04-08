@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:he_storage/he_storage.dart';
 
@@ -30,10 +29,7 @@ class RxStgApkUpdateApi extends ApkUpdateApi {
   Future<Apkupdatestatus> getSeenUpdateStatus() async {
     final seenUpdate = await _getValue(seenUpdateKey);
     if (seenUpdate == null) {
-      return const Apkupdatestatus(
-        seen: false,
-        updated: false,
-      );
+      return const Apkupdatestatus(seen: false, updated: false, heversion: '');
     }
     return seenUpdate;
   }

@@ -10,6 +10,17 @@ import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 const _avatarSize = 20.0;
 const _bookSize = 20.0;
 
+bool isValidUrl(String? url) {
+  if (url == null) return false;
+  Uri? uri;
+  try {
+    uri = Uri.parse(url);
+  } catch (e) {
+    return false;
+  }
+  return uri.isAbsolute && (uri.scheme == 'http' || uri.scheme == 'https');
+}
+
 class SectionIcon extends StatelessWidget {
   const SectionIcon({Key? key, this.photo}) : super(key: key);
   //ToBeContinued
@@ -23,15 +34,20 @@ class SectionIcon extends StatelessWidget {
     if (henetworkstate == HenetworkStatus.noInternet) {
       return _sectionIconOffline(photo!);
     } else {
-      return CircleAvatar(
-        key: UniqueKey(),
-        radius: _avatarSize,
-        backgroundImage: photo != null ? NetworkImage(photo) : null,
-        child: photo == null
-            ? const Icon(Icons.segment_outlined, size: _avatarSize)
-            : null,
-        // onBackgroundImageError: (error, stackTrace) {},
-      );
+      return isValidUrl(photo)
+          ? CircleAvatar(
+              key: UniqueKey(),
+              radius: _avatarSize,
+              backgroundImage: photo != null ? NetworkImage(photo) : null,
+              child: photo == null
+                  ? const Icon(Icons.segment_outlined, size: _avatarSize)
+                  : null,
+              // onBackgroundImageError: (error, stackTrace) {},
+            )
+          : const CircleAvatar(
+              radius: _avatarSize,
+              child: Icon(Icons.broken_image),
+            );
     }
   }
 
@@ -43,6 +59,7 @@ class SectionIcon extends StatelessWidget {
               color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600)),
     );
   }
+
   Widget _sectionIconOffline(String photo) {
     final FoFiRepository fofirepo = FoFiRepository();
     File fileImage = fofirepo.getLocalFileHe(photo);
