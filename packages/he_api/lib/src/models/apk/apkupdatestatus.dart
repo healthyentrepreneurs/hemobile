@@ -10,9 +10,11 @@ class Apkupdatestatus extends Equatable {
   const Apkupdatestatus({
     required this.seen,
     required this.updated,
+    this.heversion,
   });
   final bool seen;
   final bool updated;
+  final String? heversion;
 
   factory Apkupdatestatus.fromJson(Map<String, dynamic> json) =>
       _$ApkupdatestatusFromJson(json);
@@ -28,5 +30,5 @@ class Apkupdatestatus extends Equatable {
       u == null ? null : jsonEncode(u);
 
   @override
-  List<Object?> get props => [seen, updated];
+  List<Object?> get props => [seen, updated, heversion];
 }
