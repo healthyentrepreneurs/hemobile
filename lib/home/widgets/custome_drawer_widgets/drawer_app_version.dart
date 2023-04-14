@@ -8,7 +8,7 @@ class DrawerAppVersionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final logRepository = getIt<LogRepository>();
+    final logRepository = getIt<ApkRepository>();
     return FutureBuilder(
       future: logRepository.getAppApk(),
       builder: (BuildContext context, AsyncSnapshot<PackageInfo?> snapshot) {

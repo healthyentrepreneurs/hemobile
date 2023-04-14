@@ -78,7 +78,7 @@ class _SurveyPageBrowserState extends State<SurveyPageBrowser> {
     } else if (state.gsurveyjson == null) {
       subWidget = const StateLoadingHe().noDataFound('This Survey Is Empty');
     } else {
-      subWidget = const SurveyWebViewWidget();
+      subWidget = SurveyWebViewWidget(_course.id.toString());
     }
 
     return [

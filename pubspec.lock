@@ -582,6 +582,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.0"
+  flutter_cache_manager_firebase:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: main
+      resolved-ref: "2faf2d85ea476012dcf85e451a1c467002646f77"
+      url: "https://github.com/njovujsh/flutter_cache_manager_firebase.git"
+    source: git
+    version: "2.0.1"
   flutter_inappwebview:
     dependency: "direct main"
     description:
@@ -1863,5 +1872,5 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=2.18.6 <4.0.0"
+  dart: ">=2.18.6 <3.0.0"
   flutter: ">=3.3.7"

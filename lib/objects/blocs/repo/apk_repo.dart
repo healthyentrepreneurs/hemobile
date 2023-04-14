@@ -5,29 +5,14 @@ import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-import 'impl/ilog_repo.dart';
+import 'impl/iapk_repo.dart';
 import 'impl/repo_failure.dart';
 
-@LazySingleton(as: ILogRepository)
-class LogRepository implements ILogRepository {
+@LazySingleton(as: IApkRepository)
+class ApkRepository implements IApkRepository {
   final FirebaseFirestore _firestore;
 
-  LogRepository(this._firestore);
-
-  // @override
-  // Stream<Either<Failure, QuerySnapshot>> getApks() {
-  //   try {
-  //     return _firestore.collection('apks').snapshots().map((event) {
-  //       if (event.docs.isEmpty) {
-  //         return Left(RepositoryFailure('No Apk found'));
-  //       }
-  //       return Right(event);
-  //     });
-  //   } on Exception catch (e) {
-  //     return Stream.value(Left(RepositoryFailure(e.toString())));
-  //   }
-  // }
-
+  ApkRepository(this._firestore);
   @override
   Stream<Either<Failure, DocumentSnapshot>> getLatestApk() {
     try {

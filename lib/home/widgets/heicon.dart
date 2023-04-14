@@ -11,6 +11,7 @@ import '../../objects/blocs/blocs.dart';
 const _iconSize = 29.0;
 
 bool isValidUrl(String? url) {
+  debugPrint("URLSWHICHCC $url");
   if (url == null) return false;
   Uri? uri;
   try {

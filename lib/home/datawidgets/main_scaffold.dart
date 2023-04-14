@@ -10,7 +10,7 @@ class MainScaffold extends StatelessWidget {
   const MainScaffold({Key? key, required this.subwidget}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final user = context.select((AuthenticationBloc bloc) => bloc.state.user)!;
+    final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
     return Scaffold(
       backgroundColor: ToolUtils.whiteColor,
       appBar: AppBar(

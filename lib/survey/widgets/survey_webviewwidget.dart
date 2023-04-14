@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
 import 'package:he/survey/bloc/survey_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SurveyWebViewWidget extends StatefulWidget {
-  const SurveyWebViewWidget({Key? key}) : super(key: key);
+  final String surveyid;
+  const SurveyWebViewWidget(this.surveyid, {Key? key}) : super(key: key);
 
   @override
   _SurveyWebViewWidgetState createState() => _SurveyWebViewWidgetState();
@@ -18,6 +20,8 @@ class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
+    final surveyBloc = BlocProvider.of<SurveyBloc>(context);
     return SafeArea(
       child: Column(
         children: <Widget>[
@@ -49,7 +53,13 @@ class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
                         if (!mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text("posting data..")));
-                        debugPrint("SendingSurveyData ${args[0]}");
+                        String surveyId = widget.surveyid;
+                        String surveyJson = args[0];
+                        surveyBloc.add(SurveySave(surveyId, '1', surveyJson,
+                            user.id.toString(), user.email!, user.country!));
+                        // User user,String surveyId,String surveyVersion
+                        debugPrint(
+                            "SendingSurveyData  STARTAVA \n ${args[0]} \n");
                       });
                 },
                 onLoadStart:
@@ -103,9 +113,7 @@ class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
                     this.url = url.toString();
                   });
                 },
-                onConsoleMessage: (controller, consoleMessage) {
-                  // print(consoleMessage);
-                },
+                onConsoleMessage: (controller, consoleMessage) {},
               ),
             ),
           ),
@@ -129,7 +137,6 @@ class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
   window.changeSurveyData($jsonTxt)
   ''';
     webView.evaluateJavascript(source: _js);
-    //webView.evaluateJavascript(source: "window.changeSurveyData($jsonTxt)");
   }
 
   Future<void> _makePhoneCall(String phoneNumber) async {

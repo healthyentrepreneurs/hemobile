@@ -44,6 +44,7 @@ class DataCodeApiClient {
       //     'password': password}),);
       return DataCode.fromJson(logRes.data as Map<String, dynamic>);
     } on DioError catch (ex) {
+      print('NGROCK ${ex.error.toString()}');
       if (ex.type == DioErrorType.connectTimeout) {
         token.cancel('Connection timeout');
         return DataCode.fromJson(<String, dynamic>{

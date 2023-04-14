@@ -14,10 +14,10 @@ import 'package:get_it/get_it.dart' as _i1;
 import 'package:he/home/appupdate/apkdownload/bloc/appudate_bloc.dart' as _i5;
 import 'package:he/home/appupdate/apkseen/bloc/apkseen_bloc.dart' as _i3;
 import 'package:he/objects/blocs/apkupdate/bloc/apk_bloc.dart' as _i18;
-import 'package:he/objects/blocs/repo/apk_repo.dart' as _i14;
-import 'package:he/objects/blocs/repo/database_repo.dart' as _i12;
-import 'package:he/objects/blocs/repo/impl/idatabase_repo.dart' as _i11;
-import 'package:he/objects/blocs/repo/impl/ilog_repo.dart' as _i13;
+import 'package:he/objects/blocs/repo/apk_repo.dart' as _i12;
+import 'package:he/objects/blocs/repo/database_repo.dart' as _i14;
+import 'package:he/objects/blocs/repo/impl/iapk_repo.dart' as _i11;
+import 'package:he/objects/blocs/repo/impl/idatabase_repo.dart' as _i13;
 import 'package:he/service/app_module.dart' as _i19;
 import 'package:he/service/firebase_service.dart' as _i9;
 import 'package:he/service/permit_fofi_service.dart' as _i15;
@@ -51,10 +51,10 @@ extension GetItInjectableX on _i1.GetIt {
       preResolve: true,
     );
     gh.lazySingleton<_i10.FirebaseStorage>(() => appModule.storage);
-    gh.lazySingleton<_i11.IDatabaseRepository>(
-        () => _i12.DatabaseRepository(gh<_i8.FirebaseFirestore>()));
-    gh.lazySingleton<_i13.ILogRepository>(
-        () => _i14.LogRepository(gh<_i8.FirebaseFirestore>()));
+    gh.lazySingleton<_i11.IApkRepository>(
+        () => _i12.ApkRepository(gh<_i8.FirebaseFirestore>()));
+    gh.lazySingleton<_i13.IDatabaseRepository>(
+        () => _i14.DatabaseRepository(gh<_i8.FirebaseFirestore>()));
     await gh.factoryAsync<_i15.PermitFoFiService>(
       () => appModule.getfolderfileService,
       preResolve: true,
@@ -67,7 +67,7 @@ extension GetItInjectableX on _i1.GetIt {
     );
     gh.lazySingleton<String>(() => appModule.getexternaldownlodpath);
     gh.factory<_i18.ApkBloc>(
-        () => _i18.ApkBloc(repository: gh<_i13.ILogRepository>()));
+        () => _i18.ApkBloc(repository: gh<_i11.IApkRepository>()));
     return this;
   }
 }

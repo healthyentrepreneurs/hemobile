@@ -25,7 +25,7 @@ class App extends StatelessWidget {
         super(key: key);
   final HeAuthRepository _heAuthRepository = getIt<HeAuthRepository>();
   final ThemeLocaleIntRepository _themeLocaleIntRepository;
-  final LogRepository _logRepository = getIt<LogRepository>();
+  final ApkRepository _logRepository = getIt<ApkRepository>();
   final ApkupdateRepository _gsApkUpdateApi = getIt<ApkupdateRepository>();
   final DatabaseRepository _databaseRepository = getIt<DatabaseRepository>();
 
@@ -39,7 +39,7 @@ class App extends StatelessWidget {
         RepositoryProvider<HeAuthRepository>(
           create: (context) => _heAuthRepository,
         ),
-        RepositoryProvider<LogRepository>(
+        RepositoryProvider<ApkRepository>(
           create: (context) => _logRepository,
         ),
         RepositoryProvider<ApkupdateRepository>(

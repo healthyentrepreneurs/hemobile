@@ -19,11 +19,11 @@ class DatabaseRepository implements IDatabaseRepository {
 
   DatabaseService _service() => DatabaseService(firestore: _firestore);
   final DatabaseServiceLocal _serviceLocal = DatabaseServiceLocal();
-  @override
-  Future<Either<Failure, List<Subscription?>>> retrieveSubscriptionData() {
-// return _serviceLocal.retrieveSubscriptionDataLocal();
-    return _service().retrieveSubscriptionData(3);
-  }
+
+  // @override
+  // Future<Either<Failure, List<Subscription?>>> retrieveSubscriptionData() {
+  //   return _service().retrieveSubscriptionData(3);
+  // }
 
   // create a final variable that calls a function from the service
 
@@ -107,7 +107,25 @@ class DatabaseRepository implements IDatabaseRepository {
       debugPrint(
           'DatabaseRepository@retrieveBookChapterLocal Nodata $checkValue');
       return _serviceLocal.retrieveBookChapterLocal(
-          courseId, section, int.parse(bookcontextid),bookIndex);
+          courseId, section, int.parse(bookcontextid), bookIndex);
     }
+  }
+
+  @override
+  Future<Either<Failure, void>> saveSurveys({
+    required String surveyId,
+    required String country,
+    required String email,
+    required String userId,
+    required String surveyJson,
+    required String surveyVersion,
+  }) {
+    return _service().saveSurveys(
+        surveyId: surveyId,
+        surveyVersion: surveyVersion,
+        surveyJson: surveyJson,
+        country: country,
+        email: email,
+        userId: userId);
   }
 }
