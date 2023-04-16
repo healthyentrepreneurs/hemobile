@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:he/objects/blocs/repo/service/service.dart';
+import 'package:he/service/objectbox_service.dart';
 import 'package:he_api/he_api.dart';
 import 'package:injectable/injectable.dart';
 import 'package:rxdart/rxdart.dart';
@@ -13,25 +14,16 @@ import 'impl/repo_failure.dart';
 @LazySingleton(as: IDatabaseRepository)
 class DatabaseRepository implements IDatabaseRepository {
   final FirebaseFirestore _firestore;
-  DatabaseRepository(this._firestore);
+  final ObjectBoxService _objectbox;
+  DatabaseRepository(this._firestore, this._objectbox);
   final BehaviorSubject<HenetworkStatus> _henetworkStatusSubject =
       BehaviorSubject<HenetworkStatus>.seeded(HenetworkStatus.loading);
 
   DatabaseService _service() => DatabaseService(firestore: _firestore);
   final DatabaseServiceLocal _serviceLocal = DatabaseServiceLocal();
 
-  // @override
-  // Future<Either<Failure, List<Subscription?>>> retrieveSubscriptionData() {
-  //   return _service().retrieveSubscriptionData(3);
-  // }
-
-  // create a final variable that calls a function from the service
-
-  @override
-  Future<void> saveUserData(Subscription user) {
-// return service.addUserData(user);
-    throw UnimplementedError();
-  }
+  DatabaseBoxOperations _boxOperations() =>
+      DatabaseBoxOperations(store: _objectbox.store);
 
   @override
   Stream<Either<Failure, List<Subscription?>>> retrieveSubscriptionDataStream(
@@ -112,20 +104,47 @@ class DatabaseRepository implements IDatabaseRepository {
   }
 
   @override
-  Future<Either<Failure, void>> saveSurveys({
+  Future<Either<Failure, int>> saveSurveys({
     required String surveyId,
     required String country,
-    required String email,
     required String userId,
+    required String courseId,
     required String surveyJson,
     required String surveyVersion,
+    required bool isPending,
   }) {
-    return _service().saveSurveys(
+    // return _service().saveSurveys(
+    //     surveyId: surveyId,
+    //     surveyVersion: surveyVersion,
+    //     surveyJson: surveyJson,
+    //     country: country,
+    //     email: email,
+    //     userId: userId);
+    debugPrint('DatabaseRepository@saveSurveys Nodata');
+    return _boxOperations().saveSurveyData(
         surveyId: surveyId,
-        surveyVersion: surveyVersion,
-        surveyJson: surveyJson,
         country: country,
-        email: email,
-        userId: userId);
+        userId: userId,
+        surveyJson: surveyJson,
+        isPending: isPending,
+        courseId: courseId,
+        surveyVersion: surveyVersion,
+        surveyObject: surveyJson);
+  }
+
+  @override
+  Future<Either<Failure, int>> saveBookData(
+      {required String bookId,
+      required String chapterId,
+      required String courseId,
+      required String userId,
+      required bool isPending}) {
+    debugPrint('DatabaseRepository@saveBookData Nodata');
+    return _boxOperations().saveBookData(
+        bookId: bookId,
+        chapterId: chapterId,
+        courseId: courseId,
+        userId: userId,
+        isPending: isPending);
   }
 }

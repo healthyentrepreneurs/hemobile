@@ -4,7 +4,6 @@ const emptySectionList = <Section>[];
 const emptybookQuizList = <BookQuiz>[];
 const emptybookChapterList = <BookContent>[];
 
-// @immutable
 class SectionState extends Equatable {
   const SectionState._(
       {List<Section?>? listofSections,
@@ -13,7 +12,8 @@ class SectionState extends Equatable {
       List<BookContent>? listBookChapters,
       this.section,
       this.bookquiz,
-      this.error})
+      this.error,
+      this.bookSavedId})
       : _listofSections = listofSections ?? emptySectionList,
         _listBookQuiz = listBookQuiz ?? emptybookQuizList,
         _listBookChapters = listBookChapters ?? emptybookChapterList,
@@ -26,13 +26,14 @@ class SectionState extends Equatable {
   final Failure? error;
   final Section? section;
   final BookQuiz? bookquiz;
+  final int? bookSavedId;
 
   const SectionState.loading(
       {List<Section?>? listofSections, HenetworkStatus? henetworkStatus})
       : this._(
             listofSections: listofSections ?? emptySectionList,
             henetworkStatus: henetworkStatus);
-  // create initial state constructor
+
   const SectionState.withError({HenetworkStatus? henetworkStatus})
       : this._(
           listofSections: emptySectionList,
@@ -49,7 +50,8 @@ class SectionState extends Equatable {
       List<BookContent>? listBookChapters,
       Section? section,
       BookQuiz? bookquiz,
-      Failure? error}) {
+      Failure? error,
+      int? bookSavedId}) {
     return SectionState._(
         listofSections: listofSections ?? _listofSections,
         listBookQuiz: listBookQuiz ?? _listBookQuiz,
@@ -57,7 +59,8 @@ class SectionState extends Equatable {
         henetworkStatus: henetworkStatus ?? _henetworkStatus,
         section: section ?? this.section,
         bookquiz: bookquiz ?? this.bookquiz,
-        error: error ?? this.error);
+        error: error ?? this.error,
+        bookSavedId: bookSavedId ?? this.bookSavedId);
   }
 
   List<Section?> get glistofSections => _listofSections;
@@ -76,6 +79,7 @@ class SectionState extends Equatable {
         glistBookChapters,
         section,
         bookquiz,
-        error
+        error,
+        bookSavedId
       ];
 }

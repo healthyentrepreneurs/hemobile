@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:he_storage/he_storage.dart';
 
+
 class RxStgApkUpdateApi extends ApkUpdateApi {
   RxStgApkUpdateApi({
     required RxSharedPreferences rxPrefs,

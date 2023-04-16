@@ -1,3 +1,4 @@
+// Package imports
 import 'package:auth_repo/auth_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -5,9 +6,10 @@ import 'package:he/injection.config.dart';
 import 'package:he_storage/he_storage.dart';
 import 'package:injectable/injectable.dart';
 
+// Relative imports
 import 'objects/objects.dart';
 import 'service/appmodule_imp.dart';
-import 'service/auth_state_handler.dart';
+import 'service/objectbox_service.dart';
 
 final getIt = GetIt.instance;
 @InjectableInit(preferRelativeImports: false)
@@ -16,8 +18,9 @@ Future<void> configureDependencies() async => getIt.init();
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
 @injectableInit
-void configureInjections(GetIt getIt) {
+Future<void> configureInjections(GetIt getIt) async {
   final injectableModule = AppModuleImp();
+  ObjectBoxService objectbox = await injectableModule.objectBoxService;
   getIt.registerLazySingleton<ApkupdateRepository>(() => ApkupdateRepository(
           apkupdateApi: RxStgApkUpdateApi(
         rxPrefs: injectableModule.getrxsharedprefrence,
@@ -31,5 +34,5 @@ void configureInjections(GetIt getIt) {
       () => ApkRepository(injectableModule.firestore));
 
   getIt.registerLazySingleton<DatabaseRepository>(
-      () => DatabaseRepository(injectableModule.firestore));
+      () => DatabaseRepository(injectableModule.firestore, objectbox));
 }

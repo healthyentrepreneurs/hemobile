@@ -42,25 +42,33 @@ class SurveyBloc extends Bloc<SurveyEvent, SurveyState> {
     emit(const SurveyState.loading());
   }
 
-  FutureOr<void> _onSurveySave(
+  FutureOr<int> _onSurveySave(
       SurveySave event, Emitter<SurveyState> emit) async {
-    Either<Failure, void> result = await _databaseRepository.saveSurveys(
+    emit(state.copyWith(henetworkStatus: HenetworkStatus.loading));
+
+    final result = await _databaseRepository.saveSurveys(
       surveyId: event.surveyId,
       surveyVersion: event.surveyVersion,
       surveyJson: event.surveyJson,
       country: event.country,
-      email: event.userEmail,
       userId: event.userId,
+      courseId: event.courseId,
+      isPending: event.isPending,
     );
-    // Emit a success or error state based on the result
-    result.fold(
+
+    return result.fold(
       (failure) {
-        // Emit an error state with the failure message
-        emit(state.copyWith(error: failure));
+        emit(state.copyWith(
+          error: failure,
+        ));
+        return 0;
       },
-      (success) {
-        // Emit a success state
-        emit(const SurveyState.loading());
+      (successId) {
+        emit(state.copyWith(
+          surveySavedId:
+              event.surveyId, // Set surveySavedId to the saved survey's ID
+        ));
+        return successId;
       },
     );
   }

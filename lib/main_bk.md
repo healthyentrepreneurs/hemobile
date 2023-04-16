@@ -1,9 +1,9 @@
-import 'dart:io';
-
+import 'package:auth_repo/auth_repo.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:he/service/appmodule_imp.dart';
+import 'package:he/service/auth_state_handler.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:theme_locale_repo/theme_locale_repo.dart';
@@ -18,11 +18,15 @@ Future<void> main() async {
         : await getTemporaryDirectory(),
   );
   Bloc.observer = AppBlocObserver();
-  if (Platform.isAndroid) {
-    await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
-  }
+  // if (Platform.isAndroid) {
+  //   await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
+  // }
   await configureDependencies();
-  await configureInjections(getIt);
+  // userEmulator(true);
+  // final getIt = GetIt.instance;
+  configureInjections(getIt);
+  // final authStateHandler = AuthStateHandler(AppModuleImp().firebaseAuth);
+  // authStateHandler.reloadCurrentUser();
   final themeLocaleIntRepository = ThemeLocaleIntRepository();
   runApp(App(
     themeLocaleIntRepository: themeLocaleIntRepository,

@@ -1,0 +1,152 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:2071636335355863104",
+      "lastPropertyId": "3:6067054065389561822",
+      "name": "Person",
+      "properties": [
+        {
+          "id": "1:7912838633354487885",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2825036329518407215",
+          "name": "firstName",
+          "type": 9
+        },
+        {
+          "id": "3:6067054065389561822",
+          "name": "lastName",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:7772579751685119461",
+      "lastPropertyId": "17:4118266120150617881",
+      "name": "BookDataModel",
+      "properties": [
+        {
+          "id": "1:3041597845509711421",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "6:4288370363377639437",
+          "name": "dateCreated",
+          "type": 10
+        },
+        {
+          "id": "13:7133055382668836002",
+          "name": "bookId",
+          "type": 9
+        },
+        {
+          "id": "14:4150634628188313621",
+          "name": "chapterId",
+          "type": 9
+        },
+        {
+          "id": "15:2399204327402986655",
+          "name": "courseId",
+          "type": 9
+        },
+        {
+          "id": "16:8757559800612512697",
+          "name": "userId",
+          "type": 9
+        },
+        {
+          "id": "17:4118266120150617881",
+          "name": "isPending",
+          "type": 1
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "3:6370256248254230843",
+      "lastPropertyId": "10:2898308432972428142",
+      "name": "SurveyDataModel",
+      "properties": [
+        {
+          "id": "1:3058059922741717765",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7600970345639467834",
+          "name": "userId",
+          "type": 9
+        },
+        {
+          "id": "3:7928309474093144180",
+          "name": "surveyVersion",
+          "type": 9
+        },
+        {
+          "id": "5:3115821303939967234",
+          "name": "surveyObject",
+          "type": 9
+        },
+        {
+          "id": "6:4154385520681653703",
+          "name": "surveyId",
+          "type": 9
+        },
+        {
+          "id": "7:8396546481426844969",
+          "name": "isPending",
+          "type": 1
+        },
+        {
+          "id": "8:6784651200416004550",
+          "name": "dateCreated",
+          "type": 10
+        },
+        {
+          "id": "9:8717965251596105438",
+          "name": "courseId",
+          "type": 9
+        },
+        {
+          "id": "10:2898308432972428142",
+          "name": "country",
+          "type": 9
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "3:6370256248254230843",
+  "lastIndexId": "0:0",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [
+    6244833043311434511,
+    5236793113595802384,
+    8666901483370918104,
+    4981518854943199165,
+    7571764420256365849,
+    1719227692694861312,
+    8483640618417668259,
+    1687884775944145274,
+    4224238223130849637,
+    5881855584240955687,
+    8838630008822000510
+  ],
+  "retiredRelationUids": [],
+  "version": 1
+}

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
+import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he/survey/bloc/survey_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -21,6 +22,8 @@ class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
   @override
   Widget build(BuildContext context) {
     final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
+    var courseId = context
+        .select((DatabaseBloc bloc) => bloc.state.gselectedsubscription!.id);
     final surveyBloc = BlocProvider.of<SurveyBloc>(context);
     return SafeArea(
       child: Column(
@@ -55,11 +58,17 @@ class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
                             const SnackBar(content: Text("posting data..")));
                         String surveyId = widget.surveyid;
                         String surveyJson = args[0];
-                        surveyBloc.add(SurveySave(surveyId, '1', surveyJson,
-                            user.id.toString(), user.email!, user.country!));
+                        surveyBloc.add(SurveySave(
+                            surveyId,
+                            '1',
+                            surveyJson,
+                            user.id.toString(),
+                            user.country!,
+                            courseId.toString(),
+                            true));
                         // User user,String surveyId,String surveyVersion
                         debugPrint(
-                            "SendingSurveyData  STARTAVA \n ${args[0]} \n");
+                            "SendingSurveyData  STARTAVA \n ${args[0]} \n SurveyID ${surveyBloc.state.surveySavedId}");
                       });
                 },
                 onLoadStart:

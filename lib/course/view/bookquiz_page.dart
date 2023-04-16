@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
 import 'package:he/course/course.dart';
 import 'package:he/course/section/bloc/section_bloc.dart';
 import 'package:he/coursedetail/view/book_chapters.dart';
@@ -71,6 +72,8 @@ class BookQuizPage extends StatelessWidget {
         },
         builder: (context, state) {
           final sectionBloc = BlocProvider.of<SectionBloc>(context);
+          final userId =
+              context.select((AuthenticationBloc bloc) => bloc.state.user).id;
           List<BookQuiz?> _listBookQuiz = state.glistBookQuiz;
           return GridView.builder(
               shrinkWrap: true,
@@ -93,6 +96,7 @@ class BookQuizPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         BookChapters.route(
+                          userId:userId.toString(),
                           book: _bookquiz,
                           courseId: _courseid,
                         ),

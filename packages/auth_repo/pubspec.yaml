@@ -21,7 +21,6 @@ dependencies:
   he_storage:
     path: ../he_storage
   meta: ^1.7.0
-  objectbox: ^1.7.0
   rxdart: ^0.27.7
 
 dev_dependencies:

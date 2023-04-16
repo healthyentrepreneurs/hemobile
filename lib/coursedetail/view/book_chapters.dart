@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:he/objects/objectcontentstructure.dart';
 import 'package:he_api/he_api.dart';
 
 import '../../course/section/bloc/section_bloc.dart';
@@ -12,11 +11,17 @@ import 'chapter_page.dart';
 class BookChapters extends StatefulWidget {
   final BookQuiz? book;
   final String courseId;
-  const BookChapters({Key? key, this.book, required this.courseId})
+  final String userId;
+  const BookChapters(
+      {Key? key, this.book, required this.courseId, required this.userId})
       : super(key: key);
-  static Route<void> route({required BookQuiz book, required String courseId}) {
+  static Route<void> route(
+      {required BookQuiz book,
+      required String courseId,
+      required String userId}) {
     return MaterialPageRoute<void>(
       builder: (_) => BookChapters(
+        userId: userId,
         book: book,
         courseId: courseId,
       ),
@@ -29,9 +34,19 @@ class BookChapters extends StatefulWidget {
 
 class _BookChapState extends State<BookChapters> {
   int _currentPage = 0;
+  late SectionBloc _sectionBloc;
+  late List<ContentStructure> _coursePagerList;
+  bool _firstPagePrinted = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     BookQuiz book = widget.book!;
+    _sectionBloc = BlocProvider.of<SectionBloc>(context);
     return Scaffold(
       appBar: HeAppBar(
         course: book.name,
@@ -65,8 +80,9 @@ class _BookChapState extends State<BookChapters> {
         // final sectionBloc = BlocProvider.of<SectionBloc>(context);
         if (state.glistBookChapters.isNotEmpty) {
           List<BookContent> _bookContent = state.glistBookChapters;
-          var _coursePagerList =
-              createCoursePagerFromStructure(_bookContent.first.content!);
+          initializeCoursePagerList(_bookContent);
+          // _coursePagerList =
+          //     createCoursePagerFromStructure(_bookContent.first.content!);
           return Stack(
             children: [
               Container(
@@ -80,12 +96,14 @@ class _BookChapState extends State<BookChapters> {
                       courseId: widget.courseId,
                       coursePage: _coursePagerList[index],
                       courseContents: _bookContent,
+                      courseModule: widget.book,
                     );
                   },
                   onPageChanged: (i) {
                     setState(() {
                       _currentPage = i;
                     });
+                    saveChapterDetails(i);
                   },
                 ),
               ),
@@ -107,14 +125,36 @@ class _BookChapState extends State<BookChapters> {
     );
   }
 
+  void saveChapterDetails(int i) {
+    var courseId = widget.courseId;
+    var chapterId = _coursePagerList[i].chapterId;
+    var isPending = true;
+    var bookId = widget.book!.instance;
+    var userId = widget.userId;
+    debugPrint(
+        'Adding Chapter .. Mama $courseId $chapterId $isPending $bookId $userId $i \n');
+    _sectionBloc
+        .add(AddBookView(bookId.toString(), chapterId, courseId, userId, true));
+    debugPrint('What\'sID ${_sectionBloc.state.bookSavedId} \n');
+  }
+
+  void initializeCoursePagerList(List<BookContent> bookContent) {
+    _coursePagerList =
+        createCoursePagerFromStructure(bookContent.first.content!);
+    if (!_firstPagePrinted) {
+      _firstPagePrinted = true;
+      saveChapterDetails(0);
+    }
+  }
+
   //Create the Skill Card
-  List<ObjectContentStructure> createCoursePagerFromStructure(String content) {
+  List<ContentStructure> createCoursePagerFromStructure(String content) {
     try {
       var courseJsonList = jsonDecode(content) as List;
-      List<ObjectContentStructure> contentArrayField = [];
+      List<ContentStructure> contentArrayField = [];
       for (var i = 0; i < courseJsonList.length; i++) {
         var c = courseJsonList[i];
-        contentArrayField.add(ObjectContentStructure.fromJson(c));
+        contentArrayField.add(ContentStructure.fromJson(c));
       }
       // printOnlyDebug(
       //     "Check ${contentArrayField.first.chapterId} and ${contentArrayField.first.href}");

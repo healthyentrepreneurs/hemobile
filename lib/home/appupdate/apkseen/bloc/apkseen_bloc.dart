@@ -9,7 +9,7 @@ import 'package:injectable/injectable.dart';
 part 'apkseen_event.dart';
 part 'apkseen_state.dart';
 
-@injectable
+// @injectable
 class ApkseenBloc extends HydratedBloc<ApkseenEvent, ApkseenState> {
   final ApkupdateRepository _repository;
   ApkseenBloc({required ApkupdateRepository repository})

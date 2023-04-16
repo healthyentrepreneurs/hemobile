@@ -1,6 +1,7 @@
 import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
 import 'package:he/course/section/bloc/section_bloc.dart';
 import 'package:he/coursedetail/view/book_chapters.dart';
 import 'package:he/injection.dart';
@@ -13,7 +14,7 @@ import 'network_status_listener.dart';
 import 'section_page.dart';
 
 List<Page<dynamic>> onGenerateSectionPages(
-    SectionState state, BuildContext context) {
+    SectionState state, BuildContext context, String userId) {
   final databaseBloc = BlocProvider.of<DatabaseBloc>(context);
   final course =
       databaseBloc.state.gselectedsubscription ?? const Subscription();
@@ -38,6 +39,7 @@ List<Page<dynamic>> onGenerateSectionPages(
         child: NetworkStatusListener(
           onStateChange: handleStateChange,
           child: BookChapters(
+            userId: userId,
             book: state.bookquiz,
             courseId: course.id.toString(),
           ),
@@ -112,12 +114,16 @@ class _SectionsFlowState extends State<SectionsFlow> {
 
   @override
   Widget build(BuildContext context) {
+    final userId = context
+        .select((AuthenticationBloc bloc) => bloc.state.user)
+        .id
+        .toString();
     return FlowBuilder<SectionState>(
       state: _sectionBloc.state,
       onGeneratePages: (SectionState state, List<Page<dynamic>> pages) {
         // final course = _databaseBloc.state.gselectedsubscription!;
         // course
-        return onGenerateSectionPages(state, context);
+        return onGenerateSectionPages(state, context, userId);
       },
     );
   }

@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
 import 'package:he_api/he_api.dart';
 
-// import '../../../objectbookquiz.dart';
-
 class DatabaseService {
-  // late final FirebaseFirestore _db;
   final FirebaseFirestore _firestore;
 
   DatabaseService({
@@ -32,7 +29,7 @@ class DatabaseService {
     try {
       var documentReferenceUser = _firestore
           .collection("userdata")
-          .doc('3')
+          .doc(user_id.toString())
           .withConverter<User>(
               fromFirestore: (snapshot, _) => User.fromJson(snapshot.data()!),
               toFirestore: (user, _) => user.toJson());

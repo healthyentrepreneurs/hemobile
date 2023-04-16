@@ -54,9 +54,20 @@ class BookChapterDeSelected extends SectionEvent {
 
 class SectionFetchedError extends SectionEvent {
   final HenetworkStatus? henetworkStatus;
-  // final List<Section?>? listofSections;
-  // final Failure? error;
   const SectionFetchedError(this.henetworkStatus);
   @override
   List<Object?> get props => [henetworkStatus];
+}
+
+//Adding BookView
+class AddBookView extends SectionEvent {
+  final String bookId;
+  final String chapterId;
+  final String courseId;
+  final String userId;
+  final bool isPending;
+  const AddBookView(
+      this.bookId, this.chapterId, this.courseId, this.userId, this.isPending);
+  @override
+  List<Object?> get props => [bookId, chapterId, courseId, userId, isPending];
 }

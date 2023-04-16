@@ -337,6 +337,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
+  cryptography:
+    dependency: transitive
+    description:
+      name: cryptography
+      sha256: df156c5109286340817d21fa7b62f9140f17915077127dd70f8bd7a2a0997a35
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.5.0"
   csslib:
     dependency: transitive
     description:
@@ -1060,13 +1068,29 @@ packages:
     source: hosted
     version: "2.0.1"
   objectbox:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: objectbox
-      sha256: c18d41f4e81e5a30fc0e2200e9e8306f5ccc8a9b61fe3746426359690c33dc7b
+      sha256: a8a3052e430a1e6f91496dc4ffe7c2accab12d24ddfd09412f19541e9f2fe124
       url: "https://pub.dev"
     source: hosted
-    version: "1.7.2"
+    version: "2.0.0"
+  objectbox_flutter_libs:
+    dependency: "direct main"
+    description:
+      name: objectbox_flutter_libs
+      sha256: "03801ed3b35d73dacef612880f0a84ed0cce6b3b2efee2c93d47356584e8c942"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
+  objectbox_generator:
+    dependency: "direct dev"
+    description:
+      name: objectbox_generator
+      sha256: "078796e874f33520df8ae7690f334fdcd3cd1d3cfe7aa2887e8ecf9182343c68"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   octo_image:
     dependency: transitive
     description:

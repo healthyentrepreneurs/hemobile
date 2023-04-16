@@ -15,30 +15,32 @@ import 'package:he_api/he_api.dart';
 import '../../helper/file_system_util.dart';
 import '../../objects/blocs/repo/fofiperm_repo.dart';
 
-class ChapterDisplay extends StatelessWidget {
+class ChapterDisplay extends StatefulWidget {
   final BookQuiz? courseModule;
   final ContentStructure? coursePage;
   final List<BookContent>? courseContents;
   final String courseId;
 
-  const ChapterDisplay({
-    Key? key,
-    required this.courseId,
-    this.coursePage,
-    this.courseContents,
-    this.courseModule,
-  }) : super(key: key);
-
-  // ... (Include the rest of the methods in this class)
+  const ChapterDisplay(
+      {Key? key,
+      required this.courseId,
+      this.coursePage,
+      this.courseContents,
+      this.courseModule})
+      : super(key: key);
 
   @override
+  _ChapterDisplayState createState() => _ChapterDisplayState();
+}
+
+class _ChapterDisplayState extends State<ChapterDisplay> {
+  @override
   Widget build(BuildContext context) {
-    // debugPrint('Adding Chapter .. Joshua');
     // final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
     final heNetworkState =
         context.select((HenetworkBloc bloc) => bloc.state.status);
-    ContentStructure _coursePage = coursePage!;
-    List<BookContent>? _courseContents = courseContents;
+    ContentStructure _coursePage = widget.coursePage!;
+    List<BookContent>? _courseContents = widget.courseContents;
     final chapterIdPath = "/${_coursePage.chapterId}/";
     final FoFiRepository fofirepo = FoFiRepository();
     String? contentText;
@@ -94,8 +96,8 @@ class ChapterDisplay extends StatelessWidget {
                     }
                     var content = findSingleFileContent(videoSourceUrl);
                     if (content != null) {
-                      return _htmlVideoCardFrom(
-                          "${content.fileurl}", courseId, heNetworkState);
+                      return _htmlVideoCardFrom("${content.fileurl}",
+                          widget.courseId, heNetworkState);
                     } else {
                       return const SizedBox(height: 1.0);
                     }
@@ -138,13 +140,35 @@ class ChapterDisplay extends StatelessWidget {
     );
   }
 
+  Widget _htmlVideoCardFrom(
+      String videoUrl, String courseId, HenetworkStatus heNetworkState) {
+    debugPrint("Online-video-display ... $videoUrl");
+    return Padding(
+      padding: const EdgeInsets.only(top: 1, bottom: 3.0),
+      child: Center(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            AspectRatio(
+              aspectRatio: 16 / 9, // Modify this ratio according to your needs
+              child: ChewieVideoView(
+                  videoUrl: videoUrl,
+                  courseId: courseId,
+                  heNetworkState: heNetworkState),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   BookContent? findSingleFileContent(String fileName) {
     printOnlyDebug("HeOfflineMedia A $fileName");
     try {
       if (fileName.contains('?')) {
         fileName = fileName.split('?').first;
       }
-      // var courseContents = courseContents;
+      var courseContents = widget.courseContents;
       var list = courseContents!
           .where((c) => c.filename.toLowerCase() == fileName.toLowerCase())
           .toList();
@@ -202,6 +226,13 @@ class ChapterDisplay extends StatelessWidget {
     }
   }
 
+  Future<String> _getImageUrlFromFirebase(String path) async {
+    final storageRef = getIt<FirebaseStorage>().ref();
+    final ref = storageRef.child(path);
+    final String imageUrl = await ref.getDownloadURL();
+    return imageUrl;
+  }
+
   Widget chapterImageOffline(String photo, FoFiRepository fofi) {
     File fileImage = fofi.getLocalFileHe(photo);
     if (!fileImage.existsSync()) {
@@ -223,32 +254,9 @@ class ChapterDisplay extends StatelessWidget {
     );
   }
 
-  Future<String> _getImageUrlFromFirebase(String path) async {
-    final storageRef = getIt<FirebaseStorage>().ref();
-    final ref = storageRef.child(path);
-    final String imageUrl = await ref.getDownloadURL();
-    return imageUrl;
-  }
-
-  Widget _htmlVideoCardFrom(
-      String videoUrl, String courseId, HenetworkStatus heNetworkState) {
-    debugPrint("Online-video-display ... $videoUrl");
-    return Padding(
-      padding: const EdgeInsets.only(top: 1, bottom: 3.0),
-      child: Center(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            AspectRatio(
-              aspectRatio: 16 / 9, // Modify this ratio according to your needs
-              child: ChewieVideoView(
-                  videoUrl: videoUrl,
-                  courseId: courseId,
-                  heNetworkState: heNetworkState),
-            ),
-          ],
-        ),
-      ),
-    );
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('Adding Chapter .. Joshua');
   }
 }

@@ -26,7 +26,7 @@ class ChewieVideoView extends StatefulWidget {
 }
 
 class _ChewieVideoViewState extends State<ChewieVideoView> {
-  late VideoPlayerController _videoPlayerController;
+  VideoPlayerController? _videoPlayerController;
   ChewieController? _chewieController;
   bool _videoExists = true;
 
@@ -38,30 +38,33 @@ class _ChewieVideoViewState extends State<ChewieVideoView> {
 
   @override
   void dispose() {
-    _videoPlayerController.dispose();
+    _videoPlayerController?.dispose();
     _chewieController?.dispose();
     super.dispose();
   }
+
   Future<void> _initializePlayer() async {
     try {
       if (widget.heNetworkState == HenetworkStatus.noInternet) {
         File fileVideo = FoFiRepository().getLocalFileHe(widget.videoUrl);
         if (await fileVideo.exists()) {
           _videoPlayerController = VideoPlayerController.file(fileVideo);
-          await _videoPlayerController.initialize();
+          await _videoPlayerController?.initialize(); // Use null-aware operator
         } else {
           _videoExists = false;
         }
       } else {
         String videoUrl = await _getVideoUrlFromFirebase('15-LU.mp4');
         _videoPlayerController = VideoPlayerController.network(videoUrl);
-        await _videoPlayerController.initialize();
+        await _videoPlayerController?.initialize(); // Use null-aware operator
       }
 
       if (_videoExists) {
         _chewieController = ChewieController(
-          videoPlayerController: _videoPlayerController,
-          aspectRatio: _videoPlayerController.value.aspectRatio,
+          videoPlayerController:
+              _videoPlayerController!, // Use null assertion operator
+          aspectRatio: _videoPlayerController!
+              .value.aspectRatio, // Use null assertion operator
           autoPlay: false,
           looping: false,
           autoInitialize: true,

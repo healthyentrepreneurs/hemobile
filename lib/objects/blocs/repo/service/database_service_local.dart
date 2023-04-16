@@ -140,4 +140,5 @@ class DatabaseServiceLocal {
           RepositoryFailure("retrieveBookChapterLocalErrors ${e.toString()}"));
     }
   }
+
 }
