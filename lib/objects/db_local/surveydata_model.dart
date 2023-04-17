@@ -24,7 +24,8 @@ class SurveyDataModel {
     required this.isPending,
     required this.courseId, // Added field
     required this.country, // Added field
-  }) : dateCreated = DateTime.now();
+  })  : assert(surveyObject.isNotEmpty, 'surveyObject must not be empty'),
+        dateCreated = DateTime.now();
 
   @override
   String toString() {
@@ -58,4 +59,3 @@ class SurveyDataModel {
     )..dateCreated = DateTime.parse(json['dateCreated']);
   }
 }
-

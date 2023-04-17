@@ -22,14 +22,14 @@ class HeProgressWidget extends StatelessWidget {
     List<Widget> widgetList = <Widget>[];
     widgetList.add(child);
     if (inAsyncCall) {
-      final modal = new Stack(
+      final modal = Stack(
         children: [
-          new Opacity(
+          Opacity(
             opacity: opacity,
             child: ModalBarrier(dismissible: false, color: color),
           ),
-          new Center(
-              child: new CircularProgressIndicator()
+          const Center(
+              child: CircularProgressIndicator()
           ),
         ],
       );

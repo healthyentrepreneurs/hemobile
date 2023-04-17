@@ -98,7 +98,7 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
     emit(SectionState.withError(henetworkStatus: event.henetworkStatus));
   }
 
-  FutureOr<int> _onAddBookView(
+  FutureOr<Either<Failure, int>> _onAddBookView(
       AddBookView event, Emitter<SectionState> emit) async {
     Either<Failure, int> resultSaveBook =
         await _databaseRepository.saveBookData(
@@ -110,12 +110,13 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
     return resultSaveBook.fold(
       (failure) {
         emit(state.copyWith(error: failure));
-        return 0; // Rethrow the failure to ensure the return type is satisfied
+        return Left(
+            failure); // Rethrow the failure to ensure the return type is satisfied
       },
       (successId) {
         // Emit a success state with the surveySavedId
         emit(state.copyWith(bookSavedId: successId));
-        return successId;
+        return Right(successId);
       },
     );
   }

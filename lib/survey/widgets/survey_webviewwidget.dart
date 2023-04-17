@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -5,6 +7,8 @@ import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he/survey/bloc/survey_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'saving_survey_widget.dart';
 
 class SurveyWebViewWidget extends StatefulWidget {
   final String surveyid;
@@ -16,15 +20,17 @@ class SurveyWebViewWidget extends StatefulWidget {
 
 class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
   late InAppWebViewController webView;
+  late SurveyBloc _surveyBloc;
   String url = "";
   bool isLoading = true;
+  bool? isSaving;
 
   @override
   Widget build(BuildContext context) {
     final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
     var courseId = context
         .select((DatabaseBloc bloc) => bloc.state.gselectedsubscription!.id);
-    final surveyBloc = BlocProvider.of<SurveyBloc>(context);
+    _surveyBloc = BlocProvider.of<SurveyBloc>(context);
     return SafeArea(
       child: Column(
         children: <Widget>[
@@ -34,95 +40,118 @@ class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
               margin: const EdgeInsets.all(10.0),
               decoration:
                   BoxDecoration(border: Border.all(color: Colors.white)),
-              child: InAppWebView(
-                initialFile: "assets/survey/index.html",
-                initialOptions: InAppWebViewGroupOptions(
-                    crossPlatform: InAppWebViewOptions(
-                        useShouldOverrideUrlLoading: true,
-                        javaScriptCanOpenWindowsAutomatically: true,
-                        javaScriptEnabled: true),
-                    android: AndroidInAppWebViewOptions(
-                      disableDefaultErrorPage: true,
-                      useHybridComposition: true,
-                      supportMultipleWindows: true,
-                      allowFileAccess: true,
-                      allowContentAccess: true,
-                    )),
-                onWebViewCreated: (InAppWebViewController controller) {
-                  webView = controller;
-                  webView.addJavaScriptHandler(
-                      handlerName: "sendResults",
-                      callback: (args) async {
-                        if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("posting data..")));
-                        String surveyId = widget.surveyid;
-                        String surveyJson = args[0];
-                        surveyBloc.add(SurveySave(
-                            surveyId,
-                            '1',
-                            surveyJson,
-                            user.id.toString(),
-                            user.country!,
-                            courseId.toString(),
-                            true));
-                        // User user,String surveyId,String surveyVersion
-                        debugPrint(
-                            "SendingSurveyData  STARTAVA \n ${args[0]} \n SurveyID ${surveyBloc.state.surveySavedId}");
+              child: Stack(
+                children: [
+                  InAppWebView(
+                    initialFile: "assets/survey/index.html",
+                    initialOptions: InAppWebViewGroupOptions(
+                        crossPlatform: InAppWebViewOptions(
+                            useShouldOverrideUrlLoading: true,
+                            javaScriptCanOpenWindowsAutomatically: true,
+                            javaScriptEnabled: true),
+                        android: AndroidInAppWebViewOptions(
+                          disableDefaultErrorPage: true,
+                          useHybridComposition: true,
+                          supportMultipleWindows: true,
+                          allowFileAccess: true,
+                          allowContentAccess: true,
+                        )),
+                    onWebViewCreated: (InAppWebViewController controller) {
+                      webView = controller;
+                      webView.addJavaScriptHandler(
+                          handlerName: "sendResults",
+                          callback: (args) async {
+                            if (!mounted) return;
+                            setState(() {
+                              isSaving = true;
+                            });
+                            String surveyId = widget.surveyid;
+                            String surveyJson = args[0];
+                            _surveyBloc.add(SurveySave(
+                                surveyId,
+                                '1',
+                                '',
+                                user.id.toString(),
+                                user.country!,
+                                courseId.toString(),
+                                true));
+                            debugPrint(
+                                "SendingSurveyData  STARTAVA \n ${args[0]} \n SurveyID");
+                          });
+                    },
+                    onLoadStart:
+                        (InAppWebViewController controller, Uri? url) async {
+                      setState(() {
+                        this.url = url.toString();
+                        isLoading = true;
                       });
-                },
-                onLoadStart:
-                    (InAppWebViewController controller, Uri? url) async {
-                  setState(() {
-                    this.url = url.toString();
-                    isLoading = true;
-                  });
-                },
-                androidOnPermissionRequest: (InAppWebViewController controller,
-                    String origin, List<String> resources) async {
-                  return PermissionRequestResponse(
-                      resources: resources,
-                      action: PermissionRequestResponseAction.GRANT);
-                },
-                shouldOverrideUrlLoading:
-                    (controller, shouldOverrideUrlLoadingRequest) async {
-                  Uri? uri = shouldOverrideUrlLoadingRequest.request.url;
-                  var url = uri.toString();
-                  if (url.startsWith("tel:")) {
-                    _makePhoneCall(url);
-                  }
-                  if (![
-                    "http",
-                    "https",
-                    "file",
-                    "chrome",
-                    "data",
-                    "javascript",
-                    "about"
-                  ].contains(uri!.scheme)) {
-                    var _url = Uri(scheme: uri!.scheme, path: url);
-                    if (await canLaunchUrl(_url)) {
-                      await launchUrl(_url);
-                      return NavigationActionPolicy.CANCEL;
-                    }
-                  }
-                  return NavigationActionPolicy.ALLOW;
-                },
-                onLoadStop:
-                    (InAppWebViewController controller, Uri? url) async {
-                  setState(() {
-                    isLoading = false;
-                    this.url = url.toString();
-                  });
-                  processJsonDataContainer();
-                },
-                onUpdateVisitedHistory: (InAppWebViewController controller,
-                    Uri? url, bool? androidIsReload) {
-                  setState(() {
-                    this.url = url.toString();
-                  });
-                },
-                onConsoleMessage: (controller, consoleMessage) {},
+                    },
+                    androidOnPermissionRequest:
+                        (InAppWebViewController controller, String origin,
+                            List<String> resources) async {
+                      return PermissionRequestResponse(
+                          resources: resources,
+                          action: PermissionRequestResponseAction.GRANT);
+                    },
+                    shouldOverrideUrlLoading:
+                        (controller, shouldOverrideUrlLoadingRequest) async {
+                      Uri? uri = shouldOverrideUrlLoadingRequest.request.url;
+                      var url = uri.toString();
+                      if (url.startsWith("tel:")) {
+                        _makePhoneCall(url);
+                      }
+                      if (![
+                        "http",
+                        "https",
+                        "file",
+                        "chrome",
+                        "data",
+                        "javascript",
+                        "about"
+                      ].contains(uri!.scheme)) {
+                        var _url = Uri(scheme: uri.scheme, path: url);
+                        if (await canLaunchUrl(_url)) {
+                          await launchUrl(_url);
+                          return NavigationActionPolicy.CANCEL;
+                        }
+                      }
+                      return NavigationActionPolicy.ALLOW;
+                    },
+                    onLoadStop:
+                        (InAppWebViewController controller, Uri? url) async {
+                      setState(() {
+                        isLoading = false;
+                        this.url = url.toString();
+                      });
+                      processJsonDataContainer();
+                    },
+                    onUpdateVisitedHistory: (InAppWebViewController controller,
+                        Uri? url, bool? androidIsReload) {
+                      setState(() {
+                        this.url = url.toString();
+                      });
+                    },
+                    onConsoleMessage: (controller, consoleMessage) {},
+                  ),
+                  isSaving != null
+                      ? Align(
+                          alignment: Alignment.bottomCenter,
+                          child: SaveSurveyWidget(
+                              scaffoldContext: context,
+                              showLoadingSnackBar: isSaving!,
+                              onSaveSuccess: () {
+                                setState(() {
+                                  isSaving = null;
+                                });
+                              },
+                              onSaveFailure: (String errorMessage) {
+                                setState(() {
+                                  isSaving = null;
+                                });
+                              }),
+                        )
+                      : const SizedBox.shrink(),
+                ],
               ),
             ),
           ),
