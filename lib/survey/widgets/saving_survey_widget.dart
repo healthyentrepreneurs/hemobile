@@ -35,7 +35,13 @@ class SaveSurveyWidget extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   backgroundColor: Colors.red,
-                  content: Text(failure.message),
+                  content: Row(
+                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Icon(Icons.error, color: Colors.white),
+                      Text("Failed To Save"),
+                    ],
+                  ),
                   duration: const Duration(days: 365),
                   action: SnackBarAction(
                     label: 'Exit',
@@ -53,18 +59,37 @@ class SaveSurveyWidget extends StatelessWidget {
               ScaffoldMessenger.of(scaffoldContext)
                   .showSnackBar(
                     SnackBar(
-                      backgroundColor: Colors.green,
+                      backgroundColor: Colors.green.shade300,
                       behavior: SnackBarBehavior.floating,
-                      margin: const EdgeInsets.all(50),
-                      content: Text("Saved survey ID: $successId",
-                          style: GoogleFonts.lato()),
+                      margin: const EdgeInsets.all(10),
+                      content: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.add, color: Colors.white),
+                                const SizedBox(
+                                    width:
+                                        8), // Add a little space between the icon and the text
+                                Text(
+                                  "survey saved",
+                                  style: GoogleFonts.lato(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                            const Icon(Icons.check_circle_outline,
+                                color: Colors.white),
+                          ],
+                        ),
+                      ),
                       duration: const Duration(seconds: 2),
                     ),
                   )
                   .closed
                   .then((_) {
                 Future.delayed(const Duration(seconds: 2), () {
-                  // Change this line
                   surveyBloc.add(
                       const SurveyReset(resetSurveySaveSuccessStream: true));
                 }).then((_) {
@@ -72,21 +97,35 @@ class SaveSurveyWidget extends StatelessWidget {
                 });
               });
             });
-            // Handle the success case
           });
         } else if (showLoadingSnackBar) {
           WidgetsBinding.instance?.addPostFrameCallback((_) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  backgroundColor: Colors.blueAccent,
-                  content: SizedBox(
-                    width: double.infinity,
-                    child: InkWell(
-                      child: Center(child: SpinKitWave(color: Colors.green)),
+              SnackBar(
+                backgroundColor: Colors.blue.shade300,
+                behavior: SnackBarBehavior.floating,
+                content: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.file_copy, color: Colors.white),
+                        const SizedBox(
+                            width:
+                                8), // Add a little space between the icon and the text
+                        Text(
+                          'saving survey',
+                          style: GoogleFonts.lato(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
-                    // width: 60,
-                    // height: 60,
-                  )),
+                    const SpinKitWave(color: Colors.green, size: 15),
+                  ],
+                ),
+              ),
             );
           });
         }

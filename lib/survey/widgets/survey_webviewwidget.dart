@@ -70,7 +70,7 @@ class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
                             _surveyBloc.add(SurveySave(
                                 surveyId,
                                 '1',
-                                '',
+                                surveyJson,
                                 user.id.toString(),
                                 user.country!,
                                 courseId.toString(),
