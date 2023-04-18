@@ -21,7 +21,6 @@ class SurveySave extends SurveyEvent {
   final String country;
   final String courseId;
   final bool isPending;
-  // final HenetworkStatus? henetworkStatus;
   const SurveySave(this.surveyId, this.surveyVersion, this.surveyJson,
       this.userId, this.country, this.courseId, this.isPending);
   @override

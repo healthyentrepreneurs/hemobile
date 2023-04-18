@@ -53,6 +53,17 @@ class MenuItemHe extends StatelessWidget {
     );
   }
 
+  Widget iconRichTextItemGreen(RichText text, IconData icon) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Icon(icon, color: Colors.green),
+        const SizedBox(width: 10),
+        Expanded(child: text),
+      ],
+    );
+  }
+
   Widget appTitle(String t) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 1.0),

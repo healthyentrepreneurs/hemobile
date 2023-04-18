@@ -9,7 +9,9 @@ class DatabaseState extends Equatable {
       HenetworkStatus? henetworkStatus,
       String? userid,
       Subscription? selectedsubscription,
-      this.error})
+      this.error,
+      this.fetchError,
+      this.surveyTotalCount})
       : _userid = userid ?? '',
         _selectedsubscription = selectedsubscription,
         _listOfSubscriptionData = listOfSubscriptionData ?? emptySub,
@@ -19,7 +21,9 @@ class DatabaseState extends Equatable {
   final String _userid;
   final HenetworkStatus _henetworkStatus;
   final Failure? error;
+  final Failure? fetchError;
   final Subscription? _selectedsubscription;
+  final int? surveyTotalCount;
 
   const DatabaseState.loading(
       {List<Subscription?>? listOfSubscriptionData,
@@ -35,14 +39,18 @@ class DatabaseState extends Equatable {
       HenetworkStatus? henetworkStatus,
       Subscription? selectedsubscription,
       String? userid,
-      Failure? error}) {
+      Failure? error,
+      Failure? fetchError,
+      int? surveyTotalCount}) {
     return DatabaseState._(
         listOfSubscriptionData:
             listOfSubscriptionData ?? _listOfSubscriptionData,
         selectedsubscription: selectedsubscription ?? _selectedsubscription,
         henetworkStatus: henetworkStatus ?? _henetworkStatus,
         userid: userid ?? _userid,
-        error: error ?? this.error);
+        error: error ?? this.error,
+        fetchError: fetchError ?? this.fetchError,
+        surveyTotalCount: surveyTotalCount ?? this.surveyTotalCount);
   }
 
   const DatabaseState.withError(
@@ -65,6 +73,8 @@ class DatabaseState extends Equatable {
         guserid,
         ghenetworkStatus,
         gselectedsubscription,
-        error
+        error,
+        fetchError,
+        surveyTotalCount
       ];
 }

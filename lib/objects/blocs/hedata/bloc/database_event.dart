@@ -41,3 +41,6 @@ class DatabaseFetchedError extends DatabaseEvent {
   List<Object?> get props => [henetworkStatus, error, clearData];
 }
 
+class DbCountSurvey extends DatabaseEvent {
+  const DbCountSurvey();
+}

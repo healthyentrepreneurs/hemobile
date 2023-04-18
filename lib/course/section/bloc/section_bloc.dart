@@ -101,7 +101,7 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
   FutureOr<Either<Failure, int>> _onAddBookView(
       AddBookView event, Emitter<SectionState> emit) async {
     Either<Failure, int> resultSaveBook =
-        await _databaseRepository.saveBookData(
+        await _databaseRepository.saveBookChapters(
             bookId: event.bookId,
             chapterId: event.chapterId,
             courseId: event.courseId,

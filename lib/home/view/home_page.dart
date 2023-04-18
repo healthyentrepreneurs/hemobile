@@ -22,17 +22,16 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
+    final _blocDatabase = BlocProvider.of<DatabaseBloc>(context);
     return BlocBuilder<HenetworkBloc, HenetworkState>(
         buildWhen: (previous, current) {
       var networkChange =
           previous.gconnectivityResult != current.gconnectivityResult ||
               previous.gstatus != current.gstatus;
       if (networkChange) {
-        BlocProvider.of<DatabaseBloc>(context)
-            .add(DatabaseFetched(user.id.toString(), current.gstatus));
+        _blocDatabase.add(DatabaseFetched(user.id.toString(), current.gstatus));
         //More less the same thing
-        BlocProvider.of<DatabaseBloc>(context)
-            .add(DatabaseLoadEvent()); // Add this line
+        _blocDatabase.add(DatabaseLoadEvent()); // Add this line
         debugPrint("NetworkState Ends @B");
       }
       return networkChange;
@@ -62,7 +61,7 @@ class HomePage extends StatelessWidget {
             if (state == const DatabaseState.loading()) {
               debugPrint("NetworkState goes @B");
               subWidget = const StateLoadingHe().loadingData();
-              BlocProvider.of<DatabaseBloc>(context).add(
+              _blocDatabase.add(
                   DatabaseFetched(user.id.toString(), _henetworkstate.status));
             } else if (state.error != null) {
               subWidget =
@@ -78,12 +77,11 @@ class HomePage extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: state.glistOfSubscriptionData.length,
                 itemBuilder: (BuildContext context, int index) {
-                  final databasebloc = BlocProvider.of<DatabaseBloc>(context);
                   var subscription = state.glistOfSubscriptionData[index]!;
                   return UserLanding(
                     subscription: subscription,
                     onTap: () {
-                      databasebloc.add(DatabaseSubSelected(subscription));
+                      _blocDatabase.add(DatabaseSubSelected(subscription));
                       if (subscription.source == 'originalm') {
                         Navigator.of(context).push(SurveyPageBrowser.route());
                       } else {

@@ -25,11 +25,12 @@ abstract class IDatabaseRepository {
     required bool isPending,
   });
 
-  Future<Either<Failure, int>> saveBookData({
+  Future<Either<Failure, int>> saveBookChapters({
     required String bookId,
     required String chapterId,
     required String courseId,
     required String userId,
     required bool isPending,
   });
+  Stream<Either<Failure, int>> totalSavedSurvey();
 }

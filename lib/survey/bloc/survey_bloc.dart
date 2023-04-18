@@ -23,37 +23,27 @@ class SurveyBloc extends Bloc<SurveyEvent, SurveyState> {
     on<SurveySave>(_onSurveySave);
   }
   final DatabaseRepository _databaseRepository;
-  // final _surveySaveSuccessSubject = BehaviorSubject<String?>.seeded(null);
-  // ValueStream<String?> get surveySaveSuccessStream =>
-  //     _surveySaveSuccessSubject.stream;
-  final _surveySaveResultSubject =
-      BehaviorSubject<Either<Failure, String>?>.seeded(null);
-  ValueStream<Either<Failure, String>?> get surveySaveResultStream =>
-      _surveySaveResultSubject.stream;
-
   _onSurveyFetched(SurveyFetched event, Emitter<SurveyState> emit) async {
     Stream<Either<Failure, String>> surveyStream =
         _databaseRepository.retrieveSurveyStream(event.courseid);
     debugPrint('SurveyBloc@_onSurveyFetched ${event.henetworkStatus}');
     await emit.forEach(surveyStream,
-        onData: (Either<Failure, String> surveyjson) {
-      return surveyjson.fold(
+        onData: (Either<Failure, String> surveyJsonValue) {
+      return surveyJsonValue.fold(
         (failure) => state.copyWith(error: failure),
-        (surveyjson) => state.copyWith(
-            surveyjson: surveyjson, henetworkStatus: event.henetworkStatus),
+        (surveyJson) => state.copyWith(
+            surveyjson: surveyJson, henetworkStatus: event.henetworkStatus),
       );
     });
   }
 
   void _onSurveyReset(SurveyReset event, Emitter<SurveyState> emit) {
-    if (event.resetSurveySaveSuccessStream) {
-      _surveySaveResultSubject.add(null);
-    }
+    if (event.resetSurveySaveSuccessStream) {}
     // emit(const SurveyState.loading());
     emit(const SurveyState.reset());
   }
 
-  FutureOr<Either<Failure, int>> _onSurveySave(
+  Future<void> _onSurveySave(
       SurveySave event, Emitter<SurveyState> emit) async {
     final result = await _databaseRepository.saveSurveys(
       surveyId: event.surveyId,
@@ -65,28 +55,17 @@ class SurveyBloc extends Bloc<SurveyEvent, SurveyState> {
       isPending: event.isPending,
     );
 
-    return result.fold(
+    result.fold(
       (failure) {
         emit(state.copyWith(
           saveError: failure,
         ));
-        _surveySaveResultSubject.add(Left(failure));
-        return Left(failure);
       },
       (successId) {
         emit(state.copyWith(
-          surveySavedId: successId
-              .toString(), // Set surveySavedId to the saved survey's ID
+          surveySavedId: successId.toString(),
         ));
-        _surveySaveResultSubject.add(Right(successId.toString()));
-        return Right(successId);
       },
     );
-  }
-
-  @override
-  Future<void> close() {
-    _surveySaveResultSubject.close();
-    return super.close();
   }
 }

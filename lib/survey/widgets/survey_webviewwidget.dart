@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he/survey/bloc/survey_bloc.dart';
@@ -20,7 +22,7 @@ class SurveyWebViewWidget extends StatefulWidget {
 
 class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
   late InAppWebViewController webView;
-  late SurveyBloc _surveyBloc;
+  // late SurveyBloc _surveyBloc;
   String url = "";
   bool isLoading = true;
   bool? isSaving;
@@ -30,7 +32,7 @@ class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
     final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
     var courseId = context
         .select((DatabaseBloc bloc) => bloc.state.gselectedsubscription!.id);
-    _surveyBloc = BlocProvider.of<SurveyBloc>(context);
+    final _surveyBloc = BlocProvider.of<SurveyBloc>(context);
     return SafeArea(
       child: Column(
         children: <Widget>[
@@ -62,6 +64,36 @@ class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
                           handlerName: "sendResults",
                           callback: (args) async {
                             if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: Colors.blue.shade300,
+                                behavior: SnackBarBehavior.floating,
+                                content: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.file_copy,
+                                            color: Colors.white),
+                                        const SizedBox(
+                                            width:
+                                                8), // Add a little space between the icon and the text
+                                        Text(
+                                          'saving survey',
+                                          style: GoogleFonts.lato(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SpinKitWave(
+                                        color: Colors.green, size: 15),
+                                  ],
+                                ),
+                              ),
+                            );
                             setState(() {
                               isSaving = true;
                             });
@@ -75,8 +107,6 @@ class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
                                 user.country!,
                                 courseId.toString(),
                                 true));
-                            debugPrint(
-                                "SendingSurveyData  STARTAVA \n ${args[0]} \n SurveyID");
                           });
                     },
                     onLoadStart:
@@ -138,7 +168,6 @@ class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
                           alignment: Alignment.bottomCenter,
                           child: SaveSurveyWidget(
                               scaffoldContext: context,
-                              showLoadingSnackBar: isSaving!,
                               onSaveSuccess: () {
                                 setState(() {
                                   isSaving = null;

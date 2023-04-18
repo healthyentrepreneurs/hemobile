@@ -69,7 +69,6 @@ class DatabaseRepository implements IDatabaseRepository {
     } else {
       debugPrint(
           'DatabaseRepository@retrieveBookSurveyLocal Nodata $checkValue');
-      // return _service().retrieveBookSection(courseid);
       return _serviceLocal.retrieveBookSurveyLocal(courseid);
     }
   }
@@ -126,7 +125,7 @@ class DatabaseRepository implements IDatabaseRepository {
   }
 
   @override
-  Future<Either<Failure, int>> saveBookData(
+  Future<Either<Failure, int>> saveBookChapters(
       {required String bookId,
       required String chapterId,
       required String courseId,
@@ -139,5 +138,10 @@ class DatabaseRepository implements IDatabaseRepository {
         courseId: courseId,
         userId: userId,
         isPending: isPending);
+  }
+
+  @override
+  Stream<Either<Failure, int>> totalSavedSurvey() {
+    return _boxOperations().totalSavedSurveyData;
   }
 }

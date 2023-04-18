@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
 import 'package:he/helper/toolutils.dart';
 import 'package:he/home/home.dart';
+import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 
 class MainScaffold extends StatelessWidget {
-  // final User user;
   final Widget subwidget;
   const MainScaffold({Key? key, required this.subwidget}) : super(key: key);
   @override
@@ -45,14 +45,7 @@ class MainScaffold extends StatelessWidget {
                 fontWeight: FontWeight.bold),
           ),
         ),
-        SizedBox(
-            width: double.infinity,
-            child: InkWell(
-              child: ListTile(
-                title: const MenuItemHe().iconTextItemGreen(
-                    'You have 20 unsent surveys hard coded', Icons.sync),
-              ),
-            )),
+        const UnsentSurveysWidget(),
         const MenuItemHe().appTitle('What do you need ?'),
         Center(child: subwidget)
       ]),

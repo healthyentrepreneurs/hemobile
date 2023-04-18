@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+import 'package:he/objectbox.g.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
 import 'package:he/objects/db_local/db_local.dart';
 import 'package:objectbox/objectbox.dart';
@@ -38,6 +39,8 @@ class DatabaseBoxOperations {
     }
   }
 
+// SURVEY LOCAL SAVING
+
   Future<Either<Failure, int>> saveSurveyData({
     required String surveyId,
     required String country,
@@ -63,6 +66,22 @@ class DatabaseBoxOperations {
     } catch (e) {
       debugPrint("Error saving saveBookData response: $e");
       return Future.value(Left(RepositoryFailure(e.toString())));
+    }
+  }
+
+  Stream<Either<Failure, int>> get totalSavedSurveyData {
+    return Stream.fromFuture(_countPendingSurveys());
+  }
+
+  //Survey Helper Classes
+  Future<Either<Failure, int>> _countPendingSurveys() async {
+    try {
+      final box = Box<SurveyDataModel>(_store);
+      final count =
+          box.query(SurveyDataModel_.isPending.equals(true)).build().count();
+      return Right(count);
+    } catch (error) {
+      return Left(RepositoryFailure(error.toString()));
     }
   }
 }

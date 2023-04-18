@@ -23,15 +23,14 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     on<DatabaseSubSelected>(_onDatabaseSubSelected);
     on<DatabaseSubDeSelected>(_onDatabaseSubDeSelected);
     on<DatabaseFetchedError>(_onDatabaseFetchedError);
+    on<DbCountSurvey>(_onDbCountSurvey);
   }
   final DatabaseRepository _databaseRepository;
 
   _fetchUserData(DatabaseFetched event, Emitter<DatabaseState> emit) async {
-    // emit(const DatabaseState.loading());
     _databaseRepository.addHenetworkStatus(event.henetworkStatus!);
     Stream<Either<Failure, List<Subscription?>>> listOfSubStream =
         _databaseRepository.retrieveSubscriptionDataStream(event.userid);
-    // debugPrint('DatabaseBloc@_fetchUserData ${event.henetworkStatus}');
     await emit.forEach(listOfSubStream,
         onData: (Either<Failure, List<Subscription?>> listOfSubscription) {
       return listOfSubscription.fold(
@@ -74,8 +73,16 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     }
   }
 
-  // _onDatabaseDeFetchedError(
-  //     DatabaseDeFetchedError event, Emitter<DatabaseState> emit) {
-  //   emit(state.copyWith(error: null));
-  // }
+  FutureOr<void> _onDbCountSurvey(
+      DbCountSurvey event, Emitter<DatabaseState> emit) async {
+    final result = _databaseRepository.totalSavedSurvey();
+    await emit.forEach(result, onData: (Either<Failure, int> countSurvey) {
+      return countSurvey.fold(
+        (failure) => state.copyWith(fetchError: failure),
+        (countValue) => state.copyWith(
+            surveyTotalCount:
+                countValue), // Reset the error to null when fetching is successful
+      );
+    });
+  }
 }
