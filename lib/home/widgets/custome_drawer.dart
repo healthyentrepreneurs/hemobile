@@ -98,13 +98,7 @@ class _CustomDrawer extends State<CustomDrawer> {
                           ),
                         ),
                         InkWell(
-                          onTap: () {
-                            // Navigator.push(
-                            //     context,
-                            //     MaterialPageRoute(
-                            //       builder: (context) => const FormList(),
-                            //     ));
-                          },
+                          onTap: () {},
                           child: ListTile(
                             title: MenuItemHe(
                                 title: s.navbar_tools_quiz, icon: Icons.quiz),
@@ -130,7 +124,9 @@ class _CustomDrawer extends State<CustomDrawer> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () async {
+                        await Navigator.of(context).push(BackupPage.route());
+                      },
                       child: ListTile(
                         title: MenuItemHe(
                             title: s.navbar_syncdetails,

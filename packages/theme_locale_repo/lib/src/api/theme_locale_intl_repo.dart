@@ -60,15 +60,6 @@ class ThemeLocaleIntRepository {
       }
     }
 
-    /*Stream<ChangeThemeLocaleMessage> changeLocale(Locale locale) async* {
-      try {
-        await rxSharedPrefs.setString(_localeKey, locale.languageCode);
-        yield const ChangeLocaleSuccess();
-      } catch (e) {
-        yield ChangeLocaleFailure(e);
-      }
-    }*/
-
     Stream<ChangeThemeLocaleMessage> changeLocale(Locale locale) {
       return Rx.defer(() async* {
         try {
