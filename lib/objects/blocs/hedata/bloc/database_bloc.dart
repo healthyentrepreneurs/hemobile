@@ -31,7 +31,7 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
   final DatabaseRepository _databaseRepository;
 
   _fetchUserData(DatabaseFetched event, Emitter<DatabaseState> emit) async {
-    _databaseRepository.addHenetworkStatus(event.henetworkStatus!);
+    // _databaseRepository.addHenetworkStatus(event.henetworkStatus!);
     Stream<Either<Failure, List<Subscription?>>> listOfSubStream =
         _databaseRepository.retrieveSubscriptionDataStream(event.userid);
     await emit.forEach(listOfSubStream,

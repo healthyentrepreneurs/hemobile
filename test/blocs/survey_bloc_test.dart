@@ -51,36 +51,6 @@ void main() {
       ],
     );
 
-    // blocTest<SurveyBloc, SurveyState>(
-    //   'Emits [error] when _onSurveySave is called with error',
-    //   build: () {
-    //     when(() => mockDatabaseRepository.saveSurveys(
-    //               surveyId: any(named: 'surveyId'),
-    //               surveyVersion: any(named: 'surveyVersion'),
-    //               surveyJson: any(named: 'surveyJson'),
-    //               country: any(named: 'country'),
-    //               userId: any(named: 'userId'),
-    //               courseId: any(named: 'courseId'),
-    //               isPending: any(named: 'isPending'),
-    //             ))
-    //         .thenAnswer(
-    //             (_) async => Left(RepositoryFailure("Error saving survey")));
-    //     return surveyBloc;
-    //   },
-    //   act: (bloc) => bloc.add(const SurveySave(
-    //     'surveyId',
-    //     'surveyVersion',
-    //     'surveyJson',
-    //     'userId',
-    //     'country',
-    //     'courseId',
-    //     true,
-    //   )),
-    //   expect: () => [
-    //     surveyBloc.state.copyWith(
-    //         error: RepositoryFailure("Error saving survey")), // Using copyWith
-    //   ],
-    // );
 
     blocTest<SurveyBloc, SurveyState>(
       'Emits [error] when _onSurveySave is called with error',
