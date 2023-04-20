@@ -55,8 +55,8 @@ class AppudateBloc extends Bloc<AppUpdateEvent, AppudateState> {
             checkDownLoadState(taskSnapshot, emit) ??
             state, // handle Unhandled Exception: type 'Null' is not a subtype of type 'AppudateState'
       );
-    } on FirebaseException {
-      emit(AppudateState.error(ApkDownloadFailure("No Apk URL Download")));
+    } on FirebaseException catch (e){
+      emit(AppudateState.error(ApkDownloadFailure(e.toString())));
     }
   }
 }

@@ -44,3 +44,55 @@ class DatabaseFetchedError extends DatabaseEvent {
 class DbCountSurvey extends DatabaseEvent {
   const DbCountSurvey();
 }
+
+class UploadDataEvent extends DatabaseEvent {
+  final bool isUploadingData;
+  final double uploadProgress;
+  final bool simulateUpload;
+  final Function(bool, double) onUploadStateChanged;
+
+  const UploadDataEvent({
+    required this.isUploadingData,
+    required this.uploadProgress,
+    this.simulateUpload = true,
+    required this.onUploadStateChanged,
+  });
+
+  @override
+  List<Object?> get props =>
+      [isUploadingData, uploadProgress, simulateUpload, onUploadStateChanged];
+}
+
+class LoadStateEvent extends DatabaseEvent {
+  final Function(Map<String, dynamic>) onLoadStateChanged;
+
+  const LoadStateEvent({required this.onLoadStateChanged});
+
+  @override
+  List<Object?> get props => [onLoadStateChanged];
+}
+
+class SaveStateEvent extends DatabaseEvent {
+  final bool isUploadingData;
+  final double uploadProgress;
+  final bool backupAnimation;
+  final bool surveyAnimation;
+  final bool booksAnimation;
+
+  const SaveStateEvent({
+    required this.isUploadingData,
+    required this.uploadProgress,
+    required this.backupAnimation,
+    required this.surveyAnimation,
+    required this.booksAnimation,
+  });
+
+  @override
+  List<Object?> get props => [
+        isUploadingData,
+        uploadProgress,
+        backupAnimation,
+        surveyAnimation,
+        booksAnimation,
+      ];
+}

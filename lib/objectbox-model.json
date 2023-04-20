@@ -124,9 +124,48 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "4:8313728043780523434",
+      "lastPropertyId": "6:7254006473795860310",
+      "name": "BackupStateDataModel",
+      "properties": [
+        {
+          "id": "1:6226754668473397179",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3038710617825268956",
+          "name": "uploadProgress",
+          "type": 8
+        },
+        {
+          "id": "3:2481149418941520376",
+          "name": "isUploadingData",
+          "type": 1
+        },
+        {
+          "id": "4:3114766895239090220",
+          "name": "backupAnimation",
+          "type": 1
+        },
+        {
+          "id": "5:5870927889211560872",
+          "name": "surveyAnimation",
+          "type": 1
+        },
+        {
+          "id": "6:7254006473795860310",
+          "name": "booksAnimation",
+          "type": 1
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "3:6370256248254230843",
+  "lastEntityId": "4:8313728043780523434",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

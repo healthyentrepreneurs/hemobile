@@ -24,6 +24,9 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     on<DatabaseSubDeSelected>(_onDatabaseSubDeSelected);
     on<DatabaseFetchedError>(_onDatabaseFetchedError);
     on<DbCountSurvey>(_onDbCountSurvey);
+    on<UploadDataEvent>(_onUploadDataEvent);
+    on<LoadStateEvent>(_onLoadStateEvent);
+    on<SaveStateEvent>(_onSaveStateEvent);
   }
   final DatabaseRepository _databaseRepository;
 
@@ -84,5 +87,40 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
                 countValue), // Reset the error to null when fetching is successful
       );
     });
+  }
+
+  // Handle UploadDataEvent
+  void _onUploadDataEvent(UploadDataEvent event, Emitter<DatabaseState> emit) {
+    emit(state.copyWith(
+        isUploadingData: event.isUploadingData,
+        uploadProgress: event.uploadProgress));
+    event.onUploadStateChanged(event.isUploadingData, event.uploadProgress);
+  }
+
+  // Handle LoadStateEvent
+  void _onLoadStateEvent(
+      LoadStateEvent event, Emitter<DatabaseState> emit) async {
+    final result = await _databaseRepository.loadState();
+    if (result != null) {
+      event.onLoadStateChanged(result);
+    }
+  }
+
+  // Handle SaveStateEvent
+  void _onSaveStateEvent(SaveStateEvent event, Emitter<DatabaseState> emit) {
+    emit(state.copyWith(
+      isUploadingData: event.isUploadingData,
+      uploadProgress: event.uploadProgress,
+      backupAnimation: event.backupAnimation,
+      surveyAnimation: event.surveyAnimation,
+      booksAnimation: event.booksAnimation,
+    ));
+    _databaseRepository.saveState(
+      isUploadingData: event.isUploadingData,
+      uploadProgress: event.uploadProgress,
+      backupAnimation: event.backupAnimation,
+      surveyAnimation: event.surveyAnimation,
+      booksAnimation: event.booksAnimation,
+    );
   }
 }

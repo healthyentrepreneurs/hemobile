@@ -21,10 +21,10 @@ class BannerUpdate extends StatelessWidget {
           buildWhen: (previous, current) => previous != current,
           builder: (context, state) {
             if (state is ApkLoadingState) {
-              return const SizedBox(height: 0.0);
+              return const SizedBox.shrink();
             } else if (state is ApkErrorState) {
               debugPrint("LUDALOGS ${state.error.message}");
-              return const SizedBox(height: 0.0);
+              return const SizedBox.shrink();
               return Center(
                 child: Text('Error: ${state.error.message}'),
               );
@@ -55,18 +55,18 @@ class BannerUpdate extends StatelessWidget {
                     } else if (state.status.seen == true &&
                         state.status.updated == false) {
                       debugPrint("BannerUpdate seen=true and updated=false");
-                      return const SizedBox(height: 0.0);
+                      return const SizedBox.shrink();
                     }
                     // return AppUpdatActions(userId: userId,);
                     debugPrint(
                         "WALAH ${state.status.heversion} and ${dataCloud['version']}");
                     debugPrint("BannerUpdate seen=true and updated=true");
-                    return const SizedBox(height: 0.0);
+                    return const SizedBox.shrink();
                   });
             }
           });
     } else {
-      return const SizedBox(height: 0.0);
+      return const SizedBox.shrink();
     }
     // return BlocBuilder<ApkseenBloc, ApkseenState>(
     //     buildWhen: (previous, current) => previous != current,
@@ -78,12 +78,12 @@ class BannerUpdate extends StatelessWidget {
     //       } else if (state.status.seen == true &&
     //           state.status.updated == false) {
     //         debugPrint("BannerUpdate seen=true and updated=false");
-    //         return const SizedBox(height: 0.0);
+    //         return const SizedBox.shrink();
     //       }
     //       //Njovu
     //       // return AppUpdatActions(userId: userId,);
     //       debugPrint("BannerUpdate seen=true and updated=true");
-    //       return const SizedBox(height: 0.0);
+    //       return const SizedBox.shrink();
     //     });
   }
 }

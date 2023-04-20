@@ -5,7 +5,6 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:he/objects/blocs/repo/database_repo.dart';
-import 'package:rxdart/rxdart.dart';
 
 import '../../helper/file_system_util.dart';
 import '../../objects/blocs/repo/impl/repo_failure.dart';

@@ -19,10 +19,10 @@ class AppUpdatActions extends StatelessWidget {
         buildWhen: (previous, current) => previous != current,
         builder: (context, state) {
           if (state is ApkLoadingState) {
-            return const SizedBox(height: 0.0);
+            return const SizedBox.shrink();
           } else if (state is ApkErrorState) {
             debugPrint("LUDALOGS ${state.error.message}");
-            return const SizedBox(height: 0.0);
+            return const SizedBox.shrink();
             //Njovu
             return Center(
               child: Text('Error: ${state.error.message}'),
@@ -38,11 +38,11 @@ class AppUpdatActions extends StatelessWidget {
               return AppVerView(latestapk: logs, appversion: appVersion);
             } else {
               debugPrint("appVersion C");
-              return const SizedBox(height: 0.0);
+              return const SizedBox.shrink();
             }
           } else {
             debugPrint("appVersion D");
-            return const SizedBox(height: 0.0);
+            return const SizedBox.shrink();
           }
         });
   }

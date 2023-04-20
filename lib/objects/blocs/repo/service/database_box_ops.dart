@@ -8,13 +8,13 @@ import 'package:he/objects/db_local/db_local.dart';
 import 'package:objectbox/objectbox.dart';
 
 // https://docs.objectbox.io/entity-annotations
-// https://dev.to/theimpulson/persistent-local-database-with-objectbox-on-flutter-k5g
 class DatabaseBoxOperations {
   final Store _store;
   DatabaseBoxOperations({
     required Store store,
   }) : _store = store;
 
+  // BOOK LOCAL SAVING
   Future<Either<Failure, int>> saveBookData({
     required String bookId,
     required String chapterId,
@@ -83,5 +83,55 @@ class DatabaseBoxOperations {
     } catch (error) {
       return Left(RepositoryFailure(error.toString()));
     }
+  }
+
+  //BACKUP STATUS LOCAL
+
+  Future<void> uploadData({
+    required bool isUploadingData,
+    required double uploadProgress,
+    bool simulateUpload = true,
+    required Function(bool, double) onUploadStateChanged,
+  }) async {
+    if (simulateUpload) {
+      // Resume data upload from the last saved progress (use your own upload logic here)
+      for (int i = (uploadProgress * 100).toInt(); i <= 100; i++) {
+        await Future.delayed(const Duration(milliseconds: 30));
+        uploadProgress = i / 100;
+        onUploadStateChanged(isUploadingData, uploadProgress);
+      }
+    }
+    saveState(
+      isUploadingData: false,
+      uploadProgress: 0.0,
+      backupAnimation: false,
+      surveyAnimation: false,
+      booksAnimation: false,
+    );
+  }
+
+  Future<Map<String, dynamic>?> loadState() async {
+    final box = Box<BackupStateDataModel>(_store);
+    final data = box.query().build().findFirst();
+    return data?.toJson();
+  }
+
+  Future<void> saveState({
+    required bool isUploadingData,
+    required double uploadProgress,
+    required bool backupAnimation,
+    required bool surveyAnimation,
+    required bool booksAnimation,
+  }) async {
+    final box = Box<BackupStateDataModel>(_store);
+    final data = BackupStateDataModel(
+      id: 1,
+      isUploadingData: isUploadingData,
+      uploadProgress: uploadProgress,
+      backupAnimation: backupAnimation,
+      surveyAnimation: surveyAnimation,
+      booksAnimation: booksAnimation,
+    );
+    box.put(data);
   }
 }

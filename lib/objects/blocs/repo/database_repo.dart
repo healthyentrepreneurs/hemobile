@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:he/objects/blocs/repo/service/service.dart';
+import 'package:he/objects/db_local/db_local.dart';
 import 'package:he/service/objectbox_service.dart';
 import 'package:he_api/he_api.dart';
 import 'package:injectable/injectable.dart';
@@ -143,5 +144,40 @@ class DatabaseRepository implements IDatabaseRepository {
   @override
   Stream<Either<Failure, int>> totalSavedSurvey() {
     return _boxOperations().totalSavedSurveyData;
+  }
+
+  // Add these methods to call uploadData, loadState, and saveState
+  Future<void> uploadData({
+    required bool isUploadingData,
+    required double uploadProgress,
+    bool simulateUpload = true,
+    required Function(bool, double) onUploadStateChanged,
+  }) async {
+    return _boxOperations().uploadData(
+      isUploadingData: isUploadingData,
+      uploadProgress: uploadProgress,
+      simulateUpload: simulateUpload,
+      onUploadStateChanged: onUploadStateChanged,
+    );
+  }
+
+  Future<Map<String, dynamic>?> loadState() async {
+    return await _boxOperations().loadState();
+  }
+
+  Future<void> saveState({
+    required bool isUploadingData,
+    required double uploadProgress,
+    required bool backupAnimation,
+    required bool surveyAnimation,
+    required bool booksAnimation,
+  }) async {
+    return _boxOperations().saveState(
+      isUploadingData: isUploadingData,
+      uploadProgress: uploadProgress,
+      backupAnimation: backupAnimation,
+      surveyAnimation: surveyAnimation,
+      booksAnimation: booksAnimation,
+    );
   }
 }

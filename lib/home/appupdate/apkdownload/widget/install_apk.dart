@@ -38,13 +38,13 @@ class InstallApk extends StatelessWidget {
             } else {
               debugPrint("Arthur Success Apk $resultInfo");
             }
-            return const SizedBox(height: 0.0);
+            return const SizedBox.shrink();
           } else if (snapshot.hasError) {
             debugPrint("Installing Apk ${snapshot.error}");
-            return const SizedBox(height: 0.0);
+            return const SizedBox.shrink();
           }
         }
-        return const SizedBox(height: 0.0);
+        return const SizedBox.shrink();
       },
     );
   }

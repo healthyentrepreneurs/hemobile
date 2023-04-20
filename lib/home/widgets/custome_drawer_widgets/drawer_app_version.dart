@@ -24,7 +24,7 @@ class DrawerAppVersionWidget extends StatelessWidget {
             const TextStyle(color: Colors.black, fontSize: 10));
           }
         }
-        return const SizedBox(height: 0.0);
+        return const SizedBox.shrink();
       },
     );
   }

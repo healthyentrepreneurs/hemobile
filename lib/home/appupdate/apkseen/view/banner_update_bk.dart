@@ -21,12 +21,12 @@ class BannerUpdate extends StatelessWidget {
           } else if (state.status.seen == true &&
               state.status.updated == false) {
             debugPrint("BannerUpdate seen=true and updated=false");
-            return const SizedBox(height: 0.0);
+            return const SizedBox.shrink();
           }
           //Njovu
           // return AppUpdatActions(userId: userId,);
           debugPrint("BannerUpdate seen=true and updated=true");
-          return const SizedBox(height: 0.0);
+          return const SizedBox.shrink();
         });
   }
 }

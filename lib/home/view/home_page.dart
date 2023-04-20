@@ -32,6 +32,7 @@ class HomePage extends StatelessWidget {
         _blocDatabase.add(DatabaseFetched(user.id.toString(), current.gstatus));
         //More less the same thing
         _blocDatabase.add(DatabaseLoadEvent()); // Add this line
+        _blocDatabase.add(const DbCountSurvey());
         debugPrint("NetworkState Ends @B");
       }
       return networkChange;

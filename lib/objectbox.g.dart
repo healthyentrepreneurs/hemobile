@@ -14,6 +14,7 @@ import 'package:objectbox/internal.dart'; // generated code can access "internal
 import 'package:objectbox/objectbox.dart';
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
+import 'objects/db_local/backupstate_datamodel.dart';
 import 'objects/db_local/bookdata_model.dart';
 import 'objects/db_local/person.dart';
 import 'objects/db_local/surveydata_model.dart';
@@ -142,6 +143,45 @@ final _entities = <ModelEntity>[
             flags: 0)
       ],
       relations: <ModelRelation>[],
+      backlinks: <ModelBacklink>[]),
+  ModelEntity(
+      id: const IdUid(4, 8313728043780523434),
+      name: 'BackupStateDataModel',
+      lastPropertyId: const IdUid(6, 7254006473795860310),
+      flags: 0,
+      properties: <ModelProperty>[
+        ModelProperty(
+            id: const IdUid(1, 6226754668473397179),
+            name: 'id',
+            type: 6,
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(2, 3038710617825268956),
+            name: 'uploadProgress',
+            type: 8,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(3, 2481149418941520376),
+            name: 'isUploadingData',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(4, 3114766895239090220),
+            name: 'backupAnimation',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(5, 5870927889211560872),
+            name: 'surveyAnimation',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(6, 7254006473795860310),
+            name: 'booksAnimation',
+            type: 1,
+            flags: 0)
+      ],
+      relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[])
 ];
 
@@ -165,7 +205,7 @@ Future<Store> openStore(
 ModelDefinition getObjectBoxModel() {
   final model = ModelInfo(
       entities: _entities,
-      lastEntityId: const IdUid(3, 6370256248254230843),
+      lastEntityId: const IdUid(4, 8313728043780523434),
       lastIndexId: const IdUid(0, 0),
       lastRelationId: const IdUid(0, 0),
       lastSequenceId: const IdUid(0, 0),
@@ -318,6 +358,44 @@ ModelDefinition getObjectBoxModel() {
                 DateTime.fromMillisecondsSinceEpoch(const fb.Int64Reader().vTableGet(buffer, rootOffset, 18, 0));
 
           return object;
+        }),
+    BackupStateDataModel: EntityDefinition<BackupStateDataModel>(
+        model: _entities[3],
+        toOneRelations: (BackupStateDataModel object) => [],
+        toManyRelations: (BackupStateDataModel object) => {},
+        getId: (BackupStateDataModel object) => object.id,
+        setId: (BackupStateDataModel object, int id) {
+          object.id = id;
+        },
+        objectToFB: (BackupStateDataModel object, fb.Builder fbb) {
+          fbb.startTable(7);
+          fbb.addInt64(0, object.id);
+          fbb.addFloat64(1, object.uploadProgress);
+          fbb.addBool(2, object.isUploadingData);
+          fbb.addBool(3, object.backupAnimation);
+          fbb.addBool(4, object.surveyAnimation);
+          fbb.addBool(5, object.booksAnimation);
+          fbb.finish(fbb.endTable());
+          return object.id;
+        },
+        objectFromFB: (Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+
+          final object = BackupStateDataModel(
+              id: const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0),
+              uploadProgress:
+                  const fb.Float64Reader().vTableGet(buffer, rootOffset, 6, 0),
+              isUploadingData:
+                  const fb.BoolReader().vTableGet(buffer, rootOffset, 8, false),
+              backupAnimation: const fb.BoolReader()
+                  .vTableGet(buffer, rootOffset, 10, false),
+              surveyAnimation: const fb.BoolReader()
+                  .vTableGet(buffer, rootOffset, 12, false),
+              booksAnimation: const fb.BoolReader()
+                  .vTableGet(buffer, rootOffset, 14, false));
+
+          return object;
         })
   };
 
@@ -406,4 +484,31 @@ class SurveyDataModel_ {
   /// see [SurveyDataModel.country]
   static final country =
       QueryStringProperty<SurveyDataModel>(_entities[2].properties[8]);
+}
+
+/// [BackupStateDataModel] entity fields to define ObjectBox queries.
+class BackupStateDataModel_ {
+  /// see [BackupStateDataModel.id]
+  static final id =
+      QueryIntegerProperty<BackupStateDataModel>(_entities[3].properties[0]);
+
+  /// see [BackupStateDataModel.uploadProgress]
+  static final uploadProgress =
+      QueryDoubleProperty<BackupStateDataModel>(_entities[3].properties[1]);
+
+  /// see [BackupStateDataModel.isUploadingData]
+  static final isUploadingData =
+      QueryBooleanProperty<BackupStateDataModel>(_entities[3].properties[2]);
+
+  /// see [BackupStateDataModel.backupAnimation]
+  static final backupAnimation =
+      QueryBooleanProperty<BackupStateDataModel>(_entities[3].properties[3]);
+
+  /// see [BackupStateDataModel.surveyAnimation]
+  static final surveyAnimation =
+      QueryBooleanProperty<BackupStateDataModel>(_entities[3].properties[4]);
+
+  /// see [BackupStateDataModel.booksAnimation]
+  static final booksAnimation =
+      QueryBooleanProperty<BackupStateDataModel>(_entities[3].properties[5]);
 }
