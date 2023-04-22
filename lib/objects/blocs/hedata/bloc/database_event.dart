@@ -50,7 +50,6 @@ class UploadDataEvent extends DatabaseEvent {
   final double uploadProgress;
   final bool simulateUpload;
   final Function(bool, double) onUploadStateChanged;
-
   const UploadDataEvent({
     required this.isUploadingData,
     required this.uploadProgress,
@@ -72,19 +71,20 @@ class LoadStateEvent extends DatabaseEvent {
   List<Object?> get props => [onLoadStateChanged];
 }
 
+
 class SaveStateEvent extends DatabaseEvent {
-  final bool isUploadingData;
-  final double uploadProgress;
-  final bool backupAnimation;
-  final bool surveyAnimation;
-  final bool booksAnimation;
+  final bool? isUploadingData;
+  final double? uploadProgress;
+  final bool? backupAnimation;
+  final bool? surveyAnimation;
+  final bool? booksAnimation;
 
   const SaveStateEvent({
-    required this.isUploadingData,
-    required this.uploadProgress,
-    required this.backupAnimation,
-    required this.surveyAnimation,
-    required this.booksAnimation,
+     this.isUploadingData,
+     this.uploadProgress,
+     this.backupAnimation,
+     this.surveyAnimation,
+     this.booksAnimation,
   });
 
   @override

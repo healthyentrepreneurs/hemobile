@@ -26,12 +26,13 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     on<DbCountSurvey>(_onDbCountSurvey);
     on<UploadDataEvent>(_onUploadDataEvent);
     on<LoadStateEvent>(_onLoadStateEvent);
+    // on<UpdateUploadStateEvent>(_onUpdateUploadStateEvent);
     on<SaveStateEvent>(_onSaveStateEvent);
   }
   final DatabaseRepository _databaseRepository;
 
   _fetchUserData(DatabaseFetched event, Emitter<DatabaseState> emit) async {
-    // _databaseRepository.addHenetworkStatus(event.henetworkStatus!);
+    _databaseRepository.addHenetworkStatus(event.henetworkStatus!);
     Stream<Either<Failure, List<Subscription?>>> listOfSubStream =
         _databaseRepository.retrieveSubscriptionDataStream(event.userid);
     await emit.forEach(listOfSubStream,
@@ -90,17 +91,29 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
   }
 
   // Handle UploadDataEvent
-  void _onUploadDataEvent(UploadDataEvent event, Emitter<DatabaseState> emit) {
+  void _onUploadDataEvent(
+      UploadDataEvent event, Emitter<DatabaseState> emit) async {
+    debugPrint(
+        "BEFORCDatabaseBloc@_onUploadDataEvent ${event.isUploadingData} and ${event.uploadProgress}");
     emit(state.copyWith(
         isUploadingData: event.isUploadingData,
         uploadProgress: event.uploadProgress));
-    event.onUploadStateChanged(event.isUploadingData, event.uploadProgress);
+    // event.onUploadStateChanged(event.isUploadingData, event.uploadProgress);
+    debugPrint(
+        "AFTERCDatabaseBloc@_onUploadDataEvent ${event.isUploadingData} and ${event.uploadProgress}");
+    await _databaseRepository.uploadData(
+      isUploadingData: event.isUploadingData,
+      uploadProgress: event.uploadProgress,
+      simulateUpload: event.simulateUpload,
+      onUploadStateChanged: event.onUploadStateChanged,
+    );
   }
 
   // Handle LoadStateEvent
   void _onLoadStateEvent(
       LoadStateEvent event, Emitter<DatabaseState> emit) async {
     final result = await _databaseRepository.loadState();
+    debugPrint("_onLoadStateEvent@uploadData $result ");
     if (result != null) {
       event.onLoadStateChanged(result);
     }

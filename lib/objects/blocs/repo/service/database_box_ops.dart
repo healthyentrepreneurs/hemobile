@@ -86,21 +86,32 @@ class DatabaseBoxOperations {
   }
 
   //BACKUP STATUS LOCAL
-
-  Future<void> uploadData({
+  Future<void> uploadDataOps({
     required bool isUploadingData,
     required double uploadProgress,
     bool simulateUpload = true,
     required Function(bool, double) onUploadStateChanged,
   }) async {
+    debugPrint("DatabaseBoxOperations@uploadDataOps $isUploadingData");
     if (simulateUpload) {
+      // Set isUploadingData to true when the upload starts
+      isUploadingData = true;
       // Resume data upload from the last saved progress (use your own upload logic here)
       for (int i = (uploadProgress * 100).toInt(); i <= 100; i++) {
         await Future.delayed(const Duration(milliseconds: 30));
         uploadProgress = i / 100;
         onUploadStateChanged(isUploadingData, uploadProgress);
       }
+      // Set isUploadingData to false when the upload is complete
+      isUploadingData = false;
+      uploadProgress = 0.0;
+      debugPrint(
+          "BEFORE DatabaseBoxOperations@onUploadStateChanged $isUploadingData and $uploadProgress \n");
+      onUploadStateChanged(isUploadingData, uploadProgress);
+      debugPrint(
+          "AFTER DatabaseBoxOperations@onUploadStateChanged $isUploadingData and $uploadProgress \n");
     }
+
     saveState(
       isUploadingData: false,
       uploadProgress: 0.0,
@@ -117,21 +128,38 @@ class DatabaseBoxOperations {
   }
 
   Future<void> saveState({
-    required bool isUploadingData,
-    required double uploadProgress,
-    required bool backupAnimation,
-    required bool surveyAnimation,
-    required bool booksAnimation,
+    bool? isUploadingData,
+    double? uploadProgress,
+    bool? backupAnimation,
+    bool? surveyAnimation,
+    bool? booksAnimation,
   }) async {
     final box = Box<BackupStateDataModel>(_store);
-    final data = BackupStateDataModel(
-      id: 1,
-      isUploadingData: isUploadingData,
-      uploadProgress: uploadProgress,
-      backupAnimation: backupAnimation,
-      surveyAnimation: surveyAnimation,
-      booksAnimation: booksAnimation,
-    );
-    box.put(data);
+    final results = box.query().build().find();
+    if (results.isEmpty) {
+      debugPrint(
+          "isEmpty DatabaseBoxOperations@saveState $isUploadingData and $uploadProgress \n");
+      final data = BackupStateDataModel(
+        isUploadingData: isUploadingData ?? false,
+        uploadProgress: uploadProgress ?? 0.0,
+        backupAnimation: backupAnimation ?? false,
+        surveyAnimation: surveyAnimation ?? false,
+        booksAnimation: booksAnimation ?? false,
+      );
+      box.put(data);
+    } else {
+      final existingData = results.first;
+      final updatedData = BackupStateDataModel(
+        id: existingData.id, // Ensure to keep the existing ID for update
+        isUploadingData: isUploadingData ?? existingData.isUploadingData,
+        uploadProgress: uploadProgress ?? existingData.uploadProgress,
+        backupAnimation: backupAnimation ?? existingData.backupAnimation,
+        surveyAnimation: surveyAnimation ?? existingData.surveyAnimation,
+        booksAnimation: booksAnimation ?? existingData.booksAnimation,
+      );
+      debugPrint(
+          "Updating DatabaseBoxOperations@saveState $isUploadingData and $uploadProgress \n");
+      box.put(updatedData);
+    }
   }
 }

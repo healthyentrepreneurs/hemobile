@@ -153,7 +153,9 @@ class DatabaseRepository implements IDatabaseRepository {
     bool simulateUpload = true,
     required Function(bool, double) onUploadStateChanged,
   }) async {
-    return _boxOperations().uploadData(
+    debugPrint("DatabaseRepository@uploadData  isUploadingData $isUploadingData "
+        "uploadProgress $uploadProgress onUploadStateChanged onUploadStateChanged ${onUploadStateChanged.toString()} \n");
+    return _boxOperations().uploadDataOps(
       isUploadingData: isUploadingData,
       uploadProgress: uploadProgress,
       simulateUpload: simulateUpload,
@@ -166,11 +168,11 @@ class DatabaseRepository implements IDatabaseRepository {
   }
 
   Future<void> saveState({
-    required bool isUploadingData,
-    required double uploadProgress,
-    required bool backupAnimation,
-    required bool surveyAnimation,
-    required bool booksAnimation,
+    required bool? isUploadingData,
+    required double? uploadProgress,
+    required bool? backupAnimation,
+    required bool? surveyAnimation,
+    required bool? booksAnimation,
   }) async {
     return _boxOperations().saveState(
       isUploadingData: isUploadingData,
