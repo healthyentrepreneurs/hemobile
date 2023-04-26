@@ -47,9 +47,6 @@ abstract class AppModule {
 
   @lazySingleton
   @injectable
-
-  // FirebaseAuth get firebaseAuth =>
-  //     FirebaseAuth.instance..useAuthEmulator(Endpoints.localEmulatorIp, 9099);
   firebase_auth.FirebaseAuth get firebaseAuth =>
       firebase_auth.FirebaseAuth.instance
         ..useAuthEmulator(Endpoints.localEmulatorIp, 9099);

@@ -21,6 +21,7 @@ final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 Future<void> configureInjections(GetIt getIt) async {
   final injectableModule = AppModuleImp();
   ObjectBoxService objectbox = await injectableModule.objectBoxService;
+
   getIt.registerLazySingleton<ApkupdateRepository>(() => ApkupdateRepository(
           apkupdateApi: RxStgApkUpdateApi(
         rxPrefs: injectableModule.getrxsharedprefrence,
@@ -33,6 +34,8 @@ Future<void> configureInjections(GetIt getIt) async {
   getIt.registerLazySingleton<ApkRepository>(
       () => ApkRepository(injectableModule.firestore));
 
-  getIt.registerLazySingleton<DatabaseRepository>(
-      () => DatabaseRepository(injectableModule.firestore, objectbox));
+  getIt.registerSingleton<DatabaseRepository>(
+      DatabaseRepository(injectableModule.firestore, objectbox));
+  // getIt.registerLazySingleton<DatabaseRepository>(
+  //     () => DatabaseRepository(injectableModule.firestore, objectbox));
 }

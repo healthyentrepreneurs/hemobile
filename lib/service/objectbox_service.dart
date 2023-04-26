@@ -13,13 +13,13 @@ class ObjectBoxService {
   static Future<ObjectBoxService> create() async {
     if (_instance != null) {
       return _instance!;
+    } else {
+      final docsDir = await getApplicationDocumentsDirectory();
+      // Future<Store> openStore() {...} is defined in the generated objectbox.g.dart
+      final store =
+          await openStore(directory: p.join(docsDir.path, "hestatistics"));
+      _instance = ObjectBoxService._create(store);
+      return _instance!;
     }
-
-    final docsDir = await getApplicationDocumentsDirectory();
-    // Future<Store> openStore() {...} is defined in the generated objectbox.g.dart
-    final store =
-        await openStore(directory: p.join(docsDir.path, "hestatistics"));
-    _instance = ObjectBoxService._create(store);
-    return _instance!;
   }
 }

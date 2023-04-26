@@ -218,31 +218,4 @@ class DatabaseService {
       return Stream.value(Left(RepositoryFailure(e.toString())));
     }
   }
-
-  Future<Either<Failure, void>> saveSurveys({
-    required String surveyId,
-    required String country,
-    required String email,
-    required String userId,
-    required String surveyJson,
-    required String surveyVersion,
-  }) async {
-    try {
-      await _firestore
-          .collection('surveyposts')
-          .doc(country)
-          .collection(surveyId)
-          .add({
-        'userId': userId,
-        'surveyVersion': surveyVersion,
-        'email': email,
-        'surveyobject': surveyJson,
-        'surveyId': surveyId,
-      });
-      return Future.value(const Right(null)); // Return success value
-    } catch (e) {
-      debugPrint("Error saving survey response: $e");
-      return Future.value(Left(RepositoryFailure(e.toString())));
-    }
-  }
 }

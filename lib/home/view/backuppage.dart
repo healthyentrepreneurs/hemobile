@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/home/home.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
+import 'package:workmanager/workmanager.dart';
 
 class BackupPage extends StatefulWidget {
   const BackupPage({Key? key}) : super(key: key);
@@ -24,13 +25,9 @@ class _BackupPageState extends State<BackupPage>
   late final Animation<double> _surveyRotationAnimation;
   late final Animation<double> _booksRotationAnimation;
   bool _isDisposed = false;
-  // late double uploadProgress;
-  // late bool isUploadingData;
-
   @override
   void initState() {
     super.initState();
-    // _saveStateXx();
     _backupController = AnimationController(
       duration: const Duration(seconds: 1),
       vsync: this,
@@ -337,9 +334,16 @@ class _BackupPageState extends State<BackupPage>
       ),
     );
   }
-
-  _uploadData() async {
+  _uploadData(){
+    Workmanager().registerPeriodicTask(
+      "1", // This is a unique identifier for the task
+      "deleteCompletedSurveys",
+      frequency: const Duration(minutes: 6), // Adjust the frequency as needed
+    );
+  }
+  _uploadData_temp() async {
     if (!mounted) return;
+    // if (_isDisposed) return;
     // Get the current state values
     final currentState = context.read<DatabaseBloc>().state;
     final isUploadingData = currentState.isUploadingData;
@@ -351,10 +355,12 @@ class _BackupPageState extends State<BackupPage>
           UploadDataEvent(
             isUploadingData: isUploadingData ?? false,
             uploadProgress: uploadProgress ?? 0.0,
-            simulateUpload: true,
+            simulateUpload: false,
             onUploadStateChanged: (isUploading, progress) {
               debugPrint(
                   '@REALTIME JIMMY isUploadingData $isUploading uploadProgress $progress');
+              if (!mounted) return;
+              // if (_isDisposed) return;
               BlocProvider.of<DatabaseBloc>(context).add(
                 SaveStateEvent(
                   // isUploadingData: false,

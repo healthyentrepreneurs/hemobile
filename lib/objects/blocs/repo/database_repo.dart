@@ -7,6 +7,7 @@ import 'package:he/service/objectbox_service.dart';
 import 'package:he_api/he_api.dart';
 import 'package:injectable/injectable.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:workmanager/workmanager.dart';
 
 import '../../../helper/file_system_util.dart';
 import 'impl/idatabase_repo.dart';
@@ -17,14 +18,15 @@ class DatabaseRepository implements IDatabaseRepository {
   final FirebaseFirestore _firestore;
   final ObjectBoxService _objectbox;
   DatabaseRepository(this._firestore, this._objectbox);
-  final BehaviorSubject<HenetworkStatus> _henetworkStatusSubject =
-      BehaviorSubject<HenetworkStatus>.seeded(HenetworkStatus.loading);
 
   DatabaseService _service() => DatabaseService(firestore: _firestore);
   final DatabaseServiceLocal _serviceLocal = DatabaseServiceLocal();
 
-  DatabaseBoxOperations _boxOperations() =>
-      DatabaseBoxOperations(store: _objectbox.store);
+  DatabaseBoxOperations _boxOperations() => DatabaseBoxOperations(
+      store: _objectbox.store, firestore: _firestore);
+
+  final BehaviorSubject<HenetworkStatus> _henetworkStatusSubject =
+      BehaviorSubject<HenetworkStatus>.seeded(HenetworkStatus.loading);
 
   @override
   Stream<Either<Failure, List<Subscription?>>> retrieveSubscriptionDataStream(
@@ -153,9 +155,11 @@ class DatabaseRepository implements IDatabaseRepository {
     bool simulateUpload = true,
     required Function(bool, double) onUploadStateChanged,
   }) async {
-    debugPrint("DatabaseRepository@uploadData  isUploadingData $isUploadingData "
-        "uploadProgress $uploadProgress onUploadStateChanged onUploadStateChanged ${onUploadStateChanged.toString()} \n");
-    return _boxOperations().uploadDataOps(
+    debugPrint(
+        "DatabaseRepository@uploadData  isUploadingData $isUploadingData "
+        "uploadProgress $uploadProgress "
+        "onUploadStateChanged  ${onUploadStateChanged.toString()} simulateUpload $simulateUpload \n");
+    return await _boxOperations().uploadDataOps(
       isUploadingData: isUploadingData,
       uploadProgress: uploadProgress,
       simulateUpload: simulateUpload,
@@ -181,5 +185,63 @@ class DatabaseRepository implements IDatabaseRepository {
       surveyAnimation: surveyAnimation,
       booksAnimation: booksAnimation,
     );
+  }
+
+  // void callbackDispatcher() {
+  //   Workmanager().executeTask((task, inputData) async {
+  //     switch (task) {
+  //       case 'deleteCompletedSurveys':
+  //         // Use the _boxOperations() method directly
+  //         final nonPendingSurveys =
+  //             await _boxOperations().getSurveysByPendingStatus(false);
+  //         nonPendingSurveys.forEach((survey) async {
+  //           await _boxOperations().removeSurvey(survey);
+  //         });
+  //         break;
+  //       default:
+  //         debugPrint("Unknown task");
+  //     }
+  //
+  //     return Future.value(true);
+  //   });
+  // }
+  // void callbackDispatcher(String task, Map<String, dynamic>? inputData) async {
+  //   switch (task) {
+  //     case 'deleteCompletedSurveys':
+  //       // Use the _boxOperations() method directly
+  //       debugPrint("BackgroundTask deleteCompletedSurveys");
+  //       final nonPendingSurveys =
+  //           await _boxOperations().getSurveysByPendingStatus(false);
+  //       nonPendingSurveys.forEach((survey) async {
+  //         await _boxOperations().removeSurvey(survey);
+  //       });
+  //       break;
+  //     default:
+  //       debugPrint("Unknown task");
+  //   }
+  // }
+
+  Future<bool> callbackDispatcher(
+      String task, Map<String, dynamic>? inputData) async {
+    try {
+      switch (task) {
+        case 'deleteCompletedSurveys':
+          // Use the _boxOperations() method directly
+          final nonPendingSurveys =
+              await _boxOperations().getSurveysByPendingStatus(false);
+          for (final survey in nonPendingSurveys) {
+            await _boxOperations().removeSurvey(survey);
+          }
+          print(
+              "callbackDispatcher@Deleted ${nonPendingSurveys.length} non-pending surveys.");
+          return true;
+        default:
+          debugPrint("callbackDispatcher@Unknown task");
+          return false;
+      }
+    } catch (e) {
+      print("callbackDispatcher@ Error in callbackDispatcher: ${e.toString()}");
+      return false;
+    }
   }
 }

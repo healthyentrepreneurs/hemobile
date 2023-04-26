@@ -113,9 +113,19 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
   void _onLoadStateEvent(
       LoadStateEvent event, Emitter<DatabaseState> emit) async {
     final result = await _databaseRepository.loadState();
-    debugPrint("_onLoadStateEvent@uploadData $result ");
     if (result != null) {
+      debugPrint("_onLoadStateEvent@uploadData $result ");
+      // {id: 1, uploadProgress: 0.0, isUploadingData: false, backupAnimation: false, surveyAnimation: false, booksAnimation: false}
       event.onLoadStateChanged(result);
+      emit(state.copyWith(
+        uploadProgress: result['uploadProgress'],
+        isUploadingData: result['isUploadingData'],
+        backupAnimation: result['backupAnimation'],
+        surveyAnimation: result['surveyAnimation'],
+        booksAnimation: result['booksAnimation'],
+      ));
+    } else {
+      debugPrint("_onLoadStateEvent@uploadData $result NAKIGANDA");
     }
   }
 
