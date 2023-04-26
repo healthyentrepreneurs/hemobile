@@ -2,6 +2,7 @@ import 'package:auth_repo/auth_repo.dart';
 import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:he/app/app.dart';
 import 'package:he/injection.dart';
 import 'package:he/langhe/langhe.dart';
@@ -10,6 +11,7 @@ import 'package:he/objects/blocs/apkupdate/bloc/apk_bloc.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he/objects/blocs/repo/apk_repo.dart';
 import 'package:he/objects/blocs/repo/database_repo.dart';
+import 'package:he/service/work_manager_service.dart';
 import 'package:he_storage/he_storage.dart';
 import 'package:theme_locale_repo/generated/l10n.dart';
 import 'package:theme_locale_repo/theme_locale_repo.dart';
@@ -54,20 +56,20 @@ class App extends StatelessWidget {
         providers: [
           BlocProvider<ThemeLangBloc>(
               create: (_) => ThemeLangBloc(
-                themeLocaleIntRepository: _themeLocaleIntRepository,
-              )),
+                    themeLocaleIntRepository: _themeLocaleIntRepository,
+                  )),
           BlocProvider<LoginBloc>(
               create: (_) => LoginBloc(
-                heAuthRepository: _heAuthRepository,
-              )),
+                    heAuthRepository: _heAuthRepository,
+                  )),
           BlocProvider<AuthenticationBloc>(
               create: (_) => AuthenticationBloc(
-                heAuthRepository: _heAuthRepository,
-              )),
+                    heAuthRepository: _heAuthRepository,
+                  )),
           BlocProvider<ApkBloc>(
               create: (_) => ApkBloc(
-                repository: _logRepository,
-              )),
+                    repository: _logRepository,
+                  )),
           BlocProvider<AppudateBloc>(create: (_) => AppudateBloc()),
           BlocProvider<ApkseenBloc>(
               create: (_) => ApkseenBloc(repository: _gsApkUpdateApi)),
@@ -90,6 +92,14 @@ class AppView extends StatefulWidget {
 }
 
 class _AppView extends State<AppView> {
+  @override
+  void initState() {
+    super.initState();
+    final workManagerService = GetIt.I<WorkManagerService>();
+    workManagerService.initialize();
+    workManagerService.registerOneOffTask();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeLangBloc, ThemeLangState>(

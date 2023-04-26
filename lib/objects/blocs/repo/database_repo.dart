@@ -6,6 +6,7 @@ import 'package:he/objects/db_local/db_local.dart';
 import 'package:he/service/objectbox_service.dart';
 import 'package:he_api/he_api.dart';
 import 'package:injectable/injectable.dart';
+import 'package:objectbox/objectbox.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -16,14 +17,14 @@ import 'impl/repo_failure.dart';
 @LazySingleton(as: IDatabaseRepository)
 class DatabaseRepository implements IDatabaseRepository {
   final FirebaseFirestore _firestore;
-  final ObjectBoxService _objectbox;
-  DatabaseRepository(this._firestore, this._objectbox);
+  final Store _store;
+  DatabaseRepository(this._firestore, this._store);
 
   DatabaseService _service() => DatabaseService(firestore: _firestore);
   final DatabaseServiceLocal _serviceLocal = DatabaseServiceLocal();
 
-  DatabaseBoxOperations _boxOperations() => DatabaseBoxOperations(
-      store: _objectbox.store, firestore: _firestore);
+  DatabaseBoxOperations _boxOperations() =>
+      DatabaseBoxOperations(store: _store, firestore: _firestore);
 
   final BehaviorSubject<HenetworkStatus> _henetworkStatusSubject =
       BehaviorSubject<HenetworkStatus>.seeded(HenetworkStatus.loading);
@@ -187,40 +188,6 @@ class DatabaseRepository implements IDatabaseRepository {
     );
   }
 
-  // void callbackDispatcher() {
-  //   Workmanager().executeTask((task, inputData) async {
-  //     switch (task) {
-  //       case 'deleteCompletedSurveys':
-  //         // Use the _boxOperations() method directly
-  //         final nonPendingSurveys =
-  //             await _boxOperations().getSurveysByPendingStatus(false);
-  //         nonPendingSurveys.forEach((survey) async {
-  //           await _boxOperations().removeSurvey(survey);
-  //         });
-  //         break;
-  //       default:
-  //         debugPrint("Unknown task");
-  //     }
-  //
-  //     return Future.value(true);
-  //   });
-  // }
-  // void callbackDispatcher(String task, Map<String, dynamic>? inputData) async {
-  //   switch (task) {
-  //     case 'deleteCompletedSurveys':
-  //       // Use the _boxOperations() method directly
-  //       debugPrint("BackgroundTask deleteCompletedSurveys");
-  //       final nonPendingSurveys =
-  //           await _boxOperations().getSurveysByPendingStatus(false);
-  //       nonPendingSurveys.forEach((survey) async {
-  //         await _boxOperations().removeSurvey(survey);
-  //       });
-  //       break;
-  //     default:
-  //       debugPrint("Unknown task");
-  //   }
-  // }
-
   Future<bool> callbackDispatcher(
       String task, Map<String, dynamic>? inputData) async {
     try {
@@ -239,6 +206,22 @@ class DatabaseRepository implements IDatabaseRepository {
           debugPrint("callbackDispatcher@Unknown task");
           return false;
       }
+    } catch (e) {
+      print("callbackDispatcher@ Error in callbackDispatcher: ${e.toString()}");
+      return false;
+    }
+  }
+
+  Future<bool> cleanUploadedSurveys() async {
+    try {
+      final nonPendingSurveys =
+          await _boxOperations().getSurveysByPendingStatus(false);
+      for (final survey in nonPendingSurveys) {
+        await _boxOperations().removeSurvey(survey);
+      }
+      print(
+          "callbackDispatcher@Deleted ${nonPendingSurveys.length} non-pending surveys.");
+      return true;
     } catch (e) {
       print("callbackDispatcher@ Error in callbackDispatcher: ${e.toString()}");
       return false;

@@ -3,6 +3,7 @@ import 'package:auth_repo/auth_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:he/injection.config.dart';
+import 'package:he/service/work_manager_service.dart';
 import 'package:he_storage/he_storage.dart';
 import 'package:injectable/injectable.dart';
 
@@ -35,7 +36,8 @@ Future<void> configureInjections(GetIt getIt) async {
       () => ApkRepository(injectableModule.firestore));
 
   getIt.registerSingleton<DatabaseRepository>(
-      DatabaseRepository(injectableModule.firestore, objectbox));
+      DatabaseRepository(injectableModule.firestore, objectbox.store));
   // getIt.registerLazySingleton<DatabaseRepository>(
   //     () => DatabaseRepository(injectableModule.firestore, objectbox));
+  getIt.registerSingleton<WorkManagerService>(WorkManagerService());
 }
