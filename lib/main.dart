@@ -5,10 +5,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:theme_locale_repo/theme_locale_repo.dart';
-import 'package:workmanager/workmanager.dart';
 import 'app/app.dart';
 import 'injection.dart';
-import 'objects/blocs/repo/repo.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

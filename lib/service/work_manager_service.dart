@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -15,6 +16,7 @@ class WorkManagerService {
   }
   WorkManagerService._internal();
   Future<void> initialize() async {
+    await _initializeNotifications();
     await Workmanager().initialize(
       callbackDispatcher,
       isInDebugMode: true,
@@ -22,6 +24,18 @@ class WorkManagerService {
     print("Workmanager initialized");
   }
 
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  Future<void> _initializeNotifications() async {
+    var initializationSettingsAndroid =
+        const AndroidInitializationSettings('icon');
+    var initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+//Methods For Background
   Future<void> startPeriodicTask() async {
     await Workmanager().registerPeriodicTask(
       "1",
@@ -65,8 +79,31 @@ class WorkManagerService {
         DatabaseRepository(firestore, objectbox.store);
     await databaseRepository.cleanUploadedSurveys();
   }
+
+  Future<void> showNotification(String title, String body) async {
+    // Define the duration for the notification to be displayed
+    // final durationInMilliseconds = Duration(hours: 2).inMilliseconds;
+    final durationInMilliseconds = const Duration(minutes: 2).inMilliseconds;
+
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+        'task_notification_channel', 'Task Notification',
+        importance: Importance.max,
+        priority: Priority.high,
+        showWhen: false,
+        timeoutAfter: durationInMilliseconds); // Add the timeoutAfter property
+
+    var platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      title,
+      body,
+      platformChannelSpecifics,
+    );
+  }
 }
 
+@pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     await WorkManagerService._initializeFirebase();
@@ -74,6 +111,8 @@ void callbackDispatcher() {
       case WorkManagerService.cleanUploadedSurveysTask:
         print("Executing cleanUploadedSurveys task");
         await WorkManagerService._cleanUploadedSurveys();
+        final workManagerService = WorkManagerService();
+        await workManagerService.showNotification('Task Completed', 'Your background task has been completed.');
         break;
       case WorkManagerService.workManagerTask:
         print("Executing cleanUploadedSurveys task");

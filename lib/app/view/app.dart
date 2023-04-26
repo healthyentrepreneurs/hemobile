@@ -2,6 +2,7 @@ import 'package:auth_repo/auth_repo.dart';
 import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:he/app/app.dart';
 import 'package:he/injection.dart';
