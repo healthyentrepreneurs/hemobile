@@ -1,14 +1,12 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
-import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
+import 'package:objectbox/src/native/query/query.dart' as boxquery;
 import 'package:he/objectbox.g.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
 import 'package:he/objects/db_local/db_local.dart';
+import 'package:rxdart/rxdart.dart';
 
-// https://docs.objectbox.io/entity-annotations
 class DatabaseBoxOperations {
   final Store _store;
   final FirebaseFirestore _firestore;
@@ -19,8 +17,20 @@ class DatabaseBoxOperations {
         _firestore = firestore;
 
   Box<SurveyDataModel> get _surveyBox => _store.box<SurveyDataModel>();
+  Box<BookDataModel> get _bookDataBox => _store.box<BookDataModel>();
+  Box<BackupStateDataModel> get _backupBox =>
+      _store.box<BackupStateDataModel>();
 
-  // BOOK LOCAL SAVING
+  final BehaviorSubject<double> _uploadProgressSubject =
+      BehaviorSubject.seeded(0.0);
+  final BehaviorSubject<bool> _isUploadingDataSubject =
+      BehaviorSubject.seeded(false);
+
+  Stream<double> get uploadProgressStream => _uploadProgressSubject.stream;
+  Stream<bool> get isUploadingDataStream => _isUploadingDataSubject.stream;
+
+  // ## BOOK LOCAL SAVING
+
   Future<Either<Failure, int>> saveBookData({
     required String bookId,
     required String chapterId,
@@ -28,66 +38,60 @@ class DatabaseBoxOperations {
     required String userId,
     required bool isPending,
   }) async {
-    final bookDataBox = _store.box<BookDataModel>();
+    return _handleBookDataModel(BookDataModel(
+      bookId: bookId,
+      chapterId: chapterId,
+      courseId: courseId,
+      userId: userId,
+      isPending: isPending,
+    ));
+  }
+
+  Future<Either<Failure, int>> _handleBookDataModel(
+      BookDataModel bookDataModel) async {
     try {
-      final bookDataModel = BookDataModel(
-        bookId: bookId,
-        chapterId: chapterId,
-        courseId: courseId,
-        userId: userId,
-        isPending: isPending,
-      );
       return Future.value(
-          Right(bookDataBox.put(bookDataModel))); // Return success value
+          Right(_bookDataBox.put(bookDataModel))); // Return success value
     } catch (e) {
       debugPrint("Error saving saveBookData response: $e");
       return Future.value(Left(RepositoryFailure(e.toString())));
     }
   }
 
-// SURVEY LOCAL SAVING
+  // ## SURVEY LOCAL SAVING
 
-  // Add a new SurveyDataModel
   Future<int> addSurvey(SurveyDataModel survey) async {
     return _surveyBox.put(survey);
   }
 
-  // Get all surveys
-  Future<List<SurveyDataModel>> getAllSurveys() async {
-    return _surveyBox.getAll();
-  }
-
-  // Get a specific survey by its id
-  Future<SurveyDataModel?> getSurveyById(int id) async {
-    return _surveyBox.get(id);
-  }
-
-  Future<Either<Failure, int>> saveSurveyData({
-    required String surveyId,
-    required String country,
-    required String userId,
-    required String surveyVersion,
-    required String surveyJson,
-    required bool isPending,
-    required String courseId,
-    required String surveyObject,
-  }) {
-    final surveyDataBox = _store.box<SurveyDataModel>();
+  Future<void> removeSurvey(SurveyDataModel survey) async {
     try {
-      final surveyDataModel = SurveyDataModel(
-          userId: userId,
-          surveyVersion: surveyVersion,
-          courseId: courseId,
-          surveyId: surveyId,
-          isPending: isPending,
-          country: country,
-          surveyObject: surveyObject);
-      return Future.value(
-          Right(surveyDataBox.put(surveyDataModel))); // Return success value
+      // Delete the survey from the ObjectBox store
+      _surveyBox.remove(survey.id);
     } catch (e) {
-      debugPrint("Error saving saveBookData response: $e");
+      // Handle any error that might occur during the deletion process
+      debugPrint("removeSurvey@Error removing survey: $e");
+    }
+  }
+
+  Future<Either<Failure, int>> saveSurveyData(
+      {required SurveyDataModel surveydata}) {
+    try {
+      return Future.value(
+          Right(_surveyBox.put(surveydata))); // Return success value
+    } catch (e) {
+      debugPrint("Error saving saveSurveyData response: $e");
       return Future.value(Left(RepositoryFailure(e.toString())));
     }
+  }
+
+  Future<List<SurveyDataModel>> getSurveysByPendingStatus(
+      bool isPending) async {
+    final query =
+        _surveyBox.query(SurveyDataModel_.isPending.equals(isPending)).build();
+    final surveys = query.find();
+    query.close();
+    return surveys;
   }
 
   Stream<Either<Failure, int>> get totalSavedSurveyData {
@@ -97,24 +101,31 @@ class DatabaseBoxOperations {
   //Survey Helper Classes
   Future<Either<Failure, int>> _countPendingSurveys() async {
     try {
-      final box = Box<SurveyDataModel>(_store);
-      final count =
-          box.query(SurveyDataModel_.isPending.equals(true)).build().count();
-      return Right(count);
+      final listSurveys = await getSurveysByPendingStatus(true);
+      return Right(listSurveys.length);
     } catch (error) {
       return Left(RepositoryFailure(error.toString()));
     }
   }
 
-  Future<void> updateSurvey(SurveyDataModel survey) async {
-    _surveyBox.put(survey);
+  Future<List<SurveyDataModel>> getSurveysPendingStatusCTimeLimit(
+      bool isPending) async {
+    int currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
+    final query = _surveyBox
+        .query(SurveyDataModel_.isPending
+            .equals(isPending)
+            .and(SurveyDataModel_.dateCreated.lessOrEqual(currentTimeMillis)))
+        .build();
+    final surveys = query.find();
+    query.close();
+    return surveys;
   }
 
   Future<void> savePendingSurveysToFirestoreAndSetNotPending({
     required Function(double) onUploadProgressChanged,
   }) async {
     List<SurveyDataModel> pendingSurveys =
-        await getSurveysByPendingStatusWithCurrentTimeLimit(true);
+        await getSurveysPendingStatusCTimeLimit(true);
 
     int totalPendingSurveys = pendingSurveys.length;
     int uploadedSurveys = 0;
@@ -161,52 +172,7 @@ class DatabaseBoxOperations {
     debugPrint("Total uploaded surveys simulated: $uploadedSurveysSimulated");
   }
 
-  Future<List<SurveyDataModel>> getSurveysByPendingStatusWithCurrentTimeLimit(
-      bool isPending) async {
-    int currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
-    final query = _surveyBox
-        .query(SurveyDataModel_.isPending
-            .equals(isPending)
-            .and(SurveyDataModel_.dateCreated.lessOrEqual(currentTimeMillis)))
-        .build();
-    final surveys = query.find();
-    query.close();
-    return surveys;
-  }
-
-  List<SurveyDataModel> generateDummySurveysWithFaker() {
-    const int numOfSurveys = 100;
-    final faker = Faker();
-
-    List<SurveyDataModel> dummySurveys = [];
-    for (int i = 0; i < numOfSurveys; i++) {
-      var namu = SurveyDataModel(
-        userId: faker.guid.guid(),
-        surveyVersion: faker.randomGenerator.decimal(min: 1).toString(),
-        surveyObject:
-            '{"question1": "${faker.lorem.word()}", "question2": "${faker.lorem.word()}"}',
-        surveyId: faker.guid.guid(),
-        isPending: faker.randomGenerator.boolean(),
-        courseId: faker.guid.guid(),
-        country: faker.address.country(),
-      );
-      addSurvey(namu);
-      dummySurveys.add(namu);
-    }
-
-    return dummySurveys;
-  }
-
-  // Query surveys by a specific field, e.g., isPending
-  Future<List<SurveyDataModel>> getSurveysByPendingStatus(
-      bool isPending) async {
-    final query =
-        _surveyBox.query(SurveyDataModel_.isPending.equals(isPending)).build();
-    final surveys = query.find();
-    query.close();
-    return surveys;
-  }
-  //BACKUP STATUS LOCAL
+  // ## BACKUP STATUS LOCAL
 
   Future<void> uploadDataOps({
     required bool isUploadingData,
@@ -237,6 +203,8 @@ class DatabaseBoxOperations {
       // Set isUploadingData to true when the upload starts
       isUploadingData = true;
       onUploadStateChanged(isUploadingData, uploadProgress);
+      debugPrint(
+          "CHECHE DatabaseBoxOperations@onUploadStateChanged $isUploadingData and $uploadProgress \n");
       // Call the savePendingSurveysToFirestoreAndSetNotPending method with the progress update callback
       await savePendingSurveysToFirestoreAndSetNotPending(
         onUploadProgressChanged: (progress) {
@@ -262,9 +230,26 @@ class DatabaseBoxOperations {
 
   Future<Map<String, dynamic>?> loadState() async {
     // generateDummySurveysWithFaker();
-    final box = Box<BackupStateDataModel>(_store);
-    final data = box.query().build().findFirst();
+    final data = _backupBox.query().build().findFirst();
     return data?.toJson();
+  }
+
+  Future<List<BackupStateDataModel>> deleteRecordsWithIdNotOne() async {
+    final query =
+        _backupBox.query(BackupStateDataModel_.id.notEquals(100)).build();
+    final backupStates = query.find();
+    query.close();
+    return backupStates;
+  }
+
+  Future<void> removeBackupState(BackupStateDataModel backup) async {
+    try {
+      // Delete the survey from the ObjectBox store
+      _backupBox.remove(backup.id);
+    } catch (e) {
+      // Handle any error that might occur during the deletion process
+      debugPrint("removeSurvey@Error removing survey: $e");
+    }
   }
 
   Future<void> saveState({
@@ -288,6 +273,7 @@ class DatabaseBoxOperations {
       );
       box.put(data);
     } else {
+      debugPrint("DatabaseBoxOperations@saveState@else ${results.toString()}");
       final existingData = results.first;
       final updatedData = BackupStateDataModel(
         id: existingData.id, // Ensure to keep the existing ID for update
@@ -303,7 +289,8 @@ class DatabaseBoxOperations {
     }
   }
 
-  //FIRESTORE-LOCAL MIRROR
+  // ## FIRESTORE-LOCAL MIRROR
+
   Future<Either<Failure, void>> saveSurveysFireStore({
     required String surveyId,
     required String country,
@@ -312,16 +299,13 @@ class DatabaseBoxOperations {
     required String surveyVersion,
   }) async {
     try {
-      await _firestore
-          .collection('surveyposts')
-          .doc(country)
-          .collection(surveyId)
-          .add({
-        'userId': userId,
-        'surveyVersion': surveyVersion,
-        'surveyobject': surveyJson,
-        'surveyId': surveyId,
-      });
+      await _saveSurveyToFirestore(
+        surveyId: surveyId,
+        country: country,
+        userId: userId,
+        surveyJson: surveyJson,
+        surveyVersion: surveyVersion,
+      );
       return Future.value(const Right(null)); // Return success value
     } catch (e) {
       debugPrint("Error saving survey response: ${e.toString()}");
@@ -329,13 +313,22 @@ class DatabaseBoxOperations {
     }
   }
 
-  Future<void> removeSurvey(SurveyDataModel survey) async {
-    try {
-      // Delete the survey from the ObjectBox store
-      _surveyBox.remove(survey.id);
-    } catch (e) {
-      // Handle any error that might occur during the deletion process
-      debugPrint("removeSurvey@Error removing survey: ${e.toString()}");
-    }
+  Future<void> _saveSurveyToFirestore({
+    required String surveyId,
+    required String country,
+    required String userId,
+    required String surveyJson,
+    required String surveyVersion,
+  }) async {
+    await _firestore
+        .collection('surveyposts')
+        .doc(country)
+        .collection(surveyId)
+        .add({
+      'userId': userId,
+      'surveyVersion': surveyVersion,
+      'surveyobject': surveyJson,
+      'surveyId': surveyId,
+    });
   }
 }

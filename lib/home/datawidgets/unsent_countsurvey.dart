@@ -21,7 +21,7 @@ class UnsentSurveysWidget extends StatelessWidget {
               unsentSurveysCountText = 'Error';
             } else if (state.surveyTotalCount == null) {
               unsentSurveysCountText = 'Loading... ';
-              context.read<DatabaseBloc>().add(const DbCountSurvey());
+              context.read<DatabaseBloc>().add(const DbCountSurveyEvent());
             } else {
               int? unsentSurveysCount = state.surveyTotalCount;
               unsentSurveysCountText = '$unsentSurveysCount';

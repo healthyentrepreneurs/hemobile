@@ -91,17 +91,17 @@ class SaveSurveyWidget extends StatelessWidget {
                         ],
                       ),
                     ),
-                    duration: const Duration(seconds: 2),
+                    duration: const Duration(seconds: 1),
                   ),
                 )
                 .closed
                 .then((_) {
-              Future.delayed(const Duration(seconds: 2), () {
+              Future.delayed(const Duration(seconds: 0), () {
                 // BlocProvider.of<DatabaseBloc>(context)
-                context.read<DatabaseBloc>().add(const DbCountSurvey());
+                context.read<DatabaseBloc>().add(const DbCountSurveyEvent());
                 context
                     .read<SurveyBloc>()
-                    .add(const SurveyReset(resetSurveySaveSuccessStream: true));
+                    .add(const SurveyReset(resetSurveySaveSuccess: true));
               }).then((_) {
                 context.flow<SurveyState>().complete();
               });

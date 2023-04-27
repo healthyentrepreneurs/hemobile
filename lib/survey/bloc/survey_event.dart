@@ -36,8 +36,8 @@ class SurveySave extends SurveyEvent {
 }
 
 class SurveyReset extends SurveyEvent {
-  final bool resetSurveySaveSuccessStream;
-  const SurveyReset({this.resetSurveySaveSuccessStream = false});
+  final bool resetSurveySaveSuccess;
+  const SurveyReset({this.resetSurveySaveSuccess = false});
   @override
   List<Object?> get props => [];
 }

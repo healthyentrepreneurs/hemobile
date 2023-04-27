@@ -107,10 +107,25 @@ class DatabaseRepository implements IDatabaseRepository {
   }
 
   @override
-  Future<Either<Failure, int>> saveSurveys(
-      {required SurveyDataModel surveyData}) {
+  Future<Either<Failure, int>> saveSurveys({
+    required String surveyId,
+    required String country,
+    required String userId,
+    required String courseId,
+    required String surveyJson,
+    required String surveyVersion,
+    required bool isPending,
+  }) {
     debugPrint('DatabaseRepository@saveSurveys Nodata');
-    return _boxOperations().saveSurveyData(surveydata: surveyData);
+    return _boxOperations().saveSurveyData(
+        surveyId: surveyId,
+        country: country,
+        userId: userId,
+        surveyJson: surveyJson,
+        isPending: isPending,
+        courseId: courseId,
+        surveyVersion: surveyVersion,
+        surveyObject: surveyJson);
   }
 
   @override
@@ -176,9 +191,9 @@ class DatabaseRepository implements IDatabaseRepository {
   Future<bool> cleanUploadedSurveys() async {
     try {
       final nonPendingSurveys =
-          await _boxOperations().deleteRecordsWithIdNotOne();
+          await _boxOperations().getSurveysByPendingStatus(false);
       for (final survey in nonPendingSurveys) {
-        await _boxOperations().removeBackupState(survey);
+        await _boxOperations().removeSurvey(survey);
       }
       debugPrint(
           "callbackDispatcher@Deleted ${nonPendingSurveys.length} non-pending surveys.");

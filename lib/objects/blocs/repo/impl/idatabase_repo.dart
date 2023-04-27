@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:he/objects/db_local/db_local.dart';
 import 'package:he_api/he_api.dart';
 
 import '../../../../helper/file_system_util.dart';
@@ -15,15 +16,8 @@ abstract class IDatabaseRepository {
   Stream<Either<Failure, List<BookContent?>>> retrieveBookChapter(
       String courseId, String section, String bookcontextid, int bookIndex);
   Future<void> addHenetworkStatus(HenetworkStatus status);
-  Future<Either<Failure, int>> saveSurveys({
-    required String surveyId,
-    required String country,
-    required String userId,
-    required String surveyJson,
-    required String surveyVersion,
-    required String courseId,
-    required bool isPending,
-  });
+  Future<Either<Failure, int>> saveSurveys(
+      {required SurveyDataModel surveyData});
 
   Future<Either<Failure, int>> saveBookChapters({
     required String bookId,

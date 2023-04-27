@@ -5,6 +5,7 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:he/objects/blocs/repo/database_repo.dart';
+import 'package:he/objects/db_local/db_local.dart';
 
 import '../../helper/file_system_util.dart';
 import '../../objects/blocs/repo/impl/repo_failure.dart';
@@ -37,22 +38,23 @@ class SurveyBloc extends Bloc<SurveyEvent, SurveyState> {
   }
 
   void _onSurveyReset(SurveyReset event, Emitter<SurveyState> emit) {
-    if (event.resetSurveySaveSuccessStream) {}
+    if (event.resetSurveySaveSuccess) {}
     // emit(const SurveyState.loading());
     emit(const SurveyState.reset());
   }
 
   Future<void> _onSurveySave(
       SurveySave event, Emitter<SurveyState> emit) async {
-    final result = await _databaseRepository.saveSurveys(
-      surveyId: event.surveyId,
-      surveyVersion: event.surveyVersion,
-      surveyJson: event.surveyJson,
-      country: event.country,
+    SurveyDataModel survey = SurveyDataModel(
       userId: event.userId,
-      courseId: event.courseId,
+      surveyVersion: event.surveyVersion,
+      surveyObject: event.surveyJson,
+      surveyId: event.surveyId,
       isPending: event.isPending,
+      courseId: event.courseId,
+      country: event.country,
     );
+    final result = await _databaseRepository.saveSurveys(surveyData: survey);
 
     result.fold(
       (failure) {

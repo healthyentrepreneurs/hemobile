@@ -23,7 +23,7 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     on<DatabaseSubSelected>(_onDatabaseSubSelected);
     on<DatabaseSubDeSelected>(_onDatabaseSubDeSelected);
     on<DatabaseFetchedError>(_onDatabaseFetchedError);
-    on<DbCountSurvey>(_onDbCountSurvey);
+    on<DbCountSurveyEvent>(_onDbCountSurveyEvent);
     on<UploadDataEvent>(_onUploadDataEvent);
     on<LoadStateEvent>(_onLoadStateEvent);
     // on<UpdateUploadStateEvent>(_onUpdateUploadStateEvent);
@@ -77,8 +77,8 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     }
   }
 
-  FutureOr<void> _onDbCountSurvey(
-      DbCountSurvey event, Emitter<DatabaseState> emit) async {
+  FutureOr<void> _onDbCountSurveyEvent(
+      DbCountSurveyEvent event, Emitter<DatabaseState> emit) async {
     final result = _databaseRepository.totalSavedSurvey();
     await emit.forEach(result, onData: (Either<Failure, int> countSurvey) {
       return countSurvey.fold(

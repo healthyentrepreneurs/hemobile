@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:he/helper/file_system_util.dart';
 import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
+import 'package:he/objects/db_local/db_local.dart';
 import 'package:he/survey/bloc/survey_bloc.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:dartz/dartz.dart';
@@ -27,14 +28,15 @@ void main() {
       'Emits [success] when _onSurveySave is called without error',
       build: () {
         when(() => mockDatabaseRepository.saveSurveys(
-              surveyId: any(named: 'surveyId'),
+                surveyData: SurveyDataModel(
+              userId: any(named: 'surveyId'),
               surveyVersion: any(named: 'surveyVersion'),
-              surveyJson: any(named: 'surveyJson'),
-              country: any(named: 'country'),
-              userId: any(named: 'userId'),
+              surveyObject: any(named: 'surveyJson'),
+              surveyId: any(named: 'country'),
+              isPending: any(named: 'userId'),
               courseId: any(named: 'courseId'),
-              isPending: any(named: 'isPending'),
-            )).thenAnswer((_) async => const Right(1));
+              country: any(named: 'isPending'),
+            ))).thenAnswer((_) async => const Right(1));
         return surveyBloc;
       },
       act: (bloc) => bloc.add(const SurveySave(
@@ -51,19 +53,19 @@ void main() {
       ],
     );
 
-
     blocTest<SurveyBloc, SurveyState>(
       'Emits [error] when _onSurveySave is called with error',
       build: () {
         when(() => mockDatabaseRepository.saveSurveys(
-              surveyId: any(named: 'surveyId'),
+                surveyData: SurveyDataModel(
+              userId: any(named: 'surveyId'),
               surveyVersion: any(named: 'surveyVersion'),
-              surveyJson: any(named: 'surveyJson'),
-              country: any(named: 'country'),
-              userId: any(named: 'userId'),
+              surveyObject: any(named: 'surveyJson'),
+              surveyId: any(named: 'country'),
+              isPending: any(named: 'userId'),
               courseId: any(named: 'courseId'),
-              isPending: any(named: 'isPending'),
-            )).thenAnswer((_) async => Left(RepositoryFailure('')));
+              country: any(named: 'isPending'),
+            ))).thenAnswer((_) async => Left(RepositoryFailure('')));
         return SurveyBloc(repository: mockDatabaseRepository);
       },
       act: (bloc) {
