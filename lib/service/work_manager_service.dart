@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:workmanager/workmanager.dart';
@@ -21,7 +22,7 @@ class WorkManagerService {
       callbackDispatcher,
       isInDebugMode: true,
     );
-    print("Workmanager initialized");
+    debugPrint("Workmanager initialized");
   }
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -45,12 +46,12 @@ class WorkManagerService {
         networkType: NetworkType.connected,
       ),
     );
-    print("Periodic task registered");
+    debugPrint("Periodic task registered");
   }
 
   Future<void> cancelAllTasks() async {
     await Workmanager().cancelAll();
-    print("Cancelled all tasks");
+    debugPrint("Cancelled all tasks");
   }
 
   Future<void> registerOneOffTask() async {
@@ -58,7 +59,7 @@ class WorkManagerService {
         inputData: <String, dynamic>{},
         initialDelay: const Duration(seconds: 10),
         tag: "registerOneOffTaskNjovu");
-    print("registerOneOffTask task registered");
+    debugPrint("registerOneOffTask task registered");
   }
 
   Future<void> _runCleanUploadedSurveys() async {
@@ -76,7 +77,7 @@ class WorkManagerService {
     ObjectBoxService objectbox = await ObjectBoxService.create();
 
     final DatabaseRepository databaseRepository =
-        DatabaseRepository(firestore, objectbox.store);
+        DatabaseRepository(firestore, objectbox);
     await databaseRepository.cleanUploadedSurveys();
   }
 
@@ -109,17 +110,18 @@ void callbackDispatcher() {
     await WorkManagerService._initializeFirebase();
     switch (task) {
       case WorkManagerService.cleanUploadedSurveysTask:
-        print("Executing cleanUploadedSurveys task");
+        debugPrint("Executing cleanUploadedSurveys task");
         await WorkManagerService._cleanUploadedSurveys();
         final workManagerService = WorkManagerService();
-        await workManagerService.showNotification('Task Completed', 'Your background task has been completed.');
+        await workManagerService.showNotification(
+            'Task Completed', 'Your background task has been completed.');
         break;
       case WorkManagerService.workManagerTask:
-        print("Executing cleanUploadedSurveys task");
+        debugPrint("Executing cleanUploadedSurveys task");
         // await WorkManagerService.startPeriodicTask();
         break;
       default:
-        print("Unknown task executed");
+        debugPrint("Unknown task executed");
     }
     return Future.value(true);
   });

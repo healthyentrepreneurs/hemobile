@@ -155,7 +155,7 @@ class DatabaseBoxOperationsXX {
     totalPendingSurveys = pendingSurveys.length;
 
     for (SurveyDataModel survey in pendingSurveys) {
-      Either<Failure, void> result = await saveSurveysfireStore(
+      Either<Failure, void> result = await saveSurveysFireStore(
         surveyId: survey.surveyId,
         country: survey.country,
         userId: survey.userId,
@@ -241,7 +241,6 @@ class DatabaseBoxOperationsXX {
       } else {
         uploadProgress = 1.0;
       }
-
       onUploadStateChanged(isUploadingData, uploadProgress);
 
       // Set isUploadingData to false when the upload is complete
@@ -302,7 +301,7 @@ class DatabaseBoxOperationsXX {
   }
 
 //FIREBASE MIRROR OPERATIONS
-  Future<Either<Failure, void>> saveSurveysfireStore({
+  Future<Either<Failure, void>> saveSurveysFireStore({
     required String surveyId,
     required String country,
     required String userId,

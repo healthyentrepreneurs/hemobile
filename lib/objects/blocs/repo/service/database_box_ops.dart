@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:he/objectbox.g.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
 import 'package:he/objects/db_local/db_local.dart';
-import 'package:workmanager/workmanager.dart';
 
 // https://docs.objectbox.io/entity-annotations
 class DatabaseBoxOperations {
@@ -48,8 +47,19 @@ class DatabaseBoxOperations {
 
 // SURVEY LOCAL SAVING
 
+  // Add a new SurveyDataModel
   Future<int> addSurvey(SurveyDataModel survey) async {
     return _surveyBox.put(survey);
+  }
+
+  // Get all surveys
+  Future<List<SurveyDataModel>> getAllSurveys() async {
+    return _surveyBox.getAll();
+  }
+
+  // Get a specific survey by its id
+  Future<SurveyDataModel?> getSurveyById(int id) async {
+    return _surveyBox.get(id);
   }
 
   Future<Either<Failure, int>> saveSurveyData({
@@ -89,7 +99,7 @@ class DatabaseBoxOperations {
     try {
       final box = Box<SurveyDataModel>(_store);
       final count =
-          box.query(SurveyDataModel_.isPending.equals(false)).build().count();
+          box.query(SurveyDataModel_.isPending.equals(true)).build().count();
       return Right(count);
     } catch (error) {
       return Left(RepositoryFailure(error.toString()));
@@ -111,7 +121,7 @@ class DatabaseBoxOperations {
 
     for (SurveyDataModel survey in pendingSurveys) {
       // await Future.delayed(const Duration(milliseconds: 500));
-      Either<Failure, void> result = await saveSurveysfireStore(
+      Either<Failure, void> result = await saveSurveysFireStore(
         surveyId: survey.surveyId,
         country: survey.country,
         userId: survey.userId,
@@ -294,7 +304,7 @@ class DatabaseBoxOperations {
   }
 
   //FIRESTORE-LOCAL MIRROR
-  Future<Either<Failure, void>> saveSurveysfireStore({
+  Future<Either<Failure, void>> saveSurveysFireStore({
     required String surveyId,
     required String country,
     required String userId,
@@ -314,7 +324,7 @@ class DatabaseBoxOperations {
       });
       return Future.value(const Right(null)); // Return success value
     } catch (e) {
-      debugPrint("Error saving survey response: $e");
+      debugPrint("Error saving survey response: ${e.toString()}");
       return Future.value(Left(RepositoryFailure(e.toString())));
     }
   }
@@ -325,7 +335,7 @@ class DatabaseBoxOperations {
       _surveyBox.remove(survey.id);
     } catch (e) {
       // Handle any error that might occur during the deletion process
-      debugPrint("removeSurvey@Error removing survey: $e");
+      debugPrint("removeSurvey@Error removing survey: ${e.toString()}");
     }
   }
 }

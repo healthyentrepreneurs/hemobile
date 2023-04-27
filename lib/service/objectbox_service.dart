@@ -2,7 +2,6 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import '../objectbox.g.dart';
 
-
 // https://github.com/objectbox/objectbox-dart/issues/436
 class ObjectBoxService {
   late final Store store;
@@ -22,7 +21,7 @@ class ObjectBoxService {
       // Check if the store is already open
       if (Store.isOpen(storePath)) {
         // Attach to the already opened store
-        final store = Store.attach(getObjectBoxModel(),storePath);
+        final store = Store.attach(getObjectBoxModel(), storePath);
         _instance = ObjectBoxService._create(store);
       } else {
         // Future<Store> openStore() {...} is defined in the generated objectbox.g.dart

@@ -36,7 +36,7 @@ Future<void> configureInjections(GetIt getIt) async {
       () => ApkRepository(injectableModule.firestore));
 
   getIt.registerSingleton<DatabaseRepository>(
-      DatabaseRepository(injectableModule.firestore, objectbox.store));
+      DatabaseRepository(injectableModule.firestore, objectbox));
   // getIt.registerLazySingleton<DatabaseRepository>(
   //     () => DatabaseRepository(injectableModule.firestore, objectbox));
   getIt.registerSingleton<WorkManagerService>(WorkManagerService());
