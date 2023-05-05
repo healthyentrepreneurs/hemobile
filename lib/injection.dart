@@ -35,9 +35,13 @@ Future<void> configureInjections(GetIt getIt) async {
   getIt.registerLazySingleton<ApkRepository>(
       () => ApkRepository(injectableModule.firestore));
 
+
   getIt.registerSingleton<DatabaseRepository>(
       DatabaseRepository(injectableModule.firestore, objectbox));
   // getIt.registerLazySingleton<DatabaseRepository>(
   //     () => DatabaseRepository(injectableModule.firestore, objectbox));
   getIt.registerSingleton<WorkManagerService>(WorkManagerService());
+
+  getIt.registerLazySingleton<LclRxStgUpdateUploadApi>(() =>
+      LclRxStgUpdateUploadApi(rxPrefs: injectableModule.getrxsharedprefrence));
 }

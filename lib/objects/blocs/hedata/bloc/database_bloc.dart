@@ -1,12 +1,15 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
+import 'package:he/objects/db_local/backupstate_datamodel.dart';
 import 'package:he_api/he_api.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../../../../helper/file_system_util.dart';
 
@@ -15,6 +18,8 @@ part 'database_state.dart';
 
 class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
   DatabaseRepository repository;
+  late final StreamSubscription<BackupStateDataModel> _backupStateSubscription;
+  late final StreamSubscription<BackupStateDataModel> _subscription;
   DatabaseBloc({required this.repository})
       : _databaseRepository = repository,
         super(const DatabaseState.loading()) {
@@ -24,10 +29,16 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     on<DatabaseSubDeSelected>(_onDatabaseSubDeSelected);
     on<DatabaseFetchedError>(_onDatabaseFetchedError);
     on<DbCountSurveyEvent>(_onDbCountSurveyEvent);
-    on<UploadDataEvent>(_onUploadDataEvent);
+    on<DbCountBookEvent>(_onDbCountBookEvent);
     on<LoadStateEvent>(_onLoadStateEvent);
-    // on<UpdateUploadStateEvent>(_onUpdateUploadStateEvent);
-    on<SaveStateEvent>(_onSaveStateEvent);
+    on<UploadData>(_onUploadDataEvent);
+    _backupStateSubscription = repository
+        .getBackupStateDataModelStream()
+        .distinct(_distinctBackupStateDataModelComparison)
+        .listen((event) {
+      debugPrint("EVANSN ${event.toString()}");
+      add(UploadData(backupStateData: event));
+    });
   }
   final DatabaseRepository _databaseRepository;
 
@@ -90,23 +101,28 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     });
   }
 
-  // Handle UploadDataEvent
-  void _onUploadDataEvent(
-      UploadDataEvent event, Emitter<DatabaseState> emit) async {
-    debugPrint(
-        "BEFORCDatabaseBloc@_onUploadDataEvent ${event.isUploadingData} and ${event.uploadProgress}");
+  FutureOr<void> _onDbCountBookEvent(
+      DbCountBookEvent event, Emitter<DatabaseState> emit) async {
+    final result = _databaseRepository.totalSavedSurvey();
+    await emit.forEach(result, onData: (Either<Failure, int> countSurvey) {
+      return countSurvey.fold(
+        (failure) => state.copyWith(fetchError: failure),
+        (countValue) => state.copyWith(
+            surveyTotalCount:
+                countValue), // Reset the error to null when fetching is successful
+      );
+    });
+  }
+
+  _onUploadDataEvent(UploadData event, Emitter<DatabaseState> emit) async {
+    debugPrint("NAKIGANDA EMITTING ${event.backupStateData.toJson()} ");
     emit(state.copyWith(
-        isUploadingData: event.isUploadingData,
-        uploadProgress: event.uploadProgress));
-    // event.onUploadStateChanged(event.isUploadingData, event.uploadProgress);
-    debugPrint(
-        "AFTERCDatabaseBloc@_onUploadDataEvent ${event.isUploadingData} and ${event.uploadProgress}");
-    await _databaseRepository.uploadData(
-      isUploadingData: event.isUploadingData,
-      uploadProgress: event.uploadProgress,
-      simulateUpload: event.simulateUpload,
-      onUploadStateChanged: event.onUploadStateChanged,
-    );
+      uploadProgress: event.backupStateData.uploadProgress,
+      isUploadingData: event.backupStateData.isUploadingData,
+      backupAnimation: event.backupStateData.backupAnimation,
+      surveyAnimation: event.backupStateData.surveyAnimation,
+      booksAnimation: event.backupStateData.booksAnimation,
+    ));
   }
 
   // Handle LoadStateEvent
@@ -116,7 +132,6 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     if (result != null) {
       debugPrint("_onLoadStateEvent@uploadData $result ");
       // {id: 1, uploadProgress: 0.0, isUploadingData: false, backupAnimation: false, surveyAnimation: false, booksAnimation: false}
-      event.onLoadStateChanged(result);
       emit(state.copyWith(
         uploadProgress: result['uploadProgress'],
         isUploadingData: result['isUploadingData'],
@@ -125,25 +140,34 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
         booksAnimation: result['booksAnimation'],
       ));
     } else {
-      debugPrint("_onLoadStateEvent@uploadData $result NAKIGANDA");
+      debugPrint("_onLoadStateEvent@uploadData $result PEPE");
     }
   }
 
-  // Handle SaveStateEvent
-  void _onSaveStateEvent(SaveStateEvent event, Emitter<DatabaseState> emit) {
-    emit(state.copyWith(
-      isUploadingData: event.isUploadingData,
-      uploadProgress: event.uploadProgress,
-      backupAnimation: event.backupAnimation,
-      surveyAnimation: event.surveyAnimation,
-      booksAnimation: event.booksAnimation,
-    ));
-    _databaseRepository.saveState(
-      isUploadingData: event.isUploadingData,
-      uploadProgress: event.uploadProgress,
-      backupAnimation: event.backupAnimation,
-      surveyAnimation: event.surveyAnimation,
-      booksAnimation: event.booksAnimation,
-    );
+  @override
+  Future<void> close() {
+    _backupStateSubscription.cancel();
+    _subscription.cancel();
+    return super.close();
+  }
+
+  EventTransformer<UploadData> debounceRestartable<UploadData>(
+    Duration duration,
+  ) {
+    // This feeds the debounced event stream to restartable() and returns that
+    // as a transformer.
+    return (events, mapper) =>
+        restartable<UploadData>().call(events.debounceTime(duration), mapper);
+  }
+
+  bool _distinctBackupStateDataModelComparison(
+      BackupStateDataModel prev, BackupStateDataModel curr) {
+    return prev.id == curr.id &&
+        prev.uploadProgress == curr.uploadProgress &&
+        prev.isUploadingData == curr.isUploadingData &&
+        prev.backupAnimation == curr.backupAnimation &&
+        prev.surveyAnimation == curr.surveyAnimation &&
+        prev.booksAnimation == curr.booksAnimation &&
+        prev.dateCreated == curr.dateCreated;
   }
 }

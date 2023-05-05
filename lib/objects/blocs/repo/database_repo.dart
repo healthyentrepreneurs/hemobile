@@ -1,14 +1,14 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:he/objects/blocs/repo/service/service.dart';
 import 'package:he/objects/db_local/db_local.dart';
 import 'package:he/service/objectbox_service.dart';
-import 'package:he_api/he_api.dart';
+import 'package:he_storage/he_storage.dart';
 import 'package:injectable/injectable.dart';
-import 'package:objectbox/objectbox.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:workmanager/workmanager.dart';
 
 import '../../../helper/file_system_util.dart';
 import 'impl/idatabase_repo.dart';
@@ -18,13 +18,14 @@ import 'impl/repo_failure.dart';
 class DatabaseRepository implements IDatabaseRepository {
   final FirebaseFirestore _firestore;
   final ObjectBoxService _objectService;
+
   DatabaseRepository(this._firestore, this._objectService);
 
   DatabaseService _service() => DatabaseService(firestore: _firestore);
   final DatabaseServiceLocal _serviceLocal = DatabaseServiceLocal();
 
-  DatabaseBoxOperations _boxOperations() =>
-      DatabaseBoxOperations(store: _objectService.store, firestore: _firestore);
+  DatabaseBoxOperations _boxOperations() => DatabaseBoxOperations(
+      objectService: _objectService, firestore: _firestore);
 
   final BehaviorSubject<HenetworkStatus> _henetworkStatusSubject =
       BehaviorSubject<HenetworkStatus>.seeded(HenetworkStatus.loading);
@@ -135,42 +136,13 @@ class DatabaseRepository implements IDatabaseRepository {
   }
 
   // Add these methods to call uploadData, loadState, and saveState
-  Future<void> uploadData({
-    required bool isUploadingData,
-    required double uploadProgress,
-    bool simulateUpload = true,
-    required Function(bool, double) onUploadStateChanged,
-  }) async {
-    debugPrint(
-        "DatabaseRepository@uploadData  isUploadingData $isUploadingData "
-        "uploadProgress $uploadProgress "
-        "onUploadStateChanged  ${onUploadStateChanged.toString()} simulateUpload $simulateUpload \n");
-    return await _boxOperations().uploadDataOps(
-      isUploadingData: isUploadingData,
-      uploadProgress: uploadProgress,
-      simulateUpload: simulateUpload,
-      onUploadStateChanged: onUploadStateChanged,
-    );
+  Future<void> uploadData() async {
+    debugPrint("DatabaseRepository@uploadData  isUploadingData \n");
+    await _boxOperations().uploadDataOps();
   }
 
   Future<Map<String, dynamic>?> loadState() async {
     return await _boxOperations().loadState();
-  }
-
-  Future<void> saveState({
-    required bool? isUploadingData,
-    required double? uploadProgress,
-    required bool? backupAnimation,
-    required bool? surveyAnimation,
-    required bool? booksAnimation,
-  }) async {
-    return _boxOperations().saveState(
-      isUploadingData: isUploadingData,
-      uploadProgress: uploadProgress,
-      backupAnimation: backupAnimation,
-      surveyAnimation: surveyAnimation,
-      booksAnimation: booksAnimation,
-    );
   }
 
   Future<bool> cleanUploadedSurveys() async {
@@ -188,5 +160,46 @@ class DatabaseRepository implements IDatabaseRepository {
           "callbackDispatcher@ Error in callbackDispatcher: ${e.toString()}");
       return false;
     }
+  }
+
+  // Stream<BackupStateDataModel> getBackupStateDataModelStream() {
+  //   // tasksStream
+  //   return _objectService.tasksBroadcastStream.map((query) {
+  //     final latestItem = query.findFirst();
+  //     return latestItem ??
+  //         BackupStateDataModel
+  //             .defaultInstance(); // Return a default instance if no item is found
+  //   });
+  // }
+
+  Stream<BackupStateDataModel> getBackupStateDataModelStream() {
+    return _objectService.tasksBroadcastStream.map((query) {
+      final allItems = query.find();
+      // Sort the items based on the dateCreated
+      allItems.sort((a, b) => a.dateCreated!.compareTo(b.dateCreated!));
+      // Get the latest item (with the most recent dateCreated)
+      final latestItem = allItems.isNotEmpty ? allItems.last : null;
+      return latestItem ??
+          BackupStateDataModel
+              .defaultInstance(); // Return a default instance if no item is found
+    });
+  }
+  // Stream<BackupStateDataModel> getBackupStateDataModelStream() {
+  //   return _objectService.tasksBroadcastStream.asyncMap((query) async {
+  //     final items = query.find();
+  //     items.sort((a, b) => b.dateCreated.compareTo(
+  //         a.dateCreated)); // Sort items by dateCreated in descending order
+  //     // Check if the filtered items list is not empty and return the first item
+  //     if (items.isNotEmpty) {
+  //       return items.first;
+  //     } else {
+  //       // Return a default instance if no item is found
+  //       return BackupStateDataModel.defaultInstance();
+  //     }
+  //   });
+  // }
+
+  Stream<BackupStateDataModel> onSave() {
+    return _objectService.onSave;
   }
 }

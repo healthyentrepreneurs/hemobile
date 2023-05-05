@@ -95,7 +95,9 @@ dependencies:
   workmanager: ^0.5.1
   flutter_local_notifications: ^13.0.0
 #  flutter_background_executor: ^1.0.0
-  faker: ^2.1.0
+
+  broadcast_bloc: ^0.1.0-dev.2 #https://pub.dev/packages/broadcast_bloc
+  intl: ^0.17.0
 #  android_alarm_manager_plus: ^2.1.2
 
 dev_dependencies:
@@ -114,6 +116,7 @@ dev_dependencies:
   mocktail: ^0.3.0
   freezed: ^2.2.0
   json_serializable: ^6.3.1
+  faker: ^2.1.0
 #  https://pub.dev/packages/isolate_downloader
 
 #dependency_overrides:
@@ -126,21 +129,9 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icon/
-    - assets/icon/icon.png
-    - assets/images/lake.png
-    - assets/images/logo.png
-    - assets/images/grid.png
-    - assets/quiz/index.html
-    - assets/quiz/jquery.min.js
-    - assets/quiz/index.js
-    - assets/quiz/w3.css
-    - assets/quiz/quiz.css
-    - assets/survey/index.html
-    - assets/survey/modern.css
-    - assets/survey/survey.jquery.min.js
-    - assets/survey/index.js
-    - assets/survey/index.css
-    - assets/survey/jquery.min.js
+    - assets/images/
+    - assets/quiz/
+    - assets/survey/
 
 flutter_icons:
   android: "launcher_icon"

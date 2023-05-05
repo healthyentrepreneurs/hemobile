@@ -1,0 +1,36 @@
+/* index.css */
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+#surveyElement {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+/* index.css */
+@media (orientation: portrait) {
+  /* Styles for portrait orientation */
+}
+
+@media (orientation: landscape) {
+  /* Styles for landscape orientation */
+}
+
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+}
+
+body {
+  font-size: 12px;
+  /* Set the minimum font size */
+  font-size: calc(12px + 0.5vw);
+  /* Optional: make the font size responsive, based on the viewport width */
+}

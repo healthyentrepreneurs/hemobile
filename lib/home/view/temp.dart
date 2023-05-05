@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:he/home/home.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
-import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he/service/work_manager_service.dart';
 
 class BackupPage extends StatefulWidget {
@@ -88,114 +87,135 @@ class _BackupPageState extends State<BackupPage>
     super.build(context);
     bool? isUploadingData = context.watch<DatabaseBloc>().state.isUploadingData;
     double? uploadProgress = context.watch<DatabaseBloc>().state.uploadProgress;
-    return Scaffold(
-      appBar: HeAppBar(
-        course: 'Sync Data',
-        appbarwidget: Builder(
-          builder: (BuildContext context) {
-            return IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            );
-          },
+    return BlocListener<DatabaseBloc, DatabaseState>(
+      listener: (context, state) {
+        _updateAnimationStatus(state);
+      },
+      child: Scaffold(
+        appBar: HeAppBar(
+          course: 'Sync Data',
+          appbarwidget: Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              );
+            },
+          ),
+          transparentBackground: false,
         ),
-        transparentBackground: false,
-      ),
-      backgroundColor: const Color(0xfff6f6f6),
-      body: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: ListView(
-            children: [
-              // ... (Rest of the ListView children code)
-              SingleSection(
-                title: "",
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildBackupIconWidget(),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
-                                  Text(
-                                    "Last backup: Today at 12:34",
-                                    style: TextStyle(
-                                        fontSize: 16, color: Colors.grey),
-                                  ),
-                                  SizedBox(height: 5.0),
-                                  Text(
-                                    "Total Size: 1.29 GB",
-                                    style: TextStyle(
-                                        fontSize: 16, color: Colors.grey),
-                                  ),
-                                ],
+        backgroundColor: const Color(0xfff6f6f6),
+        body: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: ListView(
+              children: [
+// ... (Rest of the ListView children code)
+                SingleSection(
+                  title: "",
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildBackupIconWidget(),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: const [
+                                    Text(
+                                      "Last backup: Today at 12:34",
+                                      style: TextStyle(
+                                          fontSize: 16, color: Colors.grey),
+                                    ),
+                                    SizedBox(height: 5.0),
+                                    Text(
+                                      "Total Size: 1.29 GB",
+                                      style: TextStyle(
+                                          fontSize: 16, color: Colors.grey),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
+                          const Text(
+                            "You can upload the local data sets when you get online by tapping the below button.",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                _buildProgressWidget(isUploadingData, uploadProgress),
+                SingleSection(
+                  title: "Data Statistics",
+                  children: [
+                    _buildSurveyIconWidget(),
+                    ListTile(
+                      title: const Text("Books"),
+                      leading: const Icon(
+                        Icons.menu_book,
+                      ),
+                      subtitle: const Text('12 GB to be uploaded'),
+                      trailing: AnimatedBuilder(
+                        animation: _booksRotationAnimation,
+                        builder: (context, child) => Transform.rotate(
+                          angle: _booksRotationAnimation.value,
+                          child: const Icon(Icons.sync),
                         ),
-                        const Text(
-                          "You can upload the local data sets when you get online by tapping the below button.",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 16),
+                      ),
+                      onTap: () {
+// Show dialog to choose backup frequency
+                      },
+                    )
+                  ],
+                ),
+                SingleSection(
+                  title: "Control Animations",
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () => _uploadData(),
+                          child: Text(
+                            _backupController.isAnimating
+                                ? 'Stop Backup'
+                                : 'Start Backup',
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => _toggleAnimation('survey'),
+                          child: Text(
+                            _surveyController.isAnimating
+                                ? 'Stop Survey'
+                                : 'Start Survey',
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => _toggleAnimation('books'),
+                          child: Text(
+                            _booksController.isAnimating
+                                ? 'Stop Books'
+                                : 'Start Books',
+                          ),
                         ),
                       ],
                     ),
-                  )
-                ],
-              ),
-              _buildProgressWidget(uploadProgress, isUploadingData),
-              SingleSection(
-                title: "Data Statistics",
-                children: [
-                  _buildSurveyIconWidget(),
-                  ListTile(
-                    title: const Text("Books"),
-                    leading: const Icon(
-                      Icons.menu_book,
-                    ),
-                    subtitle: const Text('12 GB to be uploaded'),
-                    trailing: AnimatedBuilder(
-                      animation: _booksRotationAnimation,
-                      builder: (context, child) => Transform.rotate(
-                        angle: _booksRotationAnimation.value,
-                        child: const Icon(Icons.sync),
-                      ),
-                    ),
-                    onTap: () {
-                      // Show dialog to choose backup frequency
-                    },
-                  )
-                ],
-              ),
-              SingleSection(
-                title: "Control Animations",
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () => _uploadData(),
-                        child: Text(
-                          _backupController.isAnimating
-                              ? 'Stop Backup'
-                              : 'Start Backup',
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -212,8 +232,6 @@ class _BackupPageState extends State<BackupPage>
     await workManagerService.cancelUploadDataTask();
     await workManagerService.registerUploadDataTask();
     _taskRegistered = true;
-    // final workManagerService = GetIt.I<DatabaseRepository>();
-    // workManagerService.uploadData();
   }
 
   void _updateAnimationStatus(DatabaseState state) {
@@ -274,11 +292,11 @@ class _BackupPageState extends State<BackupPage>
         }
       }
     });
-    // _saveState();
+// _saveState();
     debugPrint("TOGGLE BACKUP ${_backupController.isAnimating}");
   }
 
-  Widget _buildProgressWidget(uploadProgress, isUploadingData) {
+  Widget _buildProgressWidget(bool? isUploadingData, double? uploadProgress) {
     double _uploadProgress = uploadProgress ?? 0.0;
     return SingleSection(
       title: "",
@@ -317,16 +335,13 @@ class _BackupPageState extends State<BackupPage>
   }
 
   Widget _buildBackupIconWidget() {
-    return BlocListener<DatabaseBloc, DatabaseState>(
-      listenWhen: (previous, current) {
-        return previous.backupAnimation != current.backupAnimation;
-      },
-      listener: (context, state) {
-        _updateAnimationStatus(state);
-      },
-      child: RepaintBoundary(
+    return BlocBuilder<DatabaseBloc, DatabaseState>(
+        buildWhen: (previous, current) {
+      return previous.backupAnimation != current.backupAnimation;
+    }, builder: (context, state) {
+      return RepaintBoundary(
         child: TickerMode(
-          enabled: context.read<DatabaseBloc>().state.backupAnimation ?? false,
+          enabled: state.backupAnimation ?? false,
           child: AnimatedBuilder(
             animation: _backupScaleAnimation,
             builder: (context, child) => Transform.scale(
@@ -339,8 +354,8 @@ class _BackupPageState extends State<BackupPage>
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildSurveyIconWidget() {
@@ -350,14 +365,13 @@ class _BackupPageState extends State<BackupPage>
         Icons.library_books,
       ),
       subtitle: const Text('20 to be uploaded'), //${state.surveyTotalCount}
-      trailing: BlocListener<DatabaseBloc, DatabaseState>(
-        listenWhen: (previous, current) {
-          return previous.surveyAnimation != current.surveyAnimation;
-        },
-        listener: (context, state) {
-          _updateAnimationStatus(state);
-        },
-        child: RepaintBoundary(
+      trailing: BlocBuilder<DatabaseBloc, DatabaseState>(
+          buildWhen: (previous, current) {
+        debugPrint(
+            "Build Upload Anima previous ${previous.surveyAnimation} and current ${current.surveyAnimation}");
+        return previous.surveyAnimation != current.surveyAnimation;
+      }, builder: (context, state) {
+        return RepaintBoundary(
           child: AnimatedBuilder(
             animation: _surveyRotationAnimation,
             builder: (context, child) => Transform.rotate(
@@ -365,8 +379,9 @@ class _BackupPageState extends State<BackupPage>
               child: const Icon(Icons.sync),
             ),
           ),
-        ),
-      ),
+        );
+// return widget here based on BlocA's state
+      }),
     );
   }
 }

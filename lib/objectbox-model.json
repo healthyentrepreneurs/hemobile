@@ -127,14 +127,14 @@
     },
     {
       "id": "4:8313728043780523434",
-      "lastPropertyId": "6:7254006473795860310",
+      "lastPropertyId": "7:6963543973569523919",
       "name": "BackupStateDataModel",
       "properties": [
         {
           "id": "1:6226754668473397179",
           "name": "id",
           "type": 6,
-          "flags": 1
+          "flags": 129
         },
         {
           "id": "2:3038710617825268956",
@@ -160,6 +160,11 @@
           "id": "6:7254006473795860310",
           "name": "booksAnimation",
           "type": 1
+        },
+        {
+          "id": "7:6963543973569523919",
+          "name": "dateCreated",
+          "type": 10
         }
       ],
       "relations": []

@@ -45,54 +45,29 @@ class DbCountSurveyEvent extends DatabaseEvent {
   const DbCountSurveyEvent();
 }
 
-class UploadDataEvent extends DatabaseEvent {
-  final bool isUploadingData;
-  final double uploadProgress;
-  final bool simulateUpload;
-  final Function(bool, double) onUploadStateChanged;
-  const UploadDataEvent({
-    required this.isUploadingData,
-    required this.uploadProgress,
-    this.simulateUpload = true,
-    required this.onUploadStateChanged,
-  });
-
-  @override
-  List<Object?> get props =>
-      [isUploadingData, uploadProgress, simulateUpload, onUploadStateChanged];
+class DbCountBookEvent extends DatabaseEvent {
+  const DbCountBookEvent();
 }
 
 class LoadStateEvent extends DatabaseEvent {
-  final Function(Map<String, dynamic>) onLoadStateChanged;
+  // final Function(Map<String, dynamic>) onLoadStateChanged;
 
-  const LoadStateEvent({required this.onLoadStateChanged});
+  const LoadStateEvent();
 
   @override
-  List<Object?> get props => [onLoadStateChanged];
+  List<Object?> get props => [];
 }
 
-
-class SaveStateEvent extends DatabaseEvent {
-  final bool? isUploadingData;
-  final double? uploadProgress;
-  final bool? backupAnimation;
-  final bool? surveyAnimation;
-  final bool? booksAnimation;
-
-  const SaveStateEvent({
-     this.isUploadingData,
-     this.uploadProgress,
-     this.backupAnimation,
-     this.surveyAnimation,
-     this.booksAnimation,
-  });
-
+class UploadData extends DatabaseEvent {
+  final BackupStateDataModel backupStateData;
+  const UploadData({required this.backupStateData});
   @override
-  List<Object?> get props => [
-        isUploadingData,
-        uploadProgress,
-        backupAnimation,
-        surveyAnimation,
-        booksAnimation,
-      ];
+  List<Object> get props => [backupStateData];
+}
+
+class UploadDataTest extends DatabaseEvent {
+  final BackupStateDataModel backupStateData;
+  const UploadDataTest({required this.backupStateData});
+  @override
+  List<Object> get props => [backupStateData];
 }

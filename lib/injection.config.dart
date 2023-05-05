@@ -4,6 +4,10 @@
 // InjectableConfigGenerator
 // **************************************************************************
 
+// ignore_for_file: unnecessary_lambdas
+// ignore_for_file: lines_longer_than_80_chars
+// coverage:ignore-file
+
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:io' as _i4;
 
@@ -24,10 +28,8 @@ import 'package:he/service/permit_fofi_service.dart' as _i13;
 import 'package:he/service/rx_sharedpref_service.dart' as _i15;
 import 'package:hydrated_bloc/hydrated_bloc.dart' as _i9;
 import 'package:injectable/injectable.dart' as _i2;
-import 'package:rx_shared_preferences/rx_shared_preferences.dart'
-    as _i14; // ignore_for_file: unnecessary_lambdas
+import 'package:rx_shared_preferences/rx_shared_preferences.dart' as _i14;
 
-// ignore_for_file: lines_longer_than_80_chars
 extension GetItInjectableX on _i1.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
   Future<_i1.GetIt> init({

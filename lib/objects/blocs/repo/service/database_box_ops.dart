@@ -1,34 +1,44 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
+import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
-import 'package:objectbox/src/native/query/query.dart' as boxquery;
+import 'package:he/service/service.dart';
 import 'package:he/objectbox.g.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
 import 'package:he/objects/db_local/db_local.dart';
-import 'package:rxdart/rxdart.dart';
 
 class DatabaseBoxOperations {
-  final Store _store;
+  // final Store _store;
   final FirebaseFirestore _firestore;
+  final ObjectBoxService _objectService;
+  // DatabaseBoxOperations({
+  //   required FirebaseFirestore firestore,
+  //   required ObjectBoxService objectService,
+  // })  : _objectService = objectService,
+  //       _firestore = firestore;
+
   DatabaseBoxOperations({
     required FirebaseFirestore firestore,
-    required Store store,
-  })  : _store = store,
-        _firestore = firestore;
+    required ObjectBoxService objectService,
+  })  : _objectService = objectService,
+        _firestore = firestore {
+    debugPrint("Updated-BackupStateDataModel: ");
+    // _objectService.onSave.listen((BackupStateDataModel backupState) {
+    //   // Handle the updated backup state data here
+    //   // For example, you can print it:
+    //   debugPrint("Updated-BackupStateDataModel: ${backupState.toJson()}");
+    // });
+  }
 
-  Box<SurveyDataModel> get _surveyBox => _store.box<SurveyDataModel>();
-  Box<BookDataModel> get _bookDataBox => _store.box<BookDataModel>();
-  Box<BackupStateDataModel> get _backupBox =>
-      _store.box<BackupStateDataModel>();
-
-  final BehaviorSubject<double> _uploadProgressSubject =
-      BehaviorSubject.seeded(0.0);
-  final BehaviorSubject<bool> _isUploadingDataSubject =
-      BehaviorSubject.seeded(false);
-
-  Stream<double> get uploadProgressStream => _uploadProgressSubject.stream;
-  Stream<bool> get isUploadingDataStream => _isUploadingDataSubject.stream;
-
+  Box<SurveyDataModel> get _surveyBox =>
+      _objectService.store.box<SurveyDataModel>();
+  Box<BookDataModel> get _bookDataBox =>
+      _objectService.store.box<BookDataModel>();
+  Box<BackupStateDataModel> get backupBox =>
+      _objectService.store.box<BackupStateDataModel>();
+  StreamSubscription<BackupStateDataModel>? _backupStateSubscription;
   // ## BOOK LOCAL SAVING
 
   Future<Either<Failure, int>> saveBookData({
@@ -121,17 +131,36 @@ class DatabaseBoxOperations {
     return surveys;
   }
 
-  Future<void> savePendingSurveysToFirestoreAndSetNotPending({
-    required Function(double) onUploadProgressChanged,
-  }) async {
+  // ## BACKUP STATUS LOCAL
+  Future<void> uploadDataOps() async {
+    BackupStateDataModel currentBackupState =
+        BackupStateDataModel.defaultInstance();
+    final newState = currentBackupState.copyWith(
+      isUploadingData: true,
+      backupAnimation: true,
+      surveyAnimation: true,
+    );
+    // debugPrint(
+    //     "WALAHWA DatabaseBoxOperations@onUploadStateChanged OLD ${currentBackupState.toJson()} \n NEW ${newState.toJson()}");
+    // await _objectService.save(backupdatamodel: newState);
+    await savePendingSurveysToFirestoreAndSetNotPending();
+    debugPrint(
+        "WALAHWA DatabaseBoxOperations@onUploadStateChanged OLD ${currentBackupState.toJson()} \n NEW ${newState.toJson()}");
+    // await _objectService.save(
+    //     backupdatamodel: currentBackupState.copyWith(
+    //         isUploadingData: false,
+    //         backupAnimation: false,
+    //         surveyAnimation: false,
+    //         uploadProgress: 0.0));
+  }
+
+  Future<void> savePendingSurveysToFirestoreAndSetNotPending() async {
     List<SurveyDataModel> pendingSurveys =
         await getSurveysPendingStatusCTimeLimit(true);
 
     int totalPendingSurveys = pendingSurveys.length;
     int uploadedSurveys = 0;
-
     for (SurveyDataModel survey in pendingSurveys) {
-      // await Future.delayed(const Duration(milliseconds: 500));
       Either<Failure, void> result = await saveSurveysFireStore(
         surveyId: survey.surveyId,
         country: survey.country,
@@ -146,97 +175,115 @@ class DatabaseBoxOperations {
         (_) async {
           // Update the isPending flag to false
           survey.isPending = false;
+          bool _isUploading = true;
+          bool _backupAnimation = true;
+          bool _surveyAnimation = true;
           // await updateSurvey(survey);
           uploadedSurveys++;
           // Update the upload progress
           double progress = uploadedSurveys / totalPendingSurveys;
-          onUploadProgressChanged(progress);
+          debugPrint(
+              "SHOW ME progress $progress _isUploading $_isUploading $_backupAnimation");
+          if (progress >= 1) {
+            progress = 0.0;
+            _isUploading = false;
+            _backupAnimation = false;
+            _surveyAnimation = false;
+          }
+          BackupStateDataModel currentBackupState =
+              _objectService.backupBox.get(1) ??
+                  BackupStateDataModel.defaultInstance();
+          debugPrint(
+              "PREVIOUSCOPYME WORK PREVIOUS ${currentBackupState.toJson()}");
+          var namu = currentBackupState.copyWith(
+              isUploadingData: _isUploading,
+              uploadProgress: progress,
+              backupAnimation: _backupAnimation,
+              surveyAnimation: _surveyAnimation,
+              booksAnimation: false,
+              dateCreated: DateTime.now());
+          debugPrint("CURRENTCOPYME WORK PREVIOUS ${namu.toJson()}");
+          await _objectService.save(backupdatamodel: namu);
         },
       );
     }
     debugPrint("Total uploaded surveys simulated: $uploadedSurveys");
+    _backupStateSubscription?.cancel();
   }
 
-  Future<void> savePendingSurveysToFirestoreAndSetNotPendingSimulated({
-    required Function(double) onUploadProgressChanged,
-  }) async {
-    int totalSteps = 100;
-    int uploadedSurveysSimulated = 0;
-
-    for (int i = 1; i <= totalSteps; i++) {
-      await Future.delayed(const Duration(milliseconds: 500));
-      double progress = i / totalSteps;
-      onUploadProgressChanged(progress);
-      uploadedSurveysSimulated++;
-    }
-    debugPrint("Total uploaded surveys simulated: $uploadedSurveysSimulated");
-  }
-
-  // ## BACKUP STATUS LOCAL
-
-  Future<void> uploadDataOps({
-    required bool isUploadingData,
-    required double uploadProgress,
-    bool simulateUpload = true,
-    required Function(bool, double) onUploadStateChanged,
-  }) async {
-    debugPrint("DatabaseBoxOperations@uploadDataOps $isUploadingData");
-    if (simulateUpload) {
-      // Set isUploadingData to true when the upload starts
-      isUploadingData = true;
-      onUploadStateChanged(isUploadingData, uploadProgress);
-      await savePendingSurveysToFirestoreAndSetNotPendingSimulated(
-        onUploadProgressChanged: (progress) {
-          uploadProgress = progress;
-          debugPrint(
-              "WALAH DatabaseBoxOperations@onUploadStateChanged $isUploadingData and $uploadProgress \n");
-          onUploadStateChanged(isUploadingData, uploadProgress);
-        },
-      );
-      // Set isUploadingData to false when the upload is complete
-      isUploadingData = false;
-      uploadProgress = 0.0;
-      onUploadStateChanged(isUploadingData, uploadProgress);
-      debugPrint(
-          "AFTER DatabaseBoxOperations@onUploadStateChanged $isUploadingData and $uploadProgress \n");
-    } else {
-      // Set isUploadingData to true when the upload starts
-      isUploadingData = true;
-      onUploadStateChanged(isUploadingData, uploadProgress);
-      debugPrint(
-          "CHECHE DatabaseBoxOperations@onUploadStateChanged $isUploadingData and $uploadProgress \n");
-      // Call the savePendingSurveysToFirestoreAndSetNotPending method with the progress update callback
-      await savePendingSurveysToFirestoreAndSetNotPending(
-        onUploadProgressChanged: (progress) {
-          uploadProgress = progress;
-          debugPrint(
-              "WALAH DatabaseBoxOperations@onUploadStateChanged $isUploadingData and $uploadProgress \n");
-          onUploadStateChanged(isUploadingData, uploadProgress);
-        },
-      );
-      // Set isUploadingData to false when the upload is complete
-      isUploadingData = false;
-      uploadProgress = 0.0;
-      onUploadStateChanged(isUploadingData, uploadProgress);
-    }
-    saveState(
-      isUploadingData: false,
-      uploadProgress: 0.0,
-      backupAnimation: false,
-      surveyAnimation: false,
-      booksAnimation: false,
-    );
-  }
+  // Future<Map<String, dynamic>?> loadState() async {
+  //   // generateDummySurveysWithFaker();
+  //
+  //   final data = backupBox.query().build().findFirst();
+  //   return data.toJson() ?? defaultNaUpdate.toJson();
+  //   return defaultNaUpdate?.toJson();
+  // }
 
   Future<Map<String, dynamic>?> loadState() async {
     // generateDummySurveysWithFaker();
-    final data = _backupBox.query().build().findFirst();
-    return data?.toJson();
+    debugPrint("MEHME");
+    final completer = Completer<Map<String, dynamic>?>();
+    StreamSubscription? subscription;
+    subscription = _objectService.tasksBroadcastStream.listen((query) {
+      final data = query.findFirst();
+      if (!completer.isCompleted) {
+        completer.complete(
+            data?.toJson() ?? BackupStateDataModel.defaultInstance().toJson());
+        subscription?.cancel();
+      }
+    }, cancelOnError: true);
+
+    return completer.future;
+  }
+
+  List<SurveyDataModel> generateDummySurveysWithFaker() {
+    const int numOfSurveys = 100;
+    final faker = Faker();
+
+    List<SurveyDataModel> dummySurveys = [];
+    for (int i = 0; i < numOfSurveys; i++) {
+      var namu = SurveyDataModel(
+        userId: faker.guid.guid(),
+        surveyVersion: faker.randomGenerator.decimal(min: 1).toString(),
+        surveyObject:
+            '{"question1": "${faker.lorem.word()}", "question2": "${faker.lorem.word()}"}',
+        surveyId: faker.guid.guid(),
+        isPending: faker.randomGenerator.boolean(),
+        courseId: faker.guid.guid(),
+        country: faker.address.country(),
+      );
+      addSurvey(namu);
+      dummySurveys.add(namu);
+    }
+
+    return dummySurveys;
+  }
+
+  List<BackupStateDataModel> generateDummyBackupStatesWithFaker() {
+    const int numOfBackupStates = 100;
+    final faker = Faker();
+
+    List<BackupStateDataModel> dummyBackupStates = [];
+    for (int i = 0; i < numOfBackupStates; i++) {
+      var backupState = BackupStateDataModel(
+        id: 1,
+        uploadProgress: faker.randomGenerator.decimal(min: 2),
+        isUploadingData: faker.randomGenerator.boolean(),
+        backupAnimation: faker.randomGenerator.boolean(),
+        surveyAnimation: faker.randomGenerator.boolean(),
+        booksAnimation: faker.randomGenerator.boolean(),
+        dateCreated: faker.date.dateTime(minYear: 2020, maxYear: 2023),
+      );
+      // addBackupState(backupState); // If you have a function to add the backup state to the database or collection, uncomment this line.
+      dummyBackupStates.add(backupState);
+    }
+
+    return dummyBackupStates;
   }
 
   Future<List<BackupStateDataModel>> deleteRecordsWithIdNotOne() async {
     final query =
-        _backupBox.query(BackupStateDataModel_.id.notEquals(100)).build();
+        backupBox.query(BackupStateDataModel_.id.notEquals(100)).build();
     final backupStates = query.find();
     query.close();
     return backupStates;
@@ -245,51 +292,12 @@ class DatabaseBoxOperations {
   Future<void> removeBackupState(BackupStateDataModel backup) async {
     try {
       // Delete the survey from the ObjectBox store
-      _backupBox.remove(backup.id);
+      backupBox.remove(backup.id);
     } catch (e) {
       // Handle any error that might occur during the deletion process
       debugPrint("removeSurvey@Error removing survey: $e");
     }
   }
-
-  Future<void> saveState({
-    bool? isUploadingData,
-    double? uploadProgress,
-    bool? backupAnimation,
-    bool? surveyAnimation,
-    bool? booksAnimation,
-  }) async {
-    final box = Box<BackupStateDataModel>(_store);
-    final results = box.query().build().find();
-    if (results.isEmpty) {
-      debugPrint(
-          "isEmpty DatabaseBoxOperations@saveState $isUploadingData and $uploadProgress \n");
-      final data = BackupStateDataModel(
-        isUploadingData: isUploadingData ?? false,
-        uploadProgress: uploadProgress ?? 0.0,
-        backupAnimation: backupAnimation ?? false,
-        surveyAnimation: surveyAnimation ?? false,
-        booksAnimation: booksAnimation ?? false,
-      );
-      box.put(data);
-    } else {
-      debugPrint("DatabaseBoxOperations@saveState@else ${results.toString()}");
-      final existingData = results.first;
-      final updatedData = BackupStateDataModel(
-        id: existingData.id, // Ensure to keep the existing ID for update
-        isUploadingData: isUploadingData ?? existingData.isUploadingData,
-        uploadProgress: uploadProgress ?? existingData.uploadProgress,
-        backupAnimation: backupAnimation ?? existingData.backupAnimation,
-        surveyAnimation: surveyAnimation ?? existingData.surveyAnimation,
-        booksAnimation: booksAnimation ?? existingData.booksAnimation,
-      );
-      debugPrint(
-          "Updating DatabaseBoxOperations@saveState $isUploadingData and $uploadProgress \n");
-      box.put(updatedData);
-    }
-  }
-
-  // ## FIRESTORE-LOCAL MIRROR
 
   Future<Either<Failure, void>> saveSurveysFireStore({
     required String surveyId,

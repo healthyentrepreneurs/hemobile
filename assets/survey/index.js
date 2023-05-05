@@ -1,3 +1,19 @@
+function applyJqueryMobileStyling() {
+    const inputs = document.querySelectorAll('input[type="text"]');
+
+    inputs.forEach(input => {
+        const wrapper = document.createElement('div');
+        wrapper.setAttribute('data-role', 'fieldcontain');
+
+        const label = document.createElement('label');
+        label.setAttribute('for', input.id);
+        label.textContent = input.getAttribute('placeholder') || 'Label';
+
+        input.parentElement.insertBefore(wrapper, input);
+        wrapper.appendChild(label);
+        wrapper.appendChild(input);
+    });
+}
 window.addEventListener("flutterInAppWebViewPlatformReady", function (event) {
     Survey.StylesManager.applyTheme("modern");
     window.changeSurveyData = function changeSurveyData(d) {
@@ -15,5 +31,17 @@ window.addEventListener("flutterInAppWebViewPlatformReady", function (event) {
 
         jQuery("#surveyElement").Survey({model: survey});
     };
-
+applyJqueryMobileStyling();
 });
+
+$(document).on('vmousedown', function(event) {
+  // Your custom logic for handling vmousedown events
+});
+
+$(document).on('vmousemove', function(event) {
+  // Your custom logic for handling vmousemove events
+});
+
+document.addEventListener('wheel', function(event) {
+  // Your custom logic for handling wheel events
+}, { passive: true });

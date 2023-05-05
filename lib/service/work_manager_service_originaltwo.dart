@@ -5,10 +5,9 @@ import 'package:workmanager/workmanager.dart';
 import 'appmodule_imp.dart';
 import 'objectbox_service.dart';
 
-class WorkManagerService {
+class WorkManagerService{
   static const uploadDataTask = "uploadDataTask";
   static const cleanUploadedSurveysTask = "cleanUploadedSurveysTask";
-  static const cancleUploadDataTask = "cancleUploadDataTask";
   static final WorkManagerService _singleton = WorkManagerService._internal();
 
   factory WorkManagerService() {
@@ -37,11 +36,6 @@ class WorkManagerService {
       tag: "registerUploadDataTask@Njovu",
     );
     debugPrint("registerUploadDataTask task registered");
-  }
-
-  Future<void> cancelUploadDataTask() async {
-    await Workmanager().cancelByTag("registerUploadDataTask@Njovu");
-    debugPrint("registerUploadDataTask task cancelled");
   }
 
   Future<void> cleanUploadedSurveysTaskM() async {
@@ -122,8 +116,8 @@ void callbackDispatcher() {
       case WorkManagerService.uploadDataTask:
         debugPrint("Executing uploadData task");
         await workManagerService._uploadData();
-        // await workManagerService.showNotification(
-        //     'Data Sync Completed', 'Previous Data Have been Synced');
+        await workManagerService.showNotification(
+            'Data Sync Completed', 'Previous Data Have been Synced');
         break;
       default:
         debugPrint("Unknown task executed");
