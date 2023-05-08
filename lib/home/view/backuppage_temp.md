@@ -333,7 +333,43 @@ class _BackupPageState extends State<BackupPage>
       ],
     );
   }
-
+  // Widget _buildProgressWidget(uploadProgress, isUploadingData) {
+  //   double _uploadProgress = uploadProgress ?? 0.0;
+  //   return SingleSection(
+  //     title: "",
+  //     children: [
+  //       isUploadingData ?? false
+  //           ? LinearProgressIndicator(
+  //               value: _uploadProgress, // Use _uploadProgress here
+  //               minHeight: 5,
+  //             )
+  //           : InkWell(
+  //               onTap: () async {
+  //                 _uploadData();
+  //               },
+  //               child: Container(
+  //                 padding: const EdgeInsets.symmetric(vertical: 12.0),
+  //                 alignment: Alignment.center,
+  //                 decoration: BoxDecoration(
+  //                   color: Theme.of(context).primaryColor,
+  //                 ),
+  //                 child: const Text(
+  //                   "Upload Data",
+  //                   style: TextStyle(color: Colors.white, fontSize: 15),
+  //                 ),
+  //               ),
+  //             ),
+  //       const SizedBox(height: 5),
+  //       _uploadProgress > 0
+  //           ? Text(
+  //               '${(_uploadProgress * 100).toStringAsFixed(0)}%',
+  //               style:
+  //                   const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+  //             )
+  //           : const SizedBox.shrink(),
+  //     ],
+  //   );
+  // }
   Widget _buildBackupIconWidget() {
     return BlocBuilder<DatabaseBloc, DatabaseState>(
         buildWhen: (previous, current) {

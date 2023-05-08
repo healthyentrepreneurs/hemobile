@@ -123,11 +123,9 @@ class DatabaseBoxOperations {
       isUploadingData: true,
       backupAnimation: true,
       surveyAnimation: true,
+      booksAnimation: true,
     );
-    // debugPrint(
-    //     "WALAHWA DatabaseBoxOperations@onUploadStateChanged OLD ${currentBackupState.toJson()} \n NEW ${newState.toJson()}");
-    // await _objectService.save(backupdatamodel: newState);
-    await savePendingBookViewsToFirestoreAndSetNotPending();
+    await savePendingItemsToFirestoreAndSetNotPending();
     debugPrint(
         "WALAHWA DatabaseBoxOperations@onUploadStateChanged OLD ${currentBackupState.toJson()} \n NEW ${newState.toJson()}");
     // await _objectService.save(
@@ -237,13 +235,84 @@ class DatabaseBoxOperations {
     }
     debugPrint("Total uploaded BookViews simulated: $uploadedBookViews");
   }
-  // Future<Map<String, dynamic>?> loadState() async {
-  //   // generateDummySurveysWithFaker();
-  //
-  //   final data = backupBox.query().build().findFirst();
-  //   return data.toJson() ?? defaultNaUpdate.toJson();
-  //   return defaultNaUpdate?.toJson();
-  // }
+
+  Future<void> savePendingItemsToFirestoreAndSetNotPending() async {
+    List<SurveyDataModel> pendingSurveys =
+        await getSurveysPendingStatusCTimeLimit(true);
+    List<BookDataModel> pendingBookViews =
+        await getBookViewsPendingStatusCTimeLimit(true);
+
+    int totalPendingSurveys = pendingSurveys.length;
+    int totalPendingBookViews = pendingBookViews.length;
+    int totalPendingItems = totalPendingSurveys + totalPendingBookViews;
+
+    int countingTract = 0;
+    int? uploadedSurveys;
+    int? uploadedBookViews;
+
+    for (SurveyDataModel survey in pendingSurveys) {
+      Either<Failure, void> result = await saveSurveysFireStore(survey: survey);
+      result.fold(
+        (failure) {
+          debugPrint("Failed to upload survey: $failure");
+        },
+        (_) async {
+          survey.isPending = false;
+          uploadedSurveys = --totalPendingSurveys;
+          countingTract++;
+          await updateProgress(uploadedSurveys, uploadedBookViews,
+              countingTract, totalPendingItems);
+        },
+      );
+    }
+    debugPrint("Total uploaded surveys simulated: $uploadedSurveys");
+
+    for (BookDataModel bookview in pendingBookViews) {
+      Either<Failure, void> result =
+          await saveBookViewsFireStore(bookview: bookview);
+      result.fold(
+        (failure) {
+          debugPrint("Failed to upload book view: $failure");
+        },
+        (_) async {
+          bookview.isPending = false;
+          countingTract++;
+          uploadedBookViews = --totalPendingBookViews;
+          await updateProgress(uploadedSurveys, uploadedBookViews,
+              countingTract, totalPendingItems);
+        },
+      );
+    }
+    debugPrint("Total uploaded BookViews simulated: $uploadedBookViews");
+  }
+
+  Future<void> updateProgress(int? uploadedSurveys, int? uploadedBookViews,
+      int countingTract, int totalPendingItems) async {
+    double progress = countingTract / totalPendingItems;
+    bool _isUploading = true;
+    bool _backupAnimation = true;
+    bool _surveyAnimation = !(uploadedSurveys == null || uploadedSurveys == 0);
+    bool _booksAnimation =
+        !(uploadedBookViews == null || uploadedBookViews == 0);
+
+    if (progress >= 1) {
+      progress = 0.0;
+      _isUploading = false;
+      _backupAnimation = false;
+    }
+
+    BackupStateDataModel currentBackupState = _objectService.backupBox.get(1) ??
+        BackupStateDataModel.defaultInstance();
+    var updatedBackupState = currentBackupState.copyWith(
+        isUploadingData: _isUploading,
+        uploadProgress: progress,
+        backupAnimation: _backupAnimation,
+        surveyAnimation: _surveyAnimation,
+        booksAnimation: _booksAnimation,
+        dateCreated: DateTime.now());
+
+    await _objectService.save(backupdatamodel: updatedBackupState);
+  }
 
   Future<Map<String, dynamic>?> loadState() async {
     // generateDummySurveysWithFaker();
