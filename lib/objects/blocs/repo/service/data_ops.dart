@@ -225,7 +225,7 @@ class DatabaseBoxOperations {
     debugPrint("MEHME");
     final completer = Completer<Map<String, dynamic>?>();
     StreamSubscription? subscription;
-    subscription = _objectService.tasksBroadcastStream.listen((query) {
+    subscription = _objectService.backupBroadcastStream.listen((query) {
       final data = query.findFirst();
       if (!completer.isCompleted) {
         completer.complete(

@@ -98,7 +98,9 @@ class SaveSurveyWidget extends StatelessWidget {
                 .then((_) {
               Future.delayed(const Duration(seconds: 0), () {
                 // BlocProvider.of<DatabaseBloc>(context)
-                context.read<DatabaseBloc>().add(const DbCountSurveyEvent());
+                context
+                    .read<DatabaseBloc>()
+                    .add(const ListSurveyTesting(isPending: true));
                 context
                     .read<SurveyBloc>()
                     .add(const SurveyReset(resetSurveySaveSuccess: true));

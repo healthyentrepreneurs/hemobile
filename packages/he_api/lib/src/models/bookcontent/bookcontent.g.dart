@@ -139,23 +139,19 @@ class _$BookContentCWProxyImpl implements _$BookContentCWProxy {
           // ignore: cast_nullable_to_non_nullable
           : id as int?,
       type: type == const $CopyWithPlaceholder() || type == null
-          // ignore: unnecessary_non_null_assertion
-          ? _value.type!
+          ? _value.type
           // ignore: cast_nullable_to_non_nullable
           : type as Type,
       filename: filename == const $CopyWithPlaceholder() || filename == null
-          // ignore: unnecessary_non_null_assertion
-          ? _value.filename!
+          ? _value.filename
           // ignore: cast_nullable_to_non_nullable
           : filename as String,
       filepath: filepath == const $CopyWithPlaceholder() || filepath == null
-          // ignore: unnecessary_non_null_assertion
-          ? _value.filepath!
+          ? _value.filepath
           // ignore: cast_nullable_to_non_nullable
           : filepath as String,
       filesize: filesize == const $CopyWithPlaceholder() || filesize == null
-          // ignore: unnecessary_non_null_assertion
-          ? _value.filesize!
+          ? _value.filesize
           // ignore: cast_nullable_to_non_nullable
           : filesize as int,
       fileurl: fileurl == const $CopyWithPlaceholder()
@@ -192,8 +188,7 @@ class _$BookContentCWProxyImpl implements _$BookContentCWProxy {
           : videocaption as String?,
       readUrlFlag:
           readUrlFlag == const $CopyWithPlaceholder() || readUrlFlag == null
-              // ignore: unnecessary_non_null_assertion
-              ? _value.readUrlFlag!
+              ? _value.readUrlFlag
               // ignore: cast_nullable_to_non_nullable
               : readUrlFlag as bool,
     );

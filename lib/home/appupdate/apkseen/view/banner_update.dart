@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:he/helper/file_system_util.dart';
 import 'package:he/home/appupdate/appupdate.dart';
 import 'package:he/objects/blocs/apkupdate/bloc/apk_bloc.dart';
 import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
+import 'package:he_api/he_api.dart';
 
 class BannerUpdate extends StatelessWidget {
   final String userId;

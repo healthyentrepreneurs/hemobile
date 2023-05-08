@@ -9,8 +9,6 @@ import 'package:he/service/objectbox_service.dart';
 import 'package:he_storage/he_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:rxdart/rxdart.dart';
-
-import '../../../helper/file_system_util.dart';
 import 'impl/idatabase_repo.dart';
 import 'impl/repo_failure.dart';
 
@@ -130,11 +128,6 @@ class DatabaseRepository implements IDatabaseRepository {
         isPending: isPending);
   }
 
-  @override
-  Stream<Either<Failure, int>> totalSavedSurvey() {
-    return _boxOperations().totalSavedSurveyData;
-  }
-
   // Add these methods to call uploadData, loadState, and saveState
   Future<void> uploadData() async {
     debugPrint("DatabaseRepository@uploadData  isUploadingData \n");
@@ -162,6 +155,17 @@ class DatabaseRepository implements IDatabaseRepository {
     }
   }
 
+  Future<bool> createDummyBookData() async {
+    try {
+      _boxOperations().generateDummyBooksWithFaker();
+      return true;
+    } catch (e) {
+      debugPrint(
+          "callbackDispatcher@ Error in callbackDispatcher: ${e.toString()}");
+      return false;
+    }
+  }
+
   // Stream<BackupStateDataModel> getBackupStateDataModelStream() {
   //   // tasksStream
   //   return _objectService.tasksBroadcastStream.map((query) {
@@ -173,7 +177,7 @@ class DatabaseRepository implements IDatabaseRepository {
   // }
 
   Stream<BackupStateDataModel> getBackupStateDataModelStream() {
-    return _objectService.tasksBroadcastStream.map((query) {
+    return _objectService.backupBroadcastStream.map((query) {
       final allItems = query.find();
       // Sort the items based on the dateCreated
       allItems.sort((a, b) => a.dateCreated!.compareTo(b.dateCreated!));
@@ -184,22 +188,21 @@ class DatabaseRepository implements IDatabaseRepository {
               .defaultInstance(); // Return a default instance if no item is found
     });
   }
-  // Stream<BackupStateDataModel> getBackupStateDataModelStream() {
-  //   return _objectService.tasksBroadcastStream.asyncMap((query) async {
-  //     final items = query.find();
-  //     items.sort((a, b) => b.dateCreated.compareTo(
-  //         a.dateCreated)); // Sort items by dateCreated in descending order
-  //     // Check if the filtered items list is not empty and return the first item
-  //     if (items.isNotEmpty) {
-  //       return items.first;
-  //     } else {
-  //       // Return a default instance if no item is found
-  //       return BackupStateDataModel.defaultInstance();
-  //     }
-  //   });
-  // }
 
-  Stream<BackupStateDataModel> onSave() {
-    return _objectService.onSave;
+  Stream<List<SurveyDataModel>> getSurveysByPendingStatus(
+      {required bool isPending}) {
+    return _objectService.surveysByPendingStatus(isPending);
+  }
+
+  Stream<List<BookDataModel>> getBookChaptersByPendingStatus(
+      {required bool isPending}) {
+    return _objectService.booksByPendingStatus(isPending);
+  }
+
+  void dispose() {
+    _henetworkStatusSubject.close();
+    _objectService.dispose();
+    // _saveController.close();
+    // tasksBroadcastStream.close();
   }
 }

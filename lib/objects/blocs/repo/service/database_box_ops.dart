@@ -25,11 +25,6 @@ class DatabaseBoxOperations {
   })  : _objectService = objectService,
         _firestore = firestore {
     debugPrint("Updated-BackupStateDataModel: ");
-    // _objectService.onSave.listen((BackupStateDataModel backupState) {
-    //   // Handle the updated backup state data here
-    //   // For example, you can print it:
-    //   debugPrint("Updated-BackupStateDataModel: ${backupState.toJson()}");
-    // });
   }
 
   Box<SurveyDataModel> get _surveyBox =>
@@ -38,7 +33,6 @@ class DatabaseBoxOperations {
       _objectService.store.box<BookDataModel>();
   Box<BackupStateDataModel> get backupBox =>
       _objectService.store.box<BackupStateDataModel>();
-  StreamSubscription<BackupStateDataModel>? _backupStateSubscription;
   // ## BOOK LOCAL SAVING
 
   Future<Either<Failure, int>> saveBookData({
@@ -92,29 +86,6 @@ class DatabaseBoxOperations {
     } catch (e) {
       debugPrint("Error saving saveSurveyData response: $e");
       return Future.value(Left(RepositoryFailure(e.toString())));
-    }
-  }
-
-  Future<List<SurveyDataModel>> getSurveysByPendingStatus(
-      bool isPending) async {
-    final query =
-        _surveyBox.query(SurveyDataModel_.isPending.equals(isPending)).build();
-    final surveys = query.find();
-    query.close();
-    return surveys;
-  }
-
-  Stream<Either<Failure, int>> get totalSavedSurveyData {
-    return Stream.fromFuture(_countPendingSurveys());
-  }
-
-  //Survey Helper Classes
-  Future<Either<Failure, int>> _countPendingSurveys() async {
-    try {
-      final listSurveys = await getSurveysByPendingStatus(true);
-      return Right(listSurveys.length);
-    } catch (error) {
-      return Left(RepositoryFailure(error.toString()));
     }
   }
 
@@ -208,7 +179,6 @@ class DatabaseBoxOperations {
       );
     }
     debugPrint("Total uploaded surveys simulated: $uploadedSurveys");
-    _backupStateSubscription?.cancel();
   }
 
   // Future<Map<String, dynamic>?> loadState() async {
@@ -224,7 +194,7 @@ class DatabaseBoxOperations {
     debugPrint("MEHME");
     final completer = Completer<Map<String, dynamic>?>();
     StreamSubscription? subscription;
-    subscription = _objectService.tasksBroadcastStream.listen((query) {
+    subscription = _objectService.backupBroadcastStream.listen((query) {
       final data = query.findFirst();
       if (!completer.isCompleted) {
         completer.complete(
@@ -259,26 +229,29 @@ class DatabaseBoxOperations {
     return dummySurveys;
   }
 
-  List<BackupStateDataModel> generateDummyBackupStatesWithFaker() {
-    const int numOfBackupStates = 100;
+  List<BookDataModel> generateDummyBooksWithFaker() {
+    const int numOfBooks = 100;
     final faker = Faker();
 
-    List<BackupStateDataModel> dummyBackupStates = [];
-    for (int i = 0; i < numOfBackupStates; i++) {
-      var backupState = BackupStateDataModel(
-        id: 1,
-        uploadProgress: faker.randomGenerator.decimal(min: 2),
-        isUploadingData: faker.randomGenerator.boolean(),
-        backupAnimation: faker.randomGenerator.boolean(),
-        surveyAnimation: faker.randomGenerator.boolean(),
-        booksAnimation: faker.randomGenerator.boolean(),
-        dateCreated: faker.date.dateTime(minYear: 2020, maxYear: 2023),
-      );
-      // addBackupState(backupState); // If you have a function to add the backup state to the database or collection, uncomment this line.
-      dummyBackupStates.add(backupState);
+    List<BookDataModel> dummyBooks = [];
+    for (int i = 0; i < numOfBooks; i++) {
+      var book = BookDataModel(
+          bookId: faker.guid.guid(),
+          chapterId: faker.guid.guid(),
+          courseId: faker.guid.guid(),
+          userId: faker.guid.guid(),
+          isPending: true //faker.randomGenerator.boolean(),
+          );
+      saveBookData(
+          bookId: book.id.toString(),
+          chapterId: book.chapterId,
+          courseId: book.courseId,
+          userId: book.userId,
+          isPending: book.isPending); // Assuming you have an addBook() function
+      dummyBooks.add(book);
     }
 
-    return dummyBackupStates;
+    return dummyBooks;
   }
 
   Future<List<BackupStateDataModel>> deleteRecordsWithIdNotOne() async {

@@ -7,11 +7,9 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
-import 'package:he/objects/db_local/backupstate_datamodel.dart';
+import 'package:he/objects/db_local/db_local.dart';
 import 'package:he_api/he_api.dart';
 import 'package:rxdart/rxdart.dart';
-
-import '../../../../helper/file_system_util.dart';
 
 part 'database_event.dart';
 part 'database_state.dart';
@@ -19,7 +17,6 @@ part 'database_state.dart';
 class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
   DatabaseRepository repository;
   late final StreamSubscription<BackupStateDataModel> _backupStateSubscription;
-  late final StreamSubscription<BackupStateDataModel> _subscription;
   DatabaseBloc({required this.repository})
       : _databaseRepository = repository,
         super(const DatabaseState.loading()) {
@@ -28,13 +25,14 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     on<DatabaseSubSelected>(_onDatabaseSubSelected);
     on<DatabaseSubDeSelected>(_onDatabaseSubDeSelected);
     on<DatabaseFetchedError>(_onDatabaseFetchedError);
-    on<DbCountSurveyEvent>(_onDbCountSurveyEvent);
-    on<DbCountBookEvent>(_onDbCountBookEvent);
     on<LoadStateEvent>(_onLoadStateEvent);
     on<UploadData>(_onUploadDataEvent);
+    on<ListSurveyTesting>(_onListSurveyTesting);
+    on<ListBooksTesting>(_onListBooksTesting);
     _backupStateSubscription = repository
         .getBackupStateDataModelStream()
         .distinct(_distinctBackupStateDataModelComparison)
+        .debounceTime(const Duration(milliseconds: 2))
         .listen((event) {
       debugPrint("EVANSN ${event.toString()}");
       add(UploadData(backupStateData: event));
@@ -80,7 +78,7 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     if (event.clearData) {
       emit(state.copyWith(
           error: event.error,
-          listOfSubscriptionData: emptySub,
+          listOfSubscriptionData: emptySubList,
           henetworkStatus: event.henetworkStatus));
     } else {
       emit(state.copyWith(
@@ -88,40 +86,10 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     }
   }
 
-  FutureOr<void> _onDbCountSurveyEvent(
-      DbCountSurveyEvent event, Emitter<DatabaseState> emit) async {
-    final result = _databaseRepository.totalSavedSurvey();
-    await emit.forEach(result, onData: (Either<Failure, int> countSurvey) {
-      return countSurvey.fold(
-        (failure) => state.copyWith(fetchError: failure),
-        (countValue) => state.copyWith(
-            surveyTotalCount:
-                countValue), // Reset the error to null when fetching is successful
-      );
-    });
-  }
-
-  FutureOr<void> _onDbCountBookEvent(
-      DbCountBookEvent event, Emitter<DatabaseState> emit) async {
-    final result = _databaseRepository.totalSavedSurvey();
-    await emit.forEach(result, onData: (Either<Failure, int> countSurvey) {
-      return countSurvey.fold(
-        (failure) => state.copyWith(fetchError: failure),
-        (countValue) => state.copyWith(
-            surveyTotalCount:
-                countValue), // Reset the error to null when fetching is successful
-      );
-    });
-  }
-
   _onUploadDataEvent(UploadData event, Emitter<DatabaseState> emit) async {
     debugPrint("NAKIGANDA EMITTING ${event.backupStateData.toJson()} ");
     emit(state.copyWith(
-      uploadProgress: event.backupStateData.uploadProgress,
-      isUploadingData: event.backupStateData.isUploadingData,
-      backupAnimation: event.backupStateData.backupAnimation,
-      surveyAnimation: event.backupStateData.surveyAnimation,
-      booksAnimation: event.backupStateData.booksAnimation,
+      backupdataModel: event.backupStateData,
     ));
   }
 
@@ -133,12 +101,7 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
       debugPrint("_onLoadStateEvent@uploadData $result ");
       // {id: 1, uploadProgress: 0.0, isUploadingData: false, backupAnimation: false, surveyAnimation: false, booksAnimation: false}
       emit(state.copyWith(
-        uploadProgress: result['uploadProgress'],
-        isUploadingData: result['isUploadingData'],
-        backupAnimation: result['backupAnimation'],
-        surveyAnimation: result['surveyAnimation'],
-        booksAnimation: result['booksAnimation'],
-      ));
+          backupdataModel: BackupStateDataModel.fromJson(result)));
     } else {
       debugPrint("_onLoadStateEvent@uploadData $result PEPE");
     }
@@ -147,7 +110,7 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
   @override
   Future<void> close() {
     _backupStateSubscription.cancel();
-    _subscription.cancel();
+    repository.dispose();
     return super.close();
   }
 
@@ -169,5 +132,26 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
         prev.surveyAnimation == curr.surveyAnimation &&
         prev.booksAnimation == curr.booksAnimation &&
         prev.dateCreated == curr.dateCreated;
+  }
+
+  FutureOr<void> _onListSurveyTesting(
+      ListSurveyTesting event, Emitter<DatabaseState> emit) async {
+    final result = _databaseRepository.getSurveysByPendingStatus(
+        isPending: event.isPending);
+    await emit.forEach(result,
+        onData: (List<SurveyDataModel> listSurveyDataModel) {
+      return state.copyWith(listOfSurveyDataModel: listSurveyDataModel);
+    });
+  }
+
+  FutureOr<void> _onListBooksTesting(
+      ListBooksTesting event, Emitter<DatabaseState> emit) async {
+    final result = _databaseRepository.getBookChaptersByPendingStatus(
+        isPending: event.isPending);
+    await emit.forEach(result, onData: (List<BookDataModel> listBookDataModel) {
+      return state.copyWith(
+          listOfBookDataModel: listBookDataModel,
+          listOfSurveyDataModel: state.listOfSurveyDataModel);
+    });
   }
 }

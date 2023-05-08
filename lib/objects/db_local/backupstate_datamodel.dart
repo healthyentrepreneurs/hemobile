@@ -33,6 +33,17 @@ class BackupStateDataModel {
         'dateCreated': dateFormat,
       };
 
+  factory BackupStateDataModel.fromJson(Map<String, dynamic> json) {
+    return BackupStateDataModel(
+      id: json['id'],
+      uploadProgress: json['uploadProgress'],
+      isUploadingData: json['isUploadingData'],
+      backupAnimation: json['backupAnimation'],
+      surveyAnimation: json['surveyAnimation'],
+      booksAnimation: json['booksAnimation'],
+      dateCreated: DateFormat('dd.MM.yyyy hh:mm:ss').parse(json['dateCreated']),
+    );
+  }
   String get dateFormat =>
       DateFormat('dd.MM.yyyy hh:mm:ss').format(dateCreated ?? DateTime.now());
 

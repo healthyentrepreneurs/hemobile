@@ -2,7 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:he/objects/db_local/db_local.dart';
 import 'package:he_api/he_api.dart';
 
-import '../../../../helper/file_system_util.dart';
 import 'repo_failure.dart';
 
 abstract class IDatabaseRepository {
@@ -26,5 +25,4 @@ abstract class IDatabaseRepository {
     required String userId,
     required bool isPending,
   });
-  Stream<Either<Failure, int>> totalSavedSurvey();
 }

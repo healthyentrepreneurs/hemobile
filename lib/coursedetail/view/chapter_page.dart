@@ -5,15 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:he/course/section/bloc/section_bloc.dart';
 import 'package:he/coursedetail/coursedetail.dart';
 import 'package:he/helper/helper_functions.dart';
 import 'package:he/injection.dart';
 import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import 'package:he_api/he_api.dart';
 
-import '../../helper/file_system_util.dart';
-import '../../objects/blocs/repo/fofiperm_repo.dart';
+import '../../objects/blocs/repo/repo.dart';
+
 
 class ChapterDisplay extends StatelessWidget {
   final BookQuiz? courseModule;

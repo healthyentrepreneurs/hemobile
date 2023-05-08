@@ -26,11 +26,13 @@ class _BackupPageState extends State<BackupPage>
   late final Animation<double> _backupScaleAnimation;
   late final Animation<double> _surveyRotationAnimation;
   late final Animation<double> _booksRotationAnimation;
-  bool _taskRegistered = false;
+  late final WorkManagerService workManagerService;
 
   @override
   void initState() {
     super.initState();
+    workManagerService = WorkManagerService();
+    workManagerService.initialize();
     _backupController = AnimationController(
       duration: const Duration(seconds: 1),
       vsync: this,
@@ -86,8 +88,10 @@ class _BackupPageState extends State<BackupPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    bool? isUploadingData = context.watch<DatabaseBloc>().state.isUploadingData;
-    double? uploadProgress = context.watch<DatabaseBloc>().state.uploadProgress;
+    bool? isUploadingData =
+        context.watch<DatabaseBloc>().state.backupdataModel?.isUploadingData;
+    double? uploadProgress =
+        context.watch<DatabaseBloc>().state.backupdataModel?.uploadProgress;
     return Scaffold(
       appBar: HeAppBar(
         course: 'Sync Data',
@@ -156,26 +160,7 @@ class _BackupPageState extends State<BackupPage>
               _buildProgressWidget(uploadProgress, isUploadingData),
               SingleSection(
                 title: "Data Statistics",
-                children: [
-                  _buildSurveyIconWidget(),
-                  ListTile(
-                    title: const Text("Books"),
-                    leading: const Icon(
-                      Icons.menu_book,
-                    ),
-                    subtitle: const Text('12 GB to be uploaded'),
-                    trailing: AnimatedBuilder(
-                      animation: _booksRotationAnimation,
-                      builder: (context, child) => Transform.rotate(
-                        angle: _booksRotationAnimation.value,
-                        child: const Icon(Icons.sync),
-                      ),
-                    ),
-                    onTap: () {
-                      // Show dialog to choose backup frequency
-                    },
-                  )
-                ],
+                children: [_buildSurveyIconWidget(), _buildBookIconWidget()],
               ),
               SingleSection(
                 title: "Control Animations",
@@ -206,20 +191,21 @@ class _BackupPageState extends State<BackupPage>
   bool get wantKeepAlive => true;
 
   _uploadData() async {
-    if (!mounted || _taskRegistered) return;
+    if (!mounted) return;
     debugPrint('@_uploadData isUploadingData');
-    final workManagerService = GetIt.I<WorkManagerService>();
-    await workManagerService.cancelUploadDataTask();
-    await workManagerService.registerUploadDataTask();
-    _taskRegistered = true;
-    // final workManagerService = GetIt.I<DatabaseRepository>();
-    // workManagerService.uploadData();
+    // final workManagerService = GetIt.I<WorkManagerService>();
+    // await workManagerService.cancelUploadDataTask();
+    // await Future.delayed(const Duration(seconds: 1));
+    // await workManagerService.registerUploadDataTask();
+    // _taskRegistered = true;
+    final databaseRepo = GetIt.I<DatabaseRepository>();
+    databaseRepo.uploadData();
   }
 
   void _updateAnimationStatus(DatabaseState state) {
-    bool backupAnimation = state.backupAnimation ?? false;
-    bool surveyAnimation = state.surveyAnimation ?? false;
-    bool booksAnimation = state.booksAnimation ?? false;
+    bool backupAnimation = state.backupdataModel?.backupAnimation ?? false;
+    bool surveyAnimation = state.backupdataModel?.surveyAnimation ?? false;
+    bool booksAnimation = state.backupdataModel?.booksAnimation ?? false;
 
     if (backupAnimation) {
       if (!_backupController.isAnimating) {
@@ -252,32 +238,6 @@ class _BackupPageState extends State<BackupPage>
     }
   }
 
-  void _toggleAnimation(String animationType) {
-    setState(() {
-      if (animationType == 'backup') {
-        if (_backupController.isAnimating) {
-          _backupController.stop();
-        } else {
-          _backupController.repeat(reverse: true);
-        }
-      } else if (animationType == 'survey') {
-        if (_surveyController.isAnimating) {
-          _surveyController.stop();
-        } else {
-          _surveyController.repeat(reverse: true);
-        }
-      } else if (animationType == 'books') {
-        if (_booksController.isAnimating) {
-          _booksController.stop();
-        } else {
-          _booksController.repeat(reverse: true);
-        }
-      }
-    });
-    // _saveState();
-    debugPrint("TOGGLE BACKUP ${_backupController.isAnimating}");
-  }
-
   Widget _buildProgressWidget(uploadProgress, isUploadingData) {
     double _uploadProgress = uploadProgress ?? 0.0;
     return SingleSection(
@@ -285,7 +245,7 @@ class _BackupPageState extends State<BackupPage>
       children: [
         isUploadingData ?? false
             ? LinearProgressIndicator(
-                value: uploadProgress ?? 0.0,
+                value: _uploadProgress, // Use _uploadProgress here
                 minHeight: 5,
               )
             : InkWell(
@@ -319,14 +279,20 @@ class _BackupPageState extends State<BackupPage>
   Widget _buildBackupIconWidget() {
     return BlocListener<DatabaseBloc, DatabaseState>(
       listenWhen: (previous, current) {
-        return previous.backupAnimation != current.backupAnimation;
+        return previous.backupdataModel?.backupAnimation !=
+            current.backupdataModel?.backupAnimation;
       },
       listener: (context, state) {
         _updateAnimationStatus(state);
       },
       child: RepaintBoundary(
         child: TickerMode(
-          enabled: context.read<DatabaseBloc>().state.backupAnimation ?? false,
+          enabled: context
+                  .read<DatabaseBloc>()
+                  .state
+                  .backupdataModel
+                  ?.backupAnimation ??
+              false,
           child: AnimatedBuilder(
             animation: _backupScaleAnimation,
             builder: (context, child) => Transform.scale(
@@ -344,29 +310,96 @@ class _BackupPageState extends State<BackupPage>
   }
 
   Widget _buildSurveyIconWidget() {
-    return ListTile(
-      title: const Text("Surveys"),
-      leading: const Icon(
-        Icons.library_books,
-      ),
-      subtitle: const Text('20 to be uploaded'), //${state.surveyTotalCount}
-      trailing: BlocListener<DatabaseBloc, DatabaseState>(
+    int? countingSurveys =
+        context.watch<DatabaseBloc>().state.listOfSurveyDataModel?.length;
+    return BlocListener<DatabaseBloc, DatabaseState>(
         listenWhen: (previous, current) {
-          return previous.surveyAnimation != current.surveyAnimation;
+          return previous.backupdataModel?.surveyAnimation !=
+              current.backupdataModel?.surveyAnimation;
         },
         listener: (context, state) {
           _updateAnimationStatus(state);
         },
-        child: RepaintBoundary(
-          child: AnimatedBuilder(
-            animation: _surveyRotationAnimation,
-            builder: (context, child) => Transform.rotate(
-              angle: _surveyRotationAnimation.value,
-              child: const Icon(Icons.sync),
+        child: BlocBuilder<DatabaseBloc, DatabaseState>(
+            buildWhen: (previous, current) {
+          final surveyStillRunning =
+              previous.backupdataModel?.surveyAnimation !=
+                  current.backupdataModel?.surveyAnimation;
+          return surveyStillRunning;
+        }, builder: (context, state) {
+          // int? countSurvey = state.listOfSurveyDataModel?.length;
+          return ListTile(
+            title: const Text("Surveys"),
+            leading: const Icon(
+              Icons.library_books,
             ),
-          ),
-        ),
-      ),
-    );
+            subtitle: Text(
+                '${countingSurveys ?? '..'} to be uploaded'), //${state.surveyTotalCount}
+            trailing: RepaintBoundary(
+              child: AnimatedBuilder(
+                animation: _surveyRotationAnimation,
+                builder: (context, child) => Transform.rotate(
+                  angle: _surveyRotationAnimation.value,
+                  child: const Icon(Icons.sync),
+                ),
+              ),
+            ),
+          );
+        }));
+  }
+
+  Widget _buildBookIconWidget() {
+    return BlocListener<DatabaseBloc, DatabaseState>(
+        listenWhen: (previous, current) {
+          final booksStillRunning = previous.backupdataModel?.booksAnimation !=
+              current.backupdataModel?.booksAnimation;
+          return booksStillRunning;
+        },
+        listener: (context, state) {
+          // debugPrint(
+          //     'MIKEPAMPA BEFORE ${state.listOfBookDataModel.toString()}');
+          _updateAnimationStatus(state);
+        },
+        child: BlocBuilder<DatabaseBloc, DatabaseState>(
+            buildWhen: (previous, current) {
+          final previousNotNull = previous.listOfBookDataModel != null;
+          final currentNotNull = current.listOfBookDataModel != null;
+          final listLengthChanged = previous.listOfBookDataModel?.length !=
+              current.listOfBookDataModel?.length;
+          debugPrint(
+              'NYABOBEFORE ${previous.listOfBookDataModel.toString()} NYABOAFTER ${current.listOfBookDataModel.toString()}');
+          return listLengthChanged;
+        }, builder: (context, state) {
+          int? unsentBooksCountText = state.listOfBookDataModel?.length;
+          // String unsentBooksCountText;
+          if (state.listOfBookDataModel == null) {
+            // unsentBooksCountText = '.. ';
+            debugPrint(
+                'MIKEPAMPA BEFORE ${state.listOfBookDataModel.toString()}');
+            context
+                .read<DatabaseBloc>()
+                .add(const ListBooksTesting(isPending: true));
+            // context.read<DatabaseBloc>().add(const DbCountSurveyEvent());
+          } else {
+            unsentBooksCountText = state.listOfBookDataModel?.length;
+          }
+          return ListTile(
+            title: const Text("Books"),
+            leading: const Icon(
+              Icons.menu_book,
+            ),
+            subtitle: Text('${unsentBooksCountText ?? '..'} to be uploaded'),
+            trailing: AnimatedBuilder(
+              animation: _booksRotationAnimation,
+              builder: (context, child) => Transform.rotate(
+                angle: _booksRotationAnimation.value,
+                child: const Icon(Icons.sync),
+              ),
+            ),
+            onTap: () {
+              // Show dialog to choose backup frequency
+            },
+          );
+        }));
   }
 }

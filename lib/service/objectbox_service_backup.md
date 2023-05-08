@@ -11,19 +11,17 @@ import '../objects/db_local/db_local.dart';
 class ObjectBoxService {
   late final Store store;
   late final Box<BackupStateDataModel> backupBox;
-  late final Box<BookDataModel> bookBox;
   late final Box<SurveyDataModel> surveyBox;
 
-  // final StreamController<BackupStateDataModel> _saveController =
-  //     StreamController<BackupStateDataModel>.broadcast();
-  //
-  // final StreamController<SurveyDataModel> _saveSurveyController =
-  //     StreamController<SurveyDataModel>.broadcast();
+  final StreamController<BackupStateDataModel> _saveController =
+      StreamController<BackupStateDataModel>.broadcast();
+
+  final StreamController<SurveyDataModel> _saveSurveyController =
+      StreamController<SurveyDataModel>.broadcast();
 
   late final Stream<Query<BackupStateDataModel>> backupStream;
   late final Stream<Query<SurveyDataModel>> surveyStream;
   // late final Stream<Query<BackupStateDataModel>> tasksBroadcastStream;
-  late final Stream<Query<SurveyDataModel>> surveyBroadcastStream;
   late final ReplaySubject<Query<BackupStateDataModel>> backupBroadcastStream;
   static ObjectBoxService? _instance;
 
@@ -32,7 +30,6 @@ class ObjectBoxService {
   ObjectBoxService._create(this.store) {
     backupBox = Box<BackupStateDataModel>(store);
     surveyBox = Box<SurveyDataModel>(store);
-    bookBox = Box<BookDataModel>(store);
 
     final qBuilderBackupDataModel = backupBox.query()
       ..order(BackupStateDataModel_.uploadProgress);
@@ -76,7 +73,7 @@ class ObjectBoxService {
       // Add default BackupStateDataModel if query is empty
       final savedData = await backupBox
           .putAndGetAsync(BackupStateDataModel.defaultInstance());
-      // _saveController.add(savedData);
+      _saveController.add(savedData);
     } else {
       final existingData = results.first;
       debugPrint("PHILA ${results.toString()} \n");
@@ -97,7 +94,7 @@ class ObjectBoxService {
       // Add the saved data to the saveController stream
       debugPrint(
           "UpdatingBefore DatabaseBoxOperations@saveState ${savedData.toJson()} \n");
-      // _saveController.add(savedData);
+      _saveController.add(savedData);
       debugPrint(
           "UpdatingAfter DatabaseBoxOperations@saveState ${savedData.toJson()} \n");
     }
@@ -106,24 +103,23 @@ class ObjectBoxService {
     // query.close();
   }
 
-  Stream<List<SurveyDataModel>> surveysByPendingStatus(bool isPending) {
-    final queryBuilder =
-        surveyBox.query(SurveyDataModel_.isPending.equals(isPending));
-    return queryBuilder
-        .watch(triggerImmediately: true)
-        .map((query) => query.find());
+  Future<List<SurveyDataModel>> getSurveysByPendingStatuscc(
+      bool isPending) async {
+    final query =
+        surveyBox.query(SurveyDataModel_.isPending.equals(isPending)).build();
+    final surveys = query.find();
+    query.close();
+    return surveys;
   }
 
-  Stream<List<BookDataModel>> booksByPendingStatus(bool isPending) {
+  Stream<List<SurveyDataModel>> getSurveysByPendingStatus(bool isPending) {
     final queryBuilder =
-        bookBox.query(BookDataModel_.isPending.equals(isPending));
-    return queryBuilder
-        .watch(triggerImmediately: true)
-        .map((query) => query.find());
+        surveyBox.query(SurveyDataModel_.isPending.equals(isPending));
+    surveyStream = queryBuilder.watch(triggerImmediately: true);
   }
 
   void dispose() {
-    // _saveController.close();
+    _saveController.close();
     backupBroadcastStream.close();
     // Close the store if needed
   }

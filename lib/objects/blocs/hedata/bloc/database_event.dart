@@ -41,9 +41,9 @@ class DatabaseFetchedError extends DatabaseEvent {
   List<Object?> get props => [henetworkStatus, error, clearData];
 }
 
-class DbCountSurveyEvent extends DatabaseEvent {
-  const DbCountSurveyEvent();
-}
+// class DbCountSurveyEvent extends DatabaseEvent {
+//   const DbCountSurveyEvent();
+// }
 
 class DbCountBookEvent extends DatabaseEvent {
   const DbCountBookEvent();
@@ -65,9 +65,16 @@ class UploadData extends DatabaseEvent {
   List<Object> get props => [backupStateData];
 }
 
-class UploadDataTest extends DatabaseEvent {
-  final BackupStateDataModel backupStateData;
-  const UploadDataTest({required this.backupStateData});
+class ListSurveyTesting extends DatabaseEvent {
+  final bool isPending;
+  const ListSurveyTesting({required this.isPending});
   @override
-  List<Object> get props => [backupStateData];
+  List<Object> get props => [isPending];
+}
+
+class ListBooksTesting extends DatabaseEvent {
+  final bool isPending;
+  const ListBooksTesting({required this.isPending});
+  @override
+  List<Object> get props => [isPending];
 }

@@ -9,6 +9,7 @@ class WorkManagerService {
   static const uploadDataTask = "uploadDataTask";
   static const cleanUploadedSurveysTask = "cleanUploadedSurveysTask";
   static const cancleUploadDataTask = "cancleUploadDataTask";
+  static const generateBookDataTask = "generateBookDataTask";
   static final WorkManagerService _singleton = WorkManagerService._internal();
 
   factory WorkManagerService() {
@@ -44,12 +45,20 @@ class WorkManagerService {
     debugPrint("registerUploadDataTask task cancelled");
   }
 
-  Future<void> cleanUploadedSurveysTaskM() async {
+  Future<void> cleanUploadedSurveysTaskFunc() async {
     await Workmanager().registerOneOffTask('2', cleanUploadedSurveysTask,
         inputData: <String, dynamic>{},
         initialDelay: const Duration(seconds: 10),
         tag: "registerOneOffTaskNjovu");
     debugPrint("registerOneOffTask task registered");
+  }
+
+  Future<void> generateBookDataTaskFunc() async {
+    await Workmanager().registerOneOffTask('10', generateBookDataTask,
+        inputData: <String, dynamic>{},
+        initialDelay: const Duration(seconds: 3),
+        tag: "generateBookDataTaskFunc");
+    debugPrint("generateBookDataTaskFunc task registered");
   }
 
   static final injectableModule = AppModuleImp();
@@ -59,6 +68,13 @@ class WorkManagerService {
     final DatabaseRepository databaseRepository =
         DatabaseRepository(injectableModule.firestore, _objectservice);
     await databaseRepository.uploadData();
+  }
+
+  Future<void> _generateBookDataTask() async {
+    final ObjectBoxService _objectservice = await objectbox;
+    final DatabaseRepository databaseRepository =
+        DatabaseRepository(injectableModule.firestore, _objectservice);
+    await databaseRepository.createDummyBookData();
   }
 
   Future<void> _cleanUploadedSurveys() async {
@@ -121,9 +137,17 @@ void callbackDispatcher() {
         break;
       case WorkManagerService.uploadDataTask:
         debugPrint("Executing uploadData task");
+        final startTime = DateTime.now();
         await workManagerService._uploadData();
+        final endTime = DateTime.now();
+        debugPrint('Nockrach: ${endTime.difference(startTime)}');
         // await workManagerService.showNotification(
         //     'Data Sync Completed', 'Previous Data Have been Synced');
+        break;
+      case WorkManagerService.generateBookDataTask:
+        await workManagerService._generateBookDataTask();
+        await workManagerService.showNotification(
+            'Fake Completed', 'Generated');
         break;
       default:
         debugPrint("Unknown task executed");
