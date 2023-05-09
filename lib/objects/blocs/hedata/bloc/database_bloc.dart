@@ -150,8 +150,7 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
         isPending: event.isPending);
     await emit.forEach(result, onData: (List<BookDataModel> listBookDataModel) {
       return state.copyWith(
-          listOfBookDataModel: listBookDataModel,
-          listOfSurveyDataModel: state.listOfSurveyDataModel);
+          listOfBookDataModel: listBookDataModel);
     });
   }
 }

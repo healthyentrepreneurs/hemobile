@@ -2,11 +2,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:he/home/home.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he/service/work_manager_service.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class BackupPage extends StatefulWidget {
 const BackupPage({Key? key}) : super(key: key);
@@ -359,7 +361,7 @@ return previous.backupdataModel?.surveyAnimation !=
 current.backupdataModel?.surveyAnimation;
 },
 listener: (context, state) {
-_updateAnimationStatus(state);
+// _updateAnimationStatus(state);
 },
 child: BlocBuilder<DatabaseBloc, DatabaseState>(
 buildWhen: (previous, current) {
@@ -368,7 +370,10 @@ previous.backupdataModel?.surveyAnimation !=
 current.backupdataModel?.surveyAnimation;
 return surveyStillRunning;
 }, builder: (context, state) {
+bool surveyAnimation =
+state.backupdataModel?.surveyAnimation ?? false;
 // int? countSurvey = state.listOfSurveyDataModel?.length;
+const iconSize = 24.0;
 return ListTile(
 title: const Text("Surveys"),
 leading: const Icon(
@@ -376,15 +381,17 @@ Icons.library_books,
 ),
 subtitle: Text(
 '${countingSurveys ?? '..'} to be uploaded'), //${state.surveyTotalCount}
-trailing: RepaintBoundary(
-child: AnimatedBuilder(
-animation: _surveyRotationAnimation,
-builder: (context, child) => Transform.rotate(
-angle: _surveyRotationAnimation.value,
-child: const Icon(Icons.sync),
+trailing: surveyAnimation
+? SizedBox(
+width: iconSize,
+height: iconSize,
+child: SpinKitRing(
+lineWidth: 1,
+color: Theme.of(context).primaryColor,
+size: iconSize,
 ),
-),
-),
+)
+: const Icon(Icons.sync, size: iconSize, weight: 1),
 );
 }));
 }
@@ -397,18 +404,12 @@ current.backupdataModel?.booksAnimation;
 return booksStillRunning;
 },
 listener: (context, state) {
-// debugPrint(
-//     'MIKEPAMPA BEFORE ${state.listOfBookDataModel.toString()}');
-_updateAnimationStatus(state);
+// _updateAnimationStatus(state);
 },
 child: BlocBuilder<DatabaseBloc, DatabaseState>(
 buildWhen: (previous, current) {
-final previousNotNull = previous.listOfBookDataModel != null;
-final currentNotNull = current.listOfBookDataModel != null;
 final listLengthChanged = previous.listOfBookDataModel?.length !=
 current.listOfBookDataModel?.length;
-debugPrint(
-'NYABOBEFORE ${previous.listOfBookDataModel.toString()} NYABOAFTER ${current.listOfBookDataModel.toString()}');
 return listLengthChanged;
 }, builder: (context, state) {
 int? unsentBooksCountText = state.listOfBookDataModel?.length;

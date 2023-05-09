@@ -8,7 +8,6 @@ import 'package:he/home/home.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he/service/work_manager_service.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class BackupPage extends StatefulWidget {
   const BackupPage({Key? key}) : super(key: key);
@@ -404,24 +403,22 @@ class _BackupPageState extends State<BackupPage>
           return booksStillRunning;
         },
         listener: (context, state) {
-          // debugPrint(
-          //     'MIKEPAMPA BEFORE ${state.listOfBookDataModel.toString()}');
-          _updateAnimationStatus(state);
+          // _updateAnimationStatus(state);
         },
         child: BlocBuilder<DatabaseBloc, DatabaseState>(
             buildWhen: (previous, current) {
-          final previousNotNull = previous.listOfBookDataModel != null;
-          final currentNotNull = current.listOfBookDataModel != null;
+          final booksStillRunning = previous.backupdataModel?.booksAnimation !=
+              current.backupdataModel?.booksAnimation;
+          // return booksStillRunning;
           final listLengthChanged = previous.listOfBookDataModel?.length !=
               current.listOfBookDataModel?.length;
-          debugPrint(
-              'NYABOBEFORE ${previous.listOfBookDataModel.toString()} NYABOAFTER ${current.listOfBookDataModel.toString()}');
-          return listLengthChanged;
+          return listLengthChanged || booksStillRunning;
         }, builder: (context, state) {
           int? unsentBooksCountText = state.listOfBookDataModel?.length;
+          bool booksAnimation = state.backupdataModel?.booksAnimation ?? false;
+          const iconSize = 24.0;
           // String unsentBooksCountText;
           if (state.listOfBookDataModel == null) {
-            // unsentBooksCountText = '.. ';
             debugPrint(
                 'MIKEPAMPA BEFORE ${state.listOfBookDataModel.toString()}');
             context
@@ -437,13 +434,17 @@ class _BackupPageState extends State<BackupPage>
               Icons.menu_book,
             ),
             subtitle: Text('${unsentBooksCountText ?? '..'} to be uploaded'),
-            trailing: AnimatedBuilder(
-              animation: _booksRotationAnimation,
-              builder: (context, child) => Transform.rotate(
-                angle: _booksRotationAnimation.value,
-                child: const Icon(Icons.sync),
-              ),
-            ),
+            trailing: booksAnimation
+                ? SizedBox(
+                    width: iconSize,
+                    height: iconSize,
+                    child: SpinKitRing(
+                      lineWidth: 1,
+                      color: Theme.of(context).primaryColor,
+                      size: iconSize,
+                    ),
+                  )
+                : const Icon(Icons.sync, size: iconSize, weight: 1),
             onTap: () {
               // Show dialog to choose backup frequency
             },

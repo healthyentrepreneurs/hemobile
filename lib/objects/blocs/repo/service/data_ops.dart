@@ -25,11 +25,6 @@ class DatabaseBoxOperations {
   })  : _objectService = objectService,
         _firestore = firestore {
     debugPrint("Updated-BackupStateDataModel: ");
-    // _objectService.onSave.listen((BackupStateDataModel backupState) {
-    //   // Handle the updated backup state data here
-    //   // For example, you can print it:
-    //   debugPrint("Updated-BackupStateDataModel: ${backupState.toJson()}");
-    // });
   }
 
   Box<SurveyDataModel> get _surveyBox =>
@@ -38,7 +33,6 @@ class DatabaseBoxOperations {
       _objectService.store.box<BookDataModel>();
   Box<BackupStateDataModel> get backupBox =>
       _objectService.store.box<BackupStateDataModel>();
-  StreamSubscription<BackupStateDataModel>? _backupStateSubscription;
   // ## BOOK LOCAL SAVING
 
   Future<Either<Failure, int>> saveBookData({
@@ -95,29 +89,6 @@ class DatabaseBoxOperations {
     }
   }
 
-  Future<List<SurveyDataModel>> getSurveysByPendingStatus(
-      bool isPending) async {
-    final query =
-    _surveyBox.query(SurveyDataModel_.isPending.equals(isPending)).build();
-    final surveys = query.find();
-    query.close();
-    return surveys;
-  }
-
-  Stream<Either<Failure, int>> get totalSavedSurveyData {
-    return Stream.fromFuture(_countPendingSurveys());
-  }
-
-  //Survey Helper Classes
-  Future<Either<Failure, int>> _countPendingSurveys() async {
-    try {
-      final listSurveys = await getSurveysByPendingStatus(true);
-      return Right(listSurveys.length);
-    } catch (error) {
-      return Left(RepositoryFailure(error.toString()));
-    }
-  }
-
   Future<List<SurveyDataModel>> getSurveysPendingStatusCTimeLimit(
       bool isPending) async {
     int currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
@@ -131,39 +102,47 @@ class DatabaseBoxOperations {
     return surveys;
   }
 
+  Future<List<BookDataModel>> getBookViewsPendingStatusCTimeLimit(
+      bool isPending) async {
+    int currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
+    final query = _bookDataBox
+        .query(BookDataModel_.isPending
+        .equals(isPending)
+        .and(BookDataModel_.dateCreated.lessOrEqual(currentTimeMillis)))
+        .build();
+    final bookviews = query.find();
+    query.close();
+    return bookviews;
+  }
+
   // ## BACKUP STATUS LOCAL
   Future<void> uploadDataOps() async {
-    BackupStateDataModel currentBackupState = _objectService.backupBox.get(1) ??
-        BackupStateDataModel.defaultInstance();
+    BackupStateDataModel currentBackupState =
+    BackupStateDataModel.defaultInstance();
     final newState = currentBackupState.copyWith(
       isUploadingData: true,
       backupAnimation: true,
+      surveyAnimation: true,
+      booksAnimation: true,
     );
+    await savePendingItemsToFirestoreAndSetNotPending();
     debugPrint(
         "WALAHWA DatabaseBoxOperations@onUploadStateChanged OLD ${currentBackupState.toJson()} \n NEW ${newState.toJson()}");
-    // await _objectService.save(backupdatamodel: newState);
-    await savePendingSurveysToFirestoreAndSetNotPending();
-    await _objectService.save(
-        backupdatamodel: currentBackupState.copyWith(
-            isUploadingData: false,
-            backupAnimation: false,
-            uploadProgress: 0.0));
+    // await _objectService.save(
+    //     backupdatamodel: currentBackupState.copyWith(
+    //         isUploadingData: false,
+    //         backupAnimation: false,
+    //         surveyAnimation: false,
+    //         uploadProgress: 0.0));
   }
 
   Future<void> savePendingSurveysToFirestoreAndSetNotPending() async {
     List<SurveyDataModel> pendingSurveys =
     await getSurveysPendingStatusCTimeLimit(true);
-
     int totalPendingSurveys = pendingSurveys.length;
     int uploadedSurveys = 0;
     for (SurveyDataModel survey in pendingSurveys) {
-      Either<Failure, void> result = await saveSurveysFireStore(
-        surveyId: survey.surveyId,
-        country: survey.country,
-        userId: survey.userId,
-        surveyJson: survey.surveyObject,
-        surveyVersion: survey.surveyVersion,
-      );
+      Either<Failure, void> result = await saveSurveysFireStore(survey: survey);
       result.fold(
             (failure) {
           debugPrint("SALOME Failed to upload survey: $failure");
@@ -191,34 +170,149 @@ class DatabaseBoxOperations {
                   BackupStateDataModel.defaultInstance();
           debugPrint(
               "PREVIOUSCOPYME WORK PREVIOUS ${currentBackupState.toJson()}");
-
-          currentBackupState = currentBackupState.copyWith(
+          var namu = currentBackupState.copyWith(
               isUploadingData: _isUploading,
               uploadProgress: progress,
               backupAnimation: _backupAnimation,
               surveyAnimation: _surveyAnimation,
               booksAnimation: false,
               dateCreated: DateTime.now());
-          debugPrint(
-              "CURRENTCOPYME WORK PREVIOUS ${currentBackupState.toJson()}");
-
-          _objectService.store.runInTransaction(TxMode.write, () {
-            _objectService.save(backupdatamodel: currentBackupState);
-          });
+          debugPrint("CURRENTCOPYME WORK PREVIOUS ${namu.toJson()}");
+          await _objectService.saveBackupState(backupdatamodel: namu);
         },
       );
     }
     debugPrint("Total uploaded surveys simulated: $uploadedSurveys");
-    _backupStateSubscription?.cancel();
   }
 
-  // Future<Map<String, dynamic>?> loadState() async {
-  //   // generateDummySurveysWithFaker();
-  //
-  //   final data = backupBox.query().build().findFirst();
-  //   return data.toJson() ?? defaultNaUpdate.toJson();
-  //   return defaultNaUpdate?.toJson();
-  // }
+  Future<void> savePendingBookViewsToFirestoreAndSetNotPending() async {
+    List<BookDataModel> pendingBookViews =
+    await getBookViewsPendingStatusCTimeLimit(true);
+    int totalPendingBookViews = pendingBookViews.length;
+    int uploadedBookViews = 0;
+    for (BookDataModel bookview in pendingBookViews) {
+      Either<Failure, void> result =
+      await saveBookViewsFireStore(bookview: bookview);
+      result.fold(
+            (failure) {
+          debugPrint("SALOME Failed to upload survey: $failure");
+        },
+            (_) async {
+          // Update the isPending flag to false
+          bookview.isPending = false;
+          bool _isUploading = true;
+          bool _backupAnimation = true;
+          // bool _surveyAnimation = true;
+          bool _booksAnimation = true;
+          // await updateSurvey(survey);
+          uploadedBookViews++;
+          // Update the upload progress
+          double progress = uploadedBookViews / totalPendingBookViews;
+          debugPrint(
+              "SHOW ME progress $progress _isUploading $_isUploading $_backupAnimation");
+          if (progress >= 1) {
+            progress = 0.0;
+            _isUploading = false;
+            _backupAnimation = false;
+            _booksAnimation = false;
+          }
+          BackupStateDataModel currentBackupState =
+              _objectService.backupBox.get(1) ??
+                  BackupStateDataModel.defaultInstance();
+          debugPrint(
+              "PREVIOUSCOPYME WORK PREVIOUS ${currentBackupState.toJson()}");
+          var namu = currentBackupState.copyWith(
+              isUploadingData: _isUploading,
+              uploadProgress: progress,
+              backupAnimation: _backupAnimation,
+              surveyAnimation: false,
+              booksAnimation: _booksAnimation,
+              dateCreated: DateTime.now());
+          debugPrint("CURRENTCOPYME WORK PREVIOUS ${namu.toJson()}");
+          await _objectService.saveBackupState(backupdatamodel: namu);
+        },
+      );
+    }
+    debugPrint("Total uploaded BookViews simulated: $uploadedBookViews");
+  }
+
+  Future<void> savePendingItemsToFirestoreAndSetNotPending() async {
+    List<SurveyDataModel> pendingSurveys =
+    await getSurveysPendingStatusCTimeLimit(true);
+    List<BookDataModel> pendingBookViews =
+    await getBookViewsPendingStatusCTimeLimit(true);
+
+    int totalPendingSurveys = pendingSurveys.length;
+    int totalPendingBookViews = pendingBookViews.length;
+    int totalPendingItems = totalPendingSurveys + totalPendingBookViews;
+
+    int countingTract = 0;
+    int? uploadedSurveys;
+    int? uploadedBookViews;
+
+    for (SurveyDataModel survey in pendingSurveys) {
+      Either<Failure, void> result = await saveSurveysFireStore(survey: survey);
+      result.fold(
+            (failure) {
+          debugPrint("Failed to upload survey: $failure");
+        },
+            (_) async {
+          survey.isPending = false;
+          uploadedSurveys = --totalPendingSurveys;
+          countingTract++;
+          await updateProgress(uploadedSurveys, uploadedBookViews,
+              countingTract, totalPendingItems);
+        },
+      );
+    }
+    debugPrint("Total uploaded surveys simulated: $uploadedSurveys");
+
+    for (BookDataModel bookview in pendingBookViews) {
+      Either<Failure, void> result =
+      await saveBookViewsFireStore(bookview: bookview);
+      result.fold(
+            (failure) {
+          debugPrint("Failed to upload book view: $failure");
+        },
+            (_) async {
+          bookview.isPending = false;
+          countingTract++;
+          uploadedBookViews = --totalPendingBookViews;
+          await updateProgress(uploadedSurveys, uploadedBookViews,
+              countingTract, totalPendingItems);
+        },
+      );
+    }
+    debugPrint("Total uploaded BookViews simulated: $uploadedBookViews");
+  }
+
+  Future<void> updateProgress(int? uploadedSurveys, int? uploadedBookViews,
+      int countingTract, int totalPendingItems) async {
+    double progress = countingTract / totalPendingItems;
+    bool _isUploading = true;
+    bool _backupAnimation = true;
+    bool _surveyAnimation = !(uploadedSurveys == null || uploadedSurveys == 0);
+    bool _booksAnimation =
+    !(uploadedBookViews == null || uploadedBookViews == 0);
+
+    if (progress >= 1) {
+      progress = 0.0;
+      _isUploading = false;
+      _backupAnimation = false;
+    }
+
+    BackupStateDataModel currentBackupState = _objectService.backupBox.get(1) ??
+        BackupStateDataModel.defaultInstance();
+    var updatedBackupState = currentBackupState.copyWith(
+        isUploadingData: _isUploading,
+        uploadProgress: progress,
+        backupAnimation: _backupAnimation,
+        surveyAnimation: _surveyAnimation,
+        booksAnimation: _booksAnimation,
+        dateCreated: DateTime.now());
+
+    await _objectService.saveBackupState(backupdatamodel: updatedBackupState);
+  }
 
   Future<Map<String, dynamic>?> loadState() async {
     // generateDummySurveysWithFaker();
@@ -260,26 +354,29 @@ class DatabaseBoxOperations {
     return dummySurveys;
   }
 
-  List<BackupStateDataModel> generateDummyBackupStatesWithFaker() {
-    const int numOfBackupStates = 100;
+  List<BookDataModel> generateDummyBooksWithFaker() {
+    const int numOfBooks = 100;
     final faker = Faker();
 
-    List<BackupStateDataModel> dummyBackupStates = [];
-    for (int i = 0; i < numOfBackupStates; i++) {
-      var backupState = BackupStateDataModel(
-        id: 1,
-        uploadProgress: faker.randomGenerator.decimal(min: 2),
-        isUploadingData: faker.randomGenerator.boolean(),
-        backupAnimation: faker.randomGenerator.boolean(),
-        surveyAnimation: faker.randomGenerator.boolean(),
-        booksAnimation: faker.randomGenerator.boolean(),
-        dateCreated: faker.date.dateTime(minYear: 2020, maxYear: 2023),
+    List<BookDataModel> dummyBooks = [];
+    for (int i = 0; i < numOfBooks; i++) {
+      var book = BookDataModel(
+          bookId: faker.guid.guid(),
+          chapterId: faker.guid.guid(),
+          courseId: faker.guid.guid(),
+          userId: faker.guid.guid(),
+          isPending: true //faker.randomGenerator.boolean(),
       );
-      // addBackupState(backupState); // If you have a function to add the backup state to the database or collection, uncomment this line.
-      dummyBackupStates.add(backupState);
+      saveBookData(
+          bookId: book.id.toString(),
+          chapterId: book.chapterId,
+          courseId: book.courseId,
+          userId: book.userId,
+          isPending: book.isPending); // Assuming you have an addBook() function
+      dummyBooks.add(book);
     }
 
-    return dummyBackupStates;
+    return dummyBooks;
   }
 
   Future<List<BackupStateDataModel>> deleteRecordsWithIdNotOne() async {
@@ -301,20 +398,10 @@ class DatabaseBoxOperations {
   }
 
   Future<Either<Failure, void>> saveSurveysFireStore({
-    required String surveyId,
-    required String country,
-    required String userId,
-    required String surveyJson,
-    required String surveyVersion,
+    required SurveyDataModel survey,
   }) async {
     try {
-      await _saveSurveyToFirestore(
-        surveyId: surveyId,
-        country: country,
-        userId: userId,
-        surveyJson: surveyJson,
-        surveyVersion: surveyVersion,
-      );
+      await _saveSurveyToFirestore(survey: survey);
       return Future.value(const Right(null)); // Return success value
     } catch (e) {
       debugPrint("Error saving survey response: ${e.toString()}");
@@ -322,22 +409,58 @@ class DatabaseBoxOperations {
     }
   }
 
+  Future<Either<Failure, void>> saveBookViewsFireStore({
+    required BookDataModel bookview,
+  }) async {
+    try {
+      await _saveBookViewsToFirestore(bookviews: bookview);
+      return Future.value(const Right(null)); // Return success value
+    } catch (e) {
+      debugPrint("Error saving bookviews response: ${e.toString()}");
+      return Future.value(Left(RepositoryFailure(e.toString())));
+    }
+  }
+
   Future<void> _saveSurveyToFirestore({
-    required String surveyId,
-    required String country,
-    required String userId,
-    required String surveyJson,
-    required String surveyVersion,
+    required SurveyDataModel survey,
   }) async {
     await _firestore
         .collection('surveyposts')
-        .doc(country)
-        .collection(surveyId)
-        .add({
-      'userId': userId,
-      'surveyVersion': surveyVersion,
-      'surveyobject': surveyJson,
-      'surveyId': surveyId,
-    });
+        .doc(survey.country)
+        .collection(survey.surveyId)
+        .doc(survey
+        .userId) // Assuming that each user has a unique survey in the collection
+        .set(
+      {
+        'userId': survey.userId,
+        'surveyVersion': survey.surveyVersion,
+        'surveyobject': survey.surveyObject,
+        'surveyId': survey.surveyId,
+        'dateCreated': survey.dateCreated.toIso8601String(),
+      },
+      SetOptions(merge: true),
+    );
+  }
+
+  Future<void> _saveBookViewsToFirestore({
+    required BookDataModel bookviews,
+  }) async {
+    final createdAt = bookviews.dateCreated;
+    // final timeInMinutes = (createdAt.hour * 60) + createdAt.minute;
+    final dateWithoutSeconds =
+    createdAt.toIso8601String().split(':').sublist(0, 2).join(':');
+    final docId =
+        '${bookviews.userId}_$dateWithoutSeconds:${createdAt.minute.toString().padLeft(2, '0')}';
+    await _firestore
+        .collection('bookviews')
+        .doc(bookviews.courseId)
+        .collection(bookviews.bookId)
+        .doc(bookviews.chapterId)
+        .collection('views')
+        .doc(docId)
+        .set({
+      'userId': bookviews.userId,
+      'viewTime': createdAt.toIso8601String(),
+    }, SetOptions(merge: true));
   }
 }

@@ -125,118 +125,12 @@ class DatabaseBoxOperations {
       surveyAnimation: true,
       booksAnimation: true,
     );
+    await _objectService.saveBackupState(backupdatamodel: newState);
     await savePendingItemsToFirestoreAndSetNotPending();
-    debugPrint(
-        "WALAHWA DatabaseBoxOperations@onUploadStateChanged OLD ${currentBackupState.toJson()} \n NEW ${newState.toJson()}");
-    // await _objectService.save(
-    //     backupdatamodel: currentBackupState.copyWith(
-    //         isUploadingData: false,
-    //         backupAnimation: false,
-    //         surveyAnimation: false,
-    //         uploadProgress: 0.0));
-  }
-
-  Future<void> savePendingSurveysToFirestoreAndSetNotPending() async {
-    List<SurveyDataModel> pendingSurveys =
-        await getSurveysPendingStatusCTimeLimit(true);
-    int totalPendingSurveys = pendingSurveys.length;
-    int uploadedSurveys = 0;
-    for (SurveyDataModel survey in pendingSurveys) {
-      Either<Failure, void> result = await saveSurveysFireStore(survey: survey);
-      result.fold(
-        (failure) {
-          debugPrint("SALOME Failed to upload survey: $failure");
-        },
-        (_) async {
-          // Update the isPending flag to false
-          survey.isPending = false;
-          bool _isUploading = true;
-          bool _backupAnimation = true;
-          bool _surveyAnimation = true;
-          // await updateSurvey(survey);
-          uploadedSurveys++;
-          // Update the upload progress
-          double progress = uploadedSurveys / totalPendingSurveys;
-          debugPrint(
-              "SHOW ME progress $progress _isUploading $_isUploading $_backupAnimation");
-          if (progress >= 1) {
-            progress = 0.0;
-            _isUploading = false;
-            _backupAnimation = false;
-            _surveyAnimation = false;
-          }
-          BackupStateDataModel currentBackupState =
-              _objectService.backupBox.get(1) ??
-                  BackupStateDataModel.defaultInstance();
-          debugPrint(
-              "PREVIOUSCOPYME WORK PREVIOUS ${currentBackupState.toJson()}");
-          var namu = currentBackupState.copyWith(
-              isUploadingData: _isUploading,
-              uploadProgress: progress,
-              backupAnimation: _backupAnimation,
-              surveyAnimation: _surveyAnimation,
-              booksAnimation: false,
-              dateCreated: DateTime.now());
-          debugPrint("CURRENTCOPYME WORK PREVIOUS ${namu.toJson()}");
-          await _objectService.save(backupdatamodel: namu);
-        },
-      );
-    }
-    debugPrint("Total uploaded surveys simulated: $uploadedSurveys");
-  }
-
-  Future<void> savePendingBookViewsToFirestoreAndSetNotPending() async {
-    List<BookDataModel> pendingBookViews =
-        await getBookViewsPendingStatusCTimeLimit(true);
-    int totalPendingBookViews = pendingBookViews.length;
-    int uploadedBookViews = 0;
-    for (BookDataModel bookview in pendingBookViews) {
-      Either<Failure, void> result =
-          await saveBookViewsFireStore(bookview: bookview);
-      result.fold(
-        (failure) {
-          debugPrint("SALOME Failed to upload survey: $failure");
-        },
-        (_) async {
-          // Update the isPending flag to false
-          bookview.isPending = false;
-          bool _isUploading = true;
-          bool _backupAnimation = true;
-          // bool _surveyAnimation = true;
-          bool _booksAnimation = true;
-          // await updateSurvey(survey);
-          uploadedBookViews++;
-          // Update the upload progress
-          double progress = uploadedBookViews / totalPendingBookViews;
-          debugPrint(
-              "SHOW ME progress $progress _isUploading $_isUploading $_backupAnimation");
-          if (progress >= 1) {
-            progress = 0.0;
-            _isUploading = false;
-            _backupAnimation = false;
-            _booksAnimation = false;
-          }
-          BackupStateDataModel currentBackupState =
-              _objectService.backupBox.get(1) ??
-                  BackupStateDataModel.defaultInstance();
-          debugPrint(
-              "PREVIOUSCOPYME WORK PREVIOUS ${currentBackupState.toJson()}");
-          var namu = currentBackupState.copyWith(
-              isUploadingData: _isUploading,
-              uploadProgress: progress,
-              backupAnimation: _backupAnimation,
-              surveyAnimation: false,
-              booksAnimation: _booksAnimation,
-              dateCreated: DateTime.now());
-          debugPrint("CURRENTCOPYME WORK PREVIOUS ${namu.toJson()}");
-          await _objectService.save(backupdatamodel: namu);
-        },
-      );
-    }
-    debugPrint("Total uploaded BookViews simulated: $uploadedBookViews");
   }
 
   Future<void> savePendingItemsToFirestoreAndSetNotPending() async {
+    bool hasFailure = false;
     List<SurveyDataModel> pendingSurveys =
         await getSurveysPendingStatusCTimeLimit(true);
     List<BookDataModel> pendingBookViews =
@@ -249,11 +143,19 @@ class DatabaseBoxOperations {
     int countingTract = 0;
     int? uploadedSurveys;
     int? uploadedBookViews;
+    BackupStateDataModel currentBackupState = _objectService.backupBox.get(1) ??
+        BackupStateDataModel.defaultInstance();
 
     for (SurveyDataModel survey in pendingSurveys) {
       Either<Failure, void> result = await saveSurveysFireStore(survey: survey);
       result.fold(
         (failure) {
+          final failState = currentBackupState.copyWith(
+            isUploadingData: false,
+            booksAnimation: false,
+          );
+          _objectService.saveBackupState(backupdatamodel: failState);
+          hasFailure = true;
           debugPrint("Failed to upload survey: $failure");
         },
         (_) async {
@@ -261,17 +163,29 @@ class DatabaseBoxOperations {
           uploadedSurveys = --totalPendingSurveys;
           countingTract++;
           await updateProgress(uploadedSurveys, uploadedBookViews,
-              countingTract, totalPendingItems);
+              countingTract, totalPendingItems, currentBackupState);
         },
       );
+      if (hasFailure) {
+        break;
+      }
     }
     debugPrint("Total uploaded surveys simulated: $uploadedSurveys");
-
+    hasFailure = false;
     for (BookDataModel bookview in pendingBookViews) {
       Either<Failure, void> result =
           await saveBookViewsFireStore(bookview: bookview);
+      // Force a failure
+      // Failure forcedFailure = RepositoryFailure("Forced failure for testing");
+      // result = Left(forcedFailure);
       result.fold(
         (failure) {
+          final failState = currentBackupState.copyWith(
+            isUploadingData: false,
+            surveyAnimation: false,
+          );
+          _objectService.saveBackupState(backupdatamodel: failState);
+          hasFailure = true;
           debugPrint("Failed to upload book view: $failure");
         },
         (_) async {
@@ -279,15 +193,22 @@ class DatabaseBoxOperations {
           countingTract++;
           uploadedBookViews = --totalPendingBookViews;
           await updateProgress(uploadedSurveys, uploadedBookViews,
-              countingTract, totalPendingItems);
+              countingTract, totalPendingItems, currentBackupState);
         },
       );
+      if (hasFailure) {
+        break;
+      }
     }
     debugPrint("Total uploaded BookViews simulated: $uploadedBookViews");
   }
 
-  Future<void> updateProgress(int? uploadedSurveys, int? uploadedBookViews,
-      int countingTract, int totalPendingItems) async {
+  Future<void> updateProgress(
+      int? uploadedSurveys,
+      int? uploadedBookViews,
+      int countingTract,
+      int totalPendingItems,
+      BackupStateDataModel currentBackupState) async {
     double progress = countingTract / totalPendingItems;
     bool _isUploading = true;
     bool _backupAnimation = true;
@@ -300,9 +221,6 @@ class DatabaseBoxOperations {
       _isUploading = false;
       _backupAnimation = false;
     }
-
-    BackupStateDataModel currentBackupState = _objectService.backupBox.get(1) ??
-        BackupStateDataModel.defaultInstance();
     var updatedBackupState = currentBackupState.copyWith(
         isUploadingData: _isUploading,
         uploadProgress: progress,
@@ -311,7 +229,7 @@ class DatabaseBoxOperations {
         booksAnimation: _booksAnimation,
         dateCreated: DateTime.now());
 
-    await _objectService.save(backupdatamodel: updatedBackupState);
+    await _objectService.saveBackupState(backupdatamodel: updatedBackupState);
   }
 
   Future<Map<String, dynamic>?> loadState() async {

@@ -69,7 +69,7 @@ class ObjectBoxService {
     }
   }
 
-  Future<void> save({BackupStateDataModel? backupdatamodel}) async {
+  Future<void> saveBackupState({BackupStateDataModel? backupdatamodel}) async {
     final query = backupBox.query().build();
     final results = query.find();
     if (results.isEmpty) {
@@ -94,12 +94,7 @@ class ObjectBoxService {
       existingData.dateCreated = backupdatamodel!.dateCreated;
       // Save the updated data
       final savedData = await backupBox.putAndGetAsync(existingData);
-      // Add the saved data to the saveController stream
-      debugPrint(
-          "UpdatingBefore DatabaseBoxOperations@saveState ${savedData.toJson()} \n");
       // _saveController.add(savedData);
-      debugPrint(
-          "UpdatingAfter DatabaseBoxOperations@saveState ${savedData.toJson()} \n");
     }
 
     // Close the query builder

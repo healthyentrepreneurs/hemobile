@@ -56,8 +56,9 @@ class DatabaseState extends Equatable {
     return DatabaseState._(
         listOfSubscriptionData:
             listOfSubscriptionData ?? _listOfSubscriptionData,
-        listOfSurveyDataModel: listOfSurveyDataModel ?? listOfSurveyDataModel,
-        listOfBookDataModel: listOfBookDataModel ?? listOfBookDataModel,
+        listOfSurveyDataModel:
+            listOfSurveyDataModel ?? this.listOfSurveyDataModel,
+        listOfBookDataModel: listOfBookDataModel ?? this.listOfBookDataModel,
         selectedsubscription: selectedsubscription ?? _selectedsubscription,
         henetworkStatus: henetworkStatus ?? _henetworkStatus,
         userid: userid ?? _userid,
