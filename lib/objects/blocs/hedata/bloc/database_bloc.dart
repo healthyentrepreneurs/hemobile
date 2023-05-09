@@ -93,6 +93,15 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     ));
   }
 
+  // _onUploadDataEvent(UploadData event, Emitter<DatabaseState> emit) async {
+  //   final result = _databaseRepository.getBackupStateDataModelStream();
+  //   await emit.forEach(result,
+  //       onData: (BackupStateDataModel backupStateDataModel) {
+  //     add(UploadData(backupStateData: backupStateDataModel));
+  //     return state.copyWith(backupdataModel: backupStateDataModel);
+  //   });
+  // }
+
   // Handle LoadStateEvent
   void _onLoadStateEvent(
       LoadStateEvent event, Emitter<DatabaseState> emit) async {
@@ -149,8 +158,7 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     final result = _databaseRepository.getBookChaptersByPendingStatus(
         isPending: event.isPending);
     await emit.forEach(result, onData: (List<BookDataModel> listBookDataModel) {
-      return state.copyWith(
-          listOfBookDataModel: listBookDataModel);
+      return state.copyWith(listOfBookDataModel: listBookDataModel);
     });
   }
 }

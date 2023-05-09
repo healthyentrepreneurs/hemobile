@@ -65,6 +65,12 @@ class UploadData extends DatabaseEvent {
   List<Object> get props => [backupStateData];
 }
 
+// class UploadData extends DatabaseEvent {
+//   const UploadData();
+//   @override
+//   List<Object> get props => [];
+// }
+
 class ListSurveyTesting extends DatabaseEvent {
   final bool isPending;
   const ListSurveyTesting({required this.isPending});

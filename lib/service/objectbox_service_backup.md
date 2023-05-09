@@ -9,27 +9,30 @@ import '../objects/db_local/db_local.dart';
 
 // https://github.com/objectbox/objectbox-dart/issues/436
 class ObjectBoxService {
-  late final Store store;
-  late final Box<BackupStateDataModel> backupBox;
-  late final Box<SurveyDataModel> surveyBox;
+late final Store store;
+late final Box<BackupStateDataModel> backupBox;
+late final Box<BookDataModel> bookBox;
+late final Box<SurveyDataModel> surveyBox;
 
-  final StreamController<BackupStateDataModel> _saveController =
-      StreamController<BackupStateDataModel>.broadcast();
+// final StreamController<BackupStateDataModel> _saveController =
+//     StreamController<BackupStateDataModel>.broadcast();
+//
+// final StreamController<SurveyDataModel> _saveSurveyController =
+//     StreamController<SurveyDataModel>.broadcast();
 
-  final StreamController<SurveyDataModel> _saveSurveyController =
-      StreamController<SurveyDataModel>.broadcast();
+late final Stream<Query<BackupStateDataModel>> backupStream;
+late final Stream<Query<SurveyDataModel>> surveyStream;
+// late final Stream<Query<BackupStateDataModel>> tasksBroadcastStream;
+late final Stream<Query<SurveyDataModel>> surveyBroadcastStream;
+late final ReplaySubject<Query<BackupStateDataModel>> backupBroadcastStream;
+static ObjectBoxService? _instance;
 
-  late final Stream<Query<BackupStateDataModel>> backupStream;
-  late final Stream<Query<SurveyDataModel>> surveyStream;
-  // late final Stream<Query<BackupStateDataModel>> tasksBroadcastStream;
-  late final ReplaySubject<Query<BackupStateDataModel>> backupBroadcastStream;
-  static ObjectBoxService? _instance;
+// Stream<BackupStateDataModel> get onSave => _saveController.stream;
 
-  // Stream<BackupStateDataModel> get onSave => _saveController.stream;
-
-  ObjectBoxService._create(this.store) {
-    backupBox = Box<BackupStateDataModel>(store);
-    surveyBox = Box<SurveyDataModel>(store);
+ObjectBoxService._create(this.store) {
+backupBox = Box<BackupStateDataModel>(store);
+surveyBox = Box<SurveyDataModel>(store);
+bookBox = Box<BookDataModel>(store);
 
     final qBuilderBackupDataModel = backupBox.query()
       ..order(BackupStateDataModel_.uploadProgress);
@@ -43,14 +46,14 @@ class ObjectBoxService {
     backupStream.listen((query) {
       backupBroadcastStream.add(query);
     });
-  }
+}
 
-  static Future<ObjectBoxService> create() async {
-    if (_instance != null) {
-      return _instance!;
-    } else {
-      final docsDir = await getApplicationDocumentsDirectory();
-      final storePath = p.join(docsDir.path, "hestatistics");
+static Future<ObjectBoxService> create() async {
+if (_instance != null) {
+return _instance!;
+} else {
+final docsDir = await getApplicationDocumentsDirectory();
+final storePath = p.join(docsDir.path, "hestatistics");
 
       // Check if the store is already open
       if (Store.isOpen(storePath)) {
@@ -64,63 +67,59 @@ class ObjectBoxService {
       }
       return _instance!;
     }
-  }
+}
 
-  Future<void> save({BackupStateDataModel? backupdatamodel}) async {
-    final query = backupBox.query().build();
-    final results = query.find();
-    if (results.isEmpty) {
-      // Add default BackupStateDataModel if query is empty
-      final savedData = await backupBox
-          .putAndGetAsync(BackupStateDataModel.defaultInstance());
-      _saveController.add(savedData);
-    } else {
-      final existingData = results.first;
-      debugPrint("PHILA ${results.toString()} \n");
-      // Update fields with new values if provided (not null)
-      existingData.isUploadingData =
-          backupdatamodel?.isUploadingData ?? existingData.isUploadingData;
-      existingData.uploadProgress =
-          backupdatamodel?.uploadProgress ?? existingData.uploadProgress;
-      existingData.backupAnimation =
-          backupdatamodel?.backupAnimation ?? existingData.backupAnimation;
-      existingData.surveyAnimation =
-          backupdatamodel?.surveyAnimation ?? existingData.surveyAnimation;
-      existingData.booksAnimation =
-          backupdatamodel?.booksAnimation ?? existingData.booksAnimation;
-      existingData.dateCreated = backupdatamodel!.dateCreated;
-      // Save the updated data
-      final savedData = await backupBox.putAndGetAsync(existingData);
-      // Add the saved data to the saveController stream
-      debugPrint(
-          "UpdatingBefore DatabaseBoxOperations@saveState ${savedData.toJson()} \n");
-      _saveController.add(savedData);
-      debugPrint(
-          "UpdatingAfter DatabaseBoxOperations@saveState ${savedData.toJson()} \n");
-    }
+Future<void> saveBackupState({BackupStateDataModel? backupdatamodel}) async {
+final query = backupBox.query().build();
+final results = query.find();
+if (results.isEmpty) {
+// Add default BackupStateDataModel if query is empty
+final savedData = await backupBox
+.putAndGetAsync(BackupStateDataModel.defaultInstance());
+// _saveController.add(savedData);
+} else {
+final existingData = results.first;
+debugPrint("PHILA ${results.toString()} \n");
+// Update fields with new values if provided (not null)
+existingData.isUploadingData =
+backupdatamodel?.isUploadingData ?? existingData.isUploadingData;
+existingData.uploadProgress =
+backupdatamodel?.uploadProgress ?? existingData.uploadProgress;
+existingData.backupAnimation =
+backupdatamodel?.backupAnimation ?? existingData.backupAnimation;
+existingData.surveyAnimation =
+backupdatamodel?.surveyAnimation ?? existingData.surveyAnimation;
+existingData.booksAnimation =
+backupdatamodel?.booksAnimation ?? existingData.booksAnimation;
+existingData.dateCreated = backupdatamodel!.dateCreated;
+// Save the updated data
+final savedData = await backupBox.putAndGetAsync(existingData);
+// _saveController.add(savedData);
+}
 
     // Close the query builder
     // query.close();
-  }
+}
 
-  Future<List<SurveyDataModel>> getSurveysByPendingStatuscc(
-      bool isPending) async {
-    final query =
-        surveyBox.query(SurveyDataModel_.isPending.equals(isPending)).build();
-    final surveys = query.find();
-    query.close();
-    return surveys;
-  }
+Stream<List<SurveyDataModel>> surveysByPendingStatus(bool isPending) {
+final queryBuilder =
+surveyBox.query(SurveyDataModel_.isPending.equals(isPending));
+return queryBuilder
+.watch(triggerImmediately: true)
+.map((query) => query.find());
+}
 
-  Stream<List<SurveyDataModel>> getSurveysByPendingStatus(bool isPending) {
-    final queryBuilder =
-        surveyBox.query(SurveyDataModel_.isPending.equals(isPending));
-    surveyStream = queryBuilder.watch(triggerImmediately: true);
-  }
+Stream<List<BookDataModel>> booksByPendingStatus(bool isPending) {
+final queryBuilder =
+bookBox.query(BookDataModel_.isPending.equals(isPending));
+return queryBuilder
+.watch(triggerImmediately: true)
+.map((query) => query.find());
+}
 
-  void dispose() {
-    _saveController.close();
-    backupBroadcastStream.close();
-    // Close the store if needed
-  }
+void dispose() {
+// _saveController.close();
+backupBroadcastStream.close();
+// Close the store if needed
+}
 }

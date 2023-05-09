@@ -176,17 +176,21 @@ class DatabaseRepository implements IDatabaseRepository {
   //   });
   // }
 
+  // Stream<BackupStateDataModel> getBackupStateDataModelStream() {
+  //   return _objectService.backupBroadcastStream.map((query) {
+  //     final allItems = query.find();
+  //     // Sort the items based on the dateCreated
+  //     allItems.sort((a, b) => a.dateCreated!.compareTo(b.dateCreated!));
+  //     // Get the latest item (with the most recent dateCreated)
+  //     final latestItem = allItems.isNotEmpty ? allItems.last : null;
+  //     return latestItem ??
+  //         BackupStateDataModel
+  //             .defaultInstance(); // Return a default instance if no item is found
+  //   });
+  // }
+
   Stream<BackupStateDataModel> getBackupStateDataModelStream() {
-    return _objectService.backupBroadcastStream.map((query) {
-      final allItems = query.find();
-      // Sort the items based on the dateCreated
-      allItems.sort((a, b) => a.dateCreated!.compareTo(b.dateCreated!));
-      // Get the latest item (with the most recent dateCreated)
-      final latestItem = allItems.isNotEmpty ? allItems.last : null;
-      return latestItem ??
-          BackupStateDataModel
-              .defaultInstance(); // Return a default instance if no item is found
-    });
+    return _objectService.backupUpdateStream();
   }
 
   Stream<List<SurveyDataModel>> getSurveysByPendingStatus(
@@ -201,7 +205,6 @@ class DatabaseRepository implements IDatabaseRepository {
 
   void dispose() {
     _henetworkStatusSubject.close();
-    _objectService.dispose();
     // _saveController.close();
     // tasksBroadcastStream.close();
   }

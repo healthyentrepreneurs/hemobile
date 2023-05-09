@@ -1,10 +1,12 @@
 import 'dart:math';
 
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:he/home/home.dart';
+import 'package:he/main.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he/service/work_manager_service.dart';
@@ -199,8 +201,13 @@ class _BackupPageState extends State<BackupPage>
     // await Future.delayed(const Duration(seconds: 1));
     // await workManagerService.registerUploadDataTask();
     // _taskRegistered = true;
+
     final databaseRepo = GetIt.I<DatabaseRepository>();
     databaseRepo.uploadData();
+    // const int helloAlarmID = 0;
+    // await AndroidAlarmManager.oneShot(delay, id, callback)
+    // await AndroidAlarmManager.oneShot(
+    //     const Duration(minutes: 1), helloAlarmID, printHello);
   }
 
   void _updateAnimationStatus(DatabaseState state) {

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:isolate';
 
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -13,11 +15,12 @@ import 'injection.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AndroidAlarmManager.initialize();
   await configureDependencies();
   await configureInjections(getIt);
   final workManagerService = GetIt.I<WorkManagerService>();
   workManagerService.initialize();
-  // workManagerService.generateBookDataTaskFunc();
+// workManagerService.generateBookDataTaskFunc();
   Bloc.observer = AppBlocObserver();
   if (Platform.isAndroid) {
     await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);

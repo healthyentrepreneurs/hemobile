@@ -51,7 +51,6 @@ class DatabaseState extends Equatable {
       String? userid,
       Failure? error,
       Failure? fetchError,
-      // int? surveyTotalCount,
       final BackupStateDataModel? backupdataModel}) {
     return DatabaseState._(
         listOfSubscriptionData:
@@ -64,8 +63,6 @@ class DatabaseState extends Equatable {
         userid: userid ?? _userid,
         error: error ?? this.error,
         fetchError: fetchError ?? this.fetchError,
-        // surveyTotalCount: surveyTotalCount ?? this.surveyTotalCount,
-        //Uploading
         backupdataModel: backupdataModel ?? this.backupdataModel);
   }
 

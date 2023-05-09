@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:rxdart/rxdart.dart';
 import '../objectbox.g.dart';
 import '../objects/db_local/db_local.dart';
 
@@ -14,17 +13,9 @@ class ObjectBoxService {
   late final Box<BookDataModel> bookBox;
   late final Box<SurveyDataModel> surveyBox;
 
-  // final StreamController<BackupStateDataModel> _saveController =
-  //     StreamController<BackupStateDataModel>.broadcast();
-  //
-  // final StreamController<SurveyDataModel> _saveSurveyController =
-  //     StreamController<SurveyDataModel>.broadcast();
-
-  late final Stream<Query<BackupStateDataModel>> backupStream;
-  late final Stream<Query<SurveyDataModel>> surveyStream;
-  // late final Stream<Query<BackupStateDataModel>> tasksBroadcastStream;
-  late final Stream<Query<SurveyDataModel>> surveyBroadcastStream;
-  late final ReplaySubject<Query<BackupStateDataModel>> backupBroadcastStream;
+  // late final Stream<Query<BackupStateDataModel>> backupStream;
+  // late final Stream<Query<SurveyDataModel>> surveyBroadcastStream;
+  // late final ReplaySubject<Query<BackupStateDataModel>> backupBroadcastStream;
   static ObjectBoxService? _instance;
 
   // Stream<BackupStateDataModel> get onSave => _saveController.stream;
@@ -33,19 +24,6 @@ class ObjectBoxService {
     backupBox = Box<BackupStateDataModel>(store);
     surveyBox = Box<SurveyDataModel>(store);
     bookBox = Box<BookDataModel>(store);
-
-    final qBuilderBackupDataModel = backupBox.query()
-      ..order(BackupStateDataModel_.uploadProgress);
-    backupStream = qBuilderBackupDataModel.watch(triggerImmediately: true);
-
-    // tasksBroadcastStream = tasksStream.asBroadcastStream();
-    // tasksBroadcastStream = tasksStream
-    //     .debounceTime(const Duration(milliseconds: 300))
-    //     .asBroadcastStream();
-    backupBroadcastStream = ReplaySubject<Query<BackupStateDataModel>>();
-    backupStream.listen((query) {
-      backupBroadcastStream.add(query);
-    });
   }
 
   static Future<ObjectBoxService> create() async {
@@ -117,9 +95,10 @@ class ObjectBoxService {
         .map((query) => query.find());
   }
 
-  void dispose() {
-    // _saveController.close();
-    backupBroadcastStream.close();
-    // Close the store if needed
+  Stream<BackupStateDataModel> backupUpdateStream() {
+    final queryBuilder = backupBox.query()
+      ..order(BackupStateDataModel_.uploadProgress);
+    return queryBuilder.watch(triggerImmediately: true).map(
+        (query) => query.findFirst() ?? BackupStateDataModel.defaultInstance());
   }
 }

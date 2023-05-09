@@ -232,21 +232,27 @@ class DatabaseBoxOperations {
     await _objectService.saveBackupState(backupdatamodel: updatedBackupState);
   }
 
+  // Future<Map<String, dynamic>?> loadState() async {
+  //   // generateDummySurveysWithFaker();
+  //   debugPrint("MEHME");
+  //   final completer = Completer<Map<String, dynamic>?>();
+  //   StreamSubscription? subscription;
+  //   subscription = _objectService.backupBroadcastStream.listen((query) {
+  //     final data = query.findFirst();
+  //     if (!completer.isCompleted) {
+  //       completer.complete(
+  //           data?.toJson() ?? BackupStateDataModel.defaultInstance().toJson());
+  //       subscription?.cancel();
+  //     }
+  //   }, cancelOnError: true);
+  //
+  //   return completer.future;
+  // }
+
   Future<Map<String, dynamic>?> loadState() async {
     // generateDummySurveysWithFaker();
-    debugPrint("MEHME");
-    final completer = Completer<Map<String, dynamic>?>();
-    StreamSubscription? subscription;
-    subscription = _objectService.backupBroadcastStream.listen((query) {
-      final data = query.findFirst();
-      if (!completer.isCompleted) {
-        completer.complete(
-            data?.toJson() ?? BackupStateDataModel.defaultInstance().toJson());
-        subscription?.cancel();
-      }
-    }, cancelOnError: true);
-
-    return completer.future;
+    final data = backupBox.query().build().findFirst();
+    return data?.toJson() ?? BackupStateDataModel.defaultInstance().toJson();
   }
 
   List<SurveyDataModel> generateDummySurveysWithFaker() {
