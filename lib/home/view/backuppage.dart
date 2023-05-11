@@ -4,6 +4,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:he/home/home.dart';
 import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
+import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he/service/work_manager_service.dart';
 import 'package:intl/intl.dart';
 
@@ -143,6 +144,34 @@ class _BackupPageState extends State<BackupPage>
                 title: "Data Statistics",
                 children: [_buildSurveyIconWidget(), _buildBookIconWidget()],
               ),
+              SingleSection(
+                title: "Control Animations",
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          _uploadDataTest();
+                        },
+                        child: const Text('StartB'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _cleanDataTest();
+                        },
+                        child: const Text('CleanB'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _generateDataTest();
+                        },
+                        child: const Text('Generate D'),
+                      ),
+                    ],
+                  ),
+                ],
+              )
             ],
           ),
         ),
@@ -161,6 +190,24 @@ class _BackupPageState extends State<BackupPage>
     // _taskRegistered = true;
     // final databaseRepo = GetIt.I<DatabaseRepository>();
     // databaseRepo.uploadData();
+  }
+
+  _uploadDataTest() async {
+    if (!mounted) return;
+    final databaseRepo = GetIt.I<DatabaseRepository>();
+    databaseRepo.uploadData();
+  }
+
+  _cleanDataTest() async {
+    if (!mounted) return;
+    final databaseRepo = GetIt.I<DatabaseRepository>();
+    databaseRepo.cleanUploadedData();
+  }
+
+  _generateDataTest() async {
+    if (!mounted) return;
+    final databaseRepo = GetIt.I<DatabaseRepository>();
+    databaseRepo.createDummyData();
   }
 
   void _updateAnimationStatus(DatabaseState state) {
@@ -322,7 +369,7 @@ class _BackupPageState extends State<BackupPage>
         debugPrint('MIKEPAMPA BEFORE ${state.listOfBookDataModel.toString()}');
         context
             .read<DatabaseBloc>()
-            .add(const ListBooksTesting(isPending: false));
+            .add(const ListBooksTesting(isPending: true));
         // context.read<DatabaseBloc>().add(const DbCountSurveyEvent());
       } else {
         unsentBooksCountText = state.listOfBookDataModel?.length;

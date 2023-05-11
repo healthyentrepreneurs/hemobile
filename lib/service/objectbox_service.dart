@@ -7,6 +7,7 @@ import '../objectbox.g.dart';
 import '../objects/db_local/db_local.dart';
 
 // https://github.com/objectbox/objectbox-dart/issues/436
+
 class ObjectBoxService {
   late final Store store;
   late final Box<BackupStateDataModel> backupBox;
@@ -40,7 +41,8 @@ class ObjectBoxService {
     }
   }
 
-  Future<void> saveBackupState({BackupStateDataModel? backupdatamodel}) async {
+  Future<void> saveBackupStateAsync(
+      {BackupStateDataModel? backupdatamodel}) async {
     final query = backupBox.query().build();
     final results = query.find();
     if (results.isEmpty) {
@@ -73,33 +75,127 @@ class ObjectBoxService {
     // query.close();
   }
 
-  Future<void> saveSurvey(SurveyDataModel surveyDataModel,
-      {bool updateIfExists = false}) async {
-    if (updateIfExists && surveyDataModel.id != 0) {
-      // Check if the record with the given id exists in the box
-      final existingSurvey = await surveyBox.getAsync(surveyDataModel.id);
-      if (existingSurvey != null) {
-        // Update the existing record with the new data
-        await surveyBox.putAsync(surveyDataModel);
-      }
-    } else if (!updateIfExists) {
-      // If updateIfExists is false, create a new record
-      await surveyBox.putAsync(surveyDataModel);
+  void saveBackupState({BackupStateDataModel? backupdatamodel}) {
+    final query = backupBox.query().build();
+    final results = query.find();
+    if (results.isEmpty) {
+      // Add default BackupStateDataModel if query is empty
+      backupBox.put(BackupStateDataModel.defaultInstance());
+    } else {
+      final existingData = results.first;
+      // Update fields with new values if provided (not null)
+      existingData.isUploadingData =
+          backupdatamodel?.isUploadingData ?? existingData.isUploadingData;
+      existingData.uploadProgress =
+          backupdatamodel?.uploadProgress ?? existingData.uploadProgress;
+      existingData.backupAnimation =
+          backupdatamodel?.backupAnimation ?? existingData.backupAnimation;
+      existingData.surveyAnimation =
+          backupdatamodel?.surveyAnimation ?? existingData.surveyAnimation;
+      existingData.booksAnimation =
+          backupdatamodel?.booksAnimation ?? existingData.booksAnimation;
+      existingData.dateCreated = backupdatamodel!.dateCreated;
+      // Save the updated data
+      backupBox.put(existingData);
     }
   }
 
-  Future<void> saveBook(BookDataModel bookDataModel,
-      {bool updateIfExists = false}) async {
-    if (updateIfExists && bookDataModel.id != 0) {
+  void saveBackupStatePutQueued({BackupStateDataModel? backupdatamodel}) {
+    final query = backupBox.query().build();
+    final results = query.find();
+    if (results.isEmpty) {
+      // Add default BackupStateDataModel if query is empty
+      backupBox.putQueued(BackupStateDataModel.defaultInstance());
+    } else {
+      final existingData = results.first;
+      // Update fields with new values if provided (not null)
+      existingData.isUploadingData =
+          backupdatamodel?.isUploadingData ?? existingData.isUploadingData;
+      existingData.uploadProgress =
+          backupdatamodel?.uploadProgress ?? existingData.uploadProgress;
+      existingData.backupAnimation =
+          backupdatamodel?.backupAnimation ?? existingData.backupAnimation;
+      existingData.surveyAnimation =
+          backupdatamodel?.surveyAnimation ?? existingData.surveyAnimation;
+      existingData.booksAnimation =
+          backupdatamodel?.booksAnimation ?? existingData.booksAnimation;
+      existingData.dateCreated = backupdatamodel!.dateCreated;
+      // Save the updated data
+      backupBox.putQueued(existingData);
+    }
+  }
+
+  // Future<void> saveSurvey(SurveyDataModel surveyDataModel,
+  //     {bool updateIfExists = false}) async {
+  //   if (updateIfExists && surveyDataModel.id != 0) {
+  //     // Check if the record with the given id exists in the box
+  //     final existingSurvey = await surveyBox.getAsync(surveyDataModel.id);
+  //     if (existingSurvey != null) {
+  //       // Update the existing record with the new data
+  //       await surveyBox.putAsync(surveyDataModel);
+  //     }
+  //   } else if (!updateIfExists) {
+  //     // If updateIfExists is false, create a new record
+  //     await surveyBox.putAsync(surveyDataModel);
+  //   }
+  // }
+
+  void saveSurvey(SurveyDataModel surveyDataModel,
+      {bool updateIfExists = false}) {
+    if (updateIfExists && surveyDataModel.id != 0) {
       // Check if the record with the given id exists in the box
-      final existingBook = await bookBox.getAsync(bookDataModel.id);
-      if (existingBook != null) {
+      final existingSurvey = surveyBox.get(surveyDataModel.id);
+      if (existingSurvey != null) {
         // Update the existing record with the new data
-        await bookBox.putAsync(bookDataModel);
+        surveyBox.put(surveyDataModel);
       }
     } else if (!updateIfExists) {
       // If updateIfExists is false, create a new record
-      await bookBox.putAsync(bookDataModel);
+      surveyBox.put(surveyDataModel);
+    }
+  }
+
+  void saveSurveyPutQueued(SurveyDataModel surveyDataModel,
+      {bool updateIfExists = false}) {
+    if (updateIfExists && surveyDataModel.id != 0) {
+      // Check if the record with the given id exists in the box
+      final existingSurvey = surveyBox.get(surveyDataModel.id);
+      if (existingSurvey != null) {
+        // Update the existing record with the new data
+        surveyBox.putQueued(surveyDataModel);
+      }
+    } else if (!updateIfExists) {
+      // If updateIfExists is false, create a new record
+      surveyBox.putQueued(surveyDataModel);
+    }
+  }
+
+  void saveBook(BookDataModel bookDataModel, {bool updateIfExists = false}) {
+    if (updateIfExists && bookDataModel.id != 0) {
+      // Check if the record with the given id exists in the box
+      final existingBook = bookBox.get(bookDataModel.id);
+      if (existingBook != null) {
+        // Update the existing record with the new data
+        bookBox.put(bookDataModel);
+      }
+    } else if (!updateIfExists) {
+      // If updateIfExists is false, create a new record
+      bookBox.put(bookDataModel);
+    }
+  }
+
+  void saveBookPutQueued(BookDataModel bookDataModel,
+      {bool updateIfExists = false}) {
+    if (updateIfExists && bookDataModel.id != 0) {
+      // Check if the record with the given id exists in the box
+      final existingBook = bookBox.get(bookDataModel.id);
+      if (existingBook != null) {
+        // Update the existing record with the new data
+        bookBox.putQueued(bookDataModel);
+      }
+    } else if (!updateIfExists) {
+      // If updateIfExists is false, create a new record
+      bookBox.putQueued(bookDataModel);
     }
   }
 
@@ -130,10 +226,11 @@ class ObjectBoxService {
   Future<void> deleteBook() async {
     final booksToDelete =
         bookBox.query(BookDataModel_.isPending.equals(false)).build().find();
-    for (var book in booksToDelete) {
-      bookBox.remove(book.id);
-      debugPrint('Deleted Book: $book');
-    }
+
+    List<int> idsToDelete = booksToDelete.map((book) => book.id).toList();
+    bookBox.removeMany(idsToDelete);
+
+    debugPrint('Deleted Books: $idsToDelete');
   }
 
   Future<void> deleteSurvey() async {
@@ -141,12 +238,37 @@ class ObjectBoxService {
         .query(SurveyDataModel_.isPending.equals(false))
         .build()
         .find();
-    for (var survey in surveysToDelete) {
-      surveyBox.remove(survey.id);
-      debugPrint('Deleted Survey: $survey');
-    }
+
+    List<int> idsToDelete = surveysToDelete.map((survey) => survey.id).toList();
+    surveyBox.removeMany(idsToDelete);
+
+    debugPrint('Deleted Surveys: $idsToDelete');
   }
 
+  Future<List<SurveyDataModel>> getSurveysPendingStatusCTimeLimit(
+      bool isPending) async {
+    int currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
+    final query = surveyBox
+        .query(SurveyDataModel_.isPending
+            .equals(isPending)
+            .and(SurveyDataModel_.dateCreated.lessOrEqual(currentTimeMillis)))
+        .build();
+    final surveys = query.find();
+    return surveys;
+  }
+
+  Future<List<BookDataModel>> getBookViewsPendingStatusCTimeLimit(
+      bool isPending) async {
+    int currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
+    final query = bookBox
+        .query(BookDataModel_.isPending
+            .equals(isPending)
+            .and(BookDataModel_.dateCreated.lessOrEqual(currentTimeMillis)))
+        .build();
+    final bookviews = query.find();
+    // query.close();
+    return bookviews;
+  }
 // Future<void> deleteBookAndSurvey() async {
   //   await store.runInTransaction(
   //       TxMode.write,

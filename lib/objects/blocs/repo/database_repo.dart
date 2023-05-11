@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+import 'package:he/objectbox.g.dart';
 import 'package:he/objects/blocs/repo/service/service.dart';
 import 'package:he/objects/db_local/db_local.dart';
 import 'package:he/service/objectbox_service.dart';
@@ -146,11 +147,11 @@ class DatabaseRepository implements IDatabaseRepository {
   }
 
   Future<void> createDummyData() async {
-    _boxOperations().generateDummyDataWithFaker();
+    await _boxOperations().generateDummyDataWithFaker();
+    // await _boxOperations().generateDummySurveysWithFaker();
   }
 
   Stream<BackupStateDataModel> getBackupStateDataModelStream() {
-    debugPrint('@zurigirl');
     return _objectService.backupUpdateStream();
   }
 

@@ -24,12 +24,9 @@ class DatabaseBoxOperations {
 
   Box<SurveyDataModel> get _surveyBox =>
       _objectService.store.box<SurveyDataModel>();
-  Box<BookDataModel> get _bookDataBox =>
-      _objectService.store.box<BookDataModel>();
   Box<BackupStateDataModel> get backupBox =>
       _objectService.store.box<BackupStateDataModel>();
   // ## BOOK LOCAL SAVING
-
 
   // ## SURVEY LOCAL SAVING
 
@@ -57,37 +54,11 @@ class DatabaseBoxOperations {
   Future<Either<Failure, int>> saveBookChapterOps(
       {required BookDataModel bookdata}) async {
     try {
-      await _objectService.saveBook(bookdata, updateIfExists: false);
+      _objectService.saveBook(bookdata, updateIfExists: false);
       return Right(bookdata.id);
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
     }
-  }
-
-  Future<List<SurveyDataModel>> getSurveysPendingStatusCTimeLimit(
-      bool isPending) async {
-    int currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
-    final query = _surveyBox
-        .query(SurveyDataModel_.isPending
-            .equals(isPending)
-            .and(SurveyDataModel_.dateCreated.lessOrEqual(currentTimeMillis)))
-        .build();
-    final surveys = query.find();
-    query.close();
-    return surveys;
-  }
-
-  Future<List<BookDataModel>> getBookViewsPendingStatusCTimeLimit(
-      bool isPending) async {
-    int currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
-    final query = _bookDataBox
-        .query(BookDataModel_.isPending
-            .equals(isPending)
-            .and(BookDataModel_.dateCreated.lessOrEqual(currentTimeMillis)))
-        .build();
-    final bookviews = query.find();
-    query.close();
-    return bookviews;
   }
 
   // ## BACKUP STATUS LOCAL
@@ -98,18 +69,18 @@ class DatabaseBoxOperations {
       isUploadingData: true,
       backupAnimation: true,
       surveyAnimation: true,
-      booksAnimation: true,
+      booksAnimation: false,
     );
-    await _objectService.saveBackupState(backupdatamodel: newState);
+    _objectService.saveBackupState(backupdatamodel: newState);
     await savePendingItemsToFirestoreAndSetNotPending();
   }
 
   Future<void> savePendingItemsToFirestoreAndSetNotPending() async {
     bool hasFailure = false;
     List<SurveyDataModel> pendingSurveys =
-        await getSurveysPendingStatusCTimeLimit(true);
+        await _objectService.getSurveysPendingStatusCTimeLimit(true);
     List<BookDataModel> pendingBookViews =
-        await getBookViewsPendingStatusCTimeLimit(true);
+        await _objectService.getBookViewsPendingStatusCTimeLimit(true);
 
     int totalPendingSurveys = pendingSurveys.length;
     int totalPendingBookViews = pendingBookViews.length;
@@ -135,11 +106,11 @@ class DatabaseBoxOperations {
         },
         (_) async {
           survey.isPending = false;
-          await _objectService.saveSurvey(survey, updateIfExists: true);
+          _objectService.saveSurvey(survey, updateIfExists: true);
           uploadedSurveys = --totalPendingSurveys;
           countingTract++;
-          await updateProgress(uploadedSurveys, uploadedBookViews,
-              countingTract, totalPendingItems, currentBackupState);
+          updateProgress(uploadedSurveys, uploadedBookViews, countingTract,
+              totalPendingItems, currentBackupState);
         },
       );
       if (hasFailure) {
@@ -166,34 +137,28 @@ class DatabaseBoxOperations {
         },
         (_) async {
           bookview.isPending = false;
-          await _objectService.saveBook(bookview, updateIfExists: true);
+          _objectService.saveBook(bookview, updateIfExists: true);
           countingTract++;
           uploadedBookViews = --totalPendingBookViews;
-          await updateProgress(uploadedSurveys, uploadedBookViews,
-              countingTract, totalPendingItems, currentBackupState);
+          updateProgress(uploadedSurveys, uploadedBookViews, countingTract,
+              totalPendingItems, currentBackupState);
         },
       );
       if (hasFailure) {
         break;
       }
     }
-    await _objectService.saveBackupState(
+    _objectService.saveBackupState(
         backupdatamodel: BackupStateDataModel.defaultInstance());
-    debugPrint("Total uploaded BookViews simulated: $uploadedBookViews");
-    if (uploadedBookViews == 0 && uploadedSurveys == 0) {
-      debugPrint("ZUCHUC");
-      await _objectService.saveBackupState(
-          backupdatamodel: BackupStateDataModel.defaultInstance());
-    }
     debugPrint("Total uploaded BookViews simulated: $uploadedBookViews");
   }
 
-  Future<void> updateProgress(
+  void updateProgress(
       int? uploadedSurveys,
       int? uploadedBookViews,
       int countingTract,
       int totalPendingItems,
-      BackupStateDataModel currentBackupState) async {
+      BackupStateDataModel currentBackupState) {
     double progress = countingTract / totalPendingItems.toDouble();
     bool _isUploading = true;
     bool _backupAnimation = true;
@@ -214,7 +179,7 @@ class DatabaseBoxOperations {
         booksAnimation: _booksAnimation,
         dateCreated: DateTime.now());
     debugPrint('@startpampwa ${updatedBackupState.toJson()}');
-    await _objectService.saveBackupState(backupdatamodel: updatedBackupState);
+    _objectService.saveBackupState(backupdatamodel: updatedBackupState);
     debugPrint('@endpampwa ${updatedBackupState.toJson()}');
   }
 
@@ -225,6 +190,108 @@ class DatabaseBoxOperations {
     debugPrint('@loadState $nana');
     // return BackupStateDataModel.defaultInstance().toJson();
     return nana;
+  }
+
+  // Future<List<SurveyDataModel>> _generateDummySurveysWithFaker() async {
+  //   const int numOfSurveys = 10;
+  //   final faker = Faker();
+  //
+  //   List<SurveyDataModel> dummySurveys = [];
+  //   for (int i = 0; i < numOfSurveys; i++) {
+  //     var namu = SurveyDataModel(
+  //       userId: faker.guid.guid(),
+  //       surveyVersion: faker.randomGenerator.decimal(min: 1).toString(),
+  //       surveyObject:
+  //           '{"question1": "${faker.lorem.word()}", "question2": "${faker.lorem.word()}"}',
+  //       surveyId: faker.guid.guid(),
+  //       isPending: true,
+  //       courseId: faker.guid.guid(),
+  //       country: faker.address.country(),
+  //     );
+  //     await _objectService.saveSurvey(namu, updateIfExists: false);
+  //     dummySurveys.add(namu);
+  //   }
+  //
+  //   return dummySurveys;
+  // }
+  //
+  Future<List<BookDataModel>> _generateDummyBooksWithFaker() async {
+    const int numOfBooks = 200;
+    final faker = Faker();
+
+    List<BookDataModel> dummyBooks = [];
+
+    for (int i = 0; i < numOfBooks; i++) {
+      var book = BookDataModel(
+          bookId: faker.guid.guid(),
+          chapterId: faker.guid.guid(),
+          courseId: faker.guid.guid(),
+          userId: faker.guid.guid(),
+          isPending: true //faker.randomGenerator.boolean(),
+          );
+      dummyBooks.add(book);
+    }
+
+    // Run the putMany operation inside a transaction
+    _objectService.store.runInTransaction(TxMode.write, () {
+      _objectService.bookBox.putMany(
+          dummyBooks); // using putMany instead of saveBook as it's not async
+    });
+
+    return dummyBooks;
+  }
+
+  Future<void> generateTestingData() async {
+    const int numOfRecords = 500;
+    final faker = Faker();
+    int totalCounter = 0;
+
+    // Generate SurveyDataModel records
+    for (int i = 0; i < numOfRecords; i++) {
+      var survey = SurveyDataModel(
+        userId: faker.guid.guid(),
+        surveyVersion: faker.randomGenerator.decimal(min: 1).toString(),
+        surveyObject:
+            '{"question1": "${faker.lorem.word()}", "question2": "${faker.lorem.word()}"}',
+        surveyId: faker.guid.guid(),
+        isPending: true,
+        courseId: faker.guid.guid(),
+        country: faker.address.country(),
+      );
+      _objectService.saveSurveyPutQueued(survey);
+      totalCounter++;
+    }
+    // Ensure all SurveyDataModel records have been put into the box
+    _objectService.store.awaitQueueSubmitted();
+
+    // Generate BookDataModel records
+    for (int i = 0; i < numOfRecords; i++) {
+      var book = BookDataModel(
+        bookId: faker.guid.guid(),
+        chapterId: faker.guid.guid(),
+        courseId: faker.guid.guid(),
+        userId: faker.guid.guid(),
+        isPending: true,
+      );
+      _objectService.saveBookPutQueued(book);
+      totalCounter++;
+    }
+
+    // Ensure all BookDataModel records have been put into the box
+    _objectService.store.awaitQueueSubmitted();
+
+    print('Total records added: $totalCounter');
+  }
+
+  //
+  Future<void> generateDummyDataWithFaker() async {
+    List<SurveyDataModel> dummySurveys = await _generateDummySurveysWithFaker();
+    debugPrint('DummySurveys generation completed.');
+
+    List<BookDataModel> dummyBooks = await _generateDummyBooksWithFaker();
+    debugPrint('DummyBooks generation completed.');
+
+    debugPrint('Dummy Data generation completed.');
   }
 
   Future<List<SurveyDataModel>> _generateDummySurveysWithFaker() async {
@@ -243,45 +310,13 @@ class DatabaseBoxOperations {
         courseId: faker.guid.guid(),
         country: faker.address.country(),
       );
-      await _objectService.saveSurvey(namu, updateIfExists: false);
       dummySurveys.add(namu);
     }
+    _objectService.store.runInTransaction(TxMode.write, () {
+      _objectService.surveyBox.putMany(dummySurveys);
+    });
 
     return dummySurveys;
-  }
-
-  Future<List<BookDataModel>> _generateDummyBooksWithFaker() async {
-    const int numOfBooks = 200;
-    final faker = Faker();
-
-    List<BookDataModel> dummyBooks = [];
-    for (int i = 0; i < numOfBooks; i++) {
-      var book = BookDataModel(
-          bookId: faker.guid.guid(),
-          chapterId: faker.guid.guid(),
-          courseId: faker.guid.guid(),
-          userId: faker.guid.guid(),
-          isPending: true //faker.randomGenerator.boolean(),
-          );
-      await _objectService.saveBook(book, updateIfExists: false);
-      dummyBooks.add(book);
-    }
-    return dummyBooks;
-  }
-
-  Future<void> generateDummyDataWithFaker() async {
-    // Generate dummy surveys and books concurrently
-    List<Future<List<dynamic>>> futures = [
-      _generateDummySurveysWithFaker(),
-      _generateDummyBooksWithFaker(),
-    ];
-
-    List<List<dynamic>> results = await Future.wait(futures);
-
-    List<SurveyDataModel> dummySurveys = results[0].cast<SurveyDataModel>();
-    List<BookDataModel> dummyBooks = results[1].cast<BookDataModel>();
-
-    debugPrint('Dummy data generation completed.');
   }
 
   Future<void> removeBackupState(BackupStateDataModel backup) async {
@@ -368,5 +403,11 @@ class DatabaseBoxOperations {
       'userId': bookviews.userId,
       'viewTime': createdAt.toIso8601String(),
     }, SetOptions(merge: true));
+  }
+
+  void _sampleTrials() {
+    // _objectService.surveyBox.putQueued(object);
+    // _objectService.store.awaitQueueCompletion();
+    // _objectService.store.awaitQueueSubmitted();
   }
 }

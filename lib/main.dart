@@ -20,7 +20,7 @@ Future<void> main() async {
   final workManagerService = GetIt.I<WorkManagerService>();
   workManagerService.initialize();
   // workManagerService.cleanUploadedDataTaskFunc();
-  workManagerService.generateBookDataTaskFunc();
+  // workManagerService.generateBookDataTaskFunc();
   Bloc.observer = AppBlocObserver();
   if (Platform.isAndroid) {
     await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
