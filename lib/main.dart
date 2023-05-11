@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:isolate';
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +19,8 @@ Future<void> main() async {
   await configureInjections(getIt);
   final workManagerService = GetIt.I<WorkManagerService>();
   workManagerService.initialize();
-// workManagerService.generateBookDataTaskFunc();
+  // workManagerService.cleanUploadedDataTaskFunc();
+  workManagerService.generateBookDataTaskFunc();
   Bloc.observer = AppBlocObserver();
   if (Platform.isAndroid) {
     await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);

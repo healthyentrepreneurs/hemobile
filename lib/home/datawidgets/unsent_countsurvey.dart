@@ -24,7 +24,7 @@ class UnsentSurveysWidget extends StatelessWidget {
           listener: (context, state) {
             context
                 .read<DatabaseBloc>()
-                .add(const ListSurveyTesting(isPending: true));
+                .add(const ListSurveyTesting(isPending: false));
           },
           child: BlocBuilder<DatabaseBloc, DatabaseState>(
             builder: (BuildContext context, DatabaseState state) {
@@ -37,7 +37,7 @@ class UnsentSurveysWidget extends StatelessWidget {
                 unsentSurveysCountText = 'Loading... ';
                 context
                     .read<DatabaseBloc>()
-                    .add(const ListSurveyTesting(isPending: true));
+                    .add(const ListSurveyTesting(isPending: false));
                 // context.read<DatabaseBloc>().add(const DbCountSurveyEvent());
               } else {
                 int? unsentSurveysCount = state.listOfSurveyDataModel?.length;

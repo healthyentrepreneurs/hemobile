@@ -7,9 +7,9 @@ import 'objectbox_service.dart';
 
 class WorkManagerService {
   static const uploadDataTask = "uploadDataTask";
-  static const cleanUploadedSurveysTask = "cleanUploadedSurveysTask";
+  static const cleanUploadedDataTask = "cleanUploadedDataTask";
   static const cancleUploadDataTask = "cancleUploadDataTask";
-  static const generateBookDataTask = "generateBookDataTask";
+  static const generateSampleDataTask = "generateSampleDataTask";
   static final WorkManagerService _singleton = WorkManagerService._internal();
 
   factory WorkManagerService() {
@@ -29,12 +29,29 @@ class WorkManagerService {
     debugPrint("Workmanager initialized");
   }
 
+  // Future<void> registerUploadDataTask() async {
+  //   await Workmanager().registerOneOffTask(
+  //     'registerUploadDataTaskUnique', // uniqueName
+  //     uploadDataTask,
+  //     inputData: <String, dynamic>{},
+  //     initialDelay: Duration.zero,
+  //     existingWorkPolicy: ExistingWorkPolicy.replace, // added this
+  //     tag: "registerUploadDataTask@Njovu",
+  //   );
+  //   debugPrint("registerUploadDataTask task registered");
+  // }
+
   Future<void> registerUploadDataTask() async {
     await Workmanager().registerOneOffTask(
-      '4',
+      'registerUploadDataTaskUnique', // uniqueName
       uploadDataTask,
       inputData: <String, dynamic>{},
       initialDelay: Duration.zero,
+      existingWorkPolicy: ExistingWorkPolicy.replace, // added this
+      constraints: Constraints(
+        networkType: NetworkType.connected,
+        requiresBatteryNotLow: true,
+      ),
       tag: "registerUploadDataTask@Njovu",
     );
     debugPrint("registerUploadDataTask task registered");
@@ -45,16 +62,16 @@ class WorkManagerService {
     debugPrint("registerUploadDataTask task cancelled");
   }
 
-  Future<void> cleanUploadedSurveysTaskFunc() async {
-    await Workmanager().registerOneOffTask('2', cleanUploadedSurveysTask,
+  Future<void> cleanUploadedDataTaskFunc() async {
+    await Workmanager().registerOneOffTask('2', cleanUploadedDataTask,
         inputData: <String, dynamic>{},
         initialDelay: const Duration(seconds: 10),
-        tag: "registerOneOffTaskNjovu");
-    debugPrint("registerOneOffTask task registered");
+        tag: "registerCleanUploadedDataTask");
+    debugPrint("cleanUploadedDataTaskFunc task registered");
   }
 
   Future<void> generateBookDataTaskFunc() async {
-    await Workmanager().registerOneOffTask('10', generateBookDataTask,
+    await Workmanager().registerOneOffTask('10', generateSampleDataTask,
         inputData: <String, dynamic>{},
         initialDelay: const Duration(seconds: 3),
         tag: "generateBookDataTaskFunc");
@@ -70,17 +87,17 @@ class WorkManagerService {
     await databaseRepository.uploadData();
   }
 
-  Future<void> _generateBookDataTask() async {
+  Future<void> _generateSampleDataTask() async {
     final ObjectBoxService _objectservice = await objectbox;
     final DatabaseRepository databaseRepository =
         DatabaseRepository(injectableModule.firestore, _objectservice);
-    await databaseRepository.createDummyBookData();
+    await databaseRepository.createDummyData();
   }
 
-  Future<void> _cleanUploadedSurveys() async {
+  Future<void> _cleanUploadedData() async {
     final DatabaseRepository databaseRepository =
         DatabaseRepository(injectableModule.firestore, await objectbox);
-    await databaseRepository.cleanUploadedSurveys();
+    await databaseRepository.cleanUploadedData();
   }
 
   static Future<void> _initializeFirebase() async {
@@ -129,23 +146,20 @@ void callbackDispatcher() {
     final workManagerService = WorkManagerService();
 
     switch (task) {
-      case WorkManagerService.cleanUploadedSurveysTask:
+      case WorkManagerService.cleanUploadedDataTask:
         debugPrint("Executing cleanUploadedSurveys task");
-        await workManagerService._cleanUploadedSurveys();
+        await workManagerService._cleanUploadedData();
         await workManagerService.showNotification(
-            'Task Completed', 'Your background task has been completed.');
+            'Cleared Synced', 'Syncronised Data Has Been Cleaned');
         break;
       case WorkManagerService.uploadDataTask:
         debugPrint("Executing uploadData task");
-        final startTime = DateTime.now();
         await workManagerService._uploadData();
-        final endTime = DateTime.now();
-        debugPrint('Nockrach: ${endTime.difference(startTime)}');
         // await workManagerService.showNotification(
         //     'Data Sync Completed', 'Previous Data Have been Synced');
         break;
-      case WorkManagerService.generateBookDataTask:
-        await workManagerService._generateBookDataTask();
+      case WorkManagerService.generateSampleDataTask:
+        await workManagerService._generateSampleDataTask();
         await workManagerService.showNotification(
             'Fake Completed', 'Generated');
         break;

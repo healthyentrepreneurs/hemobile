@@ -32,7 +32,7 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     _backupStateSubscription = repository
         .getBackupStateDataModelStream()
         .distinct(_distinctBackupStateDataModelComparison)
-        .debounceTime(const Duration(milliseconds: 2))
+        // .debounceTime(const Duration(milliseconds: 2))
         .listen((event) {
       debugPrint("EVANSN ${event.toString()}");
       add(UploadData(backupStateData: event));
@@ -106,14 +106,10 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
   void _onLoadStateEvent(
       LoadStateEvent event, Emitter<DatabaseState> emit) async {
     final result = await _databaseRepository.loadState();
-    if (result != null) {
-      debugPrint("_onLoadStateEvent@uploadData $result ");
-      // {id: 1, uploadProgress: 0.0, isUploadingData: false, backupAnimation: false, surveyAnimation: false, booksAnimation: false}
-      emit(state.copyWith(
-          backupdataModel: BackupStateDataModel.fromJson(result)));
-    } else {
-      debugPrint("_onLoadStateEvent@uploadData $result PEPE");
-    }
+    debugPrint("_onLoadStateEvent@uploadData $result ");
+    // {id: 1, uploadProgress: 0.0, isUploadingData: false, backupAnimation: false, surveyAnimation: false, booksAnimation: false}
+    emit(state.copyWith(
+        backupdataModel: BackupStateDataModel.fromJson(result!)));
   }
 
   @override

@@ -20,8 +20,8 @@ class SingleSection extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Text(
             title.toUpperCase(),
-            style:
-                Theme.of(context).textTheme.headline3?.copyWith(fontSize: 16),
+            style: const TextStyle(
+                color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
           ),
         ),
         Container(

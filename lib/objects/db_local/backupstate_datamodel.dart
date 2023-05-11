@@ -41,11 +41,12 @@ class BackupStateDataModel {
       backupAnimation: json['backupAnimation'],
       surveyAnimation: json['surveyAnimation'],
       booksAnimation: json['booksAnimation'],
-      dateCreated: DateFormat('dd.MM.yyyy hh:mm:ss').parse(json['dateCreated']),
+      dateCreated:
+          DateFormat('dd.MM.yyyy hh:mm:ss.SSS').parse(json['dateCreated']),
     );
   }
-  String get dateFormat =>
-      DateFormat('dd.MM.yyyy hh:mm:ss').format(dateCreated ?? DateTime.now());
+  String get dateFormat => DateFormat('dd.MM.yyyy hh:mm:ss.SSS')
+      .format(dateCreated ?? DateTime.now());
 
   @override
   String toString() {

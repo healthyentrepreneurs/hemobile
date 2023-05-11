@@ -109,23 +109,26 @@ class DatabaseRepository implements IDatabaseRepository {
   Future<Either<Failure, int>> saveSurveys(
       {required SurveyDataModel surveyData}) {
     debugPrint('DatabaseRepository@saveSurveys Nodata');
-    return _boxOperations().saveSurveyData(surveydata: surveyData);
+    return _boxOperations().saveSurveyOps(surveydata: surveyData);
   }
 
   @override
-  Future<Either<Failure, int>> saveBookChapters(
-      {required String bookId,
-      required String chapterId,
-      required String courseId,
-      required String userId,
-      required bool isPending}) {
+  Future<Either<Failure, int>> saveBookChapters({
+    required String bookId,
+    required String chapterId,
+    required String courseId,
+    required String userId,
+    required bool isPending,
+  }) async {
     debugPrint('DatabaseRepository@saveBookData Nodata');
-    return _boxOperations().saveBookData(
-        bookId: bookId,
-        chapterId: chapterId,
-        courseId: courseId,
-        userId: userId,
-        isPending: isPending);
+    var book = BookDataModel(
+      bookId: bookId,
+      chapterId: chapterId,
+      courseId: courseId,
+      userId: userId,
+      isPending: isPending,
+    );
+    return _boxOperations().saveBookChapterOps(bookdata: book);
   }
 
   // Add these methods to call uploadData, loadState, and saveState
@@ -138,58 +141,16 @@ class DatabaseRepository implements IDatabaseRepository {
     return await _boxOperations().loadState();
   }
 
-  Future<bool> cleanUploadedSurveys() async {
-    try {
-      final nonPendingSurveys =
-          await _boxOperations().deleteRecordsWithIdNotOne();
-      for (final survey in nonPendingSurveys) {
-        await _boxOperations().removeBackupState(survey);
-      }
-      debugPrint(
-          "callbackDispatcher@Deleted ${nonPendingSurveys.length} non-pending surveys.");
-      return true;
-    } catch (e) {
-      debugPrint(
-          "callbackDispatcher@ Error in callbackDispatcher: ${e.toString()}");
-      return false;
-    }
+  Future<void> cleanUploadedData() async {
+    await _boxOperations().deleteBooksAndSurveys();
   }
 
-  Future<bool> createDummyBookData() async {
-    try {
-      _boxOperations().generateDummyBooksWithFaker();
-      return true;
-    } catch (e) {
-      debugPrint(
-          "callbackDispatcher@ Error in callbackDispatcher: ${e.toString()}");
-      return false;
-    }
+  Future<void> createDummyData() async {
+    _boxOperations().generateDummyDataWithFaker();
   }
-
-  // Stream<BackupStateDataModel> getBackupStateDataModelStream() {
-  //   // tasksStream
-  //   return _objectService.tasksBroadcastStream.map((query) {
-  //     final latestItem = query.findFirst();
-  //     return latestItem ??
-  //         BackupStateDataModel
-  //             .defaultInstance(); // Return a default instance if no item is found
-  //   });
-  // }
-
-  // Stream<BackupStateDataModel> getBackupStateDataModelStream() {
-  //   return _objectService.backupBroadcastStream.map((query) {
-  //     final allItems = query.find();
-  //     // Sort the items based on the dateCreated
-  //     allItems.sort((a, b) => a.dateCreated!.compareTo(b.dateCreated!));
-  //     // Get the latest item (with the most recent dateCreated)
-  //     final latestItem = allItems.isNotEmpty ? allItems.last : null;
-  //     return latestItem ??
-  //         BackupStateDataModel
-  //             .defaultInstance(); // Return a default instance if no item is found
-  //   });
-  // }
 
   Stream<BackupStateDataModel> getBackupStateDataModelStream() {
+    debugPrint('@zurigirl');
     return _objectService.backupUpdateStream();
   }
 
