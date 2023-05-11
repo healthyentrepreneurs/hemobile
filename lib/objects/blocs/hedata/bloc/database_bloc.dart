@@ -32,7 +32,7 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     _backupStateSubscription = repository
         .getBackupStateDataModelStream()
         .distinct(_distinctBackupStateDataModelComparison)
-        // .debounceTime(const Duration(milliseconds: 2))
+        .debounceTime(const Duration(milliseconds: 5))
         .listen((event) {
       debugPrint("EVANSN ${event.toString()}");
       add(UploadData(backupStateData: event));

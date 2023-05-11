@@ -216,7 +216,7 @@ class DatabaseBoxOperations {
   // }
   //
   Future<List<BookDataModel>> _generateDummyBooksWithFaker() async {
-    const int numOfBooks = 200;
+    const int numOfBooks = 100;
     final faker = Faker();
 
     List<BookDataModel> dummyBooks = [];
@@ -242,7 +242,7 @@ class DatabaseBoxOperations {
   }
 
   Future<void> generateTestingData() async {
-    const int numOfRecords = 500;
+    const int numOfRecords = 100;
     final faker = Faker();
     int totalCounter = 0;
 
@@ -295,7 +295,7 @@ class DatabaseBoxOperations {
   }
 
   Future<List<SurveyDataModel>> _generateDummySurveysWithFaker() async {
-    const int numOfSurveys = 200;
+    const int numOfSurveys = 100;
     final faker = Faker();
 
     List<SurveyDataModel> dummySurveys = [];

@@ -147,8 +147,8 @@ class DatabaseRepository implements IDatabaseRepository {
   }
 
   Future<void> createDummyData() async {
-    await _boxOperations().generateDummyDataWithFaker();
-    // await _boxOperations().generateDummySurveysWithFaker();
+    // await _boxOperations().generateDummyDataWithFaker();
+    await _boxOperations().generateTestingData();
   }
 
   Stream<BackupStateDataModel> getBackupStateDataModelStream() {
