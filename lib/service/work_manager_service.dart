@@ -1,30 +1,115 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:workmanager/workmanager.dart';
-
+import 'appmodule_imp.dart';
 import 'objectbox_service.dart';
 
 class WorkManagerService {
-  static const workManagerTask = "workManagerTask";
-  static const loadDataTask = "loadDataTask";
-  static const saveStateTask = "saveStateTask";
   static const uploadDataTask = "uploadDataTask";
-  static const cleanUploadedSurveysTask = "cleanUploadedSurveysTask";
+  static const cleanUploadedDataTask = "cleanUploadedDataTask";
+  static const cancelUploadDataTask = "cancelUploadDataTask";
+  static const generateSampleDataTask = "generateSampleDataTask";
+  static const String uploadDataTaskId = 'registerUploadDataTaskUnique';
+  static const String cleanUploadedDataTaskId =
+      'registerCleanUploadedDataTaskUnique';
   static final WorkManagerService _singleton = WorkManagerService._internal();
+
   factory WorkManagerService() {
     return _singleton;
   }
-  WorkManagerService._internal();
+
+  WorkManagerService._internal() : objectbox = ObjectBoxService.create();
+
+  final Future<ObjectBoxService> objectbox;
+
   Future<void> initialize() async {
     await _initializeNotifications();
     await Workmanager().initialize(
       callbackDispatcher,
-      isInDebugMode: true,
+      isInDebugMode: false,
     );
     debugPrint("Workmanager initialized");
+  }
+
+  Future<void> registerUploadDataTask() async {
+    await Workmanager().registerOneOffTask(
+      uploadDataTaskId, // uniqueName
+      uploadDataTask,
+      inputData: <String, dynamic>{},
+      initialDelay: Duration.zero,
+      existingWorkPolicy: ExistingWorkPolicy.replace, // added this
+      constraints: Constraints(
+        networkType: NetworkType.connected,
+        requiresBatteryNotLow: true,
+      ),
+      tag: "registerUploadDataTask@Njovu",
+    );
+    debugPrint("registerUploadDataTask task registered");
+  }
+
+  Future<void> cancelUploadDataTaskFunc() async {
+    await Workmanager().cancelByTag("registerUploadDataTask@Njovu");
+    debugPrint("registerUploadDataTask task cancelled");
+  }
+
+  // Future<void> cleanUploadedDataTaskFunc() async {
+  //   await Workmanager().registerOneOffTask('2', cleanUploadedDataTask,
+  //       inputData: <String, dynamic>{},
+  //       initialDelay: const Duration(seconds: 10),
+  //       tag: "registerCleanUploadedDataTask");
+  //   debugPrint("cleanUploadedDataTaskFunc task registered");
+  // }
+
+  Future<void> cleanUploadedDataTaskFunc() async {
+    await Workmanager().registerPeriodicTask(
+      cleanUploadedDataTaskId, // task id
+      cleanUploadedDataTask, // task name
+      inputData: <String, dynamic>{},
+      frequency:
+          const Duration(hours: 1), // set the frequency of the periodic task
+      initialDelay: const Duration(seconds: 10),
+      constraints: Constraints(
+        networkType: NetworkType.not_required,
+        requiresBatteryNotLow: true,
+      ),
+      tag: "registerCleanUploadedDataTask",
+    );
+    debugPrint("cleanUploadedDataTaskFunc task registered");
+  }
+
+  Future<void> generateBookDataTaskFunc() async {
+    await Workmanager().registerOneOffTask('10', generateSampleDataTask,
+        inputData: <String, dynamic>{},
+        initialDelay: const Duration(seconds: 3),
+        tag: "generateBookDataTaskFunc");
+    debugPrint("generateBookDataTaskFunc task registered");
+  }
+
+  static final injectableModule = AppModuleImp();
+
+  Future<void> _uploadData() async {
+    final ObjectBoxService _objectservice = await objectbox;
+    final DatabaseRepository databaseRepository =
+        DatabaseRepository(injectableModule.firestore, _objectservice);
+    await databaseRepository.uploadData();
+  }
+
+  Future<void> _generateSampleDataTask() async {
+    final ObjectBoxService _objectservice = await objectbox;
+    final DatabaseRepository databaseRepository =
+        DatabaseRepository(injectableModule.firestore, _objectservice);
+    await databaseRepository.createDummyData();
+  }
+
+  Future<void> _cleanUploadedData() async {
+    final DatabaseRepository databaseRepository =
+        DatabaseRepository(injectableModule.firestore, await objectbox);
+    await databaseRepository.cleanUploadedData();
+  }
+
+  static Future<void> _initializeFirebase() async {
+    await injectableModule.fireService;
   }
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -38,148 +123,18 @@ class WorkManagerService {
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
-//Methods For Background
-  Future<void> startPeriodicTask() async {
-    await Workmanager().registerPeriodicTask(
-      "1",
-      workManagerTask,
-      frequency: const Duration(minutes: 15),
-      constraints: Constraints(
-        networkType: NetworkType.connected,
-      ),
-    );
-    debugPrint("Periodic task registered");
-  }
-
-  Future<void> cancelAllTasks() async {
-    await Workmanager().cancelAll();
-    debugPrint("Cancelled all tasks");
-  }
-
-  Future<void> registerOneOffTask() async {
-    await Workmanager().registerOneOffTask('2', cleanUploadedSurveysTask,
-        inputData: <String, dynamic>{},
-        initialDelay: const Duration(seconds: 10),
-        tag: "registerOneOffTaskNjovu");
-    debugPrint("registerOneOffTask task registered");
-  }
-
-  Future<void> registerSaveStateTask({
-    required bool isUploadingData,
-    required double uploadProgress,
-    required bool backupAnimation,
-    required bool surveyAnimation,
-    required bool booksAnimation,
-  }) async {
-    await Workmanager().registerOneOffTask('3', saveStateTask,
-        inputData: <String, dynamic>{
-          'isUploadingData': isUploadingData,
-          'uploadProgress': uploadProgress,
-          'backupAnimation': backupAnimation,
-          'surveyAnimation': surveyAnimation,
-          'booksAnimation': booksAnimation,
-        },
-        initialDelay: const Duration(seconds: 10),
-        tag: "registerSaveStateTask@Njovu");
-    debugPrint("registerSaveStateTask task registered");
-  }
-
-  Future<void> runCleanUploadedSurveys() async {
-    await WorkManagerService._cleanUploadedSurveys();
-  }
-
-  Future<void> registerUploadDataTask({
-    required bool isUploadingData,
-    required double uploadProgress,
-    required bool simulateUpload,
-  }) async {
-    await Workmanager().registerOneOffTask(
-      '4',
-      uploadDataTask,
-      inputData: <String, dynamic>{
-        'isUploadingData': isUploadingData,
-        'uploadProgress': uploadProgress,
-        'simulateUpload': simulateUpload,
-      },
-      initialDelay: const Duration(seconds: 10),
-      tag: "registerUploadDataTask@Njovu",
-    );
-    debugPrint("registerUploadDataTask task registered");
-  }
-
-  static Future<void> _saveState({
-    required bool? isUploadingData,
-    required double? uploadProgress,
-    required bool? backupAnimation,
-    required bool? surveyAnimation,
-    required bool? booksAnimation,
-  }) async {
-    // Initialize FirebaseFirestore
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    // Initialize ObjectBoxService
-    ObjectBoxService objectbox = await ObjectBoxService.create();
-
-    final DatabaseRepository databaseRepository =
-        DatabaseRepository(firestore, objectbox);
-    await databaseRepository.saveState(
-      isUploadingData: isUploadingData,
-      uploadProgress: uploadProgress,
-      backupAnimation: backupAnimation,
-      surveyAnimation: surveyAnimation,
-      booksAnimation: booksAnimation,
-    );
-  }
-
-  static Future<void> _uploadData({
-    required bool isUploadingData,
-    required double uploadProgress,
-    bool simulateUpload = true,
-  }) async {
-    // Initialize FirebaseFirestore
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    // Initialize ObjectBoxService
-    ObjectBoxService objectbox = await ObjectBoxService.create();
-
-    final DatabaseRepository databaseRepository =
-        DatabaseRepository(firestore, objectbox);
-
-    await databaseRepository.uploadData(
-      isUploadingData: isUploadingData,
-      uploadProgress: uploadProgress,
-      simulateUpload: simulateUpload,
-      onUploadStateChanged: (isUploading, progress) {
-        debugPrint(
-            '@REALTIME JIMMY isUploadingData $isUploading uploadProgress $progress');
-      },
-    );
-  }
-
-  static Future<void> _initializeFirebase() async {
-    await Firebase.initializeApp();
-  }
-
-  static Future<void> _cleanUploadedSurveys() async {
-    // Initialize FirebaseFirestore
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    // Initialize ObjectBoxService
-    ObjectBoxService objectbox = await ObjectBoxService.create();
-
-    final DatabaseRepository databaseRepository =
-        DatabaseRepository(firestore, objectbox);
-    await databaseRepository.cleanUploadedSurveys();
-  }
-
   Future<void> showNotification(String title, String body) async {
     // Define the duration for the notification to be displayed
     // final durationInMilliseconds = Duration(hours: 2).inMilliseconds;
-    final durationInMilliseconds = const Duration(minutes: 2).inMilliseconds;
-
+    const displayDelay = Duration(minutes: 1);
+    final timeoutDuration = const Duration(minutes: 2).inMilliseconds;
+    await Future.delayed(displayDelay);
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
         'task_notification_channel', 'Task Notification',
         importance: Importance.max,
         priority: Priority.high,
         showWhen: false,
-        timeoutAfter: durationInMilliseconds); // Add the timeoutAfter property
+        timeoutAfter: timeoutDuration); // Add the timeoutAfter property
 
     var platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
@@ -196,41 +151,25 @@ class WorkManagerService {
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     await WorkManagerService._initializeFirebase();
+    final workManagerService = WorkManagerService();
+
     switch (task) {
-      case WorkManagerService.cleanUploadedSurveysTask:
+      case WorkManagerService.cleanUploadedDataTask:
         debugPrint("Executing cleanUploadedSurveys task");
-        await WorkManagerService._cleanUploadedSurveys();
-        final workManagerService = WorkManagerService();
+        await workManagerService._cleanUploadedData();
         await workManagerService.showNotification(
-            'Task Completed', 'Your background task has been completed.');
-        break;
-      case WorkManagerService.saveStateTask:
-        debugPrint("Executing saveState task");
-        await WorkManagerService._saveState(
-          isUploadingData: inputData!['isUploadingData'] as bool,
-          uploadProgress: inputData!['uploadProgress'] as double,
-          backupAnimation: inputData!['backupAnimation'] as bool,
-          surveyAnimation: inputData!['surveyAnimation'] as bool,
-          booksAnimation: inputData!['booksAnimation'] as bool,
-        );
-        final workManagerService = WorkManagerService();
-        await workManagerService.showNotification(
-            'Backup Completed', 'Your background task has been completed.');
+            'Cleared Synced', 'Syncronised Data Has Been Cleaned');
         break;
       case WorkManagerService.uploadDataTask:
         debugPrint("Executing uploadData task");
-        await WorkManagerService._uploadData(
-          isUploadingData: inputData!['isUploadingData'] as bool,
-          uploadProgress: inputData!['uploadProgress'] as double,
-          simulateUpload: inputData!['simulateUpload'] as bool,
-        );
-        final workManagerService = WorkManagerService();
-        await workManagerService.showNotification('Upload Data Completed',
-            'Your background task has been completed.');
+        await workManagerService._uploadData();
+        await workManagerService.showNotification(
+            'Data Sync Completed', 'Previous Data Have been Synced');
         break;
-      case WorkManagerService.workManagerTask:
-        debugPrint("Executing cleanUploadedSurveys task");
-        // await WorkManagerService.startPeriodicTask();
+      case WorkManagerService.generateSampleDataTask:
+        await workManagerService._generateSampleDataTask();
+        await workManagerService.showNotification(
+            'Fake Completed', 'Generated');
         break;
       default:
         debugPrint("Unknown task executed");

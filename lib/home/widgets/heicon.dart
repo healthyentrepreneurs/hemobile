@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
+import 'package:he_api/he_api.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-import '../../helper/file_system_util.dart';
 import '../../objects/blocs/blocs.dart';
 
 const _iconSize = 29.0;

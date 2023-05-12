@@ -82,7 +82,6 @@ dependencies:
     git:
       url: https://github.com/njovujsh/async-zip.git
       ref: master
-#  webview_flutter_plus: ^0.3.0+2
   flutter_cache_manager_firebase:
     git:
       url: https://github.com/njovujsh/flutter_cache_manager_firebase.git
@@ -94,9 +93,12 @@ dependencies:
 #  animations: ^2.0.7
   workmanager: ^0.5.1
   flutter_local_notifications: ^13.0.0
+#  android_alarm_manager_plus: ^0.0.1
 #  flutter_background_executor: ^1.0.0
-  faker: ^2.1.0
-#  android_alarm_manager_plus: ^2.1.2
+#  loading_animation_widget: ^1.2.0+4
+#  broadcast_bloc: ^0.1.0-dev.2 #https://pub.dev/packages/broadcast_bloc
+  intl: ^0.17.0
+  android_alarm_manager_plus: ^2.1.2
 
 dev_dependencies:
   bloc_test: ^9.1.0
@@ -114,6 +116,8 @@ dev_dependencies:
   mocktail: ^0.3.0
   freezed: ^2.2.0
   json_serializable: ^6.3.1
+  faker: ^2.1.0
+#  flutter_phoenix
 #  https://pub.dev/packages/isolate_downloader
 
 #dependency_overrides:
@@ -126,21 +130,9 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icon/
-    - assets/icon/icon.png
-    - assets/images/lake.png
-    - assets/images/logo.png
-    - assets/images/grid.png
-    - assets/quiz/index.html
-    - assets/quiz/jquery.min.js
-    - assets/quiz/index.js
-    - assets/quiz/w3.css
-    - assets/quiz/quiz.css
-    - assets/survey/index.html
-    - assets/survey/modern.css
-    - assets/survey/survey.jquery.min.js
-    - assets/survey/index.js
-    - assets/survey/index.css
-    - assets/survey/jquery.min.js
+    - assets/images/
+    - assets/quiz/
+    - assets/survey/
 
 flutter_icons:
   android: "launcher_icon"

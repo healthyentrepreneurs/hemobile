@@ -48,15 +48,26 @@ class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
                     initialFile: "assets/survey/index.html",
                     initialOptions: InAppWebViewGroupOptions(
                         crossPlatform: InAppWebViewOptions(
+                            preferredContentMode: UserPreferredContentMode.MOBILE,
+                            supportZoom:false,
+                            cacheEnabled:true,
+                            transparentBackground:true,
+                            minimumFontSize: 14,
+                            // disableVerticalScroll: true,
+                            disableHorizontalScroll: true,
+                            userAgent:
+                                'Mozilla/5.0 (Linux; Android 9; app.healthyentrepreneurs.nl.he 1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Mobile Safari/537.36',
                             useShouldOverrideUrlLoading: true,
                             javaScriptCanOpenWindowsAutomatically: true,
                             javaScriptEnabled: true),
                         android: AndroidInAppWebViewOptions(
                           disableDefaultErrorPage: true,
                           useHybridComposition: true,
-                          supportMultipleWindows: true,
+                          supportMultipleWindows: false,
                           allowFileAccess: true,
                           allowContentAccess: true,
+                          builtInZoomControls: false,
+                          displayZoomControls: false,
                         )),
                     onWebViewCreated: (InAppWebViewController controller) {
                       webView = controller;

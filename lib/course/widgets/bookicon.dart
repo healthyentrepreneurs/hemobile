@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:he/helper/file_system_util.dart';
 import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import 'package:he/objects/blocs/repo/fofiperm_repo.dart';
+import 'package:he_api/he_api.dart';
 
 const _avatarSize = 20.0;
 const _bookSize = 20.0;

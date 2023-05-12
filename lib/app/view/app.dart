@@ -2,24 +2,19 @@ import 'package:auth_repo/auth_repo.dart';
 import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:he/app/app.dart';
+import 'package:he/home/appupdate/apkdownload/bloc/appudate_bloc.dart';
+import 'package:he/home/appupdate/apkseen/bloc/apkseen_bloc.dart';
 import 'package:he/injection.dart';
 import 'package:he/langhe/langhe.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:he/objects/blocs/apkupdate/bloc/apk_bloc.dart';
-import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
-import 'package:he/objects/blocs/repo/apk_repo.dart';
-import 'package:he/objects/blocs/repo/database_repo.dart';
-import 'package:he/service/work_manager_service.dart';
+
 import 'package:he_storage/he_storage.dart';
 import 'package:theme_locale_repo/generated/l10n.dart';
 import 'package:theme_locale_repo/theme_locale_repo.dart';
 
 import '../../auth/auth.dart';
-import '../../home/appupdate/appupdate.dart';
-import '../../objects/blocs/appcycle/bloc/appcycle_bloc.dart';
-import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
+import '../../objects/blocs/blocs.dart';
 
 class App extends StatelessWidget {
   App({Key? key, required ThemeLocaleIntRepository themeLocaleIntRepository})
@@ -76,8 +71,8 @@ class App extends StatelessWidget {
           BlocProvider<DatabaseBloc>(
               create: (_) => DatabaseBloc(repository: _databaseRepository)),
           BlocProvider<HenetworkBloc>(create: (_) => HenetworkBloc()),
-          BlocProvider<AppLifecycleStateBloc>(
-              create: (_) => AppLifecycleStateBloc()),
+          BlocProvider<StatisticsBloc>(
+              create: (_) => StatisticsBloc(repository: _databaseRepository)),
         ],
         child: const AppView(),
       ),
@@ -95,9 +90,6 @@ class _AppView extends State<AppView> {
   @override
   void initState() {
     super.initState();
-    final workManagerService = GetIt.I<WorkManagerService>();
-    workManagerService.initialize();
-    // workManagerService.registerOneOffTask();
   }
 
   @override
@@ -126,5 +118,10 @@ class _AppView extends State<AppView> {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

@@ -147,14 +147,14 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(4, 8313728043780523434),
       name: 'BackupStateDataModel',
-      lastPropertyId: const IdUid(6, 7254006473795860310),
+      lastPropertyId: const IdUid(7, 6963543973569523919),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
             id: const IdUid(1, 6226754668473397179),
             name: 'id',
             type: 6,
-            flags: 1),
+            flags: 129),
         ModelProperty(
             id: const IdUid(2, 3038710617825268956),
             name: 'uploadProgress',
@@ -179,6 +179,11 @@ final _entities = <ModelEntity>[
             id: const IdUid(6, 7254006473795860310),
             name: 'booksAnimation',
             type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(7, 6963543973569523919),
+            name: 'dateCreated',
+            type: 10,
             flags: 0)
       ],
       relations: <ModelRelation>[],
@@ -368,20 +373,22 @@ ModelDefinition getObjectBoxModel() {
           object.id = id;
         },
         objectToFB: (BackupStateDataModel object, fb.Builder fbb) {
-          fbb.startTable(7);
+          fbb.startTable(8);
           fbb.addInt64(0, object.id);
           fbb.addFloat64(1, object.uploadProgress);
           fbb.addBool(2, object.isUploadingData);
           fbb.addBool(3, object.backupAnimation);
           fbb.addBool(4, object.surveyAnimation);
           fbb.addBool(5, object.booksAnimation);
+          fbb.addInt64(6, object.dateCreated?.millisecondsSinceEpoch);
           fbb.finish(fbb.endTable());
           return object.id;
         },
         objectFromFB: (Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-
+          final dateCreatedValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 16);
           final object = BackupStateDataModel(
               id: const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0),
               uploadProgress:
@@ -393,7 +400,10 @@ ModelDefinition getObjectBoxModel() {
               surveyAnimation: const fb.BoolReader()
                   .vTableGet(buffer, rootOffset, 12, false),
               booksAnimation: const fb.BoolReader()
-                  .vTableGet(buffer, rootOffset, 14, false));
+                  .vTableGet(buffer, rootOffset, 14, false),
+              dateCreated: dateCreatedValue == null
+                  ? null
+                  : DateTime.fromMillisecondsSinceEpoch(dateCreatedValue));
 
           return object;
         })
@@ -511,4 +521,8 @@ class BackupStateDataModel_ {
   /// see [BackupStateDataModel.booksAnimation]
   static final booksAnimation =
       QueryBooleanProperty<BackupStateDataModel>(_entities[3].properties[5]);
+
+  /// see [BackupStateDataModel.dateCreated]
+  static final dateCreated =
+      QueryIntegerProperty<BackupStateDataModel>(_entities[3].properties[6]);
 }

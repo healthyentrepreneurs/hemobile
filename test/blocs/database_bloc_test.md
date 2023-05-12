@@ -88,68 +88,6 @@ void main() {
   );
 
   blocTest<DatabaseBloc, DatabaseState>(
-    'emits state with updated uploadProgress on UploadDataEvent',
-    build: () {
-      // Mock the repository method to return a successful future
-      when(() => databaseRepository.uploadData(
-            isUploadingData: any(named: 'isUploadingData'),
-            uploadProgress: any(named: 'uploadProgress'),
-            simulateUpload: any(named: 'simulateUpload'),
-            onUploadStateChanged: any(named: 'onUploadStateChanged'),
-          )).thenAnswer((invocation) {
-        final onUploadStateChanged = invocation
-            .namedArguments[#onUploadStateChanged] as Function(bool, double);
-        onUploadStateChanged(true, 50.0);
-        return Future.value();
-      });
-
-      return databaseBloc;
-    },
-    act: (bloc) {
-      bloc.add(UploadDataEvent(
-        isUploadingData: true,
-        uploadProgress: 50.0,
-        simulateUpload: true,
-        onUploadStateChanged: (bool isUploading, double progress) {},
-      ));
-    },
-    expect: () => [
-      // Expect the state with the updated uploadProgress
-      databaseBloc.state.copyWith(
-        isUploadingData: true,
-        uploadProgress: 50.0,
-      ),
-    ],
-  );
-  // blocTest<DatabaseBloc, DatabaseState>(
-  //   'emits state with loaded data on successful LoadStateEvent',
-  //   build: () {
-  //     // Mock the repository method to return a successful future with data
-  //     when(() => databaseRepository.loadState()).thenAnswer((_) async {
-  //       return {
-  //         'isUploadingData': true,
-  //         'uploadProgress': 25.0,
-  //         'backupAnimation': false,
-  //         'surveyAnimation': false,
-  //         'booksAnimation': false,
-  //       };
-  //     });
-  //
-  //     return databaseBloc;
-  //   },
-  //   act: (bloc) => bloc.add( LoadStateEvent()),
-  //   expect: () => [
-  //     // Expect the state with the loaded data
-  //     databaseBloc.state.copyWith(
-  //       isUploadingData: true,
-  //       uploadProgress: 25.0,
-  //       backupAnimation: false,
-  //       surveyAnimation: false,
-  //       booksAnimation: false,
-  //     ),
-  //   ],
-  // );
-  blocTest<DatabaseBloc, DatabaseState>(
     'emits state with loaded data on successful LoadStateEvent',
     build: () {
       // Mock the repository method to return a successful future with data
@@ -176,40 +114,5 @@ void main() {
     })),
     expect: () =>
         [], // No state change is expected in this case, since the data is passed through the onLoadStateChanged callback
-  );
-
-  blocTest<DatabaseBloc, DatabaseState>(
-    'emits state with updated values on SaveStateEvent',
-    build: () {
-      // Mock the repository method to return a successful future
-      when(() => databaseRepository.saveState(
-            isUploadingData: any(named: 'isUploadingData'),
-            uploadProgress: any(named: 'uploadProgress'),
-            backupAnimation: any(named: 'backupAnimation'),
-            surveyAnimation: any(named: 'surveyAnimation'),
-            booksAnimation: any(named: 'booksAnimation'),
-          )).thenAnswer((_) => Future.value());
-
-      return databaseBloc;
-    },
-    act: (bloc) {
-      bloc.add(const SaveStateEvent(
-        isUploadingData: true,
-        uploadProgress: 50.0,
-        backupAnimation: true,
-        surveyAnimation: true,
-        booksAnimation: true,
-      ));
-    },
-    expect: () => [
-      // Expect the state with the updated values
-      databaseBloc.state.copyWith(
-        isUploadingData: true,
-        uploadProgress: 50.0,
-        backupAnimation: true,
-        surveyAnimation: true,
-        booksAnimation: true,
-      ),
-    ],
   );
 }

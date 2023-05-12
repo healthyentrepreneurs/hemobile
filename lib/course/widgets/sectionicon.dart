@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/objects/blocs/repo/fofiperm_repo.dart';
+import 'package:he_api/he_api.dart';
 
-import '../../helper/file_system_util.dart';
 import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 
 const _avatarSize = 20.0;

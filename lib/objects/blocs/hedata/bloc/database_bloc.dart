@@ -8,8 +8,6 @@ import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
 import 'package:he_api/he_api.dart';
 
-import '../../../../helper/file_system_util.dart';
-
 part 'database_event.dart';
 part 'database_state.dart';
 
@@ -23,11 +21,6 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     on<DatabaseSubSelected>(_onDatabaseSubSelected);
     on<DatabaseSubDeSelected>(_onDatabaseSubDeSelected);
     on<DatabaseFetchedError>(_onDatabaseFetchedError);
-    on<DbCountSurveyEvent>(_onDbCountSurveyEvent);
-    on<UploadDataEvent>(_onUploadDataEvent);
-    on<LoadStateEvent>(_onLoadStateEvent);
-    // on<UpdateUploadStateEvent>(_onUpdateUploadStateEvent);
-    on<SaveStateEvent>(_onSaveStateEvent);
   }
   final DatabaseRepository _databaseRepository;
 
@@ -69,7 +62,7 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     if (event.clearData) {
       emit(state.copyWith(
           error: event.error,
-          listOfSubscriptionData: emptySub,
+          listOfSubscriptionData: emptySubList,
           henetworkStatus: event.henetworkStatus));
     } else {
       emit(state.copyWith(
@@ -77,73 +70,9 @@ class DatabaseBloc extends Bloc<DatabaseEvent, DatabaseState> {
     }
   }
 
-  FutureOr<void> _onDbCountSurveyEvent(
-      DbCountSurveyEvent event, Emitter<DatabaseState> emit) async {
-    final result = _databaseRepository.totalSavedSurvey();
-    await emit.forEach(result, onData: (Either<Failure, int> countSurvey) {
-      return countSurvey.fold(
-        (failure) => state.copyWith(fetchError: failure),
-        (countValue) => state.copyWith(
-            surveyTotalCount:
-                countValue), // Reset the error to null when fetching is successful
-      );
-    });
-  }
-
-  // Handle UploadDataEvent
-  void _onUploadDataEvent(
-      UploadDataEvent event, Emitter<DatabaseState> emit) async {
-    debugPrint(
-        "BEFORCDatabaseBloc@_onUploadDataEvent ${event.isUploadingData} and ${event.uploadProgress}");
-    emit(state.copyWith(
-        isUploadingData: event.isUploadingData,
-        uploadProgress: event.uploadProgress));
-    // event.onUploadStateChanged(event.isUploadingData, event.uploadProgress);
-    debugPrint(
-        "AFTERCDatabaseBloc@_onUploadDataEvent ${event.isUploadingData} and ${event.uploadProgress}");
-    await _databaseRepository.uploadData(
-      isUploadingData: event.isUploadingData,
-      uploadProgress: event.uploadProgress,
-      simulateUpload: event.simulateUpload,
-      onUploadStateChanged: event.onUploadStateChanged,
-    );
-  }
-
-  // Handle LoadStateEvent
-  void _onLoadStateEvent(
-      LoadStateEvent event, Emitter<DatabaseState> emit) async {
-    final result = await _databaseRepository.loadState();
-    if (result != null) {
-      debugPrint("_onLoadStateEvent@uploadData $result ");
-      // {id: 1, uploadProgress: 0.0, isUploadingData: false, backupAnimation: false, surveyAnimation: false, booksAnimation: false}
-      event.onLoadStateChanged(result);
-      emit(state.copyWith(
-        uploadProgress: result['uploadProgress'],
-        isUploadingData: result['isUploadingData'],
-        backupAnimation: result['backupAnimation'],
-        surveyAnimation: result['surveyAnimation'],
-        booksAnimation: result['booksAnimation'],
-      ));
-    } else {
-      debugPrint("_onLoadStateEvent@uploadData $result NAKIGANDA");
-    }
-  }
-
-  // Handle SaveStateEvent
-  void _onSaveStateEvent(SaveStateEvent event, Emitter<DatabaseState> emit) {
-    emit(state.copyWith(
-      isUploadingData: event.isUploadingData,
-      uploadProgress: event.uploadProgress,
-      backupAnimation: event.backupAnimation,
-      surveyAnimation: event.surveyAnimation,
-      booksAnimation: event.booksAnimation,
-    ));
-    _databaseRepository.saveState(
-      isUploadingData: event.isUploadingData,
-      uploadProgress: event.uploadProgress,
-      backupAnimation: event.backupAnimation,
-      surveyAnimation: event.surveyAnimation,
-      booksAnimation: event.booksAnimation,
-    );
+  @override
+  Future<void> close() {
+    repository.dispose();
+    return super.close();
   }
 }

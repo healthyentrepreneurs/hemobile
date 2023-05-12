@@ -8,6 +8,12 @@ class RepositoryFailure extends Failure {
   RepositoryFailure(this.message);
 }
 
+class DatabaseFailure extends Failure {
+  @override
+  final String message;
+  DatabaseFailure(this.message);
+}
+
 class FirestoreFailure extends Failure {
   @override
   final String message;
