@@ -8,8 +8,11 @@ import 'objectbox_service.dart';
 class WorkManagerService {
   static const uploadDataTask = "uploadDataTask";
   static const cleanUploadedDataTask = "cleanUploadedDataTask";
-  static const cancleUploadDataTask = "cancleUploadDataTask";
+  static const cancelUploadDataTask = "cancelUploadDataTask";
   static const generateSampleDataTask = "generateSampleDataTask";
+  static const String uploadDataTaskId = 'registerUploadDataTaskUnique';
+  static const String cleanUploadedDataTaskId =
+      'registerCleanUploadedDataTaskUnique';
   static final WorkManagerService _singleton = WorkManagerService._internal();
 
   factory WorkManagerService() {
@@ -29,21 +32,9 @@ class WorkManagerService {
     debugPrint("Workmanager initialized");
   }
 
-  // Future<void> registerUploadDataTask() async {
-  //   await Workmanager().registerOneOffTask(
-  //     'registerUploadDataTaskUnique', // uniqueName
-  //     uploadDataTask,
-  //     inputData: <String, dynamic>{},
-  //     initialDelay: Duration.zero,
-  //     existingWorkPolicy: ExistingWorkPolicy.replace, // added this
-  //     tag: "registerUploadDataTask@Njovu",
-  //   );
-  //   debugPrint("registerUploadDataTask task registered");
-  // }
-
   Future<void> registerUploadDataTask() async {
     await Workmanager().registerOneOffTask(
-      'registerUploadDataTaskUnique', // uniqueName
+      uploadDataTaskId, // uniqueName
       uploadDataTask,
       inputData: <String, dynamic>{},
       initialDelay: Duration.zero,
@@ -57,16 +48,33 @@ class WorkManagerService {
     debugPrint("registerUploadDataTask task registered");
   }
 
-  Future<void> cancelUploadDataTask() async {
+  Future<void> cancelUploadDataTaskFunc() async {
     await Workmanager().cancelByTag("registerUploadDataTask@Njovu");
     debugPrint("registerUploadDataTask task cancelled");
   }
 
+  // Future<void> cleanUploadedDataTaskFunc() async {
+  //   await Workmanager().registerOneOffTask('2', cleanUploadedDataTask,
+  //       inputData: <String, dynamic>{},
+  //       initialDelay: const Duration(seconds: 10),
+  //       tag: "registerCleanUploadedDataTask");
+  //   debugPrint("cleanUploadedDataTaskFunc task registered");
+  // }
+
   Future<void> cleanUploadedDataTaskFunc() async {
-    await Workmanager().registerOneOffTask('2', cleanUploadedDataTask,
-        inputData: <String, dynamic>{},
-        initialDelay: const Duration(seconds: 10),
-        tag: "registerCleanUploadedDataTask");
+    await Workmanager().registerPeriodicTask(
+      cleanUploadedDataTaskId, // task id
+      cleanUploadedDataTask, // task name
+      inputData: <String, dynamic>{},
+      frequency:
+          const Duration(hours: 1), // set the frequency of the periodic task
+      initialDelay: const Duration(seconds: 10),
+      constraints: Constraints(
+        networkType: NetworkType.not_required,
+        requiresBatteryNotLow: true,
+      ),
+      tag: "registerCleanUploadedDataTask",
+    );
     debugPrint("cleanUploadedDataTaskFunc task registered");
   }
 
@@ -155,8 +163,8 @@ void callbackDispatcher() {
       case WorkManagerService.uploadDataTask:
         debugPrint("Executing uploadData task");
         await workManagerService._uploadData();
-        // await workManagerService.showNotification(
-        //     'Data Sync Completed', 'Previous Data Have been Synced');
+        await workManagerService.showNotification(
+            'Data Sync Completed', 'Previous Data Have been Synced');
         break;
       case WorkManagerService.generateSampleDataTask:
         await workManagerService._generateSampleDataTask();

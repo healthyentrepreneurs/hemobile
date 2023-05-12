@@ -76,6 +76,7 @@ class DatabaseBoxOperations {
   }
 
   Future<void> savePendingItemsToFirestoreAndSetNotPending() async {
+    bool hasFailure = false;
     List<SurveyDataModel> pendingSurveys =
         await _objectService.getSurveysPendingStatusCTimeLimit(true);
     List<BookDataModel> pendingBookViews =
@@ -88,46 +89,80 @@ class DatabaseBoxOperations {
     int countingTract = 0;
     int? uploadedSurveys;
     int? uploadedBookViews;
+    BackupStateDataModel currentBackupState = _objectService.backupBox.get(1) ??
+        BackupStateDataModel.defaultInstance();
 
+    // Initialize WriteBatch instance
+    final batch = _firestore.batch();
+
+    // Save surveys in a batch
     for (SurveyDataModel survey in pendingSurveys) {
-      Either<Failure, void> result = await saveSurveysFireStore(survey: survey);
-      result.fold(
-        (failure) {
-          debugPrint("Failed to upload survey: $failure");
-        },
-        (_) async {
-          survey.isPending = false;
-          uploadedSurveys = --totalPendingSurveys;
-          countingTract++;
-          await updateProgress(uploadedSurveys, uploadedBookViews,
-              countingTract, totalPendingItems);
-        },
-      );
+      try {
+        _saveSurveyToFirestore(survey: survey, batch: batch);
+        survey.isPending = false;
+        _objectService.saveSurvey(survey, updateIfExists: true);
+        uploadedSurveys = --totalPendingSurveys;
+        countingTract++;
+      } catch (e) {
+        hasFailure = true;
+        final failState = currentBackupState.copyWith(
+          isUploadingData: false,
+          booksAnimation: false,
+        );
+        _objectService.saveBackupState(backupdatamodel: failState);
+        debugPrint("Failed to add survey to batch: ${e.toString()}");
+        break;
+      }
     }
-    debugPrint("Total uploaded surveys simulated: $uploadedSurveys");
 
-    for (BookDataModel bookview in pendingBookViews) {
-      Either<Failure, void> result =
-          await saveBookViewsFireStore(bookview: bookview);
-      result.fold(
-        (failure) {
-          debugPrint("Failed to upload book view: $failure");
-        },
-        (_) async {
+    if (!hasFailure) {
+      // Save book views in a batch
+      for (BookDataModel bookview in pendingBookViews) {
+        try {
+          _saveBookViewsToFirestore(bookviews: bookview, batch: batch);
           bookview.isPending = false;
+          _objectService.saveBook(bookview, updateIfExists: true);
           countingTract++;
           uploadedBookViews = --totalPendingBookViews;
-          await updateProgress(uploadedSurveys, uploadedBookViews,
-              countingTract, totalPendingItems);
-        },
-      );
+        } catch (e) {
+          hasFailure = true;
+          final failState = currentBackupState.copyWith(
+            isUploadingData: false,
+            surveyAnimation: false,
+          );
+          _objectService.saveBackupState(backupdatamodel: failState);
+          debugPrint("Failed to add book view to batch: ${e.toString()}");
+          break;
+        }
+      }
     }
-    debugPrint("Total uploaded BookViews simulated: $uploadedBookViews");
+
+    if (!hasFailure) {
+      try {
+        await batch.commit();
+        debugPrint("Batch write successful");
+      } catch (e) {
+        hasFailure = true;
+        debugPrint("Batch write failed: ${e.toString()}");
+      }
+    }
+
+    updateProgress(uploadedSurveys, uploadedBookViews, countingTract,
+        totalPendingItems, currentBackupState);
+
+    if (!hasFailure) {
+      _objectService.saveBackupState(
+          backupdatamodel: BackupStateDataModel.defaultInstance());
+    }
   }
 
-  Future<void> updateProgress(int? uploadedSurveys, int? uploadedBookViews,
-      int countingTract, int totalPendingItems) async {
-    double progress = countingTract / totalPendingItems;
+  void updateProgress(
+      int? uploadedSurveys,
+      int? uploadedBookViews,
+      int countingTract,
+      int totalPendingItems,
+      BackupStateDataModel currentBackupState) {
+    double progress = countingTract / totalPendingItems.toDouble();
     bool _isUploading = true;
     bool _backupAnimation = true;
     bool _surveyAnimation = !(uploadedSurveys == null || uploadedSurveys == 0);
@@ -139,9 +174,6 @@ class DatabaseBoxOperations {
       _isUploading = false;
       _backupAnimation = false;
     }
-
-    BackupStateDataModel currentBackupState = _objectService.backupBox.get(1) ??
-        BackupStateDataModel.defaultInstance();
     var updatedBackupState = currentBackupState.copyWith(
         isUploadingData: _isUploading,
         uploadProgress: progress,
@@ -149,8 +181,9 @@ class DatabaseBoxOperations {
         surveyAnimation: _surveyAnimation,
         booksAnimation: _booksAnimation,
         dateCreated: DateTime.now());
-
-    await _objectService.save(backupdatamodel: updatedBackupState);
+    debugPrint('@startpampwa ${updatedBackupState.toJson()}');
+    _objectService.saveBackupState(backupdatamodel: updatedBackupState);
+    debugPrint('@endpampwa ${updatedBackupState.toJson()}');
   }
 
   Future<Map<String, dynamic>?> loadState() async {
@@ -163,7 +196,7 @@ class DatabaseBoxOperations {
   }
 
   Future<List<BookDataModel>> _generateDummyBooksWithFaker() async {
-    const int numOfBooks = 200;
+    const int numOfBooks = 500;
     final faker = Faker();
 
     List<BookDataModel> dummyBooks = [];
@@ -189,7 +222,7 @@ class DatabaseBoxOperations {
   }
 
   Future<void> generateTestingData() async {
-    const int numOfRecords = 100;
+    const int numOfRecords = 20;
     final faker = Faker();
     int totalCounter = 0;
 
@@ -242,7 +275,7 @@ class DatabaseBoxOperations {
   }
 
   Future<List<SurveyDataModel>> _generateDummySurveysWithFaker() async {
-    const int numOfSurveys = 200;
+    const int numOfSurveys = 400;
     final faker = Faker();
 
     List<SurveyDataModel> dummySurveys = [];
@@ -285,40 +318,18 @@ class DatabaseBoxOperations {
     debugPrint('All books and surveys deletion completed.');
   }
 
-  Future<Either<Failure, void>> saveSurveysFireStore({
-    required SurveyDataModel survey,
-  }) async {
-    try {
-      await _saveSurveyToFirestore(survey: survey);
-      return Future.value(const Right(null)); // Return success value
-    } catch (e) {
-      debugPrint("Error saving survey response: ${e.toString()}");
-      return Future.value(Left(RepositoryFailure(e.toString())));
-    }
-  }
-
-  Future<Either<Failure, void>> saveBookViewsFireStore({
-    required BookDataModel bookview,
-  }) async {
-    try {
-      await _saveBookViewsToFirestore(bookviews: bookview);
-      return Future.value(const Right(null)); // Return success value
-    } catch (e) {
-      debugPrint("Error saving bookviews response: ${e.toString()}");
-      return Future.value(Left(RepositoryFailure(e.toString())));
-    }
-  }
-
   Future<void> _saveSurveyToFirestore({
     required SurveyDataModel survey,
+    required WriteBatch batch,
   }) async {
-    await _firestore
+    final docRef = _firestore
         .collection('surveyposts')
         .doc(survey.country)
         .collection(survey.surveyId)
-        .doc(survey
-            .userId) // Assuming that each user has a unique survey in the collection
-        .set(
+        .doc(survey.userId);
+
+    batch.set(
+      docRef,
       {
         'userId': survey.userId,
         'surveyVersion': survey.surveyVersion,
@@ -332,24 +343,29 @@ class DatabaseBoxOperations {
 
   Future<void> _saveBookViewsToFirestore({
     required BookDataModel bookviews,
+    required WriteBatch batch,
   }) async {
     final createdAt = bookviews.dateCreated;
-    // final timeInMinutes = (createdAt.hour * 60) + createdAt.minute;
     final dateWithoutSeconds =
         createdAt.toIso8601String().split(':').sublist(0, 2).join(':');
     final docId =
         '${bookviews.userId}_$dateWithoutSeconds:${createdAt.minute.toString().padLeft(2, '0')}';
-    await _firestore
+    final docRef = _firestore
         .collection('bookviews')
         .doc(bookviews.courseId)
         .collection(bookviews.bookId)
         .doc(bookviews.chapterId)
         .collection('views')
-        .doc(docId)
-        .set({
-      'userId': bookviews.userId,
-      'viewTime': createdAt.toIso8601String(),
-    }, SetOptions(merge: true));
+        .doc(docId);
+
+    batch.set(
+      docRef,
+      {
+        'userId': bookviews.userId,
+        'viewTime': createdAt.toIso8601String(),
+      },
+      SetOptions(merge: true),
+    );
   }
 
   void _sampleTrials() {

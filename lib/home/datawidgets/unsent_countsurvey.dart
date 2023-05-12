@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/home/home.dart';
-import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
+
+import '../../objects/blocs/blocs.dart';
 
 class UnsentSurveysWidget extends StatelessWidget {
   const UnsentSurveysWidget({super.key});
@@ -11,7 +12,7 @@ class UnsentSurveysWidget extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: InkWell(
-        child: BlocListener<DatabaseBloc, DatabaseState>(
+        child: BlocListener<StatisticsBloc, StatisticsState>(
           listenWhen: (previous, current) {
             final bool listLengthChanged =
                 previous.listOfSurveyDataModel?.length !=
@@ -23,20 +24,28 @@ class UnsentSurveysWidget extends StatelessWidget {
           },
           listener: (context, state) {
             context
-                .read<DatabaseBloc>()
+                .read<StatisticsBloc>()
                 .add(const ListSurveyTesting(isPending: true));
           },
-          child: BlocBuilder<DatabaseBloc, DatabaseState>(
-            builder: (BuildContext context, DatabaseState state) {
+          child: BlocBuilder<StatisticsBloc, StatisticsState>(
+            builder: (BuildContext context, StatisticsState state) {
+              final _henetworkstate =
+                  BlocProvider.of<HenetworkBloc>(context).state;
               String prefixText = 'You have ';
               String unsentSurveysCountText;
               String suffixText = ' unsent surveys';
+              if (state == const DatabaseState.loading()) {
+                debugPrint("NetworkState goes @B");
+                context
+                    .read<StatisticsBloc>()
+                    .add(FetchNetworkStatistics(_henetworkstate.status));
+              }
               if (state.fetchError != null) {
                 unsentSurveysCountText = 'Error';
               } else if (state.listOfSurveyDataModel == null) {
                 unsentSurveysCountText = 'Loading... ';
                 context
-                    .read<DatabaseBloc>()
+                    .read<StatisticsBloc>()
                     .add(const ListSurveyTesting(isPending: true));
                 // context.read<DatabaseBloc>().add(const DbCountSurveyEvent());
               } else {

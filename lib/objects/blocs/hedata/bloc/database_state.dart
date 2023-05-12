@@ -11,11 +11,6 @@ class DatabaseState extends Equatable {
     String? userid,
     Subscription? selectedsubscription,
     this.error,
-    this.fetchError,
-    // this.surveyTotalCount,
-    this.backupdataModel,
-    this.listOfSurveyDataModel,
-    this.listOfBookDataModel,
   })  : _userid = userid ?? '',
         _selectedsubscription = selectedsubscription,
         _listOfSubscriptionData = listOfSubscriptionData ?? emptySubList,
@@ -25,12 +20,8 @@ class DatabaseState extends Equatable {
   final String _userid;
   final HenetworkStatus _henetworkStatus;
   final Failure? error;
-  final Failure? fetchError;
   final Subscription? _selectedsubscription;
   // final int? surveyTotalCount;
-  final BackupStateDataModel? backupdataModel;
-  final List<SurveyDataModel>? listOfSurveyDataModel;
-  final List<BookDataModel>? listOfBookDataModel;
   //Uploading End
 
   const DatabaseState.loading(
@@ -44,26 +35,18 @@ class DatabaseState extends Equatable {
 
   DatabaseState copyWith(
       {List<Subscription?>? listOfSubscriptionData,
-      List<SurveyDataModel>? listOfSurveyDataModel,
-      List<BookDataModel>? listOfBookDataModel,
       HenetworkStatus? henetworkStatus,
       Subscription? selectedsubscription,
       String? userid,
       Failure? error,
-      Failure? fetchError,
-      final BackupStateDataModel? backupdataModel}) {
+      Failure? fetchError}) {
     return DatabaseState._(
-        listOfSubscriptionData:
-            listOfSubscriptionData ?? _listOfSubscriptionData,
-        listOfSurveyDataModel:
-            listOfSurveyDataModel ?? this.listOfSurveyDataModel,
-        listOfBookDataModel: listOfBookDataModel ?? this.listOfBookDataModel,
-        selectedsubscription: selectedsubscription ?? _selectedsubscription,
-        henetworkStatus: henetworkStatus ?? _henetworkStatus,
-        userid: userid ?? _userid,
-        error: error ?? this.error,
-        fetchError: fetchError ?? this.fetchError,
-        backupdataModel: backupdataModel ?? this.backupdataModel);
+      listOfSubscriptionData: listOfSubscriptionData ?? _listOfSubscriptionData,
+      selectedsubscription: selectedsubscription ?? _selectedsubscription,
+      henetworkStatus: henetworkStatus ?? _henetworkStatus,
+      userid: userid ?? _userid,
+      error: error ?? this.error,
+    );
   }
 
   const DatabaseState.withError(
@@ -84,14 +67,9 @@ class DatabaseState extends Equatable {
   @override
   List<Object?> get props => [
         glistOfSubscriptionData,
-        listOfSurveyDataModel,
-        listOfBookDataModel,
         guserid,
         ghenetworkStatus,
         gselectedsubscription,
         error,
-        fetchError,
-        // surveyTotalCount,
-        backupdataModel
       ];
 }

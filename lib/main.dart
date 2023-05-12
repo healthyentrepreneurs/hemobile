@@ -19,7 +19,7 @@ Future<void> main() async {
   await configureInjections(getIt);
   final workManagerService = GetIt.I<WorkManagerService>();
   workManagerService.initialize();
-  // workManagerService.cleanUploadedDataTaskFunc();
+  workManagerService.cleanUploadedDataTaskFunc();
   // workManagerService.generateBookDataTaskFunc();
   Bloc.observer = AppBlocObserver();
   if (Platform.isAndroid) {

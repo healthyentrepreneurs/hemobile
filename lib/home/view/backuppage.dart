@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:he/home/home.dart';
-import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
-import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he/service/work_manager_service.dart';
 import 'package:intl/intl.dart';
+
+import '../../objects/blocs/blocs.dart';
 
 class BackupPage extends StatefulWidget {
   const BackupPage({Key? key}) : super(key: key);
@@ -51,7 +51,7 @@ class _BackupPageState extends State<BackupPage>
         _backupController.reset();
       }
     });
-    context.read<DatabaseBloc>().add(
+    context.read<StatisticsBloc>().add(
           const LoadStateEvent(),
         );
   }
@@ -71,9 +71,9 @@ class _BackupPageState extends State<BackupPage>
     //     context.watch<DatabaseBloc>().state.backupdataModel?.uploadProgress;
 
     bool? isUploadingData = context.select(
-        (DatabaseBloc bloc) => bloc.state.backupdataModel?.isUploadingData);
+        (StatisticsBloc bloc) => bloc.state.backupdataModel?.isUploadingData);
     double? uploadProgress = context.select(
-        (DatabaseBloc bloc) => bloc.state.backupdataModel?.uploadProgress);
+        (StatisticsBloc bloc) => bloc.state.backupdataModel?.uploadProgress);
     return Scaffold(
       appBar: HeAppBar(
         course: 'Sync Data',
@@ -144,34 +144,34 @@ class _BackupPageState extends State<BackupPage>
                 title: "Data Statistics",
                 children: [_buildSurveyIconWidget(), _buildBookIconWidget()],
               ),
-              SingleSection(
-                title: "Control Animations",
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          _uploadDataTest();
-                        },
-                        child: const Text('StartB'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          _cleanDataTest();
-                        },
-                        child: const Text('CleanB'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          _generateDataTest();
-                        },
-                        child: const Text('Generate D'),
-                      ),
-                    ],
-                  ),
-                ],
-              )
+              // SingleSection(
+              //   title: "Control Animations",
+              //   children: [
+              //     Row(
+              //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //       children: [
+              //         ElevatedButton(
+              //           onPressed: () {
+              //             _uploadDataTest();
+              //           },
+              //           child: const Text('StartB'),
+              //         ),
+              //         ElevatedButton(
+              //           onPressed: () {
+              //             _cleanDataTest();
+              //           },
+              //           child: const Text('CleanB'),
+              //         ),
+              //         ElevatedButton(
+              //           onPressed: () {
+              //             _generateDataTest();
+              //           },
+              //           child: const Text('Generate D'),
+              //         ),
+              //       ],
+              //     ),
+              //   ],
+              // )
             ],
           ),
         ),
@@ -210,7 +210,7 @@ class _BackupPageState extends State<BackupPage>
     databaseRepo.createDummyData();
   }
 
-  void _updateAnimationStatus(DatabaseState state) {
+  void _updateAnimationStatus(StatisticsState state) {
     bool backupAnimation = state.backupdataModel?.backupAnimation ?? false;
     if (backupAnimation) {
       if (!_backupController.isAnimating) {
@@ -264,7 +264,7 @@ class _BackupPageState extends State<BackupPage>
   }
 
   Widget _buildBackupIconWidget() {
-    return BlocListener<DatabaseBloc, DatabaseState>(
+    return BlocListener<StatisticsBloc, StatisticsState>(
       listenWhen: (previous, current) {
         return previous.backupdataModel?.backupAnimation !=
             current.backupdataModel?.backupAnimation;
@@ -275,7 +275,7 @@ class _BackupPageState extends State<BackupPage>
       child: RepaintBoundary(
         child: TickerMode(
           enabled: context
-                  .read<DatabaseBloc>()
+                  .read<StatisticsBloc>()
                   .state
                   .backupdataModel
                   ?.backupAnimation ??
@@ -297,17 +297,28 @@ class _BackupPageState extends State<BackupPage>
   }
 
   Widget _buildSurveyIconWidget() {
-    int? countingSurveys =
-        context.watch<DatabaseBloc>().state.listOfSurveyDataModel?.length;
-    return BlocBuilder<DatabaseBloc, DatabaseState>(
+    return BlocBuilder<StatisticsBloc, StatisticsState>(
         buildWhen: (previous, current) {
-      final surveyStillRunning = previous.backupdataModel?.surveyAnimation !=
+      final surveysStillRunning = previous.backupdataModel?.surveyAnimation !=
           current.backupdataModel?.surveyAnimation;
-      return surveyStillRunning;
+      final listLengthChanged = previous.listOfSurveyDataModel?.length !=
+          current.listOfSurveyDataModel?.length;
+      return listLengthChanged || surveysStillRunning;
     }, builder: (context, state) {
+      int? unsentSurveysCountText = state.listOfSurveyDataModel?.length;
       bool surveyAnimation = state.backupdataModel?.surveyAnimation ?? false;
-      // int? countSurvey = state.listOfSurveyDataModel?.length;
       const iconSize = 24.0;
+
+      if (state.listOfSurveyDataModel == null) {
+        debugPrint(
+            'MIKEPAMPA BEFORE ${state.listOfSurveyDataModel.toString()}');
+        context
+            .read<StatisticsBloc>()
+            .add(const ListSurveyTesting(isPending: true));
+      } else {
+        unsentSurveysCountText = state.listOfSurveyDataModel?.length;
+      }
+
       return ListTile(
         title: const Text(
           "Surveys",
@@ -329,7 +340,7 @@ class _BackupPageState extends State<BackupPage>
             ),
             children: <TextSpan>[
               TextSpan(
-                text: '${countingSurveys ?? '..'}',
+                text: '${unsentSurveysCountText ?? '..'}',
                 style: const TextStyle(color: Colors.red, fontSize: 17),
               ),
               const TextSpan(text: ' to be uploaded'),
@@ -346,14 +357,21 @@ class _BackupPageState extends State<BackupPage>
                   size: iconSize,
                 ),
               )
-            : const Icon(Icons.sync,
-                size: iconSize, weight: 1, color: Colors.blueGrey),
+            : const Icon(
+                Icons.sync,
+                size: iconSize,
+                weight: 1,
+                color: Colors.blueGrey,
+              ),
+        onTap: () {
+          // Show dialog to choose backup frequency
+        },
       );
     });
   }
 
   Widget _buildBookIconWidget() {
-    return BlocBuilder<DatabaseBloc, DatabaseState>(
+    return BlocBuilder<StatisticsBloc, StatisticsState>(
         buildWhen: (previous, current) {
       final booksStillRunning = previous.backupdataModel?.booksAnimation !=
           current.backupdataModel?.booksAnimation;
@@ -368,7 +386,7 @@ class _BackupPageState extends State<BackupPage>
       if (state.listOfBookDataModel == null) {
         debugPrint('MIKEPAMPA BEFORE ${state.listOfBookDataModel.toString()}');
         context
-            .read<DatabaseBloc>()
+            .read<StatisticsBloc>()
             .add(const ListBooksTesting(isPending: true));
         // context.read<DatabaseBloc>().add(const DbCountSurveyEvent());
       } else {
@@ -426,7 +444,7 @@ class _BackupPageState extends State<BackupPage>
   }
 
   Widget _buildLastBackupDate() {
-    return BlocBuilder<DatabaseBloc, DatabaseState>(
+    return BlocBuilder<StatisticsBloc, StatisticsState>(
       buildWhen: (previous, current) {
         var currentProgress = current.backupdataModel?.uploadProgress;
         var previousDate = previous.backupdataModel?.dateCreated;

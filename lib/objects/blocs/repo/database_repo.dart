@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
-import 'package:he/objectbox.g.dart';
 import 'package:he/objects/blocs/repo/service/service.dart';
 import 'package:he/objects/db_local/db_local.dart';
 import 'package:he/service/objectbox_service.dart';
@@ -147,13 +146,25 @@ class DatabaseRepository implements IDatabaseRepository {
   }
 
   Future<void> createDummyData() async {
-    // await _boxOperations().generateDummyDataWithFaker();
-    await _boxOperations().generateTestingData();
+    await _boxOperations().generateDummyDataWithFaker();
+    // await _boxOperations().generateTestingData();
   }
 
   Stream<BackupStateDataModel> getBackupStateDataModelStream() {
     return _objectService.backupUpdateStream();
   }
+  // Stream<BackupStateDataModel> getBackupStateDataModelStream() {
+  //   return _objectService.backupBroadcastStream.map((query) {
+  //     final allItems = query.find();
+  //     // Sort the items based on the dateCreated
+  //     allItems.sort((a, b) => a.dateCreated!.compareTo(b.dateCreated!));
+  //     // Get the latest item (with the most recent dateCreated)
+  //     final latestItem = allItems.isNotEmpty ? allItems.last : null;
+  //     return latestItem ??
+  //         BackupStateDataModel
+  //             .defaultInstance(); // Return a default instance if no item is found
+  //   });
+  // }
 
   Stream<List<SurveyDataModel>> getSurveysByPendingStatus(
       {required bool isPending}) {

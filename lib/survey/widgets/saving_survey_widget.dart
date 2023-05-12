@@ -2,8 +2,9 @@ import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:he/objects/blocs/hedata/bloc/database_bloc.dart';
 import 'package:he/survey/bloc/survey_bloc.dart';
+
+import '../../objects/blocs/blocs.dart';
 
 class SaveSurveyWidget extends StatelessWidget {
   final BuildContext scaffoldContext;
@@ -99,7 +100,7 @@ class SaveSurveyWidget extends StatelessWidget {
               Future.delayed(const Duration(seconds: 0), () {
                 // BlocProvider.of<DatabaseBloc>(context)
                 context
-                    .read<DatabaseBloc>()
+                    .read<StatisticsBloc>()
                     .add(const ListSurveyTesting(isPending: true));
                 context
                     .read<SurveyBloc>()

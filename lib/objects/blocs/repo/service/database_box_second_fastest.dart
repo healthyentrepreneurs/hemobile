@@ -10,7 +10,7 @@ import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
 import 'package:he/objects/db_local/db_local.dart';
 
 class DatabaseBoxOperations {
-  // final Store _store;
+// final Store _store;
   final FirebaseFirestore _firestore;
   final ObjectBoxService _objectService;
 
@@ -26,16 +26,16 @@ class DatabaseBoxOperations {
       _objectService.store.box<SurveyDataModel>();
   Box<BackupStateDataModel> get backupBox =>
       _objectService.store.box<BackupStateDataModel>();
-  // ## BOOK LOCAL SAVING
+// ## BOOK LOCAL SAVING
 
-  // ## SURVEY LOCAL SAVING
+// ## SURVEY LOCAL SAVING
 
   Future<void> removeSurvey(SurveyDataModel survey) async {
     try {
-      // Delete the survey from the ObjectBox store
+// Delete the survey from the ObjectBox store
       _surveyBox.remove(survey.id);
     } catch (e) {
-      // Handle any error that might occur during the deletion process
+// Handle any error that might occur during the deletion process
       debugPrint("removeSurvey@Error removing survey: $e");
     }
   }
@@ -61,7 +61,7 @@ class DatabaseBoxOperations {
     }
   }
 
-  // ## BACKUP STATUS LOCAL
+// ## BACKUP STATUS LOCAL
   Future<void> uploadDataOps() async {
     BackupStateDataModel currentBackupState =
         BackupStateDataModel.defaultInstance();
@@ -76,6 +76,7 @@ class DatabaseBoxOperations {
   }
 
   Future<void> savePendingItemsToFirestoreAndSetNotPending() async {
+    bool hasFailure = false;
     List<SurveyDataModel> pendingSurveys =
         await _objectService.getSurveysPendingStatusCTimeLimit(true);
     List<BookDataModel> pendingBookViews =
@@ -88,46 +89,77 @@ class DatabaseBoxOperations {
     int countingTract = 0;
     int? uploadedSurveys;
     int? uploadedBookViews;
+    BackupStateDataModel currentBackupState = _objectService.backupBox.get(1) ??
+        BackupStateDataModel.defaultInstance();
 
     for (SurveyDataModel survey in pendingSurveys) {
       Either<Failure, void> result = await saveSurveysFireStore(survey: survey);
       result.fold(
         (failure) {
+          final failState = currentBackupState.copyWith(
+            isUploadingData: false,
+            booksAnimation: false,
+          );
+          _objectService.saveBackupState(backupdatamodel: failState);
+          hasFailure = true;
           debugPrint("Failed to upload survey: $failure");
         },
         (_) async {
           survey.isPending = false;
+          _objectService.saveSurvey(survey, updateIfExists: true);
           uploadedSurveys = --totalPendingSurveys;
           countingTract++;
-          await updateProgress(uploadedSurveys, uploadedBookViews,
-              countingTract, totalPendingItems);
+          updateProgress(uploadedSurveys, uploadedBookViews, countingTract,
+              totalPendingItems, currentBackupState);
         },
       );
+      if (hasFailure) {
+        break;
+      }
     }
     debugPrint("Total uploaded surveys simulated: $uploadedSurveys");
-
+    hasFailure = false;
     for (BookDataModel bookview in pendingBookViews) {
       Either<Failure, void> result =
           await saveBookViewsFireStore(bookview: bookview);
+      // Force a failure
+      // Failure forcedFailure = RepositoryFailure("Forced failure for testing");
+      // result = Left(forcedFailure);
       result.fold(
         (failure) {
+          final failState = currentBackupState.copyWith(
+            isUploadingData: false,
+            surveyAnimation: false,
+          );
+          _objectService.saveBackupState(backupdatamodel: failState);
+          hasFailure = true;
           debugPrint("Failed to upload book view: $failure");
         },
         (_) async {
           bookview.isPending = false;
+          _objectService.saveBook(bookview, updateIfExists: true);
           countingTract++;
           uploadedBookViews = --totalPendingBookViews;
-          await updateProgress(uploadedSurveys, uploadedBookViews,
-              countingTract, totalPendingItems);
+          updateProgress(uploadedSurveys, uploadedBookViews, countingTract,
+              totalPendingItems, currentBackupState);
         },
       );
+      if (hasFailure) {
+        break;
+      }
     }
+    _objectService.saveBackupState(
+        backupdatamodel: BackupStateDataModel.defaultInstance());
     debugPrint("Total uploaded BookViews simulated: $uploadedBookViews");
   }
 
-  Future<void> updateProgress(int? uploadedSurveys, int? uploadedBookViews,
-      int countingTract, int totalPendingItems) async {
-    double progress = countingTract / totalPendingItems;
+  void updateProgress(
+      int? uploadedSurveys,
+      int? uploadedBookViews,
+      int countingTract,
+      int totalPendingItems,
+      BackupStateDataModel currentBackupState) {
+    double progress = countingTract / totalPendingItems.toDouble();
     bool _isUploading = true;
     bool _backupAnimation = true;
     bool _surveyAnimation = !(uploadedSurveys == null || uploadedSurveys == 0);
@@ -139,9 +171,6 @@ class DatabaseBoxOperations {
       _isUploading = false;
       _backupAnimation = false;
     }
-
-    BackupStateDataModel currentBackupState = _objectService.backupBox.get(1) ??
-        BackupStateDataModel.defaultInstance();
     var updatedBackupState = currentBackupState.copyWith(
         isUploadingData: _isUploading,
         uploadProgress: progress,
@@ -149,8 +178,9 @@ class DatabaseBoxOperations {
         surveyAnimation: _surveyAnimation,
         booksAnimation: _booksAnimation,
         dateCreated: DateTime.now());
-
-    await _objectService.save(backupdatamodel: updatedBackupState);
+    debugPrint('@startpampwa ${updatedBackupState.toJson()}');
+    _objectService.saveBackupState(backupdatamodel: updatedBackupState);
+    debugPrint('@endpampwa ${updatedBackupState.toJson()}');
   }
 
   Future<Map<String, dynamic>?> loadState() async {
@@ -158,10 +188,33 @@ class DatabaseBoxOperations {
     var nana =
         data?.toJson() ?? BackupStateDataModel.defaultInstance().toJson();
     debugPrint('@loadState $nana');
-    // return BackupStateDataModel.defaultInstance().toJson();
+// return BackupStateDataModel.defaultInstance().toJson();
     return nana;
   }
 
+// Future<List<SurveyDataModel>> _generateDummySurveysWithFaker() async {
+//   const int numOfSurveys = 10;
+//   final faker = Faker();
+//
+//   List<SurveyDataModel> dummySurveys = [];
+//   for (int i = 0; i < numOfSurveys; i++) {
+//     var namu = SurveyDataModel(
+//       userId: faker.guid.guid(),
+//       surveyVersion: faker.randomGenerator.decimal(min: 1).toString(),
+//       surveyObject:
+//           '{"question1": "${faker.lorem.word()}", "question2": "${faker.lorem.word()}"}',
+//       surveyId: faker.guid.guid(),
+//       isPending: true,
+//       courseId: faker.guid.guid(),
+//       country: faker.address.country(),
+//     );
+//     await _objectService.saveSurvey(namu, updateIfExists: false);
+//     dummySurveys.add(namu);
+//   }
+//
+//   return dummySurveys;
+// }
+//
   Future<List<BookDataModel>> _generateDummyBooksWithFaker() async {
     const int numOfBooks = 200;
     final faker = Faker();
@@ -189,7 +242,7 @@ class DatabaseBoxOperations {
   }
 
   Future<void> generateTestingData() async {
-    const int numOfRecords = 100;
+    const int numOfRecords = 500;
     final faker = Faker();
     int totalCounter = 0;
 
@@ -230,7 +283,7 @@ class DatabaseBoxOperations {
     print('Total records added: $totalCounter');
   }
 
-  //
+//
   Future<void> generateDummyDataWithFaker() async {
     List<SurveyDataModel> dummySurveys = await _generateDummySurveysWithFaker();
     debugPrint('DummySurveys generation completed.');
@@ -268,16 +321,16 @@ class DatabaseBoxOperations {
 
   Future<void> removeBackupState(BackupStateDataModel backup) async {
     try {
-      // Delete the survey from the ObjectBox store
+// Delete the survey from the ObjectBox store
       backupBox.remove(backup.id);
     } catch (e) {
-      // Handle any error that might occur during the deletion process
+// Handle any error that might occur during the deletion process
       debugPrint("removeSurvey@Error removing survey: $e");
     }
   }
 
   Future<void> deleteBooksAndSurveys() async {
-    // Run both deletion operations concurrently
+// Run both deletion operations concurrently
     await Future.wait([
       _objectService.deleteBook(),
       _objectService.deleteSurvey(),
@@ -334,7 +387,7 @@ class DatabaseBoxOperations {
     required BookDataModel bookviews,
   }) async {
     final createdAt = bookviews.dateCreated;
-    // final timeInMinutes = (createdAt.hour * 60) + createdAt.minute;
+// final timeInMinutes = (createdAt.hour * 60) + createdAt.minute;
     final dateWithoutSeconds =
         createdAt.toIso8601String().split(':').sublist(0, 2).join(':');
     final docId =
@@ -353,8 +406,8 @@ class DatabaseBoxOperations {
   }
 
   void _sampleTrials() {
-    // _objectService.surveyBox.putQueued(object);
-    // _objectService.store.awaitQueueCompletion();
-    // _objectService.store.awaitQueueSubmitted();
+// _objectService.surveyBox.putQueued(object);
+// _objectService.store.awaitQueueCompletion();
+// _objectService.store.awaitQueueSubmitted();
   }
 }

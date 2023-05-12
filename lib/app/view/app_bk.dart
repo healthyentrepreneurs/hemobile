@@ -16,7 +16,6 @@ import 'package:theme_locale_repo/theme_locale_repo.dart';
 
 import '../../auth/auth.dart';
 import '../../home/appupdate/appupdate.dart';
-import '../../objects/blocs/appcycle/bloc/appcycle_bloc.dart';
 import '../../objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 
 class App extends StatelessWidget {
@@ -78,8 +77,6 @@ class App extends StatelessWidget {
           // BlocProvider<SurveyBloc>(
           //     create: (_) => SurveyBloc(repository: _databaseRepository)),
           BlocProvider<HenetworkBloc>(create: (_) => HenetworkBloc()),
-          BlocProvider<AppLifecycleStateBloc>(
-              create: (_) => AppLifecycleStateBloc()),
         ],
         child: const AppView(),
       ),

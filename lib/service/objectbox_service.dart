@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:rxdart/rxdart.dart';
 import '../objectbox.g.dart';
 import '../objects/db_local/db_local.dart';
 
@@ -13,11 +14,21 @@ class ObjectBoxService {
   late final Box<BackupStateDataModel> backupBox;
   late final Box<BookDataModel> bookBox;
   late final Box<SurveyDataModel> surveyBox;
+
+  // late final Stream<Query<BackupStateDataModel>> backupStream;
+  // late final ReplaySubject<Query<BackupStateDataModel>> backupBroadcastStream;
   static ObjectBoxService? _instance;
   ObjectBoxService._create(this.store) {
     backupBox = Box<BackupStateDataModel>(store);
     surveyBox = Box<SurveyDataModel>(store);
     bookBox = Box<BookDataModel>(store);
+    // final qBuilderBackupDataModel = backupBox.query()
+    //   ..order(BackupStateDataModel_.uploadProgress);
+    // backupStream = qBuilderBackupDataModel.watch(triggerImmediately: true);
+    // backupBroadcastStream = ReplaySubject<Query<BackupStateDataModel>>();
+    // backupStream.listen((query) {
+    //   backupBroadcastStream.add(query);
+    // });
   }
 
   static Future<ObjectBoxService> create() async {
@@ -155,6 +166,21 @@ class ObjectBoxService {
     }
   }
 
+  Future<void> saveSurveyAsync(SurveyDataModel surveyDataModel,
+      {bool updateIfExists = false}) async {
+    if (updateIfExists && surveyDataModel.id != 0) {
+      // Check if the record with the given id exists in the box
+      final existingSurvey = await surveyBox.getAsync(surveyDataModel.id);
+      if (existingSurvey != null) {
+        // Update the existing record with the new data
+        await surveyBox.putAsync(surveyDataModel);
+      }
+    } else if (!updateIfExists) {
+      // If updateIfExists is false, create a new record
+      await surveyBox.putAsync(surveyDataModel);
+    }
+  }
+
   void saveSurveyPutQueued(SurveyDataModel surveyDataModel,
       {bool updateIfExists = false}) {
     if (updateIfExists && surveyDataModel.id != 0) {
@@ -181,6 +207,21 @@ class ObjectBoxService {
     } else if (!updateIfExists) {
       // If updateIfExists is false, create a new record
       bookBox.put(bookDataModel);
+    }
+  }
+
+  Future<void> saveBookAsync(BookDataModel bookDataModel,
+      {bool updateIfExists = false}) async {
+    if (updateIfExists && bookDataModel.id != 0) {
+      // Check if the record with the given id exists in the box
+      final existingBook = await bookBox.getAsync(bookDataModel.id);
+      if (existingBook != null) {
+        // Update the existing record with the new data
+        await bookBox.putAsync(bookDataModel);
+      }
+    } else if (!updateIfExists) {
+      // If updateIfExists is false, create a new record
+      await bookBox.putAsync(bookDataModel);
     }
   }
 
@@ -269,6 +310,7 @@ class ObjectBoxService {
     // query.close();
     return bookviews;
   }
+
 // Future<void> deleteBookAndSurvey() async {
   //   await store.runInTransaction(
   //       TxMode.write,
@@ -292,4 +334,9 @@ class ObjectBoxService {
   //         }
   //       } as Function());
   // }
+  void dispose() {
+    // _saveController.close();
+    // backupBroadcastStream.close();
+    // Close the store if needed
+  }
 }

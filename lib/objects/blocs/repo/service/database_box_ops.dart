@@ -89,77 +89,56 @@ class DatabaseBoxOperations {
     int countingTract = 0;
     int? uploadedSurveys;
     int? uploadedBookViews;
-    BackupStateDataModel currentBackupState = _objectService.backupBox.get(1) ??
-        BackupStateDataModel.defaultInstance();
-
+    final batch = _firestore.batch();
     for (SurveyDataModel survey in pendingSurveys) {
-      Either<Failure, void> result = await saveSurveysFireStore(survey: survey);
-      result.fold(
-        (failure) {
-          final failState = currentBackupState.copyWith(
-            isUploadingData: false,
-            booksAnimation: false,
-          );
-          _objectService.saveBackupState(backupdatamodel: failState);
-          hasFailure = true;
-          debugPrint("Failed to upload survey: $failure");
-        },
-        (_) async {
-          survey.isPending = false;
-          _objectService.saveSurvey(survey, updateIfExists: true);
-          uploadedSurveys = --totalPendingSurveys;
-          countingTract++;
-          updateProgress(uploadedSurveys, uploadedBookViews, countingTract,
-              totalPendingItems, currentBackupState);
-        },
-      );
-      if (hasFailure) {
+      try {
+        _saveSurveyToFirestore(survey: survey, batch: batch);
+        survey.isPending = false;
+        countingTract++;
+        uploadedSurveys = --totalPendingSurveys;
+        await _objectService.saveSurveyAsync(survey, updateIfExists: true);
+        await updateProgress(uploadedSurveys, uploadedBookViews, countingTract,
+            totalPendingItems);
+      } catch (e) {
+        hasFailure = true;
+        debugPrint("Failed to add survey to batch: ${e.toString()}");
         break;
       }
     }
     debugPrint("Total uploaded surveys simulated: $uploadedSurveys");
-    hasFailure = false;
-    for (BookDataModel bookview in pendingBookViews) {
-      Either<Failure, void> result =
-          await saveBookViewsFireStore(bookview: bookview);
-      // Force a failure
-      // Failure forcedFailure = RepositoryFailure("Forced failure for testing");
-      // result = Left(forcedFailure);
-      result.fold(
-        (failure) {
-          final failState = currentBackupState.copyWith(
-            isUploadingData: false,
-            surveyAnimation: false,
-          );
-          _objectService.saveBackupState(backupdatamodel: failState);
-          hasFailure = true;
-          debugPrint("Failed to upload book view: $failure");
-        },
-        (_) async {
+    if (!hasFailure) {
+      // Save book views in a batch
+      for (BookDataModel bookview in pendingBookViews) {
+        try {
+          _saveBookViewsToFirestore(bookviews: bookview, batch: batch);
           bookview.isPending = false;
-          _objectService.saveBook(bookview, updateIfExists: true);
           countingTract++;
           uploadedBookViews = --totalPendingBookViews;
-          updateProgress(uploadedSurveys, uploadedBookViews, countingTract,
-              totalPendingItems, currentBackupState);
-        },
-      );
-      if (hasFailure) {
-        break;
+          await _objectService.saveBookAsync(bookview, updateIfExists: true);
+          await updateProgress(uploadedSurveys, uploadedBookViews,
+              countingTract, totalPendingItems);
+        } catch (e) {
+          hasFailure = true;
+          debugPrint("Failed to add book view to batch: ${e.toString()}");
+          break;
+        }
       }
     }
-    _objectService.saveBackupState(
-        backupdatamodel: BackupStateDataModel.defaultInstance());
+    if (!hasFailure) {
+      try {
+        await batch.commit();
+        debugPrint("Batch write successful");
+      } catch (e) {
+        hasFailure = true;
+        debugPrint("Batch write failed: ${e.toString()}");
+      }
+    }
     debugPrint("Total uploaded BookViews simulated: $uploadedBookViews");
   }
 
-  void updateProgress(
-      int? uploadedSurveys,
-      int? uploadedBookViews,
-      int countingTract,
-      int totalPendingItems,
-      BackupStateDataModel currentBackupState) {
-    double progress = countingTract / totalPendingItems.toDouble();
+  Future<void> updateProgress(int? uploadedSurveys, int? uploadedBookViews,
+      int countingTract, int totalPendingItems) async {
+    double progress = countingTract / totalPendingItems;
     bool _isUploading = true;
     bool _backupAnimation = true;
     bool _surveyAnimation = !(uploadedSurveys == null || uploadedSurveys == 0);
@@ -171,6 +150,9 @@ class DatabaseBoxOperations {
       _isUploading = false;
       _backupAnimation = false;
     }
+
+    BackupStateDataModel currentBackupState = _objectService.backupBox.get(1) ??
+        BackupStateDataModel.defaultInstance();
     var updatedBackupState = currentBackupState.copyWith(
         isUploadingData: _isUploading,
         uploadProgress: progress,
@@ -178,45 +160,22 @@ class DatabaseBoxOperations {
         surveyAnimation: _surveyAnimation,
         booksAnimation: _booksAnimation,
         dateCreated: DateTime.now());
-    debugPrint('@startpampwa ${updatedBackupState.toJson()}');
-    _objectService.saveBackupState(backupdatamodel: updatedBackupState);
-    debugPrint('@endpampwa ${updatedBackupState.toJson()}');
+
+    await _objectService.saveBackupStateAsync(
+        backupdatamodel: updatedBackupState);
   }
 
   Future<Map<String, dynamic>?> loadState() async {
-    final data = backupBox.query().build().findFirst();
-    var nana =
-        data?.toJson() ?? BackupStateDataModel.defaultInstance().toJson();
-    debugPrint('@loadState $nana');
-    // return BackupStateDataModel.defaultInstance().toJson();
-    return nana;
+    // final data = backupBox.query().build().findFirst();
+    // var nana =
+    //     data?.toJson() ?? BackupStateDataModel.defaultInstance().toJson();
+    // debugPrint('@loadState $nana');
+    // return nana;
+    return BackupStateDataModel.defaultInstance().toJson();
   }
 
-  // Future<List<SurveyDataModel>> _generateDummySurveysWithFaker() async {
-  //   const int numOfSurveys = 10;
-  //   final faker = Faker();
-  //
-  //   List<SurveyDataModel> dummySurveys = [];
-  //   for (int i = 0; i < numOfSurveys; i++) {
-  //     var namu = SurveyDataModel(
-  //       userId: faker.guid.guid(),
-  //       surveyVersion: faker.randomGenerator.decimal(min: 1).toString(),
-  //       surveyObject:
-  //           '{"question1": "${faker.lorem.word()}", "question2": "${faker.lorem.word()}"}',
-  //       surveyId: faker.guid.guid(),
-  //       isPending: true,
-  //       courseId: faker.guid.guid(),
-  //       country: faker.address.country(),
-  //     );
-  //     await _objectService.saveSurvey(namu, updateIfExists: false);
-  //     dummySurveys.add(namu);
-  //   }
-  //
-  //   return dummySurveys;
-  // }
-  //
   Future<List<BookDataModel>> _generateDummyBooksWithFaker() async {
-    const int numOfBooks = 100;
+    const int numOfBooks = 200;
     final faker = Faker();
 
     List<BookDataModel> dummyBooks = [];
@@ -338,40 +297,18 @@ class DatabaseBoxOperations {
     debugPrint('All books and surveys deletion completed.');
   }
 
-  Future<Either<Failure, void>> saveSurveysFireStore({
-    required SurveyDataModel survey,
-  }) async {
-    try {
-      await _saveSurveyToFirestore(survey: survey);
-      return Future.value(const Right(null)); // Return success value
-    } catch (e) {
-      debugPrint("Error saving survey response: ${e.toString()}");
-      return Future.value(Left(RepositoryFailure(e.toString())));
-    }
-  }
-
-  Future<Either<Failure, void>> saveBookViewsFireStore({
-    required BookDataModel bookview,
-  }) async {
-    try {
-      await _saveBookViewsToFirestore(bookviews: bookview);
-      return Future.value(const Right(null)); // Return success value
-    } catch (e) {
-      debugPrint("Error saving bookviews response: ${e.toString()}");
-      return Future.value(Left(RepositoryFailure(e.toString())));
-    }
-  }
-
   Future<void> _saveSurveyToFirestore({
     required SurveyDataModel survey,
+    required WriteBatch batch,
   }) async {
-    await _firestore
+    final docRef = _firestore
         .collection('surveyposts')
         .doc(survey.country)
         .collection(survey.surveyId)
-        .doc(survey
-            .userId) // Assuming that each user has a unique survey in the collection
-        .set(
+        .doc(survey.userId);
+
+    batch.set(
+      docRef,
       {
         'userId': survey.userId,
         'surveyVersion': survey.surveyVersion,
@@ -382,27 +319,52 @@ class DatabaseBoxOperations {
       SetOptions(merge: true),
     );
   }
+  // Future<void> _saveSurveyToFirestore({
+  //   required SurveyDataModel survey,
+  // }) async {
+  //   await _firestore
+  //       .collection('surveyposts')
+  //       .doc(survey.country)
+  //       .collection(survey.surveyId)
+  //       .doc(survey
+  //           .userId) // Assuming that each user has a unique survey in the collection
+  //       .set(
+  //     {
+  //       'userId': survey.userId,
+  //       'surveyVersion': survey.surveyVersion,
+  //       'surveyobject': survey.surveyObject,
+  //       'surveyId': survey.surveyId,
+  //       'dateCreated': survey.dateCreated.toIso8601String(),
+  //     },
+  //     SetOptions(merge: true),
+  //   );
+  // }
 
   Future<void> _saveBookViewsToFirestore({
     required BookDataModel bookviews,
+    required WriteBatch batch,
   }) async {
     final createdAt = bookviews.dateCreated;
-    // final timeInMinutes = (createdAt.hour * 60) + createdAt.minute;
     final dateWithoutSeconds =
         createdAt.toIso8601String().split(':').sublist(0, 2).join(':');
     final docId =
         '${bookviews.userId}_$dateWithoutSeconds:${createdAt.minute.toString().padLeft(2, '0')}';
-    await _firestore
+    final docRef = _firestore
         .collection('bookviews')
         .doc(bookviews.courseId)
         .collection(bookviews.bookId)
         .doc(bookviews.chapterId)
         .collection('views')
-        .doc(docId)
-        .set({
-      'userId': bookviews.userId,
-      'viewTime': createdAt.toIso8601String(),
-    }, SetOptions(merge: true));
+        .doc(docId);
+
+    batch.set(
+      docRef,
+      {
+        'userId': bookviews.userId,
+        'viewTime': createdAt.toIso8601String(),
+      },
+      SetOptions(merge: true),
+    );
   }
 
   void _sampleTrials() {
