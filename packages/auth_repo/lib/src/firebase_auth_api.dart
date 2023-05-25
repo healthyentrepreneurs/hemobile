@@ -114,7 +114,7 @@ class FirebaseAuthApi {
         password: password,
       );
     } on firebase_auth.FirebaseAuthException catch (e) {
-      debugPrint("BASTUR ${e.toString()}");
+      debugPrint('BASTUR ${e.toString()}');
       throw LogInWithEmailAndPasswordFailure.fromCode(e.code);
     } catch (_) {
       throw const LogInWithEmailAndPasswordFailure();

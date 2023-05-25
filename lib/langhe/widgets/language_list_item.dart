@@ -19,15 +19,16 @@ class LanguageListItem extends StatelessWidget {
               ? const Icon(Icons.code, color: Colors.red)
               : const Icon(Icons.code),
           title: Text(
-            language.languageCode,
+            getLanguageName(language.languageCode),
             style: GoogleFonts.raleway(
-              textStyle: Theme.of(context).textTheme.headline1,
+              textStyle: Theme.of(context).textTheme.displayLarge,
               fontSize: 15,
               fontWeight: FontWeight.bold,
             ),
           ),
           dense: false,
-          subtitle: Text(language.languageCode, style: textTheme.caption),
+          subtitle: Text(changeShortCodes(language.languageCode),
+              style: textTheme.bodySmall),
           trailing: currentLocale.languageCode == language.languageCode
               ? const Icon(
                   Icons.select_all_outlined,
@@ -38,8 +39,37 @@ class LanguageListItem extends StatelessWidget {
             debugPrint('Jaba ${language.toLanguageTag()}');
             _bloclocalepopupmenu.themeLocaleIntRepository
                 .changeLocale(language);
-            // context.read<LangHeCubit>().languageSelected(language.code);
           }),
     );
+  }
+
+  String getLanguageName(String languageCode) {
+    switch (languageCode) {
+      case 'en':
+        return 'English';
+      case 'es':
+        return 'Luganda';
+      case 'fr':
+        return 'French';
+      case 'de':
+        return 'Runyankole';
+      default:
+        return 'Unsupported Language'; // or return the language code if not found
+    }
+  }
+
+  String changeShortCodes(String languageCode) {
+    switch (languageCode) {
+      case 'en':
+        return 'en';
+      case 'es':
+        return 'lug-ug';
+      case 'fr':
+        return 'fr';
+      case 'de':
+        return 'ru-ug';
+      default:
+        return 'unknown'; // or return the language code if not found
+    }
   }
 }

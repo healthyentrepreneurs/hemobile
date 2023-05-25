@@ -45,9 +45,9 @@ class _CustomDrawer extends State<CustomDrawer> {
                     ),
                     child: Column(
                       children: [
-                        const Avatar(
-                            photo:
-                                'https://fastly.picsum.photos/id/444/200/200.jpg?hmac=j2rJG0CKjM3Pmd7gDrCI5-1pYZIh4tjiScLDa5xS_KU'), //Avatar(photo: widget.user.profileimageurlsmall)
+                        Avatar(
+                            photo: widget.user
+                                .profileimageurlsmall), //Avatar(photo: widget.user.profileimageurlsmall)
                         const SizedBox(
                           height: 10,
                         ),

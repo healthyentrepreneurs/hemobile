@@ -47,6 +47,7 @@ class _SectionsPageState extends State<SectionsPage> {
           sections: state.glistofSections,
         );
       }
+      //learn from this
       return Scaffold(
         // resizeToAvoidBottomInset: true,
         backgroundColor: ToolUtils.whiteColor,
