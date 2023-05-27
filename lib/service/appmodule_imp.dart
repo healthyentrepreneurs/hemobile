@@ -2,15 +2,13 @@
 //
 // }
 
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:he_api/he_api.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:rx_shared_preferences/rx_shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
-
+import 'dart:io';
 import 'service.dart';
 
 class AppModuleImp extends AppModule {

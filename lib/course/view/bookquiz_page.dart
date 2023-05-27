@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
@@ -5,8 +7,7 @@ import 'package:he/course/course.dart';
 import 'package:he/course/section/bloc/section_bloc.dart';
 import 'package:he/coursedetail/view/book_chapters.dart';
 import 'package:he/helper/toolutils.dart';
-import 'package:he/objects/objectquizcontent.dart';
-import 'package:he/quiz/quiz.dart';
+import 'package:he/hfive/hfive.dart';
 import 'package:he_api/he_api.dart';
 
 import '../../home/widgets/widgets.dart';
@@ -75,6 +76,8 @@ class BookQuizPage extends StatelessWidget {
           final userId =
               context.select((AuthenticationBloc bloc) => bloc.state.user).id;
           List<BookQuiz?> _listBookQuiz = state.glistBookQuiz;
+          debugPrint(
+              'WHATSHERE ${_listBookQuiz.map((bookQuiz) => bookQuiz?.toJson().toString()).join('\n')}');
           return GridView.builder(
               shrinkWrap: true,
               physics: const ClampingScrollPhysics(),
@@ -96,27 +99,30 @@ class BookQuizPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         BookChapters.route(
-                          userId:userId.toString(),
+                          userId: userId.toString(),
                           book: _bookquiz,
                           courseId: _courseid,
                         ),
                       );
                     }
-                    if (_bookquiz.modname == "quiz") {
-                      final _quizArray =
-                          objectQuizContentFromJson(_bookquiz.customdata!);
+                    if (_bookquiz.modname == "h5pactivity") {
+                      final HfiveContent hfive_content = HfiveContent.fromJson(
+                          jsonDecode(_bookquiz.customdata!));
+                      // final _quizArray =
+                      //     objectQuizContentFromJson(_bookquiz.customdata!);
+                      debugPrint("MAMA-PHILA ${hfive_content.toJson()}");
                       Navigator.push(
                           context,
                           MaterialPageRoute<void>(
-                              builder: (BuildContext context) => QuizPage(
+                              builder: (BuildContext context) => HfivePage(
+                                    contextid: _bookquiz.contextid!,
                                     title: _bookquiz.name!,
-                                    quizArray: _quizArray,
+                                    hfivecontent: hfive_content,
                                   )));
                     }
                   },
                 );
               });
-          // debugPrint("DataHereOwi ${state.glistBookQuiz.toString()}");
         },
       ),
     );
@@ -146,7 +152,7 @@ class BookQuizPage extends StatelessWidget {
           children: <Widget>[
             bookQuizModule.modname == "book"
                 ? const Text('Book')
-                : const Text('Quiz'),
+                : const Text('H5p'),
             // const SectionIcon().bookIcon(bookQuizModule.modicon!)
             BookIcon(icon: bookQuizModule.modicon!),
             Padding(

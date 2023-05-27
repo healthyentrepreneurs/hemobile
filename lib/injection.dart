@@ -43,4 +43,9 @@ Future<void> configureInjections(GetIt getIt) async {
 
   getIt.registerLazySingleton<LclRxStgUpdateUploadApi>(() =>
       LclRxStgUpdateUploadApi(rxPrefs: injectableModule.getrxsharedprefrence));
+
+  // getIt.registerLazySingleton<FoFiRepository>(() => FoFiRepository(
+  //     directory: injectableModule.getdirectory,
+  //     externalDownlodPath: injectableModule.getexternaldownlodpath));
+
 }

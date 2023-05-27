@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:rxdart/rxdart.dart';
 import '../objectbox.g.dart';
 import '../objects/db_local/db_local.dart';
 

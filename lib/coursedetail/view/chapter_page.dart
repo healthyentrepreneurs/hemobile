@@ -13,7 +13,6 @@ import 'package:he_api/he_api.dart';
 
 import '../../objects/blocs/repo/repo.dart';
 
-
 class ChapterDisplay extends StatelessWidget {
   final BookQuiz? courseModule;
   final ContentStructure? coursePage;
@@ -104,8 +103,8 @@ class ChapterDisplay extends StatelessWidget {
                         Uri.decodeFull(element.attributes['src'].toString());
                     var content = findSingleFileContent(videoSourceUrl);
                     if (content != null) {
-                      return _displayFSImage(
-                          content, "${content.fileurl}", heNetworkState);
+                      return _displayFSImage(content, "${content.fileurl}",
+                          heNetworkState, fofirepo);
                     } else {
                       return Image.asset(
                         'assets/images/grid.png',
@@ -162,10 +161,9 @@ class ChapterDisplay extends StatelessWidget {
     }
   }
 
-  Widget _displayFSImage(
-      BookContent content, String imageUrl, HenetworkStatus heNetworkState) {
+  Widget _displayFSImage(BookContent content, String imageUrl,
+      HenetworkStatus heNetworkState, FoFiRepository _fofi) {
     debugPrint("Davos $imageUrl");
-    final FoFiRepository _fofi = FoFiRepository();
     if (heNetworkState == HenetworkStatus.noInternet) {
       return chapterImageOffline(imageUrl, _fofi);
     } else {

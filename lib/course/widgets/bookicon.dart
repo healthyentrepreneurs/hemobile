@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:he/injection.dart';
 import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import 'package:he/objects/blocs/repo/fofiperm_repo.dart';
 import 'package:he_api/he_api.dart';
@@ -11,15 +12,15 @@ const _bookSize = 20.0;
 
 class BookIcon extends StatelessWidget {
   final String icon;
-
   const BookIcon({Key? key, required this.icon}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final FoFiRepository _fofi = FoFiRepository();
     final henetworkstate =
         context.select((HenetworkBloc bloc) => bloc.state.status);
     if (henetworkstate == HenetworkStatus.noInternet) {
-      return _bookIconOffline(icon);
+      return _bookIconOffline(icon, _fofi);
     } else {
       return FadeInImage(
         key: UniqueKey(),
@@ -37,9 +38,9 @@ class BookIcon extends StatelessWidget {
     }
   }
 
-  Widget _bookIconOffline(String photo) {
-    final FoFiRepository fofirepo = FoFiRepository();
-    File fileImage = fofirepo.getLocalFileHe(photo);
+  Widget _bookIconOffline(String photo, FoFiRepository _fofi) {
+    // final FoFiRepository fofirepo = FoFiRepository();
+    File fileImage = _fofi.getLocalFileHe(photo);
     return SizedBox(
       key: UniqueKey(),
       width: 50,

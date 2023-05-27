@@ -29,11 +29,12 @@ class _ChewieVideoViewState extends State<ChewieVideoView> {
   VideoPlayerController? _videoPlayerController;
   ChewieController? _chewieController;
   bool _videoExists = true;
+  final FoFiRepository _fofi = FoFiRepository();
 
   @override
   void initState() {
     super.initState();
-    _initializePlayer();
+    _initializePlayer(_fofi);
   }
 
   @override
@@ -43,10 +44,10 @@ class _ChewieVideoViewState extends State<ChewieVideoView> {
     super.dispose();
   }
 
-  Future<void> _initializePlayer() async {
+  Future<void> _initializePlayer(FoFiRepository _fofi) async {
     try {
       if (widget.heNetworkState == HenetworkStatus.noInternet) {
-        File fileVideo = FoFiRepository().getLocalFileHe(widget.videoUrl);
+        File fileVideo = _fofi.getLocalFileHe(widget.videoUrl);
         if (await fileVideo.exists()) {
           _videoPlayerController = VideoPlayerController.file(fileVideo);
           await _videoPlayerController?.initialize(); // Use null-aware operator

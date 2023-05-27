@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:he/injection.dart';
 import 'package:he/objects/blocs/repo/fofiperm_repo.dart';
 import 'package:he_api/he_api.dart';
 
@@ -28,11 +29,12 @@ class SectionIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final FoFiRepository _fofi = FoFiRepository();
     final henetworkstate =
         context.select((HenetworkBloc bloc) => bloc.state.status);
     final photo = this.photo;
     if (henetworkstate == HenetworkStatus.noInternet) {
-      return _sectionIconOffline(photo!);
+      return _sectionIconOffline(photo!, _fofi);
     } else {
       return isValidUrl(photo)
           ? CircleAvatar(
@@ -60,9 +62,9 @@ class SectionIcon extends StatelessWidget {
     );
   }
 
-  Widget _sectionIconOffline(String photo) {
-    final FoFiRepository fofirepo = FoFiRepository();
-    File fileImage = fofirepo.getLocalFileHe(photo);
+  Widget _sectionIconOffline(String photo, FoFiRepository _fofirepo) {
+    // final FoFiRepository fofirepo = FoFiRepository();
+    File fileImage = _fofirepo.getLocalFileHe(photo);
     return Container(
       key: UniqueKey(),
       width: 50,

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:he/helper/file_system_util.dart';
+import 'package:he/injection.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
 import 'package:he_api/he_api.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -9,6 +10,7 @@ import '../fofiperm_repo.dart';
 import 'package:async_zip/async_zip.dart';
 
 class DatabaseServiceLocal {
+  // final FoFiRepository _foFiRepository = FoFiRepository();
   final FoFiRepository _foFiRepository = FoFiRepository();
   final reader = ZipFileReader();
   // 2644HE_Health.zip

@@ -14,6 +14,9 @@ class PermitFoFiService {
     return PermitFoFiService();
   }
 
+  // Directory get getDirectory => directory;
+  // String get getExternalDownloadPath => externalDownlodPath;
+
   Future<PermissionStatus> requestPermission(Permission permission) async {
     final status = await permission.request();
     return status;
