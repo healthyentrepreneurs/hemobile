@@ -17,7 +17,7 @@ import 'injection.dart';
 // https://github.com/pichillilorenzo/flutter_inappwebview/issues/748
 // chrome://inspect/#devices
 // https://github.com/pichillilorenzo/flutter_browser_app/blob/master/lib/custom_image.dart
-WebStorageManager webStorageManager = WebStorageManager.instance();
+// WebStorageManager webStorageManager = WebStorageManager.instance();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Permission.camera.request();
@@ -32,7 +32,7 @@ Future<void> main() async {
   Bloc.observer = AppBlocObserver();
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
     await InAppWebViewController.setWebContentsDebuggingEnabled(true);
-    await webStorageManager.deleteAllData();
+    // await webStorageManager.deleteAllData();
   }
   final themeLocaleIntRepository = ThemeLocaleIntRepository();
   runApp(App(

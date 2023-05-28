@@ -152,7 +152,7 @@ class BookQuizPage extends StatelessWidget {
           children: <Widget>[
             bookQuizModule.modname == "book"
                 ? const Text('Book')
-                : const Text('H5p'),
+                : const Text('Interactive'),
             // const SectionIcon().bookIcon(bookQuizModule.modicon!)
             BookIcon(icon: bookQuizModule.modicon!),
             Padding(

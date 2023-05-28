@@ -46,29 +46,25 @@ class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
                 children: [
                   InAppWebView(
                     initialFile: "assets/survey/index.html",
-                    initialOptions: InAppWebViewGroupOptions(
-                        crossPlatform: InAppWebViewOptions(
-                            preferredContentMode: UserPreferredContentMode.MOBILE,
-                            supportZoom:false,
-                            cacheEnabled:true,
-                            transparentBackground:true,
-                            minimumFontSize: 14,
-                            // disableVerticalScroll: true,
-                            disableHorizontalScroll: true,
-                            userAgent:
-                                'Mozilla/5.0 (Linux; Android 9; app.healthyentrepreneurs.nl.he 1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Mobile Safari/537.36',
-                            useShouldOverrideUrlLoading: true,
-                            javaScriptCanOpenWindowsAutomatically: true,
-                            javaScriptEnabled: true),
-                        android: AndroidInAppWebViewOptions(
-                          disableDefaultErrorPage: true,
-                          useHybridComposition: true,
-                          supportMultipleWindows: false,
-                          allowFileAccess: true,
-                          allowContentAccess: true,
-                          builtInZoomControls: false,
-                          displayZoomControls: false,
-                        )),
+                    initialSettings: InAppWebViewSettings(
+                      preferredContentMode: UserPreferredContentMode.MOBILE,
+                      disableDefaultErrorPage: true,
+                      useShouldOverrideUrlLoading: true,
+                      mediaPlaybackRequiresUserGesture: false,
+                      javaScriptCanOpenWindowsAutomatically: true,
+                      javaScriptEnabled: true,
+                      useHybridComposition: true,
+                      allowFileAccess: true,
+                      allowContentAccess: true,
+                      supportZoom: false,
+                      cacheEnabled: true,
+                      transparentBackground: true,
+                      minimumFontSize: 14,
+                      // disableVerticalScroll: true,
+                      disableHorizontalScroll: true,
+                      userAgent:
+                          "Mozilla/5.0 (Linux; Android 10; Pixel 3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Mobile Safari/537.36",
+                    ),
                     onWebViewCreated: (InAppWebViewController controller) {
                       webView = controller;
                       webView.addJavaScriptHandler(
@@ -127,12 +123,11 @@ class _SurveyWebViewWidgetState extends State<SurveyWebViewWidget> {
                         isLoading = true;
                       });
                     },
-                    androidOnPermissionRequest:
-                        (InAppWebViewController controller, String origin,
-                            List<String> resources) async {
-                      return PermissionRequestResponse(
-                          resources: resources,
-                          action: PermissionRequestResponseAction.GRANT);
+                    onPermissionRequest: (InAppWebViewController controller,
+                        PermissionRequest permissionRequest) async {
+                      return PermissionResponse(
+                          resources: permissionRequest.resources,
+                          action: PermissionResponseAction.GRANT);
                     },
                     shouldOverrideUrlLoading:
                         (controller, shouldOverrideUrlLoadingRequest) async {

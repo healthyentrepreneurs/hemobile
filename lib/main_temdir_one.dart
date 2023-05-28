@@ -169,7 +169,7 @@ class WebviewPageStete extends State<WebviewPage> {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
-        title: Text("Webview"),
+        title: const Text("Webview"),
       ),
       body: InAppWebView(
         key: webViewKey,
