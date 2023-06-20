@@ -12,7 +12,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  google_fonts: ^3.0.1
+#  google_fonts: ^3.0.1
+  google_fonts: ^4.0.4
   intl_utils: ^2.7.0
   rx_shared_preferences: ^3.0.0
   rxdart: ^0.27.7

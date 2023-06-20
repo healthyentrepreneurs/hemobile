@@ -17,8 +17,8 @@ import 'rx_sharedpref_service.dart';
 
 @module
 abstract class AppModule {
-  @preResolve
-  Future<FirebaseService> get fireService => FirebaseService.init();
+  // @preResolve
+  // Future<FirebaseService> get fireService => FirebaseService.init();
 
   @preResolve
   Future<RxSharedPreferencesService> get getRxStorageService =>

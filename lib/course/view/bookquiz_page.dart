@@ -13,27 +13,32 @@ import 'package:he_api/he_api.dart';
 import '../../home/widgets/widgets.dart';
 
 class BookQuizPage extends StatelessWidget {
-  const BookQuizPage(
-      {Key? key,
-      required String sectionName,
-      required String courseId,
-      required String sectionSection})
-      : _sectionname = sectionName,
+  const BookQuizPage({
+    Key? key,
+    required String sectionName,
+    required String courseId,
+    required String sectionId,
+    required String sectionSection,
+  })  : _sectionname = sectionName,
         _courseid = courseId,
+        _sectionId = sectionId,
         _sectionsection = sectionSection,
         super(key: key);
   final String _sectionname;
   final String _courseid;
   final String _sectionsection;
+  final String _sectionId;
 
   static Route<void> route(
       {required String sectionName,
       required String courseId,
+      required String sectionId,
       required String sectionSection}) {
     return MaterialPageRoute<void>(
       builder: (_) => BookQuizPage(
         sectionName: sectionName,
         courseId: courseId,
+        sectionId: sectionId,
         sectionSection: sectionSection,
       ),
     );
@@ -95,8 +100,8 @@ class BookQuizPage extends StatelessWidget {
                   child: _bookQuizModuleCard(_bookquiz, context),
                   onTap: () {
                     if (_bookquiz.modname == "book") {
-                      sectionBloc.add(BookChapterSelected(
-                          _courseid, _sectionsection, _bookquiz, index));
+                      sectionBloc.add(BookChapterSelected(_courseid, _sectionId,
+                          _sectionsection, _bookquiz, index));
                       Navigator.push(
                         context,
                         BookChapters.route(

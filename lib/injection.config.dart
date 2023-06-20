@@ -13,22 +13,21 @@ import 'dart:io' as _i4;
 
 import 'package:cloud_firestore/cloud_firestore.dart' as _i6;
 import 'package:firebase_auth/firebase_auth.dart' as _i5;
-import 'package:firebase_storage/firebase_storage.dart' as _i8;
+import 'package:firebase_storage/firebase_storage.dart' as _i7;
 import 'package:get_it/get_it.dart' as _i1;
 import 'package:he/home/appupdate/apkdownload/bloc/appudate_bloc.dart' as _i3;
-import 'package:he/objects/blocs/apkupdate/bloc/apk_bloc.dart' as _i16;
-import 'package:he/objects/blocs/repo/apk_repo.dart' as _i11;
-import 'package:he/objects/blocs/repo/database_repo.dart' as _i18;
-import 'package:he/objects/blocs/repo/impl/iapk_repo.dart' as _i10;
-import 'package:he/objects/blocs/repo/impl/idatabase_repo.dart' as _i17;
-import 'package:he/service/app_module.dart' as _i19;
-import 'package:he/service/firebase_service.dart' as _i7;
-import 'package:he/service/objectbox_service.dart' as _i12;
-import 'package:he/service/permit_fofi_service.dart' as _i13;
-import 'package:he/service/rx_sharedpref_service.dart' as _i15;
-import 'package:hydrated_bloc/hydrated_bloc.dart' as _i9;
+import 'package:he/objects/blocs/apkupdate/bloc/apk_bloc.dart' as _i15;
+import 'package:he/objects/blocs/repo/apk_repo.dart' as _i10;
+import 'package:he/objects/blocs/repo/database_repo.dart' as _i17;
+import 'package:he/objects/blocs/repo/impl/iapk_repo.dart' as _i9;
+import 'package:he/objects/blocs/repo/impl/idatabase_repo.dart' as _i16;
+import 'package:he/service/app_module.dart' as _i18;
+import 'package:he/service/objectbox_service.dart' as _i11;
+import 'package:he/service/permit_fofi_service.dart' as _i12;
+import 'package:he/service/rx_sharedpref_service.dart' as _i14;
+import 'package:hydrated_bloc/hydrated_bloc.dart' as _i8;
 import 'package:injectable/injectable.dart' as _i2;
-import 'package:rx_shared_preferences/rx_shared_preferences.dart' as _i14;
+import 'package:rx_shared_preferences/rx_shared_preferences.dart' as _i13;
 
 extension GetItInjectableX on _i1.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -46,40 +45,36 @@ extension GetItInjectableX on _i1.GetIt {
     gh.lazySingleton<_i4.Directory>(() => appModule.getdirectory);
     gh.lazySingleton<_i5.FirebaseAuth>(() => appModule.firebaseAuth);
     gh.lazySingleton<_i6.FirebaseFirestore>(() => appModule.firestore);
-    await gh.factoryAsync<_i7.FirebaseService>(
-      () => appModule.fireService,
-      preResolve: true,
-    );
-    gh.lazySingleton<_i8.FirebaseStorage>(() => appModule.storage);
-    await gh.factoryAsync<_i9.HydratedStorage>(
+    gh.lazySingleton<_i7.FirebaseStorage>(() => appModule.storage);
+    await gh.factoryAsync<_i8.HydratedStorage>(
       () => appModule.hydratedBloc,
       preResolve: true,
     );
-    gh.lazySingleton<_i10.IApkRepository>(
-        () => _i11.ApkRepository(gh<_i6.FirebaseFirestore>()));
-    await gh.factoryAsync<_i12.ObjectBoxService>(
+    gh.lazySingleton<_i9.IApkRepository>(
+        () => _i10.ApkRepository(gh<_i6.FirebaseFirestore>()));
+    await gh.factoryAsync<_i11.ObjectBoxService>(
       () => appModule.objectBoxService,
       preResolve: true,
     );
-    await gh.factoryAsync<_i13.PermitFoFiService>(
+    await gh.factoryAsync<_i12.PermitFoFiService>(
       () => appModule.getfolderfileService,
       preResolve: true,
     );
-    gh.lazySingleton<_i14.RxSharedPreferences>(
+    gh.lazySingleton<_i13.RxSharedPreferences>(
         () => appModule.getrxsharedprefrence);
-    await gh.factoryAsync<_i15.RxSharedPreferencesService>(
+    await gh.factoryAsync<_i14.RxSharedPreferencesService>(
       () => appModule.getRxStorageService,
       preResolve: true,
     );
     gh.lazySingleton<String>(() => appModule.getexternaldownlodpath);
-    gh.factory<_i16.ApkBloc>(
-        () => _i16.ApkBloc(repository: gh<_i10.IApkRepository>()));
-    gh.lazySingleton<_i17.IDatabaseRepository>(() => _i18.DatabaseRepository(
+    gh.factory<_i15.ApkBloc>(
+        () => _i15.ApkBloc(repository: gh<_i9.IApkRepository>()));
+    gh.lazySingleton<_i16.IDatabaseRepository>(() => _i17.DatabaseRepository(
           gh<_i6.FirebaseFirestore>(),
-          gh<_i12.ObjectBoxService>(),
+          gh<_i11.ObjectBoxService>(),
         ));
     return this;
   }
 }
 
-class _$AppModule extends _i19.AppModule {}
+class _$AppModule extends _i18.AppModule {}

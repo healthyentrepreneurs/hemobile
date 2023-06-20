@@ -91,12 +91,12 @@ class DatabaseRepository implements IDatabaseRepository {
 
   @override
   Stream<Either<Failure, List<BookContent>>> retrieveBookChapter(
-      String courseId, String section, String bookcontextid, int bookIndex) {
+      String courseId,String sectionid, String section, String bookcontextid, int bookIndex) {
     debugPrint("WHERE ARE WE JACK");
     final checkValue = _henetworkStatusSubject.valueOrNull;
     if (checkValue == HenetworkStatus.wifiNetwork) {
       debugPrint('DatabaseRepository@retrieveBookChapter Network $checkValue');
-      return _service().retrieveBookChapter(courseId, section, bookcontextid);
+      return _service().retrieveBookChapter(courseId, sectionid, bookcontextid);
     } else {
       debugPrint(
           'DatabaseRepository@retrieveBookChapterLocal Nodata $checkValue');

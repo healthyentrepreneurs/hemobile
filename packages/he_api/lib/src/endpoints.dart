@@ -5,10 +5,10 @@ class Endpoints {
   static const String baseUrl = 'https://he-test-server.uc.r.appspot.com';
 
   // receiveTimeout
-  static const int receiveTimeout = 3 * 1000;
+  static const int receiveTimeout = 10 * 1000;
 
   // connectTimeout
-  static const int connectionTimeout = 3 * 1000;
+  static const int connectionTimeout = 10 * 1000;
 
   static const String users = '/users';
 

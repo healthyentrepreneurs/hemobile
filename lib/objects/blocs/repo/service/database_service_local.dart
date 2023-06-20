@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:he/helper/file_system_util.dart';
-import 'package:he/injection.dart';
 import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
 import 'package:he_api/he_api.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -14,10 +13,10 @@ class DatabaseServiceLocal {
   final FoFiRepository _foFiRepository = FoFiRepository();
   final reader = ZipFileReader();
 
-  dynamic courseJsonListFunc(String filePath, int? decode) {
+  dynamic courseJsonListFunc(String filePath, int? decode) async {
     try {
       reader.open(_foFiRepository.getLocalFileHeZip());
-      var unit8string = reader.read(filePath);
+      var unit8string = await reader.read(filePath);
       String contents = String.fromCharCodes(unit8string);
       var courseJsonList = (decode == 0) ? jsonDecode(contents) : contents;
       // var courseJsonList = jsonDecode(contents);
@@ -27,15 +26,6 @@ class DatabaseServiceLocal {
     } finally {
       reader.close();
     }
-  }
-
-  dynamic courseJsonListFuncMa(String filePath) {
-    final file = _foFiRepository.getLocalFileHe(filePath);
-    debugPrint(
-        'DatabaseServiceLocal@retrieveSubscriptionDataLocalStream ${file.path} and Absolute ${file.absolute.toString()}');
-    String contents = file.readAsStringSync();
-    var courseJsonList = jsonDecode(contents);
-    return courseJsonList;
   }
 
   Stream<Either<Failure, List<Subscription?>>>

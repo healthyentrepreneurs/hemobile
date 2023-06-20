@@ -12,8 +12,8 @@ import 'dart:io';
 import 'service.dart';
 
 class AppModuleImp extends AppModule {
-  @override
-  Future<FirebaseService> get fireService => FirebaseService.init();
+  // @override
+  // Future<FirebaseService> get fireService => FirebaseService.init();
 
   @override
   Future<RxSharedPreferencesService> get getRxStorageService =>

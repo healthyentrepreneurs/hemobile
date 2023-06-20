@@ -52,7 +52,8 @@ class SectionList extends StatelessWidget {
                     BookQuizPage.route(
                       sectionName: section.name!,
                       courseId: course.id.toString(),
-                      sectionSection: section.id.toString(),
+                      sectionId: section.id.toString(),
+                      sectionSection: section.section.toString(),
                     ),
                   );
                 },

@@ -36,14 +36,15 @@ class BookQuizDeselected extends SectionEvent {
 
 class BookChapterSelected extends SectionEvent {
   final String courseId;
+  final String sectionid;
   final String section;
   // final String bookContextId;
   final BookQuiz bookquiz;
   final int bookIndex;
-  const BookChapterSelected(
-      this.courseId, this.section, this.bookquiz, this.bookIndex);
+  const BookChapterSelected(this.courseId, this.sectionid, this.section,
+      this.bookquiz, this.bookIndex);
   @override
-  List<Object?> get props => [courseId, section, bookquiz];
+  List<Object?> get props => [courseId, sectionid, section, bookquiz];
 }
 
 class BookChapterDeSelected extends SectionEvent {

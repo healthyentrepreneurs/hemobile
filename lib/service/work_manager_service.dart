@@ -67,7 +67,7 @@ class WorkManagerService {
       cleanUploadedDataTask, // task name
       inputData: <String, dynamic>{},
       frequency:
-          const Duration(hours: 13), // set the frequency of the periodic task
+          const Duration(hours: 17), // set the frequency of the periodic task
       initialDelay: const Duration(seconds: 10),
       constraints: Constraints(
         networkType: NetworkType.not_required,
@@ -108,9 +108,9 @@ class WorkManagerService {
     await databaseRepository.cleanUploadedData();
   }
 
-  static Future<void> _initializeFirebase() async {
-    await injectableModule.fireService;
-  }
+  // static Future<void> _initializeFirebase() async {
+  //   await injectableModule.fireService;
+  // }
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -150,7 +150,7 @@ class WorkManagerService {
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    await WorkManagerService._initializeFirebase();
+    // await WorkManagerService._initializeFirebase();
     final workManagerService = WorkManagerService();
 
     switch (task) {

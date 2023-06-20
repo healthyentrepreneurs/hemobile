@@ -26,7 +26,6 @@ Future<void> main() async {
   await Permission.microphone.request();
   await Permission.storage.request();
   await AndroidAlarmManager.initialize();
-  await FirebaseService.init();
   await configureDependencies();
   await configureInjections(getIt);
   final workManagerService = GetIt.I<WorkManagerService>();

@@ -7,23 +7,52 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:async_zip/async_zip.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:he/service/permit_fofi_service.dart';
 import 'package:he_api/he_api.dart';
+import 'package:path/path.dart' as path;
 
 class FoFiRepository {
   final String appDir = 'nl_health_app_storage';
   // FoFiRepository(String getexternaldownlodpath, Directory getdirectory);
 
   // @override
-  File getLocalFileHe(String filename) {
-    String dir = "${PermitFoFiService.externalDownlodPath}/$appDir/HE_Health";
-    File f = File('$dir$filename');
-    return f;
+  // File getLocalFileHe(String filename) {
+  //   String dir = "${PermitFoFiService.externalDownlodPath}/$appDir/HE_Health";
+  //   File f = File('$dir$filename');
+  //   return f;
+  // }
+
+  Future<File> getLocalFileHeFile(String filename) async {
+    final zipFile = getLocalFileHeZip();
+    final tempDir = Directory.systemTemp;
+    final reader = ZipFileReader();
+    await reader.open(zipFile);
+    // Prepare a temporary file
+    final tempFile = File(path.join(tempDir.path, filename));
+    // Read the file from the zip archive and write to the temporary file
+    await reader.readToFile(filename, tempFile);
+    await reader.close();
+    return tempFile;
+  }
+
+  Future<Uint8List> getLocalFileHeUint8List(String filename) async {
+    final zipFile = getLocalFileHeZip();
+
+    final reader = ZipFileReader();
+    await reader.open(zipFile);
+
+    // Read the requested file from the zip archive
+    var unit8List = await reader.read(filename);
+
+    await reader.close();
+
+    return unit8List;
   }
 
   File getLocalFileHeZip() {
-    // 2644HE_Health.zip
     String dir =
         "${PermitFoFiService.externalDownlodPath}/$appDir/HE_Health.zip";
     File f = File(dir);
@@ -43,18 +72,6 @@ class FoFiRepository {
     }
   }
 
-// Helper function for writing content to a file
-//   Future<void> writeFileContent(String path, String content) async {
-//     if (File(path).existsSync()) {
-//       String existingContent = await File(path).readAsString();
-//       if (existingContent != content) {
-//         await File(path).writeAsString(content);
-//       }
-//     } else {
-//       await File(path).create(recursive: true);
-//       await File(path).writeAsString(content);
-//     }
-//   }
   Future<void> writeFileContent(String path, String content) async {
     File file = File(path);
 

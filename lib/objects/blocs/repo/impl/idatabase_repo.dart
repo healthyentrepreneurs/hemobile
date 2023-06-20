@@ -13,7 +13,7 @@ abstract class IDatabaseRepository {
   Stream<Either<Failure, List<BookQuiz?>>> retrieveBookQuiz(
       String courseId, String section);
   Stream<Either<Failure, List<BookContent?>>> retrieveBookChapter(
-      String courseId, String section, String bookcontextid, int bookIndex);
+      String courseId,String sectionid, String section, String bookcontextid, int bookIndex);
   Future<void> addHenetworkStatus(HenetworkStatus status);
   Future<Either<Failure, int>> saveSurveys(
       {required SurveyDataModel surveyData});
