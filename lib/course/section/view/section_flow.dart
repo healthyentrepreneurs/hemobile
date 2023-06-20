@@ -62,7 +62,7 @@ List<Page<dynamic>> onGenerateSectionPages(
           child: BookQuizPage(
             sectionName: state.section!.name!,
             courseId: course.id.toString(),
-            sectionSection: state.section!.section.toString(),
+            sectionSection: state.section!.id.toString(),
           ),
         ),
         name: '/bookQuiz',

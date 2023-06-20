@@ -52,7 +52,7 @@ class SectionBloc extends Bloc<SectionEvent, SectionState> {
       BookQuizSelected event, Emitter<SectionState> emit) async {
     Stream<Either<Failure, List<BookQuiz?>>> listBookQuizStream =
         _databaseRepository.retrieveBookQuiz(
-            event.courseId, event.section.section.toString());
+            event.courseId, event.section.id.toString());
     await emit.forEach(listBookQuizStream,
         onData: (Either<Failure, List<BookQuiz?>> listBookQuiz) {
       return listBookQuiz.fold(

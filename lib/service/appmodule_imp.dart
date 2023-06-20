@@ -35,18 +35,15 @@ class AppModuleImp extends AppModule {
 
   @override
   FirebaseFirestore get firestore => FirebaseFirestore.instance
-    ..useFirestoreEmulator(Endpoints.localEmulatorIp, 8080, sslEnabled: false)
-    ..settings = const Settings(persistenceEnabled: false);
+    ..settings = const Settings(persistenceEnabled: true);
 
   @override
   firebase_auth.FirebaseAuth get firebaseAuth =>
-      firebase_auth.FirebaseAuth.instance
-        ..useAuthEmulator(Endpoints.localEmulatorIp, 9099);
+      firebase_auth.FirebaseAuth.instance;
 
   @override
-  FirebaseStorage get storage => FirebaseStorage.instance
-    ..bucket = Endpoints.bucketUrl
-    ..useStorageEmulator(Endpoints.localEmulatorIp, 9199);
+  FirebaseStorage get storage =>
+      FirebaseStorage.instance..bucket = Endpoints.bucketUrl;
 
   @override
   Directory get getdirectory => PermitFoFiService.directory;

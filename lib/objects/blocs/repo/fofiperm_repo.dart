@@ -23,8 +23,9 @@ class FoFiRepository {
   }
 
   File getLocalFileHeZip() {
+    // 2644HE_Health.zip
     String dir =
-        "${PermitFoFiService.externalDownlodPath}/$appDir/2644HE_Health.zip";
+        "${PermitFoFiService.externalDownlodPath}/$appDir/HE_Health.zip";
     File f = File(dir);
     return f;
   }

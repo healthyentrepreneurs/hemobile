@@ -27,7 +27,7 @@ class UserLanding extends StatelessWidget {
               ]),
           child: Padding(
             padding:
-                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+            const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -68,3 +68,4 @@ class UserLanding extends StatelessWidget {
     );
   }
 }
+

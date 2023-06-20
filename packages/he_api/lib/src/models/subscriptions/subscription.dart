@@ -17,6 +17,7 @@ class Subscription extends Equatable {
     this.source,
     this.summaryCustome,
     this.categoryid,
+    this.imageUrl,
     this.imageUrlSmall,
   });
   // ignore: public_member_api_docs
@@ -41,6 +42,9 @@ class Subscription extends Equatable {
   /// The current user's nextLink.
   final int? categoryid;
 
+  @JsonKey(name: 'image_url')
+  final String? imageUrl;
+
   /// The current user's imageUrlSmall.
   @JsonKey(name: 'image_url_small')
   final String? imageUrlSmall;
@@ -61,6 +65,7 @@ class Subscription extends Equatable {
         source,
         summaryCustome,
         categoryid,
+        imageUrl,
         imageUrlSmall,
       ];
 }

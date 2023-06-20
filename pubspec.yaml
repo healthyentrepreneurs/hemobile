@@ -58,7 +58,7 @@ dependencies:
   flutter_inappwebview: ^6.0.0-beta.21
   video_player: ^2.2.3
   just_audio: ^0.9.33
-  share_plus: ^6.3.0
+#  share_plus: ^6.3.0
   flutter_hls_parser: ^2.0.1
   #  open_file: ^3.2.1
   install_plugin_v2: ^1.0.0
@@ -85,10 +85,10 @@ dependencies:
     git:
       url: https://github.com/njovujsh/async-zip.git
       ref: master
-  flutter_cache_manager_firebase:
-    git:
-      url: https://github.com/njovujsh/flutter_cache_manager_firebase.git
-      ref: main
+#  flutter_cache_manager_firebase:
+#    git:
+#      url: https://github.com/njovujsh/flutter_cache_manager_firebase.git
+#      ref: main
   url_launcher: ^6.1.10
   objectbox: ^2.0.0
   objectbox_flutter_libs: ^2.0.0
@@ -96,12 +96,15 @@ dependencies:
 #  animations: ^2.0.7
   workmanager: ^0.5.1
   flutter_local_notifications: ^13.0.0
+  keyboard_actions: ^4.2.0
 #  android_alarm_manager_plus: ^0.0.1
 #  flutter_background_executor: ^1.0.0
 #  loading_animation_widget: ^1.2.0+4
 #  broadcast_bloc: ^0.1.0-dev.2 #https://pub.dev/packages/broadcast_bloc
   intl: ^0.17.0
   android_alarm_manager_plus: ^2.1.2
+  firebase_crashlytics: ^3.3.3
+  firebase_app_check: ^0.1.4+3
 
 dev_dependencies:
   bloc_test: ^9.1.0

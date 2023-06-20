@@ -76,8 +76,8 @@ class BookQuizPage extends StatelessWidget {
           final userId =
               context.select((AuthenticationBloc bloc) => bloc.state.user).id;
           List<BookQuiz?> _listBookQuiz = state.glistBookQuiz;
-          debugPrint(
-              'WHATSHERE ${_listBookQuiz.map((bookQuiz) => bookQuiz?.toJson().toString()).join('\n')}');
+          // debugPrint(
+          //     'WHATSHERE ${_listBookQuiz.map((bookQuiz) => bookQuiz?.toJson().toString()).join('\n')}');
           return GridView.builder(
               shrinkWrap: true,
               physics: const ClampingScrollPhysics(),
@@ -90,6 +90,7 @@ class BookQuizPage extends StatelessWidget {
               ),
               itemBuilder: (BuildContext context, int index) {
                 BookQuiz _bookquiz = _listBookQuiz[index]!;
+                //Start Here @phila one
                 return GestureDetector(
                   child: _bookQuizModuleCard(_bookquiz, context),
                   onTap: () {
@@ -110,7 +111,7 @@ class BookQuizPage extends StatelessWidget {
                           jsonDecode(_bookquiz.customdata!));
                       // final _quizArray =
                       //     objectQuizContentFromJson(_bookquiz.customdata!);
-                      debugPrint("MAMA-PHILA ${hfive_content.toJson()}");
+                      // debugPrint("MAMA-PHILA ${hfive_content.toJson()}");
                       Navigator.push(
                           context,
                           MaterialPageRoute<void>(

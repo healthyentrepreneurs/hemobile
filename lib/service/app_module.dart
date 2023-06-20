@@ -42,20 +42,17 @@ abstract class AppModule {
   @lazySingleton
   @injectable
   FirebaseFirestore get firestore => FirebaseFirestore.instance
-    ..useFirestoreEmulator(Endpoints.localEmulatorIp, 8080, sslEnabled: false)
-    ..settings = const Settings(persistenceEnabled: false);
+    ..settings = const Settings(persistenceEnabled: true);
 
   @lazySingleton
   @injectable
   firebase_auth.FirebaseAuth get firebaseAuth =>
-      firebase_auth.FirebaseAuth.instance
-        ..useAuthEmulator(Endpoints.localEmulatorIp, 9099);
+      firebase_auth.FirebaseAuth.instance;
 
   @lazySingleton
   @injectable
   FirebaseStorage get storage => FirebaseStorage.instance
-    ..bucket = Endpoints.bucketUrl
-    ..useStorageEmulator(Endpoints.localEmulatorIp, 9199);
+    ..bucket = Endpoints.bucketUrl;
 
   @lazySingleton
   @injectable
@@ -65,3 +62,4 @@ abstract class AppModule {
   @injectable
   String get getexternaldownlodpath => PermitFoFiService.externalDownlodPath;
 }
+

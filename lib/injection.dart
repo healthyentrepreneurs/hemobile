@@ -22,7 +22,6 @@ final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 Future<void> configureInjections(GetIt getIt) async {
   final injectableModule = AppModuleImp();
   ObjectBoxService objectbox = await injectableModule.objectBoxService;
-
   getIt.registerLazySingleton<ApkupdateRepository>(() => ApkupdateRepository(
           apkupdateApi: RxStgApkUpdateApi(
         rxPrefs: injectableModule.getrxsharedprefrence,
@@ -47,5 +46,4 @@ Future<void> configureInjections(GetIt getIt) async {
   // getIt.registerLazySingleton<FoFiRepository>(() => FoFiRepository(
   //     directory: injectableModule.getdirectory,
   //     externalDownlodPath: injectableModule.getexternaldownlodpath));
-
 }

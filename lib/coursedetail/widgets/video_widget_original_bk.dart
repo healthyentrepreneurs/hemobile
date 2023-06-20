@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:he/home/widgets/heicon.dart';
 import 'package:he/injection.dart';
 import 'package:he/objects/blocs/repo/fofiperm_repo.dart';
 import 'package:he_api/he_api.dart';
@@ -56,15 +55,8 @@ class _ChewieVideoViewState extends State<ChewieVideoView> {
           _videoExists = false;
         }
       } else {
-        final gcsPathOrError = convertUrlToWalahPath(widget.videoUrl, 0);
-        String gcsPath = "";
-        if (gcsPathOrError.isRight()) {
-          gcsPath = gcsPathOrError.getOrElse(() => "");
-        }
-        debugPrint("YELELE $gcsPath");
-        // '/bookresource/appdev.healthyentrepreneurs.nl/webservice/pluginfile.php/148/mod_book/chapter/7/15-LU.mp4'
-        String videoUrl = await _getVideoUrlFromFirebase(gcsPath);
-        _videoPlayerController = VideoPlayerController.network(videoUrl);
+        // String videoUrl = await _getVideoUrlFromFirebase('15-LU.mp4');
+        _videoPlayerController = VideoPlayerController.network(widget.videoUrl);
         await _videoPlayerController?.initialize(); // Use null-aware operator
       }
 

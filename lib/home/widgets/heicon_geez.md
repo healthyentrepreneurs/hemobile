@@ -1,11 +1,9 @@
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:he/injection.dart';
+import 'package:flutter_cache_manager_firebase/flutter_cache_manager_firebase.dart';
 import 'package:he_api/he_api.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -23,10 +21,10 @@ class HeIcon extends StatelessWidget {
     return BlocBuilder<HenetworkBloc, HenetworkState>(
       builder: (_, state) => state.gstatus == HenetworkStatus.wifiNetwork
           ? ClipRRect(
-        key: UniqueKey(),
-        borderRadius: BorderRadius.circular(30.0),
-        child: getNetworkImage(photo),
-      )
+              key: UniqueKey(),
+              borderRadius: BorderRadius.circular(30.0),
+              child: getNetworkImage(photo),
+            )
           : heIconOffline(photo!, fofi),
     );
   }
@@ -37,7 +35,7 @@ class HeIcon extends StatelessWidget {
         url.contains('uploadscustome')) {
       Either<bool, String> gcsPathOrError = convertUrlToWalahPath(url,2);
       return gcsPathOrError.fold(
-            (error) {
+        (error) {
           debugPrint('Original URL: $url'); // print original URL
           debugPrint('URL conversion failed'); // print error message
           return FadeInImage.memoryNetwork(
@@ -54,15 +52,28 @@ class HeIcon extends StatelessWidget {
             },
           );
         },
-            (gcsPath) {
+        (gcsPath) {
           debugPrint('Original URL: $url'); // print original URL
           debugPrint('Converted URL: $gcsPath'); // print converted URL
-          return FutureBuilder<String>(
-            future: _getImageUrlFromFirebase(gcsPath),
-            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (snapshot.hasData) {
-                  return Image.network(
+          return FutureBuilder<File>(
+            future: FirebaseCacheManager().getSingleFile(gcsPath,),
+            builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                // return const CircularProgressIndicator();
+                return const CircleAvatar(
+                  radius: _iconSize,
+                  child: CircularProgressIndicator(),
+                );
+              } else {
+                if (snapshot.error != null) {
+                  // If error occurred, display a broken image icon.
+                  debugPrint('HeIconOnline@imageErrorBuilder');
+                  return const CircleAvatar(
+                    radius: _iconSize,
+                    child: Icon(Icons.broken_image),
+                  );
+                } else {
+                  return Image.file(
                     snapshot.data!,
                     width: 50,
                     height: 50,
@@ -74,29 +85,7 @@ class HeIcon extends StatelessWidget {
                       );
                     },
                   );
-                  // return Image.network(
-                  //   snapshot.data!,
-                  //   fit: BoxFit.cover,
-                  // );
-                } else {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      Icons.broken_image,
-                      color: Colors.grey[600],
-                      size: 50,
-                    ),
-                  );
                 }
-              } else {
-                return const CircleAvatar(
-                  radius: _iconSize,
-                  child: Center(child: SpinKitThreeBounce(color: Colors.blue)),
-                );
-
               }
             },
           );
@@ -139,24 +128,26 @@ class HeIcon extends StatelessWidget {
       child: fileImage.existsSync()
           ? Image.file(fileImage)
           : const CircleAvatar(
-        radius: _iconSize,
-        child: Icon(Icons.broken_image),
-      ),
+              radius: _iconSize,
+              child: Icon(Icons.broken_image),
+            ),
     );
   }
 }
 
-Future<String> _getImageUrlFromFirebase(String path) async {
-  final storageRef = getIt<FirebaseStorage>().ref();
-  final ref = storageRef.child(path);
-  final String imageUrl = await ref.getDownloadURL();
-  return imageUrl;
-}
+// Either<bool, String> convertUrlToGcsPath(String url) {
+//   const String gcsPrefix = 'gs://${Endpoints.bucketUrl}';
+//   Either<bool, String> bucketUrlOrError =
+//       formatForBucket(url, 2); // replace 2 with your changeType
+//   return bucketUrlOrError.fold(
+//       (error) => Left(error), (bucketUrl) => Right(gcsPrefix + bucketUrl));
+// }
+
 Either<bool, String> convertUrlToWalahPath(String url,int changeType) {
   Either<bool, String> bucketUrlOrError =
-  formatForBucket(url, changeType); // replace 2 with your changeType
+      formatForBucket(url, changeType); // replace 2 with your changeType
   return bucketUrlOrError.fold(
-          (error) => Left(error), (bucketUrl) => Right(bucketUrl));
+      (error) => Left(error), (bucketUrl) => Right(bucketUrl));
 }
 
 Either<bool, String> formatForBucket(String stringUrl, int changeType) {

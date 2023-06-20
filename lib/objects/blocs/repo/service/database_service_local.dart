@@ -13,7 +13,6 @@ class DatabaseServiceLocal {
   // final FoFiRepository _foFiRepository = FoFiRepository();
   final FoFiRepository _foFiRepository = FoFiRepository();
   final reader = ZipFileReader();
-  // 2644HE_Health.zip
 
   dynamic courseJsonListFunc(String filePath, int? decode) {
     try {
@@ -55,7 +54,7 @@ class DatabaseServiceLocal {
       } catch (e) {
         debugPrint(
             "@DatabaseServiceLocal Database Offline Error: ${e.toString()}");
-        yield Left(RepositoryFailure(e.toString()));
+        yield Left(RepositoryFailure("Kindly Include HE_Health.zip File "));
       }
     } else {
       debugPrint("DatabaseServiceLocal@TOBECONTINUED");
@@ -142,5 +141,4 @@ class DatabaseServiceLocal {
           RepositoryFailure("retrieveBookChapterLocalErrors ${e.toString()}"));
     }
   }
-
 }

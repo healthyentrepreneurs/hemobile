@@ -81,8 +81,7 @@ class _BookChapState extends State<BookChapters> {
         if (state.glistBookChapters.isNotEmpty) {
           List<BookContent> _bookContent = state.glistBookChapters;
           initializeCoursePagerList(_bookContent);
-          // _coursePagerList =
-          //     createCoursePagerFromStructure(_bookContent.first.content!);
+          //Start Here @phila two
           return Stack(
             children: [
               Container(

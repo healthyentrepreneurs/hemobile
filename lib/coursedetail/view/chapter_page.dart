@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dartz/dartz.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +19,7 @@ class ChapterDisplay extends StatelessWidget {
   final ContentStructure? coursePage;
   final List<BookContent>? courseContents;
   final String courseId;
-
+  //Start Here @phila three
   const ChapterDisplay({
     Key? key,
     required this.courseId,
@@ -167,10 +168,20 @@ class ChapterDisplay extends StatelessWidget {
     if (heNetworkState == HenetworkStatus.noInternet) {
       return chapterImageOffline(imageUrl, _fofi);
     } else {
-      // imageUrl
-      // FLilq-XXEAQkE4C.jpeg
+      final gcsPathOrError = convertUrlToWalahPath(imageUrl);
+      // Only proceed if there was no error during conversion
+      String gcsPath = "";
+      if (gcsPathOrError.isRight()) {
+        gcsPath = gcsPathOrError.getOrElse(() => "");
+      } else {
+        // Handle the error here, i.e., failed to convert URL to GCS path
+        return const CircleAvatar(
+          radius: 70,
+          child: Icon(Icons.broken_image),
+        );
+      }
       return FutureBuilder<String>(
-        future: _getImageUrlFromFirebase('FLilq-XXEAQkE4C.jpeg'),
+        future: _getImageUrlFromFirebase(gcsPath),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData) {
@@ -199,6 +210,13 @@ class ChapterDisplay extends StatelessWidget {
     }
   }
 
+  Future<String> _getImageUrlFromFirebase(String path) async {
+    final storageRef = getIt<FirebaseStorage>().ref();
+    final ref = storageRef.child(path);
+    final String imageUrl = await ref.getDownloadURL();
+    return imageUrl;
+  }
+
   Widget chapterImageOffline(String photo, FoFiRepository fofi) {
     File fileImage = fofi.getLocalFileHe(photo);
     if (!fileImage.existsSync()) {
@@ -220,11 +238,42 @@ class ChapterDisplay extends StatelessWidget {
     );
   }
 
-  Future<String> _getImageUrlFromFirebase(String path) async {
-    final storageRef = getIt<FirebaseStorage>().ref();
-    final ref = storageRef.child(path);
-    final String imageUrl = await ref.getDownloadURL();
-    return imageUrl;
+  Either<bool, String> convertUrlToWalahPath(String url) {
+    Either<bool, String> bucketUrlOrError =
+        formatForBucket(url, 0); // replace 2 with your changeType
+    return bucketUrlOrError.fold(
+        (error) => Left(error), (bucketUrl) => Right(bucketUrl));
+  }
+
+  Either<bool, String> formatForBucket(String stringUrl, int changeType) {
+    String basePath = '';
+    switch (changeType) {
+      case 0:
+        basePath = '/bookresource/';
+        break;
+      case 1:
+        basePath = '/courseresource/';
+        break;
+      case 2:
+        basePath = '/surveyicon/';
+        break;
+      case 3:
+        basePath = '/h5presource/';
+        break;
+      default:
+        return const Left(false);
+    }
+
+    String bucketUrl = stringUrl.contains('http://')
+        ? stringUrl.replaceFirst('http://', basePath)
+        : stringUrl.replaceFirst('https://', basePath);
+
+    if (bucketUrl.contains('?token')) {
+      int i = bucketUrl.indexOf('?');
+      bucketUrl = bucketUrl.substring(0, i);
+    }
+
+    return Right(bucketUrl);
   }
 
   Widget _htmlVideoCardFrom(

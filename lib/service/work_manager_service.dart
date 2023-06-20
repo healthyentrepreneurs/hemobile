@@ -67,7 +67,7 @@ class WorkManagerService {
       cleanUploadedDataTask, // task name
       inputData: <String, dynamic>{},
       frequency:
-          const Duration(hours: 1), // set the frequency of the periodic task
+          const Duration(hours: 13), // set the frequency of the periodic task
       initialDelay: const Duration(seconds: 10),
       constraints: Constraints(
         networkType: NetworkType.not_required,
