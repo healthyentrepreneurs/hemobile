@@ -12,45 +12,38 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:he/service/permit_fofi_service.dart';
 import 'package:he_api/he_api.dart';
-import 'package:path/path.dart' as path;
 
 class FoFiRepository {
   final String appDir = 'nl_health_app_storage';
-  // FoFiRepository(String getexternaldownlodpath, Directory getdirectory);
 
-  // @override
-  // File getLocalFileHe(String filename) {
+  Uint8List getLocalFileHeFileWalah(String filename) {
+    // Print filename before modification
+    debugPrint('Before modification: $filename');
+    // Remove leading '/' from filename if it exists
+    if (filename.startsWith('/')) {
+      filename = filename.substring(1);
+    }
+    // Print filename after modification
+    debugPrint('After modification: $filename');
+    final zipFile = getLocalFileHeZip();
+    final reader = ZipFileReader();
+    try {
+      reader.open(zipFile);
+      var unit8string = reader.read(filename);
+      return unit8string;
+    } on ZipException catch (ex) {
+      debugPrint('Could not read Zip file: ${ex.message}');
+      rethrow;
+    } finally {
+      reader.close();
+    }
+  }
+
+  // File getLocalFileHeFile(String filename) {
   //   String dir = "${PermitFoFiService.externalDownlodPath}/$appDir/HE_Health";
   //   File f = File('$dir$filename');
   //   return f;
   // }
-
-  Future<File> getLocalFileHeFile(String filename) async {
-    final zipFile = getLocalFileHeZip();
-    final tempDir = Directory.systemTemp;
-    final reader = ZipFileReader();
-    await reader.open(zipFile);
-    // Prepare a temporary file
-    final tempFile = File(path.join(tempDir.path, filename));
-    // Read the file from the zip archive and write to the temporary file
-    await reader.readToFile(filename, tempFile);
-    await reader.close();
-    return tempFile;
-  }
-
-  Future<Uint8List> getLocalFileHeUint8List(String filename) async {
-    final zipFile = getLocalFileHeZip();
-
-    final reader = ZipFileReader();
-    await reader.open(zipFile);
-
-    // Read the requested file from the zip archive
-    var unit8List = await reader.read(filename);
-
-    await reader.close();
-
-    return unit8List;
-  }
 
   File getLocalFileHeZip() {
     String dir =

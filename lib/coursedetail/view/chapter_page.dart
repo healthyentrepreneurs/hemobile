@@ -1,6 +1,6 @@
 import 'dart:io';
+import 'dart:typed_data';
 
-import 'package:dartz/dartz.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,7 +19,7 @@ class ChapterDisplay extends StatelessWidget {
   final ContentStructure? coursePage;
   final List<BookContent>? courseContents;
   final String courseId;
-  //Start Here @phila three
+
   const ChapterDisplay({
     Key? key,
     required this.courseId,
@@ -27,8 +27,6 @@ class ChapterDisplay extends StatelessWidget {
     this.courseContents,
     this.courseModule,
   }) : super(key: key);
-
-  // ... (Include the rest of the methods in this class)
 
   @override
   Widget build(BuildContext context) {
@@ -48,16 +46,26 @@ class ChapterDisplay extends StatelessWidget {
     // if (_htmlContentList.isNotEmpty) {
     //   contentText = _htmlContentList.first.fileurl;
     // }
+    // if (_htmlContentList.isNotEmpty &&
+    //     heNetworkState != HenetworkStatus.noInternet) {
+    //   contentText = _htmlContentList.first.fileurl;
+    // } else if (_htmlContentList.isNotEmpty &&
+    //     heNetworkState == HenetworkStatus.noInternet) {
+    //   File fileImage = fofirepo.getLocalFileHeFileWalah(_htmlContentList.first.fileurl!);
+    //   if (fileImage.existsSync()) {
+    //     contentText = fileImage.readAsStringSync();
+    //   }
+    // }
     if (_htmlContentList.isNotEmpty &&
         heNetworkState != HenetworkStatus.noInternet) {
       contentText = _htmlContentList.first.fileurl;
     } else if (_htmlContentList.isNotEmpty &&
         heNetworkState == HenetworkStatus.noInternet) {
-      File fileImage = fofirepo.getLocalFileHe(_htmlContentList.first.fileurl!);
-      if (fileImage.existsSync()) {
-        contentText = fileImage.readAsStringSync();
-      }
+      Uint8List fileBytes =
+          fofirepo.getLocalFileHeFileWalah(_htmlContentList.first.fileurl!);
+      contentText = String.fromCharCodes(fileBytes);
     }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: Column(children: [
@@ -117,10 +125,10 @@ class ChapterDisplay extends StatelessWidget {
                 },
                 textStyle: const TextStyle(color: Colors.black54),
               ))
-            : Center(
+            : const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const <Widget>[
+                  children: <Widget>[
                     Icon(
                       Icons.error_outline,
                       color: Colors.red,
@@ -168,20 +176,10 @@ class ChapterDisplay extends StatelessWidget {
     if (heNetworkState == HenetworkStatus.noInternet) {
       return chapterImageOffline(imageUrl, _fofi);
     } else {
-      final gcsPathOrError = convertUrlToWalahPath(imageUrl);
-      // Only proceed if there was no error during conversion
-      String gcsPath = "";
-      if (gcsPathOrError.isRight()) {
-        gcsPath = gcsPathOrError.getOrElse(() => "");
-      } else {
-        // Handle the error here, i.e., failed to convert URL to GCS path
-        return const CircleAvatar(
-          radius: 70,
-          child: Icon(Icons.broken_image),
-        );
-      }
+      // imageUrl
+      // FLilq-XXEAQkE4C.jpeg
       return FutureBuilder<String>(
-        future: _getImageUrlFromFirebase(gcsPath),
+        future: _getImageUrlFromFirebase('FLilq-XXEAQkE4C.jpeg'),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData) {
@@ -210,16 +208,14 @@ class ChapterDisplay extends StatelessWidget {
     }
   }
 
-  Future<String> _getImageUrlFromFirebase(String path) async {
-    final storageRef = getIt<FirebaseStorage>().ref();
-    final ref = storageRef.child(path);
-    final String imageUrl = await ref.getDownloadURL();
-    return imageUrl;
-  }
-
   Widget chapterImageOffline(String photo, FoFiRepository fofi) {
-    File fileImage = fofi.getLocalFileHe(photo);
-    if (!fileImage.existsSync()) {
+    try {
+      Uint8List imageData = fofi.getLocalFileHeFileWalah(photo);
+      return Image.memory(
+        imageData,
+        fit: BoxFit.cover,
+      );
+    } catch (e) {
       return Container(
         decoration: BoxDecoration(
           color: Colors.grey[200],
@@ -232,48 +228,13 @@ class ChapterDisplay extends StatelessWidget {
         ),
       );
     }
-    return Image.file(
-      fileImage,
-      fit: BoxFit.cover,
-    );
   }
 
-  Either<bool, String> convertUrlToWalahPath(String url) {
-    Either<bool, String> bucketUrlOrError =
-        formatForBucket(url, 0); // replace 2 with your changeType
-    return bucketUrlOrError.fold(
-        (error) => Left(error), (bucketUrl) => Right(bucketUrl));
-  }
-
-  Either<bool, String> formatForBucket(String stringUrl, int changeType) {
-    String basePath = '';
-    switch (changeType) {
-      case 0:
-        basePath = '/bookresource/';
-        break;
-      case 1:
-        basePath = '/courseresource/';
-        break;
-      case 2:
-        basePath = '/surveyicon/';
-        break;
-      case 3:
-        basePath = '/h5presource/';
-        break;
-      default:
-        return const Left(false);
-    }
-
-    String bucketUrl = stringUrl.contains('http://')
-        ? stringUrl.replaceFirst('http://', basePath)
-        : stringUrl.replaceFirst('https://', basePath);
-
-    if (bucketUrl.contains('?token')) {
-      int i = bucketUrl.indexOf('?');
-      bucketUrl = bucketUrl.substring(0, i);
-    }
-
-    return Right(bucketUrl);
+  Future<String> _getImageUrlFromFirebase(String path) async {
+    final storageRef = getIt<FirebaseStorage>().ref();
+    final ref = storageRef.child(path);
+    final String imageUrl = await ref.getDownloadURL();
+    return imageUrl;
   }
 
   Widget _htmlVideoCardFrom(

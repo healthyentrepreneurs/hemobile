@@ -1,8 +1,8 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:he/injection.dart';
 import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import 'package:he/objects/blocs/repo/fofiperm_repo.dart';
 import 'package:he_api/he_api.dart';
@@ -19,8 +19,38 @@ class BookIcon extends StatelessWidget {
     final FoFiRepository _fofi = FoFiRepository();
     final henetworkstate =
         context.select((HenetworkBloc bloc) => bloc.state.status);
+
     if (henetworkstate == HenetworkStatus.noInternet) {
-      return _bookIconOffline(icon, _fofi);
+      try {
+        Uint8List imageData = _fofi.getLocalFileHeFileWalah(icon);
+        return SizedBox(
+          key: UniqueKey(),
+          width: 50,
+          height: 50,
+          child: Stack(
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  color: Colors.grey,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              Center(
+                child: CircleAvatar(
+                  radius: 25,
+                  backgroundImage: MemoryImage(imageData),
+                ),
+              ),
+            ],
+          ),
+        );
+      } catch (e) {
+        debugPrint('Error loading local file: $e');
+        return const CircleAvatar(
+          radius: _avatarSize,
+          child: Icon(Icons.broken_image),
+        );
+      }
     } else {
       return FadeInImage(
         key: UniqueKey(),
@@ -36,21 +66,5 @@ class BookIcon extends StatelessWidget {
         },
       );
     }
-  }
-
-  Widget _bookIconOffline(String photo, FoFiRepository _fofi) {
-    // final FoFiRepository fofirepo = FoFiRepository();
-    File fileImage = _fofi.getLocalFileHe(photo);
-    return SizedBox(
-      key: UniqueKey(),
-      width: 50,
-      height: 50,
-      child: fileImage.existsSync()
-          ? Image.file(fileImage)
-          : const CircleAvatar(
-              radius: _avatarSize,
-              child: Icon(Icons.broken_image),
-            ),
-    );
   }
 }

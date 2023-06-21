@@ -166,12 +166,12 @@ class DatabaseBoxOperations {
   }
 
   Future<Map<String, dynamic>?> loadState() async {
-    // final data = backupBox.query().build().findFirst();
-    // var nana =
-    //     data?.toJson() ?? BackupStateDataModel.defaultInstance().toJson();
+    final data = backupBox.query().build().findFirst();
+    var nana =
+        data?.toJson() ?? BackupStateDataModel.defaultInstance().toJson();
     // debugPrint('@loadState $nana');
-    // return nana;
-    return BackupStateDataModel.defaultInstance().toJson();
+    return nana;
+    // return BackupStateDataModel.defaultInstance().toJson();
   }
 
   Future<List<BookDataModel>> _generateDummyBooksWithFaker() async {

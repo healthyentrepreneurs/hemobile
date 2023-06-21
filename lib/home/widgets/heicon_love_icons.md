@@ -58,35 +58,64 @@ class HeIcon extends StatelessWidget {
   }
 
   Widget heIconOffline(String photo, FoFiRepository fofi) {
-    try {
-      Uint8List imageData = fofi.getLocalFileHeFileWalah(photo);
-      return SizedBox(
-        key: UniqueKey(),
-        width: 50,
-        height: 50,
-        child: Stack(
-          children: [
-            Container(
+    return FutureBuilder<Uint8List>(
+        future: fofi.getLocalFileHeFileWalah(photo),
+        builder: (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Container(
+              width: 50,
+              height: 50,
               decoration: const BoxDecoration(
                 color: Colors.grey,
                 shape: BoxShape.circle,
               ),
-            ),
-            Center(
-              child: CircleAvatar(
-                radius: 25,
-                backgroundImage: MemoryImage(imageData),
+              child: const Center(
+                child: SizedBox(
+                  width: 25,
+                  height: 25,
+                  child: CircularProgressIndicator(),
+                ),
               ),
-            ),
-          ],
-        ),
-      );
-    } catch (e) {
-      debugPrint('Error loading local file: $e');
-      return const CircleAvatar(
-        radius: _iconSize,
-        child: Icon(Icons.broken_image),
-      );
-    }
+            ); // or another placeholder widget
+          } else if (snapshot.hasError) {
+            debugPrint('Error loading local file: ${snapshot.error}');
+            return const CircleAvatar(
+              radius: _iconSize,
+              child: Icon(Icons.broken_image),
+            );
+          } else {
+            Uint8List imageData = snapshot.data!;
+            // return Container(
+            //   key: UniqueKey(),
+            //   width: 50,
+            //   height: 50,
+            //   decoration: const BoxDecoration(
+            //       borderRadius: BorderRadius.all(Radius.circular(50)),
+            //       color: Colors.grey),
+            //   child: Image.memory(imageData),
+            // );
+            return SizedBox(
+              key: UniqueKey(),
+              width: 50,
+              height: 50,
+              child: Stack(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.grey,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  Center(
+                    child: CircleAvatar(
+                      radius: 25,
+                      backgroundImage: MemoryImage(imageData),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        });
   }
 }

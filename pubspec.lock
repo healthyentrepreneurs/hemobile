@@ -60,11 +60,12 @@ packages:
   async_zip:
     dependency: "direct main"
     description:
-      name: async_zip
-      sha256: "268e763eebbd7353dd91c73374b6e9aaf6f50d61ffd244623d0961785051589c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.0"
+      path: "."
+      ref: master
+      resolved-ref: acfefd9c892eda62098305398bd7289ce1ab179d
+      url: "https://github.com/njovujsh/async-zip.git"
+    source: git
+    version: "0.0.2"
   audio_session:
     dependency: transitive
     description:

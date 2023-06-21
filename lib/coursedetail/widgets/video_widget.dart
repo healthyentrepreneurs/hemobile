@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:he/asyncfiles/storageheutil.dart';
 import 'package:he/injection.dart';
 import 'package:he/objects/blocs/repo/fofiperm_repo.dart';
+import 'package:he/service/service.dart';
 import 'package:he_api/he_api.dart';
 import 'package:video_player/video_player.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -45,10 +47,67 @@ class _ChewieVideoViewState extends State<ChewieVideoView> {
     super.dispose();
   }
 
+  // Future<void> _initializePlayer(FoFiRepository _fofi) async {
+  //   try {
+  //     if (widget.heNetworkState == HenetworkStatus.noInternet) {
+  //       Uint8List fileBytes =
+  //           await _fofi.getLocalFileHeFileWalah(widget.videoUrl);
+  //       String tempPath = (PermitFoFiService.directory).path;
+  //       String filePath = '$tempPath/temp_video.mp4';
+  //       File fileVideo = await File(filePath).writeAsBytes(fileBytes);
+  //       if (await fileVideo.exists()) {
+  //         _videoPlayerController = VideoPlayerController.file(fileVideo);
+  //         await _videoPlayerController?.initialize(); // Use null-aware operator
+  //       } else {
+  //         _videoExists = false;
+  //       }
+  //     } else {
+  //       final gcsPathOrError = convertUrlToWalahPath(widget.videoUrl, 0);
+  //       String gcsPath = "";
+  //       if (gcsPathOrError.isRight()) {
+  //         gcsPath = gcsPathOrError.getOrElse(() => "");
+  //       }
+  //       debugPrint("YELELE $gcsPath");
+  //       String videoUrl = await _getVideoUrlFromFirebase(gcsPath);
+  //       _videoPlayerController = VideoPlayerController.network(videoUrl);
+  //       await _videoPlayerController?.initialize(); // Use null-aware operator
+  //     }
+  //
+  //     if (_videoExists) {
+  //       _chewieController = ChewieController(
+  //         videoPlayerController:
+  //             _videoPlayerController!, // Use null assertion operator
+  //         aspectRatio: _videoPlayerController!
+  //             .value.aspectRatio, // Use null assertion operator
+  //         autoPlay: false,
+  //         looping: false,
+  //         autoInitialize: true,
+  //       );
+  //     }
+  //   } catch (e) {
+  //     _videoExists = false;
+  //   } finally {
+  //     setState(() {});
+  //   }
+  // }
   Future<void> _initializePlayer(FoFiRepository _fofi) async {
     try {
       if (widget.heNetworkState == HenetworkStatus.noInternet) {
-        File fileVideo = _fofi.getLocalFileHe(widget.videoUrl);
+        Uint8List fileBytes =
+            await _fofi.getLocalFileHeFileWalah(widget.videoUrl);
+        String tempPath = (PermitFoFiService.directory).path;
+
+        // Extract filename from widget.videoUrl
+        String filename = widget.videoUrl.split('/').last;
+
+        String filePath = '$tempPath/$filename';
+        File fileVideo = File(filePath);
+
+        // Check if the file already exists
+        if (!(await fileVideo.exists())) {
+          fileVideo = await fileVideo.writeAsBytes(fileBytes);
+        }
+
         if (await fileVideo.exists()) {
           _videoPlayerController = VideoPlayerController.file(fileVideo);
           await _videoPlayerController?.initialize(); // Use null-aware operator
@@ -62,7 +121,6 @@ class _ChewieVideoViewState extends State<ChewieVideoView> {
           gcsPath = gcsPathOrError.getOrElse(() => "");
         }
         debugPrint("YELELE $gcsPath");
-        // '/bookresource/appdev.healthyentrepreneurs.nl/webservice/pluginfile.php/148/mod_book/chapter/7/15-LU.mp4'
         String videoUrl = await _getVideoUrlFromFirebase(gcsPath);
         _videoPlayerController = VideoPlayerController.network(videoUrl);
         await _videoPlayerController?.initialize(); // Use null-aware operator

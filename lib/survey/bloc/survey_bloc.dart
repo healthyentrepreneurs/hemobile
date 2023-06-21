@@ -4,11 +4,10 @@ import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:he/objects/blocs/repo/database_repo.dart';
 import 'package:he/objects/db_local/db_local.dart';
 import 'package:he_api/he_api.dart';
 
-import '../../objects/blocs/repo/impl/repo_failure.dart';
+import '../../objects/blocs/repo/repo.dart';
 
 part 'survey_event.dart';
 part 'survey_state.dart';
@@ -24,6 +23,7 @@ class SurveyBloc extends Bloc<SurveyEvent, SurveyState> {
   }
   final DatabaseRepository _databaseRepository;
   _onSurveyFetched(SurveyFetched event, Emitter<SurveyState> emit) async {
+    _databaseRepository.addHenetworkStatus(event.henetworkStatus!);
     Stream<Either<Failure, String>> surveyStream =
         _databaseRepository.retrieveSurveyStream(event.courseid);
     debugPrint('SurveyBloc@_onSurveyFetched ${event.henetworkStatus}');

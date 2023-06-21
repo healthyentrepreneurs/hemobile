@@ -78,6 +78,7 @@ class HomePage extends StatelessWidget {
                 itemCount: state.glistOfSubscriptionData.length,
                 itemBuilder: (BuildContext context, int index) {
                   var subscription = state.glistOfSubscriptionData[index]!;
+                  debugPrint("Need to Know ${subscription.toJson()}");
                   return UserLanding(
                     subscription: subscription,
                     onTap: () {

@@ -43,7 +43,7 @@ class _SurveyPageBrowserState extends State<SurveyPageBrowser> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SurveyBloc, SurveyState>(
-      // buildWhen: (previous, current) => previous.props != current.props,
+      buildWhen: (previous, current) => previous.props != current.props,
       builder: (context, state) {
         if (state == const SurveyState.loading()) {
           _fetchSurvey();
