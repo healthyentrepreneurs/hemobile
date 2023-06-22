@@ -11,9 +11,9 @@ import 'package:path/path.dart' as p;
 class HfivePage extends StatefulWidget {
   const HfivePage(
       {Key? key,
-        required this.hfivecontent,
-        required this.title,
-        required this.contextid})
+      required this.hfivecontent,
+      required this.title,
+      required this.contextid})
       : super(key: key);
   final HfiveContent hfivecontent;
   final String title;
@@ -148,32 +148,32 @@ class _HfivePageState extends State<HfivePage> {
           Expanded(
             child: widget.hfivecontent.status == 200
                 ? InAppWebView(
-              key: webViewKey,
-              initialUrlRequest: URLRequest(
-                  url: WebUri('http://localhost:8080/index.html')),
-              // initialUrlRequest: URLRequest(
-              //     url: WebUri(
-              //         'file://${FoFiRepository.urlH5p(widget.contextid).path}')),
-              // initialData: InAppWebViewInitialData(
-              //   data: pageHtmlData,
-              //   baseUrl: WebUri(
-              //       'file://${FoFiRepository.urlH5p(widget.contextid).path}'),
-              // ),
-              initialSettings: InAppWebViewSettings(
-                useShouldOverrideUrlLoading: true,
-                mediaPlaybackRequiresUserGesture: false,
-                javaScriptCanOpenWindowsAutomatically: true,
-                javaScriptEnabled: true,
-                useHybridComposition: true,
-                // clearCache: true,
-              ),
-              onWebViewCreated:
-                  (InAppWebViewController webViewController) {
-                webView = webViewController;
-                webViewController.addJavaScriptHandler(
-                    handlerName: "getPostMessage", callback: (args) {});
-              },
-            )
+                    key: webViewKey,
+                    initialUrlRequest: URLRequest(
+                        url: WebUri('http://localhost:8080/index.html')),
+                    // initialUrlRequest: URLRequest(
+                    //     url: WebUri(
+                    //         'file://${FoFiRepository.urlH5p(widget.contextid).path}')),
+                    // initialData: InAppWebViewInitialData(
+                    //   data: pageHtmlData,
+                    //   baseUrl: WebUri(
+                    //       'file://${FoFiRepository.urlH5p(widget.contextid).path}'),
+                    // ),
+                    initialSettings: InAppWebViewSettings(
+                      useShouldOverrideUrlLoading: true,
+                      mediaPlaybackRequiresUserGesture: false,
+                      javaScriptCanOpenWindowsAutomatically: true,
+                      javaScriptEnabled: true,
+                      useHybridComposition: true,
+                      // clearCache: true,
+                    ),
+                    onWebViewCreated:
+                        (InAppWebViewController webViewController) {
+                      webView = webViewController;
+                      webViewController.addJavaScriptHandler(
+                          handlerName: "getPostMessage", callback: (args) {});
+                    },
+                  )
                 : const Text('I am not'),
           ),
         ]));

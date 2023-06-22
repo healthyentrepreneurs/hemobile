@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:he/asyncfiles/asyncfiles.dart';
 import 'package:he/auth/authentication/bloc/authentication_bloc.dart';
 import 'package:he/helper/toolutils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/home/appupdate/apkseen/bloc/apkseen_bloc.dart';
 import 'package:he/home/home.dart';
 import 'package:he/langhe/langhe.dart';
+import 'package:he/objects/blocs/repo/fofiperm_repo.dart';
 import 'package:he_api/he_api.dart';
 import 'package:theme_locale_repo/generated/l10n.dart';
 
@@ -22,11 +24,11 @@ class _CustomDrawer extends State<CustomDrawer> {
   @override
   Widget build(BuildContext context) {
     final apkUpdateBloc = BlocProvider.of<ApkseenBloc>(context);
-    final henetworkstate =
-        context.select((HenetworkBloc bloc) => bloc.state.status);
+    final henetworkstate = context.select((HenetworkBloc bloc) => bloc.state);
+    final FoFiRepository _fofi = FoFiRepository();
     // final textTheme = Theme.of(context).textTheme;
-    final apkSceenState =
-        context.select((ApkseenBloc bloc) => bloc.state.status);
+    // final apkSceenState =
+    //     context.select((ApkseenBloc bloc) => bloc.state.status);
     final s = S.of(context);
     return Drawer(
       child: Container(
@@ -34,7 +36,7 @@ class _CustomDrawer extends State<CustomDrawer> {
         child: Column(
           children: <Widget>[
             ListView(
-                key: Key(henetworkstate.name),
+                key: Key(henetworkstate.status.name),
                 padding: EdgeInsets.zero,
                 shrinkWrap: true,
                 children: [
@@ -45,19 +47,45 @@ class _CustomDrawer extends State<CustomDrawer> {
                     ),
                     child: Column(
                       children: [
-                        Avatar(
-                            photo: widget.user
-                                .profileimageurlsmall), //Avatar(photo: widget.user.profileimageurlsmall)
-                        const SizedBox(
-                          height: 10,
+                        if (henetworkstate.gstatus ==
+                            HenetworkStatus.wifiNetwork)
+                          Avatar(photo: widget.user.profileimageurlsmall),
+                        if (henetworkstate.gstatus ==
+                            HenetworkStatus.noInternet)
+                          heIconOffline(
+                              "/images/${widget.user.id}big_loginimage.png",
+                              _fofi,
+                              width: 50,
+                              height: 50,
+                              radius: 29.0),
+                        const SizedBox(height: 10),
+                        Text(
+                          widget.user.fullName ?? '',
+                          style: const TextStyle(
+                            color: ToolUtils.whiteColor,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        Text(widget.user.firstname ?? '',
-                            style: const TextStyle(
-                                color: ToolUtils.whiteColor,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold)),
                       ],
-                    ),
+                    )
+
+                    //   Column(
+                    //   children: [
+                    //     Avatar(
+                    //         photo: widget.user
+                    //             .profileimageurlsmall), //Avatar(photo: widget.user.profileimageurlsmall)
+                    //     const SizedBox(
+                    //       height: 10,
+                    //     ),
+                    //     Text(widget.user.firstname ?? '',
+                    //         style: const TextStyle(
+                    //             color: ToolUtils.whiteColor,
+                    //             fontSize: 20,
+                    //             fontWeight: FontWeight.bold)),
+                    //   ],
+                    // )
+                    ,
                   )
                 ]),
             Expanded(
@@ -168,9 +196,10 @@ class _CustomDrawer extends State<CustomDrawer> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
-                        const DrawerAppVersionWidget(),
-                        if (apkSceenState.seen &&
-                            apkSceenState.updated == false) ...[
+                        DrawerAppVersionWidget(
+                            heversion: apkUpdateBloc.state.status.heversion!),
+                        if (apkUpdateBloc.state.status.seen &&
+                            apkUpdateBloc.state.status.updated == false) ...[
                           IconButton(
                             icon: const Icon(
                               Icons.info_rounded,
@@ -179,7 +208,8 @@ class _CustomDrawer extends State<CustomDrawer> {
                             tooltip: 'Your Application needs Update!',
                             onPressed: () {
                               apkUpdateBloc.add(DeleteSeenStatusEvent());
-                              debugPrint("Mama Jaja ${apkSceenState.seen} ");
+                              debugPrint(
+                                  "Mama Jaja ${apkUpdateBloc.state.status.seen} ");
                             },
                           )
                         ],

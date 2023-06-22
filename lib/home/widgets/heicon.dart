@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
@@ -117,39 +115,6 @@ class HeIcon extends StatelessWidget {
         },
       );
     } else {
-      return const CircleAvatar(
-        radius: _iconSize,
-        child: Icon(Icons.broken_image),
-      );
-    }
-  }
-
-  Widget heIconOffline(String photo, FoFiRepository fofi) {
-    try {
-      Uint8List imageData = fofi.getLocalFileHeFileWalah(photo);
-      return SizedBox(
-        key: UniqueKey(),
-        width: 50,
-        height: 50,
-        child: Stack(
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                color: Colors.grey,
-                shape: BoxShape.circle,
-              ),
-            ),
-            Center(
-              child: CircleAvatar(
-                radius: 25,
-                backgroundImage: MemoryImage(imageData),
-              ),
-            ),
-          ],
-        ),
-      );
-    } catch (e) {
-      debugPrint('Error loading local file: $e');
       return const CircleAvatar(
         radius: _iconSize,
         child: Icon(Icons.broken_image),

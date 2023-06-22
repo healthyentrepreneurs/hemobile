@@ -4,8 +4,9 @@ import 'package:he/objects/blocs/repo/apk_repo.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class DrawerAppVersionWidget extends StatelessWidget {
-  const DrawerAppVersionWidget({super.key});
-
+  final String heversion;
+  const DrawerAppVersionWidget({Key? key, required this.heversion})
+      : super(key: key);
   @override
   Widget build(BuildContext context) {
     final logRepository = getIt<ApkRepository>();
@@ -15,13 +16,13 @@ class DrawerAppVersionWidget extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasData) {
             final packageInfo = snapshot.data!;
-            return Text("Version: ${packageInfo.version}",style:
-            const TextStyle(color: Colors.black, fontSize: 10));
+            // ${packageInfo.version}
+            return Text("Version : $heversion",
+                style: const TextStyle(color: Colors.black, fontSize: 10));
             // return Text("Data Loaded");
-
           } else if (snapshot.hasError) {
-            return Text("Version: ${snapshot.error}",style:
-            const TextStyle(color: Colors.black, fontSize: 10));
+            return Text("Version: ${snapshot.error}",
+                style: const TextStyle(color: Colors.black, fontSize: 10));
           }
         }
         return const SizedBox.shrink();

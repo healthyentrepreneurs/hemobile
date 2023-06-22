@@ -1,7 +1,13 @@
+import 'dart:typed_data';
+
 import 'package:dartz/dartz.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:he/injection.dart';
 
+import '../objects/blocs/repo/repo.dart';
+
+const _iconSize = 29.0;
 Future<String> getImageUrlFromFirebase(String path) async {
   final storageRef = getIt<FirebaseStorage>().ref();
   final ref = storageRef.child(path);
@@ -45,4 +51,75 @@ Either<bool, String> formatForBucket(String stringUrl, int changeType) {
   }
 
   return Right(bucketUrl);
+}
+
+// Widget heIconOffline(String photo, FoFiRepository fofi) {
+//   try {
+//     Uint8List imageData = fofi.getLocalFileHeFileWalah(photo);
+//     return SizedBox(
+//       key: UniqueKey(),
+//       width: 50,
+//       height: 50,
+//       child: Stack(
+//         children: [
+//           Container(
+//             decoration: const BoxDecoration(
+//               color: Colors.grey,
+//               shape: BoxShape.circle,
+//             ),
+//           ),
+//           Center(
+//             child: CircleAvatar(
+//               radius: 25,
+//               backgroundImage: MemoryImage(imageData),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   } catch (e) {
+//     debugPrint('Error loading local file: $e');
+//     return const CircleAvatar(
+//       radius: 25,
+//       child: Icon(Icons.broken_image),
+//     );
+//   }
+// }
+Widget heIconOffline(
+  String photo,
+  FoFiRepository fofi, {
+  double width = 50,
+  double height = 50,
+  double radius = 25,
+}) {
+  try {
+    Uint8List imageData = fofi.getLocalFileHeFileWalah(photo);
+    return SizedBox(
+      key: UniqueKey(),
+      width: width,
+      height: height,
+      child: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              color: Colors.grey,
+              shape: BoxShape.circle,
+            ),
+          ),
+          Center(
+            child: CircleAvatar(
+              radius: radius,
+              backgroundImage: MemoryImage(imageData),
+            ),
+          ),
+        ],
+      ),
+    );
+  } catch (e) {
+    debugPrint('Error loading local file: $e');
+    return CircleAvatar(
+      radius: radius,
+      child: const Icon(Icons.broken_image),
+    );
+  }
 }
