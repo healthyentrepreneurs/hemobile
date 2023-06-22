@@ -13,6 +13,7 @@ import '../../view/bookquiz_page.dart';
 import 'network_status_listener.dart';
 import 'section_page.dart';
 
+//Step 1 Joash
 List<Page<dynamic>> onGenerateSectionPages(
     SectionState state, BuildContext context, String userId) {
   final databaseBloc = BlocProvider.of<DatabaseBloc>(context);
@@ -98,23 +99,23 @@ class SectionsFlow extends StatefulWidget {
 }
 
 class _SectionsFlowState extends State<SectionsFlow> {
-  late final SectionBloc _sectionBloc;
+  // late final SectionBloc _sectionBloc;
 
   @override
   void initState() {
     super.initState();
-    _sectionBloc = BlocProvider.of<SectionBloc>(context);
   }
 
   @override
   void dispose() {
     // Close the _sectionBloc when the widget is disposed
-    _sectionBloc.close();
+    // _sectionBloc.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    var _sectionBloc = BlocProvider.of<SectionBloc>(context);
     final userId = context
         .select((AuthenticationBloc bloc) => bloc.state.user)
         .id
@@ -122,8 +123,6 @@ class _SectionsFlowState extends State<SectionsFlow> {
     return FlowBuilder<SectionState>(
       state: _sectionBloc.state,
       onGeneratePages: (SectionState state, List<Page<dynamic>> pages) {
-        // final course = _databaseBloc.state.gselectedsubscription!;
-        // course
         return onGenerateSectionPages(state, context, userId);
       },
     );

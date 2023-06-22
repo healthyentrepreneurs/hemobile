@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:he/asyncfiles/storageheutil.dart';
 import 'package:he/coursedetail/coursedetail.dart';
 import 'package:he/helper/helper_functions.dart';
 import 'package:he/injection.dart';
@@ -30,8 +31,6 @@ class ChapterDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // debugPrint('Adding Chapter .. Joshua');
-    // final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
     final heNetworkState =
         context.select((HenetworkBloc bloc) => bloc.state.status);
     ContentStructure _coursePage = coursePage!;
@@ -170,16 +169,63 @@ class ChapterDisplay extends StatelessWidget {
     }
   }
 
+  // Widget _displayFSImage(BookContent content, String imageUrl,
+  //     HenetworkStatus heNetworkState, FoFiRepository _fofi) {
+  //   debugPrint("Davos $imageUrl");
+  //   if (heNetworkState == HenetworkStatus.noInternet) {
+  //     return chapterImageOffline(imageUrl, _fofi);
+  //   } else {
+  //     // imageUrl
+  //     // FLilq-XXEAQkE4C.jpeg
+  //     return FutureBuilder<String>(
+  //       future: _getImageUrlFromFirebase('FLilq-XXEAQkE4C.jpeg'),
+  //       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+  //         if (snapshot.connectionState == ConnectionState.done) {
+  //           if (snapshot.hasData) {
+  //             return Image.network(
+  //               snapshot.data!,
+  //               fit: BoxFit.cover,
+  //             );
+  //           } else {
+  //             return Container(
+  //               decoration: BoxDecoration(
+  //                 color: Colors.grey[200],
+  //                 borderRadius: BorderRadius.circular(10),
+  //               ),
+  //               child: Icon(
+  //                 Icons.broken_image,
+  //                 color: Colors.grey[600],
+  //                 size: 70,
+  //               ),
+  //             );
+  //           }
+  //         } else {
+  //           return const Center(child: SpinKitThreeBounce(color: Colors.blue));
+  //         }
+  //       },
+  //     );
+  //   }
+  // }
   Widget _displayFSImage(BookContent content, String imageUrl,
       HenetworkStatus heNetworkState, FoFiRepository _fofi) {
     debugPrint("Davos $imageUrl");
     if (heNetworkState == HenetworkStatus.noInternet) {
       return chapterImageOffline(imageUrl, _fofi);
     } else {
-      // imageUrl
-      // FLilq-XXEAQkE4C.jpeg
+      final gcsPathOrError = convertUrlToWalahPath(imageUrl,0);
+      // Only proceed if there was no error during conversion
+      String gcsPath = "";
+      if (gcsPathOrError.isRight()) {
+        gcsPath = gcsPathOrError.getOrElse(() => "");
+      } else {
+        // Handle the error here, i.e., failed to convert URL to GCS path
+        return const CircleAvatar(
+          radius: 70,
+          child: Icon(Icons.broken_image),
+        );
+      }
       return FutureBuilder<String>(
-        future: _getImageUrlFromFirebase('FLilq-XXEAQkE4C.jpeg'),
+        future: _getImageUrlFromFirebase(gcsPath),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData) {
@@ -207,7 +253,6 @@ class ChapterDisplay extends StatelessWidget {
       );
     }
   }
-
   Widget chapterImageOffline(String photo, FoFiRepository fofi) {
     try {
       Uint8List imageData = fofi.getLocalFileHeFileWalah(photo);

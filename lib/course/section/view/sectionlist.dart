@@ -37,12 +37,14 @@ class SectionList extends StatelessWidget {
             itemBuilder: (BuildContext context, int index) {
               var section = sections[index]!;
               return GestureDetector(
-                key: ValueKey(section.id),
+                // key: ValueKey(section.id),
                 child: SectionCard(
                   sectionName: section.name!,
                   imageUrl: course.imageUrlSmall!,
                 ),
                 onTap: () {
+                  debugPrint(
+                      "SectionSelected ${section.toJson()} Number-Sections ${sections.length}");
                   sectionBloc.add(BookQuizSelected(
                     course.id.toString(),
                     section,
@@ -50,10 +52,10 @@ class SectionList extends StatelessWidget {
                   Navigator.push(
                     context,
                     BookQuizPage.route(
-                      sectionName: section.name!,
+                      section_name: section.name!,
                       courseId: course.id.toString(),
                       sectionId: section.id.toString(),
-                      sectionSection: section.section.toString(),
+                      section_section: section.section.toString(),
                     ),
                   );
                 },

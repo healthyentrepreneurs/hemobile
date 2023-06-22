@@ -17,14 +17,11 @@ class FoFiRepository {
   final String appDir = 'nl_health_app_storage';
 
   Uint8List getLocalFileHeFileWalah(String filename) {
-    // Print filename before modification
-    debugPrint('Before modification: $filename');
-    // Remove leading '/' from filename if it exists
+    // debugPrint('Before modification: $filename');
     if (filename.startsWith('/')) {
       filename = filename.substring(1);
     }
-    // Print filename after modification
-    debugPrint('After modification: $filename');
+    // debugPrint('After modification: $filename');
     final zipFile = getLocalFileHeZip();
     final reader = ZipFileReader();
     try {
@@ -38,12 +35,6 @@ class FoFiRepository {
       reader.close();
     }
   }
-
-  // File getLocalFileHeFile(String filename) {
-  //   String dir = "${PermitFoFiService.externalDownlodPath}/$appDir/HE_Health";
-  //   File f = File('$dir$filename');
-  //   return f;
-  // }
 
   File getLocalFileHeZip() {
     String dir =

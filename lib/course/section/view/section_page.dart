@@ -9,6 +9,7 @@ import 'package:he_api/he_api.dart';
 import '../../../home/widgets/widgets.dart';
 import 'sectionlist.dart';
 
+//Step 2 Joash
 class SectionsPage extends StatefulWidget {
   const SectionsPage({Key? key}) : super(key: key);
 
@@ -24,11 +25,11 @@ class _SectionsPageState extends State<SectionsPage> {
   @override
   void initState() {
     super.initState();
-    _course = context.read<DatabaseBloc>().state.gselectedsubscription!;
   }
 
   @override
   Widget build(BuildContext context) {
+    _course = context.read<DatabaseBloc>().state.gselectedsubscription!;
     return BlocBuilder<SectionBloc, SectionState>(
         builder: (BuildContext context, SectionState state) {
       Widget subWidget;
@@ -42,6 +43,8 @@ class _SectionsPageState extends State<SectionsPage> {
       } else if (state.glistofSections.isEmpty) {
         subWidget = const StateLoadingHe().noDataFound('You have no Sections');
       } else {
+        // debugPrint(
+        //     'Section-Lists-HereX ${state.glistofSections.map((section) => section?.toJson().toString()).join('\n')}');
         subWidget = SectionList(
           course: _course,
           sections: state.glistofSections,

@@ -78,11 +78,11 @@ class DatabaseRepository implements IDatabaseRepository {
 
   @override
   Stream<Either<Failure, List<BookQuiz?>>> retrieveBookQuiz(
-      String courseId, String section) {
+      String courseId, String sectionid, String section) {
     final checkValue = _henetworkStatusSubject.valueOrNull;
     if (checkValue == HenetworkStatus.wifiNetwork) {
       debugPrint('DatabaseRepository@retrieveBookQuiz Network $checkValue');
-      return _service().retrieveBookQuiz(courseId, section);
+      return _service().retrieveBookQuiz(courseId, sectionid);
     } else {
       debugPrint('DatabaseRepository@retrieveBookQuizLocal Nodata $checkValue');
       return _serviceLocal.retrieveBookQuizLocal(courseId, section);
@@ -91,7 +91,11 @@ class DatabaseRepository implements IDatabaseRepository {
 
   @override
   Stream<Either<Failure, List<BookContent>>> retrieveBookChapter(
-      String courseId,String sectionid, String section, String bookcontextid, int bookIndex) {
+      String courseId,
+      String sectionid,
+      String section,
+      String bookcontextid,
+      int bookIndex) {
     debugPrint("WHERE ARE WE JACK");
     final checkValue = _henetworkStatusSubject.valueOrNull;
     if (checkValue == HenetworkStatus.wifiNetwork) {
