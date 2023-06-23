@@ -42,19 +42,6 @@ class ChapterDisplay extends StatelessWidget {
         .where((c) => c.filepath.toLowerCase() == chapterIdPath.toLowerCase())
         .where((cname) => cname.filename == "index.html")
         .toList();
-    // if (_htmlContentList.isNotEmpty) {
-    //   contentText = _htmlContentList.first.fileurl;
-    // }
-    // if (_htmlContentList.isNotEmpty &&
-    //     heNetworkState != HenetworkStatus.noInternet) {
-    //   contentText = _htmlContentList.first.fileurl;
-    // } else if (_htmlContentList.isNotEmpty &&
-    //     heNetworkState == HenetworkStatus.noInternet) {
-    //   File fileImage = fofirepo.getLocalFileHeFileWalah(_htmlContentList.first.fileurl!);
-    //   if (fileImage.existsSync()) {
-    //     contentText = fileImage.readAsStringSync();
-    //   }
-    // }
     if (_htmlContentList.isNotEmpty &&
         heNetworkState != HenetworkStatus.noInternet) {
       contentText = _htmlContentList.first.fileurl;
@@ -169,50 +156,13 @@ class ChapterDisplay extends StatelessWidget {
     }
   }
 
-  // Widget _displayFSImage(BookContent content, String imageUrl,
-  //     HenetworkStatus heNetworkState, FoFiRepository _fofi) {
-  //   debugPrint("Davos $imageUrl");
-  //   if (heNetworkState == HenetworkStatus.noInternet) {
-  //     return chapterImageOffline(imageUrl, _fofi);
-  //   } else {
-  //     // imageUrl
-  //     // FLilq-XXEAQkE4C.jpeg
-  //     return FutureBuilder<String>(
-  //       future: _getImageUrlFromFirebase('FLilq-XXEAQkE4C.jpeg'),
-  //       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-  //         if (snapshot.connectionState == ConnectionState.done) {
-  //           if (snapshot.hasData) {
-  //             return Image.network(
-  //               snapshot.data!,
-  //               fit: BoxFit.cover,
-  //             );
-  //           } else {
-  //             return Container(
-  //               decoration: BoxDecoration(
-  //                 color: Colors.grey[200],
-  //                 borderRadius: BorderRadius.circular(10),
-  //               ),
-  //               child: Icon(
-  //                 Icons.broken_image,
-  //                 color: Colors.grey[600],
-  //                 size: 70,
-  //               ),
-  //             );
-  //           }
-  //         } else {
-  //           return const Center(child: SpinKitThreeBounce(color: Colors.blue));
-  //         }
-  //       },
-  //     );
-  //   }
-  // }
   Widget _displayFSImage(BookContent content, String imageUrl,
       HenetworkStatus heNetworkState, FoFiRepository _fofi) {
     debugPrint("Davos $imageUrl");
     if (heNetworkState == HenetworkStatus.noInternet) {
       return chapterImageOffline(imageUrl, _fofi);
     } else {
-      final gcsPathOrError = convertUrlToWalahPath(imageUrl,0);
+      final gcsPathOrError = convertUrlToWalahPath(imageUrl, 0);
       // Only proceed if there was no error during conversion
       String gcsPath = "";
       if (gcsPathOrError.isRight()) {
@@ -253,6 +203,7 @@ class ChapterDisplay extends StatelessWidget {
       );
     }
   }
+
   Widget chapterImageOffline(String photo, FoFiRepository fofi) {
     try {
       Uint8List imageData = fofi.getLocalFileHeFileWalah(photo);
