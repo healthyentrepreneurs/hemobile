@@ -8,7 +8,7 @@ abstract class ApkEvent extends Equatable {
 class FetchApkEvent extends ApkEvent {
   const FetchApkEvent(this.apkdoc);
   final Either<Failure, DocumentSnapshot> apkdoc;
+  // final
   @override
   List<Object> get props => [apkdoc];
 }
-

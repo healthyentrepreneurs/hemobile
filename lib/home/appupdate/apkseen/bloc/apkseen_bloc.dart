@@ -9,6 +9,7 @@ import 'package:injectable/injectable.dart';
 part 'apkseen_event.dart';
 part 'apkseen_state.dart';
 
+// @Phila One
 // @injectable
 class ApkseenBloc extends HydratedBloc<ApkseenEvent, ApkseenState> {
   final ApkupdateRepository _repository;
@@ -30,11 +31,33 @@ class ApkseenBloc extends HydratedBloc<ApkseenEvent, ApkseenState> {
     debugPrint('_onCheckForUpdate Not Seen ${status.toJson()}');
   }
 
+  // FutureOr<void> _onUpdateSeenStatus(
+  //     UpdateSeenStatusEvent event, Emitter<ApkseenState> emit) async {
+  //   await _repository.updateSeenUpdateStatus(event.status);
+  //   debugPrint('onUpdateSeenStatus Not Seen ${event.status.toJson()}');
+  //   emit(ApkseenState(status: event.status));
+  // }
   FutureOr<void> _onUpdateSeenStatus(
-      UpdateSeenStatusEvent event, Emitter<ApkseenState> emit) async {
-    await _repository.updateSeenUpdateStatus(event.status);
-    emit(ApkseenState(status: event.status));
-    debugPrint('onUpdateSeenStatus Not Seen ${event.status.toJson()}');
+    UpdateSeenStatusEvent event,
+    Emitter<ApkseenState> emit,
+  ) async {
+    // Merge event.status with current state
+    Apkupdatestatus mergedStatus = Apkupdatestatus(
+      seen: event.status.seen ?? state.status.seen,
+      updated: event.status.updated ?? state.status.updated,
+      heversion: event.status.heversion ?? state.status.heversion,
+    );
+
+    await _repository.updateSeenUpdateStatus(mergedStatus);
+
+    debugPrint('onUpdateSeenStatus Not Seen ${mergedStatus.toJson()}');
+
+    // Use state.copyWith() to ensure that any other properties of the state (if any) remain unchanged
+    emit(state.copyWith(
+      seen: mergedStatus.seen,
+      updated: mergedStatus.updated,
+      heversion: mergedStatus.heversion,
+    ));
   }
 
   FutureOr<void> _onDeleteSeenStatusEvent(

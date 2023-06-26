@@ -5,6 +5,7 @@ import 'package:he/objects/blocs/apkupdate/bloc/apk_bloc.dart';
 import 'package:he/objects/blocs/henetwork/bloc/henetwork_bloc.dart';
 import 'package:he_api/he_api.dart';
 
+// @ Phila One
 class BannerUpdate extends StatelessWidget {
   final String userId;
   const BannerUpdate({
@@ -37,16 +38,31 @@ class BannerUpdate extends StatelessWidget {
               final appVersion = appCloudLocal.apkinfo;
               Map<String, dynamic> dataCloud =
                   logs.data() as Map<String, dynamic>;
-              // testBloc.apkBlocRepository.
               return BlocBuilder<ApkseenBloc, ApkseenState>(
                   buildWhen: (previous, current) => previous != current,
                   builder: (context, state) {
+                    final _apkseenBloc = BlocProvider.of<ApkseenBloc>(context);
                     if (state.status.seen == false &&
                         dataCloud['version'] != state.status.heversion) {
                       debugPrint(
                           "WIZY ${state.status.toJson()} and ${dataCloud['version']} ");
                       return AppVerView(
                           latestapk: logs, appversion: appVersion!);
+                    } else {
+                      double? cloudVersion =
+                          double.tryParse(dataCloud['version'] ?? '0.0');
+                      double? localVersion =
+                          double.tryParse(state.status.heversion ?? '0.0');
+
+                      if ((cloudVersion ?? 0.0) > (localVersion ?? 0.0) &&
+                          state.status.updated == true) {
+                        debugPrint(
+                            "PALAHXXX ${state.status.toJson()} and ${dataCloud['version']}");
+                        Apkupdatestatus updateStatus =
+                            const Apkupdatestatus(seen: false, updated: false);
+                        _apkseenBloc
+                            .add(UpdateSeenStatusEvent(status: updateStatus));
+                      }
                     }
                     debugPrint(
                         "WALAH ${state.status.toJson()} and ${dataCloud['version']}");
@@ -57,22 +73,5 @@ class BannerUpdate extends StatelessWidget {
     } else {
       return const SizedBox.shrink();
     }
-    // return BlocBuilder<ApkseenBloc, ApkseenState>(
-    //     buildWhen: (previous, current) => previous != current,
-    //     builder: (context, state) {
-    //       if (state.status.seen == false && state.status.updated == false) {
-    //         return AppUpdatActions(
-    //           userId: userId,
-    //         );
-    //       } else if (state.status.seen == true &&
-    //           state.status.updated == false) {
-    //         debugPrint("BannerUpdate seen=true and updated=false");
-    //         return const SizedBox.shrink();
-    //       }
-    //       //Njovu
-    //       // return AppUpdatActions(userId: userId,);
-    //       debugPrint("BannerUpdate seen=true and updated=true");
-    //       return const SizedBox.shrink();
-    //     });
   }
 }

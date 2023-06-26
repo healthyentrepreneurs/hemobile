@@ -53,14 +53,6 @@ class WorkManagerService {
     debugPrint("registerUploadDataTask task cancelled");
   }
 
-  // Future<void> cleanUploadedDataTaskFunc() async {
-  //   await Workmanager().registerOneOffTask('2', cleanUploadedDataTask,
-  //       inputData: <String, dynamic>{},
-  //       initialDelay: const Duration(seconds: 10),
-  //       tag: "registerCleanUploadedDataTask");
-  //   debugPrint("cleanUploadedDataTaskFunc task registered");
-  // }
-
   Future<void> cleanUploadedDataTaskFunc() async {
     await Workmanager().registerPeriodicTask(
       cleanUploadedDataTaskId, // task id

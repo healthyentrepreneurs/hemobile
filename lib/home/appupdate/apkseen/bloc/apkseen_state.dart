@@ -1,6 +1,5 @@
 part of 'apkseen_bloc.dart';
 
-//Temp
 class ApkseenState extends Equatable {
   final Apkupdatestatus status;
   const ApkseenState({required this.status});

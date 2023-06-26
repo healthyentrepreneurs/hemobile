@@ -55,8 +55,14 @@ class AppudateBloc extends Bloc<AppUpdateEvent, AppudateState> {
             checkDownLoadState(taskSnapshot, emit) ??
             state, // handle Unhandled Exception: type 'Null' is not a subtype of type 'AppudateState'
       );
-    } on FirebaseException catch (e){
-      emit(AppudateState.error(ApkDownloadFailure(e.toString())));
+    } on FirebaseException catch (e) {
+      if (e.code == '404') {
+        emit(AppudateState.error(ApkDownloadFailure(
+            "The file doesn't exist at the specified location.")));
+      } else {
+        emit(AppudateState.error(ApkDownloadFailure(e.toString())));
+      }
+      // emit(AppudateState.error(ApkDownloadFailure(e.toString())));
     }
   }
 }
