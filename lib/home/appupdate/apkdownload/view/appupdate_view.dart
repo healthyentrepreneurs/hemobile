@@ -4,11 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/helper/toolutils.dart';
 import 'package:he/home/appupdate/apkdownload/apkdownload.dart';
 import 'package:he/home/appupdate/apkseen/apkseen.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:he_api/he_api.dart';
 
 class AppVerView extends StatelessWidget {
   final DocumentSnapshot latestapk;
-  final PackageInfo appversion;
+  final Apkupdatestatus appversion;
   const AppVerView(
       {Key? key, required this.latestapk, required this.appversion})
       : super(key: key);

@@ -11,7 +11,8 @@ class ApkLoadingState extends ApkState {
 
 class ApkFetchedState extends ApkState {
   final DocumentSnapshot snapshot;
-  final PackageInfo? apkinfo;
+  // final PackageInfo? apkinfo;
+  final Apkupdatestatus? apkinfo;
   const ApkFetchedState(this.snapshot, this.apkinfo);
   @override
   List<Object> get props => [snapshot, apkinfo!];

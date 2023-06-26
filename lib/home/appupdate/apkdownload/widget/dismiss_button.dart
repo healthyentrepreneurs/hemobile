@@ -7,8 +7,7 @@ import 'package:he_storage/he_storage.dart';
 import 'package:theme_locale_repo/generated/l10n.dart';
 
 class DismissButton extends StatelessWidget {
-  const DismissButton({Key? key})
-      : super(key: key);
+  const DismissButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,11 +21,13 @@ class DismissButton extends StatelessWidget {
       onPressed: dataBloc.state.gisButtonDisabled
           ? null
           : () async {
-        // jejeBloc.add(event);
-        Apkupdatestatus updateStatus=const Apkupdatestatus(seen: true, updated: false);
-        apkUpdateBloc.add(UpdateSeenStatusEvent(status: updateStatus));
-        debugPrint("Dismissed Now");
-      },
+              // jejeBloc.add(event);
+              Apkupdatestatus updateStatus =
+                  const Apkupdatestatus(seen: true, updated: false);
+              apkUpdateBloc.add(UpdateSeenStatusEvent(status: updateStatus));
+              debugPrint(
+                  "Dismissed Now dataBloc ${apkUpdateBloc.state.status.toJson()}");
+            },
       child: const Text(
         'DISMISS',
         style: TextStyle(color: ToolUtils.colorGreenOne),

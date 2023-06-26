@@ -1,15 +1,12 @@
 import 'dart:async';
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get_it/get_it.dart';
-import 'package:he/firebase_options.dart';
 import 'package:he/service/service.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -21,7 +18,7 @@ import 'injection.dart';
 // chrome://inspect/#devices
 // https://github.com/pichillilorenzo/flutter_browser_app/blob/master/lib/custom_image.dart
 // WebStorageManager webStorageManager = WebStorageManager.instance();
-const kWebRecaptchaSiteKey = '6Lemcn0dAAAAABLkf6aiiHvpGD6x-zF3nOSDU2M8';
+// const kWebRecaptchaSiteKey = '6Lemcn0dAAAAABLkf6aiiHvpGD6x-zF3nOSDU2M8';
 Future<void> main() async {
   FlutterError.onError = (FlutterErrorDetails details) async {
     final exception = details.exception;
@@ -36,18 +33,16 @@ Future<void> main() async {
 
   runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    // Activate app check after initialization, but before
-    // usage of any Firebase services.
-    await FirebaseAppCheck.instance
-    // Your personal reCaptcha public key goes here:
-        .activate(
-      androidProvider: AndroidProvider.debug,
-      appleProvider: AppleProvider.debug,
-      webRecaptchaSiteKey: kWebRecaptchaSiteKey,
-    );
+    // await Firebase.initializeApp(
+    //   options: DefaultFirebaseOptions.currentPlatform,
+    // );
+    // await FirebaseAppCheck.instance
+    //     // Your personal reCaptcha public key goes here:
+    //     .activate(
+    //   androidProvider: AndroidProvider.debug,
+    //   appleProvider: AppleProvider.debug,
+    //   webRecaptchaSiteKey: kWebRecaptchaSiteKey,
+    // );
     await Permission.camera.request();
     await Permission.microphone.request();
     await Permission.storage.request();

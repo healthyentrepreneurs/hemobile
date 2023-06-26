@@ -1,8 +1,9 @@
 part of 'apkseen_bloc.dart';
 
-class ApkseenState {
+//Temp
+class ApkseenState extends Equatable {
   final Apkupdatestatus status;
-  ApkseenState({required this.status});
+  const ApkseenState({required this.status});
 
   ApkseenState copyWith({
     bool? seen,
@@ -22,7 +23,7 @@ class ApkseenState {
         status: Apkupdatestatus(
             seen: json['seen'] as bool,
             updated: json['updated'] as bool,
-            heversion: json['heversion'] as String));
+            heversion: json['heversion'] as String? ?? '0'));
   }
   Map<String, dynamic> toJson() {
     return {
@@ -31,4 +32,7 @@ class ApkseenState {
       'heversion': status.heversion,
     };
   }
+
+  @override
+  List<Object?> get props => [status];
 }

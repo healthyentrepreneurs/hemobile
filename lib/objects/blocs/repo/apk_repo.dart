@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
+import 'package:he_storage/he_storage.dart';
 import 'package:injectable/injectable.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 import 'impl/iapk_repo.dart';
 import 'impl/repo_failure.dart';
@@ -11,8 +11,8 @@ import 'impl/repo_failure.dart';
 @LazySingleton(as: IApkRepository)
 class ApkRepository implements IApkRepository {
   final FirebaseFirestore _firestore;
-
-  ApkRepository(this._firestore);
+  final RxStgApkUpdateApi _rxStgApkUpdateApi;
+  ApkRepository(this._firestore, this._rxStgApkUpdateApi);
   @override
   Stream<Either<Failure, DocumentSnapshot>> getLatestApk() {
     try {
@@ -33,8 +33,9 @@ class ApkRepository implements IApkRepository {
   }
 
   @override
-  Future<PackageInfo?> getAppApk() async {
-    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  Future<Apkupdatestatus?> getAppApk() async {
+    final Apkupdatestatus packageInfo =
+        await _rxStgApkUpdateApi.getSeenUpdateStatus();
     return packageInfo;
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 const _avatarSize = 48.0;
 
+// @Phila Temp
 class Avatar extends StatelessWidget {
   const Avatar({Key? key, this.photo}) : super(key: key);
 

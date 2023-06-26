@@ -42,25 +42,14 @@ class BannerUpdate extends StatelessWidget {
                   buildWhen: (previous, current) => previous != current,
                   builder: (context, state) {
                     if (state.status.seen == false &&
-                            state.status.updated == false &&
-                            state.status.seen == false ||
                         dataCloud['version'] != state.status.heversion) {
                       debugPrint(
-                          "WIZY ${state.status.heversion} and ${dataCloud['version']}");
+                          "WIZY ${state.status.toJson()} and ${dataCloud['version']} ");
                       return AppVerView(
                           latestapk: logs, appversion: appVersion!);
-                      // return AppUpdatActions(
-                      //   userId: userId,
-                      // );
-                    } else if (state.status.seen == true &&
-                        state.status.updated == false) {
-                      debugPrint("BannerUpdate seen=true and updated=false");
-                      return const SizedBox.shrink();
                     }
-                    // return AppUpdatActions(userId: userId,);
                     debugPrint(
-                        "WALAH ${state.status.heversion} and ${dataCloud['version']}");
-                    debugPrint("BannerUpdate seen=true and updated=true");
+                        "WALAH ${state.status.toJson()} and ${dataCloud['version']}");
                     return const SizedBox.shrink();
                   });
             }

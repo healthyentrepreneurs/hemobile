@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:he/helper/toolutils.dart';
 import 'package:he/home/home.dart';
 import 'package:he/langhe/langhe.dart';
 import 'package:theme_locale_repo/generated/l10n.dart';
-import 'package:theme_locale_repo/theme_locale_repo.dart';
 
 class LangsPage extends StatelessWidget {
   const LangsPage({Key? key}) : super(key: key);

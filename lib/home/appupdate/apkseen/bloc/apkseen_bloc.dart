@@ -14,9 +14,9 @@ class ApkseenBloc extends HydratedBloc<ApkseenEvent, ApkseenState> {
   final ApkupdateRepository _repository;
   ApkseenBloc({required ApkupdateRepository repository})
       : _repository = repository,
-        super(ApkseenState(
-            status: const Apkupdatestatus(
-                seen: false, updated: false, heversion: ''))) {
+        super(const ApkseenState(
+            status:
+                Apkupdatestatus(seen: false, updated: false, heversion: ''))) {
     on<CheckForUpdateEvent>(_onCheckForUpdate);
     on<UpdateSeenStatusEvent>(_onUpdateSeenStatus);
     on<DeleteSeenStatusEvent>(_onDeleteSeenStatusEvent);
@@ -43,16 +43,15 @@ class ApkseenBloc extends HydratedBloc<ApkseenEvent, ApkseenState> {
     final status = await _repository.getSeenUpdateStatus();
     debugPrint('Before onDeleteSeenStatusEvent Not Seen ${status.toJson()}');
     await _repository.deleteSeenUpdateStatus();
-    emit(ApkseenState(
-        status:
-            const Apkupdatestatus(seen: false, updated: false, heversion: '')));
+    emit(const ApkseenState(
+        status: Apkupdatestatus(seen: false, updated: false, heversion: '')));
     debugPrint(
         'After onDeleteSeenStatusEvent Not Seen ${state.status.toJson()}');
   }
 
   FutureOr<void> _onAppUpdatedStatusEvent(
       AppUpdatedStatusEvent event, Emitter<ApkseenState> emit) {
-    emit(state.copyWith(updated: true, seen: true,heversion: event.heverion));
+    emit(state.copyWith(updated: true, seen: true, heversion: event.heverion));
   }
 
   @override

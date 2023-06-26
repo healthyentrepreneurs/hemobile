@@ -5,10 +5,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:he/objects/blocs/repo/impl/iapk_repo.dart';
+import 'package:he/objects/blocs/repo/impl/repo_failure.dart';
+import 'package:he_api/he_api.dart';
 import 'package:injectable/injectable.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-
-import '../../repo/impl/repo_failure.dart';
 
 part 'apk_event.dart';
 part 'apk_state.dart';

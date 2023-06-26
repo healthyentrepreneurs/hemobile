@@ -44,8 +44,8 @@ class _LocalSyncPageState extends State {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 50.0),
-                Text("@reportMessage",
-                    style: const TextStyle(
+                const Text("@reportMessage",
+                    style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 17,
                         color: Colors.orange)),

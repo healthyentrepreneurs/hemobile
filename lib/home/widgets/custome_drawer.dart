@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:he/home/appupdate/apkseen/bloc/apkseen_bloc.dart';
 import 'package:he/home/home.dart';
 import 'package:he/langhe/langhe.dart';
+import 'package:he/objects/blocs/apkupdate/bloc/apk_bloc.dart';
 import 'package:he/objects/blocs/repo/fofiperm_repo.dart';
 import 'package:he_api/he_api.dart';
 import 'package:theme_locale_repo/generated/l10n.dart';
@@ -23,12 +24,14 @@ class CustomDrawer extends StatefulWidget {
 class _CustomDrawer extends State<CustomDrawer> {
   @override
   Widget build(BuildContext context) {
-    final apkUpdateBloc = BlocProvider.of<ApkseenBloc>(context);
     final henetworkstate = context.select((HenetworkBloc bloc) => bloc.state);
     final FoFiRepository _fofi = FoFiRepository();
-    // final textTheme = Theme.of(context).textTheme;
-    // final apkSceenState =
-    //     context.select((ApkseenBloc bloc) => bloc.state.status);
+    final appCloudLocal =
+        context.select((ApkBloc bloc) => bloc.state) as ApkFetchedState;
+    Map<String, dynamic> dataCloudApk =
+        appCloudLocal.snapshot.data() as Map<String, dynamic>;
+    debugPrint("CheckInternet ${henetworkstate.gstatus}");
+    final _apkUpdateBloc = context.watch<ApkseenBloc>();
     final s = S.of(context);
     return Drawer(
       child: Container(
@@ -68,24 +71,7 @@ class _CustomDrawer extends State<CustomDrawer> {
                           ),
                         ),
                       ],
-                    )
-
-                    //   Column(
-                    //   children: [
-                    //     Avatar(
-                    //         photo: widget.user
-                    //             .profileimageurlsmall), //Avatar(photo: widget.user.profileimageurlsmall)
-                    //     const SizedBox(
-                    //       height: 10,
-                    //     ),
-                    //     Text(widget.user.firstname ?? '',
-                    //         style: const TextStyle(
-                    //             color: ToolUtils.whiteColor,
-                    //             fontSize: 20,
-                    //             fontWeight: FontWeight.bold)),
-                    //   ],
-                    // )
-                    ,
+                    ),
                   )
                 ]),
             Expanded(
@@ -196,10 +182,11 @@ class _CustomDrawer extends State<CustomDrawer> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
-                        DrawerAppVersionWidget(
-                            heversion: apkUpdateBloc.state.status.heversion!),
-                        if (apkUpdateBloc.state.status.seen &&
-                            apkUpdateBloc.state.status.updated == false) ...[
+                        const DrawerAppVersionWidget(),
+                        // _apkUpdateBloc.state.status.updated == false
+                        if (_apkUpdateBloc.state.status.seen == true &&
+                            dataCloudApk['version'] !=
+                                _apkUpdateBloc.state.status.heversion)
                           IconButton(
                             icon: const Icon(
                               Icons.info_rounded,
@@ -207,12 +194,18 @@ class _CustomDrawer extends State<CustomDrawer> {
                             ),
                             tooltip: 'Your Application needs Update!',
                             onPressed: () {
-                              apkUpdateBloc.add(DeleteSeenStatusEvent());
-                              debugPrint(
-                                  "Mama Jaja ${apkUpdateBloc.state.status.seen} ");
+                              _apkUpdateBloc.add(
+                                const UpdateSeenStatusEvent(
+                                  status: Apkupdatestatus(
+                                    seen: false,
+                                    updated: false,
+                                  ),
+                                ),
+                              );
                             },
                           )
-                        ],
+                        else
+                          const SizedBox.shrink(),
                         IconButton(
                           icon: const Icon(
                             Icons.logout_sharp,

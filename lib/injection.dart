@@ -22,28 +22,28 @@ final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 Future<void> configureInjections(GetIt getIt) async {
   final injectableModule = AppModuleImp();
   ObjectBoxService objectbox = await injectableModule.objectBoxService;
-  getIt.registerLazySingleton<ApkupdateRepository>(() => ApkupdateRepository(
-          apkupdateApi: RxStgApkUpdateApi(
+
+  getIt.registerLazySingleton<RxStgApkUpdateApi>(() => RxStgApkUpdateApi(
         rxPrefs: injectableModule.getrxsharedprefrence,
-      )));
+      ));
+
+  getIt.registerLazySingleton<ApkupdateRepository>(() => ApkupdateRepository(
+        apkupdateApi: getIt<RxStgApkUpdateApi>(),
+      ));
 
   getIt.registerLazySingleton<HeAuthRepository>(() => HeAuthRepository(
       rxPrefs: injectableModule.getrxsharedprefrence,
       firebaseAuth: injectableModule.firebaseAuth));
 
-  getIt.registerLazySingleton<ApkRepository>(
-      () => ApkRepository(injectableModule.firestore));
+  getIt.registerLazySingleton<ApkRepository>(() => ApkRepository(
+        injectableModule.firestore,
+        getIt<RxStgApkUpdateApi>(),
+      ));
 
   getIt.registerSingleton<DatabaseRepository>(
       DatabaseRepository(injectableModule.firestore, objectbox));
-  // getIt.registerLazySingleton<DatabaseRepository>(
-  //     () => DatabaseRepository(injectableModule.firestore, objectbox));
   getIt.registerSingleton<WorkManagerService>(WorkManagerService());
 
   getIt.registerLazySingleton<LclRxStgUpdateUploadApi>(() =>
       LclRxStgUpdateUploadApi(rxPrefs: injectableModule.getrxsharedprefrence));
-
-  // getIt.registerLazySingleton<FoFiRepository>(() => FoFiRepository(
-  //     directory: injectableModule.getdirectory,
-  //     externalDownlodPath: injectableModule.getexternaldownlodpath));
 }

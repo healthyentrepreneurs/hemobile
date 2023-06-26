@@ -1,5 +1,3 @@
-// apkupdate_repo
-
 import 'package:he_storage/he_storage.dart';
 import 'package:injectable/injectable.dart';
 
