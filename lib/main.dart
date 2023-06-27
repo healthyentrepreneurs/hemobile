@@ -33,19 +33,23 @@ Future<void> main() async {
 
   runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
-    // await Firebase.initializeApp(
-    //   options: DefaultFirebaseOptions.currentPlatform,
-    // );
-    // await FirebaseAppCheck.instance
-    //     // Your personal reCaptcha public key goes here:
-    //     .activate(
-    //   androidProvider: AndroidProvider.debug,
-    //   appleProvider: AppleProvider.debug,
-    //   webRecaptchaSiteKey: kWebRecaptchaSiteKey,
-    // );
-    await Permission.camera.request();
-    await Permission.microphone.request();
-    await Permission.storage.request();
+    // await Permission.camera.request();
+    // await Permission.microphone.request();
+    // await Permission.storage.request();
+    PermissionStatus cameraStatus = await Permission.camera.request();
+    if (!cameraStatus.isGranted) {
+      debugPrint("Camera permission not granted");
+    }
+
+    PermissionStatus microphoneStatus = await Permission.microphone.request();
+    if (!microphoneStatus.isGranted) {
+      debugPrint("Microphone permission not granted");
+    }
+
+    PermissionStatus storageStatus = await Permission.storage.request();
+    if (!storageStatus.isGranted) {
+      debugPrint("Storage permission not granted");
+    }
     await AndroidAlarmManager.initialize();
     await configureDependencies();
     await configureInjections(getIt);

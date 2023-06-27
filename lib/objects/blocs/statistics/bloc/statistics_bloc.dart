@@ -56,13 +56,25 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     });
   }
 
+  // void _onLoadStateEvent(
+  //     LoadStateEvent event, Emitter<StatisticsState> emit) async {
+  //   final result = await _databaseRepository.loadState();
+  //   debugPrint("_onLoadStateEvent@uploadData $result ");
+  //   // {id: 1, uploadProgress: 0.0, isUploadingData: false, backupAnimation: false, surveyAnimation: false, booksAnimation: false}
+  //   emit(state.copyWith(
+  //       backupdataModel: BackupStateDataModel.fromJson(result!)));
+  // }
+
   void _onLoadStateEvent(
       LoadStateEvent event, Emitter<StatisticsState> emit) async {
     final result = await _databaseRepository.loadState();
     debugPrint("_onLoadStateEvent@uploadData $result ");
-    // {id: 1, uploadProgress: 0.0, isUploadingData: false, backupAnimation: false, surveyAnimation: false, booksAnimation: false}
-    emit(state.copyWith(
-        backupdataModel: BackupStateDataModel.fromJson(result!)));
+
+    // Check if result is not null before emitting state
+    if (result != null) {
+      emit(state.copyWith(
+          backupdataModel: BackupStateDataModel.fromJson(result)));
+    }
   }
 
   _onUploadDataEvent(UploadData event, Emitter<StatisticsState> emit) async {

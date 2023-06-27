@@ -62,51 +62,122 @@ class DatabaseBoxOperations {
   }
 
   // ## BACKUP STATUS LOCAL
+  // Future<void> uploadDataOps() async {
+  //   List<SurveyDataModel> pendingSurveys =
+  //       await _objectService.getSurveysPendingStatusCTimeLimit(true);
+  //   debugPrint("Pending Surveys: ${pendingSurveys.length}");
+  //
+  //   List<BookDataModel> pendingBookViews =
+  //       await _objectService.getBookViewsPendingStatusCTimeLimit(true);
+  //   debugPrint("Pending Book Views: ${pendingBookViews.length}");
+  //
+  //   BackupStateDataModel currentBackupState =
+  //       BackupStateDataModel.defaultInstance();
+  //   final newState = currentBackupState.copyWith(
+  //     isUploadingData: true,
+  //     backupAnimation: true,
+  //     surveyAnimation: true,
+  //     booksAnimation: false,
+  //   );
+  //   _objectService.saveBackupState(backupdatamodel: newState);
+  //   await savePendingItemsToFirestoreAndSetNotPending(
+  //       pendingSurveys, pendingBookViews, surveyUpdateState, bookUpdateState);
+  // }
   Future<void> uploadDataOps() async {
-    BackupStateDataModel currentBackupState =
-        BackupStateDataModel.defaultInstance();
-    final newState = currentBackupState.copyWith(
-      isUploadingData: true,
-      backupAnimation: true,
-      surveyAnimation: true,
-      booksAnimation: false,
-    );
-    _objectService.saveBackupState(backupdatamodel: newState);
-    await savePendingItemsToFirestoreAndSetNotPending();
-  }
-
-  Future<void> savePendingItemsToFirestoreAndSetNotPending() async {
-    bool hasFailure = false;
     List<SurveyDataModel> pendingSurveys =
         await _objectService.getSurveysPendingStatusCTimeLimit(true);
+    debugPrint(
+        "Pending Surveys: ${pendingSurveys.length} is Empty ? ${pendingSurveys.isNotEmpty}");
+
     List<BookDataModel> pendingBookViews =
         await _objectService.getBookViewsPendingStatusCTimeLimit(true);
+    debugPrint(
+        "Pending Book Views: ${pendingBookViews.length} is Empty ? ${pendingBookViews.isNotEmpty}");
 
+    bool surveyUpdateState = true;
+    bool bookUpdateState = true;
+
+    BackupStateDataModel currentBackupState =
+        BackupStateDataModel.defaultInstance();
+
+    if (pendingSurveys.length == 0 && pendingBookViews.length > 0) {
+      final newState = currentBackupState.copyWith(
+        isUploadingData: true,
+        backupAnimation: true,
+        surveyAnimation: false,
+        booksAnimation: true,
+      );
+      _objectService.saveBackupState(backupdatamodel: newState);
+      surveyUpdateState = false;
+    } else if (pendingSurveys.length > 0 && pendingBookViews.length == 0) {
+      final newState = currentBackupState.copyWith(
+        isUploadingData: true,
+        backupAnimation: true,
+        surveyAnimation: true,
+        booksAnimation: false,
+      );
+      _objectService.saveBackupState(backupdatamodel: newState);
+      bookUpdateState = false;
+    } else if (pendingSurveys.length > 0 && pendingBookViews.length > 0) {
+      final newState = currentBackupState.copyWith(
+        isUploadingData: true,
+        backupAnimation: true,
+        surveyAnimation: true,
+        booksAnimation: false,
+      );
+      _objectService.saveBackupState(backupdatamodel: newState);
+    } else {
+      final newState = currentBackupState.copyWith(
+        isUploadingData: false,
+        backupAnimation: false,
+        surveyAnimation: false,
+        booksAnimation: false,
+      );
+      _objectService.saveBackupState(backupdatamodel: newState);
+      surveyUpdateState = false;
+      bookUpdateState = false;
+    }
+
+    await savePendingItemsToFirestoreAndSetNotPending(
+        pendingSurveys, pendingBookViews, surveyUpdateState, bookUpdateState);
+  }
+
+  Future<void> savePendingItemsToFirestoreAndSetNotPending(
+      List<SurveyDataModel> pendingSurveys,
+      List<BookDataModel> pendingBookViews,
+      bool surveyUpdateState,
+      bool bookUpdateState) async {
+    bool hasFailure = false;
     int totalPendingSurveys = pendingSurveys.length;
     int totalPendingBookViews = pendingBookViews.length;
+
     int totalPendingItems = totalPendingSurveys + totalPendingBookViews;
 
     int countingTract = 0;
     int? uploadedSurveys;
     int? uploadedBookViews;
     final batch = _firestore.batch();
-    for (SurveyDataModel survey in pendingSurveys) {
-      try {
-        _saveSurveyToFirestore(survey: survey, batch: batch);
-        survey.isPending = false;
-        countingTract++;
-        uploadedSurveys = --totalPendingSurveys;
-        await _objectService.saveSurveyAsync(survey, updateIfExists: true);
-        await updateProgress(uploadedSurveys, uploadedBookViews, countingTract,
-            totalPendingItems);
-      } catch (e) {
-        hasFailure = true;
-        debugPrint("Failed to add survey to batch: ${e.toString()}");
-        break;
+
+    if (surveyUpdateState) {
+      for (SurveyDataModel survey in pendingSurveys) {
+        try {
+          _saveSurveyToFirestore(survey: survey, batch: batch);
+          survey.isPending = false;
+          countingTract++;
+          uploadedSurveys = --totalPendingSurveys;
+          await _objectService.saveSurveyAsync(survey, updateIfExists: true);
+          await updateProgress(uploadedSurveys, uploadedBookViews,
+              countingTract, totalPendingItems);
+        } catch (e) {
+          hasFailure = true;
+          debugPrint("Failed to add survey to batch: ${e.toString()}");
+          break;
+        }
       }
+      debugPrint("Total uploaded surveys simulated: $uploadedSurveys");
     }
-    debugPrint("Total uploaded surveys simulated: $uploadedSurveys");
-    if (!hasFailure) {
+
+    if (!hasFailure && bookUpdateState) {
       // Save book views in a batch
       for (BookDataModel bookview in pendingBookViews) {
         try {
@@ -124,6 +195,7 @@ class DatabaseBoxOperations {
         }
       }
     }
+
     if (!hasFailure) {
       try {
         await batch.commit();
@@ -135,6 +207,71 @@ class DatabaseBoxOperations {
     }
     debugPrint("Total uploaded BookViews simulated: $uploadedBookViews");
   }
+
+  // Future<void> savePendingItemsToFirestoreAndSetNotPending(
+  //     List<SurveyDataModel> pendingSurveys,
+  //     List<BookDataModel> pendingBookViews,
+  //     bool surveyUpdateState,
+  //     bool bookUpdateState) async {
+  //   bool hasFailure = false;
+  //   int totalPendingSurveys = pendingSurveys.length;
+  //   debugPrint("Total Pending Surveys: $totalPendingSurveys");
+  //
+  //   int totalPendingBookViews = pendingBookViews.length;
+  //   debugPrint("Total Pending Book Views: $totalPendingBookViews");
+  //
+  //   int totalPendingItems = totalPendingSurveys + totalPendingBookViews;
+  //   debugPrint("Total Pending Items: $totalPendingItems");
+  //
+  //   int countingTract = 0;
+  //   int? uploadedSurveys;
+  //   int? uploadedBookViews;
+  //   final batch = _firestore.batch();
+  //   for (SurveyDataModel survey in pendingSurveys) {
+  //     try {
+  //       _saveSurveyToFirestore(survey: survey, batch: batch);
+  //       survey.isPending = false;
+  //       countingTract++;
+  //       uploadedSurveys = --totalPendingSurveys;
+  //       await _objectService.saveSurveyAsync(survey, updateIfExists: true);
+  //       await updateProgress(uploadedSurveys, uploadedBookViews, countingTract,
+  //           totalPendingItems);
+  //     } catch (e) {
+  //       hasFailure = true;
+  //       debugPrint("Failed to add survey to batch: ${e.toString()}");
+  //       break;
+  //     }
+  //   }
+  //   debugPrint("Total uploaded surveys simulated: $uploadedSurveys");
+  //   if (!hasFailure) {
+  //     // Save book views in a batch
+  //     for (BookDataModel bookview in pendingBookViews) {
+  //       try {
+  //         _saveBookViewsToFirestore(bookviews: bookview, batch: batch);
+  //         bookview.isPending = false;
+  //         countingTract++;
+  //         uploadedBookViews = --totalPendingBookViews;
+  //         await _objectService.saveBookAsync(bookview, updateIfExists: true);
+  //         await updateProgress(uploadedSurveys, uploadedBookViews,
+  //             countingTract, totalPendingItems);
+  //       } catch (e) {
+  //         hasFailure = true;
+  //         debugPrint("Failed to add book view to batch: ${e.toString()}");
+  //         break;
+  //       }
+  //     }
+  //   }
+  //   if (!hasFailure) {
+  //     try {
+  //       await batch.commit();
+  //       debugPrint("Batch write successful");
+  //     } catch (e) {
+  //       hasFailure = true;
+  //       debugPrint("Batch write failed: ${e.toString()}");
+  //     }
+  //   }
+  //   debugPrint("Total uploaded BookViews simulated: $uploadedBookViews");
+  // }
 
   Future<void> updateProgress(int? uploadedSurveys, int? uploadedBookViews,
       int countingTract, int totalPendingItems) async {
@@ -166,10 +303,10 @@ class DatabaseBoxOperations {
   }
 
   Future<Map<String, dynamic>?> loadState() async {
-    final data = backupBox.query().build().findFirst();
-    var nana =
-        data?.toJson() ?? BackupStateDataModel.defaultInstance().toJson();
-    // debugPrint('@loadState $nana');
+    final data = _objectService.backupBox.query().build().findFirst();
+    // ?? BackupStateDataModel.defaultInstance().toJson()
+    var nana = data?.toJson();
+    debugPrint('@loadState $nana');
     return nana;
     // return BackupStateDataModel.defaultInstance().toJson();
   }
