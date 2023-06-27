@@ -1,4 +1,3 @@
-
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,7 +24,7 @@ class HeIcon extends StatelessWidget {
               borderRadius: BorderRadius.circular(30.0),
               child: getNetworkImage(photo),
             )
-          : heIconOffline(photo!, fofi),
+          : heIconOffline(photo!, fofi, width: 50, height: 50, radius: 25),
     );
   }
 

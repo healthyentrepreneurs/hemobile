@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:he/home/home.dart';
+import 'package:he/injection.dart';
 import 'package:he/service/work_manager_service.dart';
+import 'package:he_storage/he_storage.dart';
 import 'package:intl/intl.dart';
 
 import '../../objects/blocs/blocs.dart';
@@ -69,7 +71,7 @@ class _BackupPageState extends State<BackupPage>
     //     context.watch<DatabaseBloc>().state.backupdataModel?.isUploadingData;
     // double? uploadProgress =
     //     context.watch<DatabaseBloc>().state.backupdataModel?.uploadProgress;
-
+    final henetworkstate = context.select((HenetworkBloc bloc) => bloc.state);
     bool? isUploadingData = context.select(
         (StatisticsBloc bloc) => bloc.state.backupdataModel?.isUploadingData);
     double? uploadProgress = context.select(
@@ -139,39 +141,12 @@ class _BackupPageState extends State<BackupPage>
                   )
                 ],
               ),
-              _buildProgressWidget(uploadProgress, isUploadingData),
+              _buildProgressWidget(
+                  uploadProgress, isUploadingData, henetworkstate),
               SingleSection(
                 title: "Data Statistics",
                 children: [_buildSurveyIconWidget(), _buildBookIconWidget()],
               ),
-              // SingleSection(
-              //   title: "Control Animations",
-              //   children: [
-              //     Row(
-              //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              //       children: [
-              //         ElevatedButton(
-              //           onPressed: () {
-              //             _uploadDataTest();
-              //           },
-              //           child: const Text('StartB'),
-              //         ),
-              //         ElevatedButton(
-              //           onPressed: () {
-              //             _cleanDataTest();
-              //           },
-              //           child: const Text('CleanB'),
-              //         ),
-              //         ElevatedButton(
-              //           onPressed: () {
-              //             _generateDataTest();
-              //           },
-              //           child: const Text('Generate D'),
-              //         ),
-              //       ],
-              //     ),
-              //   ],
-              // )
             ],
           ),
         ),
@@ -182,11 +157,22 @@ class _BackupPageState extends State<BackupPage>
   @override
   bool get wantKeepAlive => true;
 
-  _uploadData() async {
+  _uploadData(HenetworkState henetworkstate) async {
     if (!mounted) return;
     debugPrint('@_uploadData isUploadingData');
-    final workManagerService = GetIt.I<WorkManagerService>();
-    await workManagerService.registerUploadDataTask();
+    // final henetworkstate = context.select((HenetworkBloc bloc) => bloc.state);
+    if (henetworkstate.gstatus == HenetworkStatus.wifiNetwork) {
+      final workManagerService = GetIt.I<WorkManagerService>();
+      await workManagerService.registerUploadDataTask();
+    } else {
+      final ScaffoldMessengerState _scaffold = scaffoldKey.currentState!;
+      _scaffold.showSnackBar(
+        const SnackBar(
+          content: Text("No internet connection"),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
     // _taskRegistered = true;
     // final databaseRepo = GetIt.I<DatabaseRepository>();
     // databaseRepo.uploadData();
@@ -223,7 +209,8 @@ class _BackupPageState extends State<BackupPage>
     }
   }
 
-  Widget _buildProgressWidget(uploadProgress, isUploadingData) {
+  Widget _buildProgressWidget(
+      uploadProgress, isUploadingData, HenetworkState henetworkstate) {
     double _uploadProgress = uploadProgress ?? 0.0;
     bool isUploading = isUploadingData ?? false;
     return SingleSection(
@@ -236,7 +223,7 @@ class _BackupPageState extends State<BackupPage>
               )
             : InkWell(
                 onTap: () async {
-                  _uploadData();
+                  _uploadData(henetworkstate);
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 12.0),

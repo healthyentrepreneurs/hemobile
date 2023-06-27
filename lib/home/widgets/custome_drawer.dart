@@ -26,10 +26,6 @@ class _CustomDrawer extends State<CustomDrawer> {
   Widget build(BuildContext context) {
     final henetworkstate = context.select((HenetworkBloc bloc) => bloc.state);
     final FoFiRepository _fofi = FoFiRepository();
-    final appCloudLocal =
-        context.select((ApkBloc bloc) => bloc.state) as ApkFetchedState;
-    Map<String, dynamic> dataCloudApk =
-        appCloudLocal.snapshot.data() as Map<String, dynamic>;
     debugPrint("CheckInternet ${henetworkstate.gstatus}");
     final _apkUpdateBloc = context.watch<ApkseenBloc>();
     final s = S.of(context);
@@ -57,10 +53,7 @@ class _CustomDrawer extends State<CustomDrawer> {
                             HenetworkStatus.noInternet)
                           heIconOffline(
                               "/images/${widget.user.id}big_loginimage.png",
-                              _fofi,
-                              width: 50,
-                              height: 50,
-                              radius: 29.0),
+                              _fofi),
                         const SizedBox(height: 10),
                         Text(
                           widget.user.fullName ?? '',
@@ -183,29 +176,56 @@ class _CustomDrawer extends State<CustomDrawer> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
                         const DrawerAppVersionWidget(),
-                        // _apkUpdateBloc.state.status.updated == false
-                        if (_apkUpdateBloc.state.status.seen == true &&
-                            dataCloudApk['version'] !=
-                                _apkUpdateBloc.state.status.heversion)
-                          IconButton(
-                            icon: const Icon(
-                              Icons.info_rounded,
-                              color: ToolUtils.colorBlueOne,
-                            ),
-                            tooltip: 'Your Application needs Update!',
-                            onPressed: () {
-                              _apkUpdateBloc.add(
-                                const UpdateSeenStatusEvent(
-                                  status: Apkupdatestatus(
-                                    seen: false,
-                                    updated: false,
-                                  ),
+                        BlocBuilder<ApkBloc, ApkState>(
+                          builder: (context, state) {
+                            if (state is ApkFetchedState) {
+                              final appCloudLocal =
+                                  context.select((ApkBloc bloc) => bloc.state)
+                                      as ApkFetchedState;
+                              Map<String, dynamic> dataCloudApk =
+                                  appCloudLocal.snapshot.data()
+                                      as Map<String, dynamic>;
+                              bool showUpdateButton =
+                                  _apkUpdateBloc.state.status.seen == true &&
+                                      dataCloudApk['version'] !=
+                                          _apkUpdateBloc
+                                              .state.status.heversion &&
+                                      henetworkstate.gstatus ==
+                                          HenetworkStatus.wifiNetwork;
+
+                              return IconButton(
+                                icon: Icon(
+                                  Icons.info_rounded,
+                                  color: showUpdateButton
+                                      ? ToolUtils.colorBlueOne
+                                      : Colors.transparent,
                                 ),
+                                tooltip: 'Your Application needs Update!',
+                                onPressed: showUpdateButton
+                                    ? () {
+                                        _apkUpdateBloc.add(
+                                          const UpdateSeenStatusEvent(
+                                            status: Apkupdatestatus(
+                                              seen: false,
+                                              updated: false,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    : null,
                               );
-                            },
-                          )
-                        else
-                          const SizedBox.shrink(),
+                            } else {
+                              debugPrint("LUDACS");
+                              return IconButton(
+                                icon: Icon(
+                                  Icons.info_rounded,
+                                  color: Colors.transparent,
+                                ),
+                                onPressed: null,
+                              );
+                            }
+                          },
+                        ),
                         IconButton(
                           icon: const Icon(
                             Icons.logout_sharp,

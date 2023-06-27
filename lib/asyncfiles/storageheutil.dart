@@ -53,13 +53,19 @@ Either<bool, String> formatForBucket(String stringUrl, int changeType) {
   return Right(bucketUrl);
 }
 
-// Widget heIconOffline(String photo, FoFiRepository fofi) {
+// Widget heIconOffline(
+//   String photo,
+//   FoFiRepository fofi, {
+//   double width = 50,
+//   double height = 50,
+//   double radius = 25,
+// }) {
 //   try {
 //     Uint8List imageData = fofi.getLocalFileHeFileWalah(photo);
 //     return SizedBox(
 //       key: UniqueKey(),
-//       width: 50,
-//       height: 50,
+//       width: width,
+//       height: height,
 //       child: Stack(
 //         children: [
 //           Container(
@@ -70,7 +76,7 @@ Either<bool, String> formatForBucket(String stringUrl, int changeType) {
 //           ),
 //           Center(
 //             child: CircleAvatar(
-//               radius: 25,
+//               radius: radius,
 //               backgroundImage: MemoryImage(imageData),
 //             ),
 //           ),
@@ -79,19 +85,21 @@ Either<bool, String> formatForBucket(String stringUrl, int changeType) {
 //     );
 //   } catch (e) {
 //     debugPrint('Error loading local file: $e');
-//     return const CircleAvatar(
-//       radius: 25,
-//       child: Icon(Icons.broken_image),
+//     return CircleAvatar(
+//       radius: radius,
+//       child: const Icon(Icons.broken_image),
 //     );
 //   }
 // }
+const _avatarSize = 48.0;
+
 Widget heIconOffline(
-  String photo,
-  FoFiRepository fofi, {
-  double width = 50,
-  double height = 50,
-  double radius = 25,
-}) {
+    String photo,
+    FoFiRepository fofi, {
+      double width = _avatarSize * 2, // Match with the diameter of Avatar widget
+      double height = _avatarSize * 2, // Match with the diameter of Avatar widget
+      double radius = _avatarSize, // Match with the radius of Avatar widget
+    }) {
   try {
     Uint8List imageData = fofi.getLocalFileHeFileWalah(photo);
     return SizedBox(
