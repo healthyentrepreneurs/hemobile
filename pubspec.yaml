@@ -106,6 +106,7 @@ dependencies:
   android_alarm_manager_plus: ^2.1.2
   firebase_crashlytics: ^3.3.3
   firebase_app_check: ^0.1.4+3
+#  flutter_cache_manager: ^3.3.0
 
 dev_dependencies:
   bloc_test: ^9.1.0

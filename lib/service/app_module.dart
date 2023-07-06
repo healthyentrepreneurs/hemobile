@@ -31,8 +31,8 @@ abstract class AppModule {
   @preResolve
   Future<ObjectBoxService> get objectBoxService => ObjectBoxService.create();
 
-  @preResolve
-  Future<HydratedStorage> get hydratedBloc => setupHydratedBloc();
+  // @preResolve
+  // Future<HydratedStorage> get hydratedBloc => setupHydratedBloc();
 
   @lazySingleton
   @injectable

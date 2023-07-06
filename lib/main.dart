@@ -9,6 +9,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get_it/get_it.dart';
 import 'package:he/service/service.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:theme_locale_repo/theme_locale_repo.dart';
 import 'app/app.dart';
@@ -33,9 +34,11 @@ Future<void> main() async {
 
   runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
-    // await Permission.camera.request();
-    // await Permission.microphone.request();
-    // await Permission.storage.request();
+    HydratedBloc.storage = await HydratedStorage.build(
+      storageDirectory: kIsWeb
+          ? HydratedStorage.webStorageDirectory
+          : await getTemporaryDirectory(),
+    );
     PermissionStatus cameraStatus = await Permission.camera.request();
     if (!cameraStatus.isGranted) {
       debugPrint("Camera permission not granted");

@@ -25,8 +25,8 @@ class AppModuleImp extends AppModule {
   @override
   Future<ObjectBoxService> get objectBoxService => ObjectBoxService.create();
 
-  @override
-  Future<HydratedStorage> get hydratedBloc => setupHydratedBloc();
+  // @override
+  // Future<HydratedStorage> get hydratedBloc => setupHydratedBloc();
 
   @override
   RxSharedPreferences get getrxsharedprefrence =>
